@@ -42,7 +42,10 @@
       <span class="noc-track-badge">第一模块</span>
       <div class="noc-track-title">片上互连基础</div>
       <div class="noc-track-desc">
-        从共享总线瓶颈到片上网络架构。数据包（Packet）、微元（Flit）与物理传输单元（Phit）。存储转发、虚拟直通与虫洞交换（Wormhole）及基于信用（Credit）的流控机制。
+        从共享总线瓶颈到片上网络架构。数据包（Packet）、微元（Flit）与物理传输单元（Phit）。存储转发、虚拟直通与虫洞交换（Wormhole）、信用（Credit）回路与网络接口（NI）微架构。
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 包含 4 大交互式仿真器与计算器
       </div>
     </div>
     <a href="track1-fundamentals/index.md" class="noc-track-link">进入模块一 →</a>

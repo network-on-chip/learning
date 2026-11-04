@@ -127,6 +127,7 @@ nav:
       - "1.1 Why Network-on-Chip?": track1-fundamentals/01-why-noc.md
       - "1.2 Packets, Flits & Switching": track1-fundamentals/02-packet-switching-flits.md
       - "1.3 Flow Control & Credit Mechanism": track1-fundamentals/03-flow-control-credit.md
+      - "1.4 Network Interface & Packetization": track1-fundamentals/04-network-interface-packetization.md
   - "Track 2: Router Microarchitecture":
       - Overview: track2-router-architecture/index.md
       - "2.1 Canonical Router Pipeline": track2-router-architecture/01-pipeline-stages.md

@@ -45,7 +45,10 @@ Explore our structured learning pathways designed for undergraduate and graduate
       <span class="noc-track-badge">Track 1</span>
       <div class="noc-track-title">Interconnect Fundamentals</div>
       <div class="noc-track-desc">
-        Why shared buses failed. Packets, flits, and phits. Store-and-Forward vs Virtual Cut-Through vs Wormhole flow control and credit-based backpressure.
+        Why shared buses failed. Packets, flits, and phits. Store-and-Forward vs Virtual Cut-Through vs Wormhole switching, credit turnaround latency loops, and Network Interface (NI) AXI packetization.
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 4 Interactive Simulators &amp; Calculators
       </div>
     </div>
     <a href="track1-fundamentals/index.md" class="noc-track-link">Explore Track 1 →</a>
