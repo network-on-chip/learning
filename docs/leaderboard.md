@@ -10,6 +10,8 @@
     <a href="../quiz/" class="noc-sim-btn" style="text-decoration:none;">🎯 Take Certification Exam</a>
     <a href="../interactive/game/" class="noc-sim-btn" style="text-decoration:none; background:#ea580c;">👾 Play Deadlock Buster</a>
     <a href="../interactive/puzzle/" class="noc-sim-btn" style="text-decoration:none; background:#8b5cf6;">🧩 Packet Master Puzzle</a>
+    <a href="../interactive/hotspot/" class="noc-sim-btn" style="text-decoration:none; background:#ef4444;">🔥 Hotspot Hero</a>
+    <a href="../interactive/chiplet/" class="noc-sim-btn" style="text-decoration:none; background:#10b981;">🏗️ Chiplet Tycoon</a>
   </div>
 </div>
 
@@ -34,9 +36,11 @@ Verify any candidate's digital certificate hash against our public registry:
 <div style="display:flex; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap; align-items:center;">
   <label style="font-size:0.85rem; font-weight:700; color:var(--tcl-heading);">Filter Category:</label>
   <select id="leaderboardCategoryFilter" class="noc-sim-select" onchange="renderLeaderboardTable()">
-    <option value="all">All Submissions (Quiz &amp; Arcade)</option>
+    <option value="all">All Submissions (Quiz, Arcade &amp; Tycoon)</option>
     <option value="quiz">Architecture Certification (Quiz Only)</option>
     <option value="game">Deadlock Buster Arcade (Game Only)</option>
+    <option value="hotspot">Hotspot Hero (Thermal Defense)</option>
+    <option value="chiplet">Chiplet Tycoon (Multi-Die Architect)</option>
   </select>
 
   <label style="font-size:0.85rem; font-weight:600; margin-left:0.5rem; cursor:pointer; display:flex; align-items:center; gap:0.35rem;">
@@ -136,6 +140,28 @@ const DEFAULT_REGISTRY = [
     "date": "2026-11-04",
     "certId": "GAME-WAVE-5",
     "type": "game"
+  },
+  {
+    "rank": 7,
+    "name": "Dr. Alexei Morozov",
+    "org": "ETH Zurich Microelectronics",
+    "track": "Hotspot Hero (Wave 8)",
+    "score": 1850,
+    "accuracy": 78.5,
+    "date": "2026-11-04",
+    "certId": "HOTSPOT-WAVE-8",
+    "type": "hotspot"
+  },
+  {
+    "rank": 8,
+    "name": "Ananya Sharma",
+    "org": "TSMC Advanced Packaging Lab",
+    "track": "Chiplet Tycoon (Mission 5)",
+    "score": 1720,
+    "accuracy": 3.45,
+    "date": "2026-11-04",
+    "certId": "CHIPLET-M5-35",
+    "type": "chiplet"
   }
 ];
 let liveGitHubEntries = [];
@@ -225,6 +251,30 @@ async function fetchLiveGitHubIssues() {
               type: "game",
               issueUrl: issue.html_url
             });
+          } else if (itemType === "hotspot") {
+            liveGitHubEntries.push({
+              name: payload.player || payload.name || "Thermal Defender",
+              org: payload.org || "Silicon Lab",
+              track: "Hotspot Hero (Wave " + (payload.wave || 1) + ")",
+              score: Number(payload.score) || 0,
+              accuracy: Number(payload.peakTemp) || 45,
+              certId: "HOTSPOT-WAVE-" + (payload.wave || 1),
+              date: payload.date || (issue.created_at || "").slice(0, 10),
+              type: "hotspot",
+              issueUrl: issue.html_url
+            });
+          } else if (itemType === "chiplet") {
+            liveGitHubEntries.push({
+              name: payload.player || payload.name || "Packaging Guru",
+              org: payload.org || "Multi-Die Lab",
+              track: "Chiplet Tycoon (Mission " + (payload.mission || 1) + ")",
+              score: Number(payload.score) || 0,
+              accuracy: Number(payload.throughput_tbs) || 1.0,
+              certId: "CHIPLET-M" + (payload.mission || 1),
+              date: payload.date || (issue.created_at || "").slice(0, 10),
+              type: "chiplet",
+              issueUrl: issue.html_url
+            });
           }
         } catch(err) {}
       });
@@ -289,9 +339,19 @@ function renderLeaderboardTable() {
 
     const localTag = e.isLocal ? '<span class="noc-track-badge" style="background:rgba(34, 197, 94, 0.15); color:#16a34a; font-size:10px; padding:1px 6px; margin-left:6px;">Your Session</span>' : '';
     const issueLink = e.issueUrl ? (' <a href="' + escapeHtml(e.issueUrl) + '" target="_blank" rel="noopener noreferrer" style="font-size:11px; text-decoration:none; opacity:0.75;" title="View GitHub Issue">🔗</a>') : '';
-    const metricLabel = e.type === "game" ? (escapeHtml(e.accuracy) + " deadlocks cleared") : (escapeHtml(e.accuracy) + "% accuracy");
+    let metricLabel = escapeHtml(e.accuracy) + "% accuracy";
+    let badgeStyle = '';
+    if (e.type === "game") {
+      metricLabel = escapeHtml(e.accuracy) + " deadlocks cleared";
+      badgeStyle = 'background:rgba(234, 88, 12, 0.1); color:#ea580c; border-color:rgba(234, 88, 12, 0.2);';
+    } else if (e.type === "hotspot") {
+      metricLabel = escapeHtml(e.accuracy) + "°C peak temp";
+      badgeStyle = 'background:rgba(239, 68, 68, 0.1); color:#ef4444; border-color:rgba(239, 68, 68, 0.2);';
+    } else if (e.type === "chiplet") {
+      metricLabel = escapeHtml(e.accuracy) + " TB/s bandwidth";
+      badgeStyle = 'background:rgba(16, 185, 129, 0.1); color:#10b981; border-color:rgba(16, 185, 129, 0.2);';
+    }
     const displayName = shouldMask ? maskName(e.name) : e.name;
-    const badgeStyle = e.type === "game" ? 'background:rgba(234, 88, 12, 0.1); color:#ea580c; border-color:rgba(234, 88, 12, 0.2);' : '';
     const safeCertId = escapeHtml(e.certId || "");
 
     tr.innerHTML = [

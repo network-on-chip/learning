@@ -81,6 +81,28 @@ SEED_REGISTRY = [
         "date": "2026-11-04",
         "certId": "GAME-WAVE-5",
         "type": "game"
+    },
+    {
+        "rank": 7,
+        "name": "Dr. Alexei Morozov",
+        "org": "ETH Zurich Microelectronics",
+        "track": "Hotspot Hero (Wave 8)",
+        "score": 1850,
+        "accuracy": 78.5,
+        "date": "2026-11-04",
+        "certId": "HOTSPOT-WAVE-8",
+        "type": "hotspot"
+    },
+    {
+        "rank": 8,
+        "name": "Ananya Sharma",
+        "org": "TSMC Advanced Packaging Lab",
+        "track": "Chiplet Tycoon (Mission 5)",
+        "score": 1720,
+        "accuracy": 3.45,
+        "date": "2026-11-04",
+        "certId": "CHIPLET-M5-35",
+        "type": "chiplet"
     }
 ]
 
@@ -175,6 +197,44 @@ def sync_leaderboard(output_json: Path) -> None:
                 "certId": f"GAME-WAVE-{wave}",
                 "date": date_str,
                 "type": "game",
+                "issue_url": issue.get("html_url")
+            })
+        elif item_type == "hotspot":
+            name = payload.get("player", payload.get("name", "Thermal Defender"))
+            org = payload.get("org", "Silicon Lab")
+            score = int(payload.get("score", 0))
+            wave = int(payload.get("wave", 1))
+            peak_temp = float(payload.get("peakTemp", 45.0))
+            date_str = payload.get("date", issue.get("created_at", "")[:10])
+
+            extracted_records.append({
+                "name": name,
+                "org": org,
+                "track": f"Hotspot Hero (Wave {wave})",
+                "score": score,
+                "accuracy": peak_temp,
+                "certId": f"HOTSPOT-WAVE-{wave}",
+                "date": date_str,
+                "type": "hotspot",
+                "issue_url": issue.get("html_url")
+            })
+        elif item_type == "chiplet":
+            name = payload.get("player", payload.get("name", "Packaging Guru"))
+            org = payload.get("org", "Multi-Die Lab")
+            score = int(payload.get("score", 0))
+            mission = str(payload.get("mission", "1"))
+            bw = float(payload.get("throughput_tbs", 1.0))
+            date_str = payload.get("date", issue.get("created_at", "")[:10])
+
+            extracted_records.append({
+                "name": name,
+                "org": org,
+                "track": f"Chiplet Tycoon (Mission {mission})",
+                "score": score,
+                "accuracy": bw,
+                "certId": f"CHIPLET-M{mission}",
+                "date": date_str,
+                "type": "chiplet",
                 "issue_url": issue.get("html_url")
             })
 

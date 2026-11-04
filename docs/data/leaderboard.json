@@ -1,7 +1,7 @@
 {
   "ok": true,
   "generated_at": "2026-11-05T00:00:00Z",
-  "total_records": 6,
+  "total_records": 8,
   "source": "network-on-chip/learning GitHub Issues + Seed Hall of Fame",
   "registry": [
     {
@@ -61,6 +61,28 @@
     },
     {
       "rank": 6,
+      "name": "Dr. Alexei Morozov",
+      "org": "ETH Zurich Microelectronics",
+      "track": "Hotspot Hero (Wave 8)",
+      "score": 1850,
+      "accuracy": 78.5,
+      "date": "2026-11-04",
+      "certId": "HOTSPOT-WAVE-8",
+      "type": "hotspot"
+    },
+    {
+      "rank": 7,
+      "name": "Ananya Sharma",
+      "org": "TSMC Advanced Packaging Lab",
+      "track": "Chiplet Tycoon (Mission 5)",
+      "score": 1720,
+      "accuracy": 3.45,
+      "date": "2026-11-04",
+      "certId": "CHIPLET-M5-35",
+      "type": "chiplet"
+    },
+    {
+      "rank": 8,
       "name": "Lucas Dubois",
       "org": "EPFL Parallel Systems",
       "track": "Deadlock Buster (Wave 5)",

@@ -160,6 +160,28 @@
 
   <div class="noc-track-card">
     <div>
+      <span class="noc-track-badge" style="background:rgba(239, 68, 68, 0.1); color:#ef4444; border-color:rgba(239, 68, 68, 0.2);">热管理街机</span>
+      <div class="noc-track-title">硅温保卫战挑战</div>
+      <div class="noc-track-desc">
+        控制动态电压频率调节（DVFS）、迁移沸腾算力负载、释放微流控低温脉冲，在热失控熔毁前守住硅片安全温区！
+      </div>
+    </div>
+    <a href="interactive/hotspot/" class="noc-track-link">进入硅温保卫战 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(16, 185, 129, 0.1); color:#10b981; border-color:rgba(16, 185, 129, 0.2);">封装大亨</span>
+      <div class="noc-track-title">芯粒先进封装设计挑战</div>
+      <div class="noc-track-desc">
+        基于 UCIe 与 3D TSV 在硅中介层上组装异构多芯粒超算芯片，权衡对分带宽、互连延迟、良率经济学与封装总成本！
+      </div>
+    </div>
+    <a href="interactive/chiplet/" class="noc-track-link">进入芯粒封装挑战 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
       <span class="noc-track-badge">交互式仿真</span>
       <div class="noc-track-title">二维网格路由仿真器</div>
       <div class="noc-track-desc">

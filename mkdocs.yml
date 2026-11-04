@@ -58,6 +58,8 @@ plugins:
             "2D Mesh Routing Visualizer": "二维网格路由仿真"
             "Deadlock Buster Arcade Game": "死锁大作战游戏"
             "Packet Master: Routing Puzzle": "数据包路由解密挑战"
+            "Hotspot Hero: Thermal Defense": "硅温保卫战：热管理游戏"
+            "Chiplet Tycoon: 2.5D/3D Multi-Die": "芯粒大亨：先进封装设计挑战"
             "Certification & Quiz": "认证考核与答题"
             "Public Leaderboard": "荣誉排行榜"
             "Architecture Glossary": "专业术语词典"
@@ -119,6 +121,8 @@ nav:
   - "Interactive Lab":
       - "Deadlock Buster Arcade Game": interactive/game.md
       - "Packet Master: Routing Puzzle": interactive/puzzle.md
+      - "Hotspot Hero: Thermal Defense": interactive/hotspot.md
+      - "Chiplet Tycoon: 2.5D/3D Multi-Die": interactive/chiplet.md
       - "2D Mesh Routing Visualizer": interactive/visualizer.md
   - "Certification & Quiz": quiz.md
   - "Public Leaderboard": leaderboard.md

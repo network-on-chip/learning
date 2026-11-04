@@ -163,6 +163,28 @@ Explore our structured learning pathways designed for undergraduate and graduate
 
   <div class="noc-track-card">
     <div>
+      <span class="noc-track-badge" style="background:rgba(239, 68, 68, 0.1); color:#ef4444; border-color:rgba(239, 68, 68, 0.2);">Thermal Defense</span>
+      <div class="noc-track-title">Hotspot Hero Arcade</div>
+      <div class="noc-track-desc">
+        Control Dynamic Voltage &amp; Frequency Scaling (DVFS), migrate boiling workloads, and deploy microfluidic cryo pulses to prevent thermal runaway meltdown!
+      </div>
+    </div>
+    <a href="interactive/hotspot/" class="noc-track-link">Play Hotspot Hero →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(16, 185, 129, 0.1); color:#10b981; border-color:rgba(16, 185, 129, 0.2);">Packaging Tycoon</span>
+      <div class="noc-track-title">Chiplet Tycoon Architect</div>
+      <div class="noc-track-desc">
+        Construct modular multi-die Superchips on silicon interposers with UCIe and 3D TSVs. Balance bisection bandwidth, latency, yield economics, and packaging costs!
+      </div>
+    </div>
+    <a href="interactive/chiplet/" class="noc-track-link">Play Chiplet Tycoon →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
       <span class="noc-track-badge" style="background:rgba(14, 165, 233, 0.1); color:#0284c7; border-color:rgba(14, 165, 233, 0.2);">Certification</span>
       <div class="noc-track-title">Architecture Assessment &amp; Quiz</div>
       <div class="noc-track-desc">
