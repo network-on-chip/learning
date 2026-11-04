@@ -48,6 +48,19 @@ Step into the shoes of a Silicon Interconnect Architect. Program router turning 
         <a href="../game/" class="noc-sim-btn secondary" style="text-decoration:none; color:#ffffff !important;">👾 Play Deadlock Buster</a>
       </div>
     </div>
+
+    <!-- Mission Failure Modal -->
+    <div id="puzzleFailureModal" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.94); border-radius:12px; z-index:20; flex-direction:column; justify-content:center; align-items:center; padding:2rem; box-sizing:border-box; color:#ffffff; text-align:center;">
+      <div style="font-size:3rem; margin-bottom:0.35rem;" id="failureModalIcon">💥</div>
+      <h2 style="margin:0 0 0.5rem 0; font-size:1.6rem; color:#f87171;" id="failureModalTitle">ROUTING CONFLICT DETECTED</h2>
+      <p id="puzzleFailureSummary" style="color:#cbd5e1; font-size:0.92rem; max-width:440px; margin-bottom:1.25rem; line-height:1.5;">
+        Contention detected at router port.
+      </p>
+      <div style="display:flex; gap:0.75rem; flex-wrap:wrap; justify-content:center;">
+        <button class="noc-sim-btn" onclick="retryPuzzleLevel()" style="background:#0284c7;">🔄 Adjust Routers &amp; Retry</button>
+        <button class="noc-sim-btn secondary" onclick="resetPuzzleSim()" style="color:#ffffff !important;">♻️ Reset All</button>
+      </div>
+    </div>
   </div>
 
   <div style="margin-top:1rem; padding:0.85rem 1.15rem; background:var(--tcl-surface); border:1px solid var(--tcl-border); border-radius:8px; font-size:0.85rem; color:var(--md-default-fg-color--lighter); line-height:1.6;">
