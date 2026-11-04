@@ -273,6 +273,28 @@ Explore our structured learning pathways designed for undergraduate and graduate
 
   <div class="noc-track-card">
     <div>
+      <span class="noc-track-badge" style="background:rgba(14, 165, 233, 0.1); color:#0284c7; border-color:rgba(14, 165, 233, 0.2);">Wireless NoC</span>
+      <div class="noc-track-title">Wireless Wave WNoC</div>
+      <div class="noc-track-desc">
+        Beam packets across silicon in 1 single cycle! Transmit on 60 GHz mmWave patch antennas, navigate FDMA channels, and avoid multi-access RF collisions.
+      </div>
+    </div>
+    <a href="interactive/wireless/" class="noc-track-link">Play Wireless Wave →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(168, 85, 247, 0.1); color:#a855f7; border-color:rgba(168, 85, 247, 0.2);">Neuromorphic SNN</span>
+      <div class="noc-track-title">Neuromorphic Nexus</div>
+      <div class="noc-track-desc">
+        Orchestrate event-driven bio-spikes (AER)! Build 1-to-N hardware multicast trees, integrate Leaky-Integrate-and-Fire membrane potentials, and trigger STDP surges.
+      </div>
+    </div>
+    <a href="interactive/neuromorphic/" class="noc-track-link">Play Neuromorphic Nexus →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
       <span class="noc-track-badge" style="background:rgba(14, 165, 233, 0.1); color:#0284c7; border-color:rgba(14, 165, 233, 0.2);">Certification</span>
       <div class="noc-track-title">Architecture Assessment &amp; Quiz</div>
       <div class="noc-track-desc">

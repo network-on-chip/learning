@@ -53,6 +53,8 @@ Verify any candidate's digital certificate hash against our public registry:
     <option value="fault">Fault Defender (Silicon Resilience)</option>
     <option value="qos">QoS Gladiator (Mixed-Criticality NoC)</option>
     <option value="power">Volt Vortex (Dark Silicon Power)</option>
+    <option value="wireless">Wireless Wave (mmWave &amp; THz WNoC)</option>
+    <option value="neuromorphic">Neuromorphic Nexus (Spiking SNN NoC)</option>
   </select>
 
   <label style="font-size:0.85rem; font-weight:600; margin-left:0.5rem; cursor:pointer; display:flex; align-items:center; gap:0.35rem;">
@@ -262,6 +264,28 @@ const DEFAULT_REGISTRY = [
     "date": "2026-11-04",
     "certId": "POWER-WAVE-6",
     "type": "power"
+  },
+  {
+    "rank": 17,
+    "name": "Dr. Zachary Sterling",
+    "org": "Georgia Tech RF Silicon Group",
+    "track": "Wireless Wave (Wave 6)",
+    "score": 1340,
+    "accuracy": 3.4,
+    "date": "2026-11-04",
+    "certId": "WIRELESS-WAVE-6",
+    "type": "wireless"
+  },
+  {
+    "rank": 18,
+    "name": "Dr. Mei-Ling Zhou",
+    "org": "Tsinghua Brain-Inspired Computing Lab",
+    "track": "Neuromorphic Nexus (Wave 6)",
+    "score": 1310,
+    "accuracy": 46,
+    "date": "2026-11-04",
+    "certId": "SNN-WAVE-6",
+    "type": "neuromorphic"
   }
 ];
 let liveGitHubEntries = [];
@@ -471,6 +495,30 @@ async function fetchLiveGitHubIssues() {
               type: "power",
               issueUrl: issue.html_url
             });
+          } else if (itemType === "wireless") {
+            liveGitHubEntries.push({
+              name: payload.player || payload.name || "RF Navigator",
+              org: payload.org || "Silicon Lab",
+              track: "Wireless Wave (Wave " + (payload.wave || 1) + ")",
+              score: Number(payload.score) || 0,
+              accuracy: Number(payload.speedup) || 1.0,
+              certId: "WIRELESS-WAVE-" + (payload.wave || 1),
+              date: payload.date || (issue.created_at || "").slice(0, 10),
+              type: "wireless",
+              issueUrl: issue.html_url
+            });
+          } else if (itemType === "neuromorphic") {
+            liveGitHubEntries.push({
+              name: payload.player || payload.name || "Neuromorphic Pioneer",
+              org: payload.org || "Silicon Lab",
+              track: "Neuromorphic Nexus (Wave " + (payload.wave || 1) + ")",
+              score: Number(payload.score) || 0,
+              accuracy: Number(payload.firings) || 0,
+              certId: "SNN-WAVE-" + (payload.wave || 1),
+              date: payload.date || (issue.created_at || "").slice(0, 10),
+              type: "neuromorphic",
+              issueUrl: issue.html_url
+            });
           }
         } catch(err) {}
       });
@@ -570,6 +618,12 @@ function renderLeaderboardTable() {
     } else if (e.type === "power") {
       metricLabel = escapeHtml(e.accuracy) + " J energy saved";
       badgeStyle = 'background:rgba(2, 132, 199, 0.1); color:#0284c7; border-color:rgba(2, 132, 199, 0.2);';
+    } else if (e.type === "wireless") {
+      metricLabel = escapeHtml(e.accuracy) + "x wireless speedup";
+      badgeStyle = 'background:rgba(14, 165, 233, 0.1); color:#0284c7; border-color:rgba(14, 165, 233, 0.2);';
+    } else if (e.type === "neuromorphic") {
+      metricLabel = escapeHtml(e.accuracy) + " neuron firings";
+      badgeStyle = 'background:rgba(168, 85, 247, 0.1); color:#a855f7; border-color:rgba(168, 85, 247, 0.2);';
     }
     const displayName = shouldMask ? maskName(e.name) : e.name;
     const safeCertId = escapeHtml(e.certId || "");

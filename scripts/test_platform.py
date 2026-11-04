@@ -23,6 +23,8 @@ def test_platform_features():
     faults_md = (docs_dir / "interactive" / "faults.md").read_text(encoding="utf-8")
     qos_md = (docs_dir / "interactive" / "qos.md").read_text(encoding="utf-8")
     power_md = (docs_dir / "interactive" / "power.md").read_text(encoding="utf-8")
+    wireless_md = (docs_dir / "interactive" / "wireless.md").read_text(encoding="utf-8")
+    neuromorphic_md = (docs_dir / "interactive" / "neuromorphic.md").read_text(encoding="utf-8")
     leaderboard_md = (docs_dir / "leaderboard.md").read_text(encoding="utf-8")
     quiz_md = (docs_dir / "quiz.md").read_text(encoding="utf-8")
 
@@ -126,6 +128,24 @@ def test_platform_features():
     assert "energySavedJ" in power_md, "power.md missing energySavedJ metric"
     print("✓ Game 12 (Volt Vortex: Dark Silicon Power): Run-time sleep gating, rail surges, TDP budget compliance, and audio verified.")
 
+    # Wireless Wave: mmWave & THz Interconnect Arena
+    assert "wirelessCanvas" in wireless_md, "wireless.md missing wirelessCanvas"
+    assert "saveWirelessRecord" in wireless_md, "wireless.md missing saveWirelessRecord()"
+    assert "submitWirelessToGithub" in wireless_md, "wireless.md missing submitWirelessToGithub()"
+    assert "WirelessAudio" in wireless_md, "wireless.md missing procedural audio engine"
+    assert "rfSurgeBar" in wireless_md, "wireless.md missing rfSurgeBar UI"
+    assert "checkRfCollision" in wireless_md, "wireless.md missing checkRfCollision method"
+    print("✓ Game 13 (Wireless Wave: mmWave & THz WNoC): 60GHz/THz RF transceivers, multi-band FDMA, CSMA/CA, and audio verified.")
+
+    # Neuromorphic Nexus: Spiking Neural NoC Architect
+    assert "snnCanvas" in neuromorphic_md, "neuromorphic.md missing snnCanvas"
+    assert "saveSnnRecord" in neuromorphic_md, "neuromorphic.md missing saveSnnRecord()"
+    assert "submitSnnToGithub" in neuromorphic_md, "neuromorphic.md missing submitSnnToGithub()"
+    assert "NeuromorphicAudio" in neuromorphic_md, "neuromorphic.md missing procedural audio engine"
+    assert "stdpEnergyBar" in neuromorphic_md, "neuromorphic.md missing stdpEnergyBar UI"
+    assert "this.neurons" in neuromorphic_md, "neuromorphic.md missing LIF neurons model"
+    print("✓ Game 14 (Neuromorphic Nexus: Spiking Neural NoC): LIF membrane potentials, AER multicast tree replication, STDP, and audio verified.")
+
     print("\n=== 2. VERIFYING LEADERBOARD SYNC & FILTERING ===")
     assert "getMergedRegistry" in leaderboard_md, "leaderboard.md missing getMergedRegistry()"
     assert "noc_leaderboard_records" in leaderboard_md, "leaderboard.md missing localStorage read"
@@ -141,10 +161,12 @@ def test_platform_features():
     assert "fault" in leaderboard_md, "leaderboard.md missing fault filter category"
     assert "qos" in leaderboard_md, "leaderboard.md missing qos filter category"
     assert "power" in leaderboard_md, "leaderboard.md missing power filter category"
+    assert "wireless" in leaderboard_md, "leaderboard.md missing wireless filter category"
+    assert "neuromorphic" in leaderboard_md, "leaderboard.md missing neuromorphic filter category"
     assert "Your Session" in leaderboard_md, "leaderboard.md missing 'Your Session' badge for local player records"
     assert "verifyHash" in leaderboard_md, "leaderboard.md missing certificate verification tool"
     print("✓ Leaderboard dynamically merges browser localStorage records with seeded Hall of Fame.")
-    print("✓ Supports full category filtering: All 12 games (Quiz, Deadlock Buster, Hotspot Hero, Chiplet Tycoon, Arbiter Arena, Topology Titans, Photon Pilot, Credit Commander, Deflection Duel, Fault Defender, QoS Gladiator, and Volt Vortex).")
+    print("✓ Supports full category filtering: All 14 games (Quiz, Deadlock Buster, Packet Master, Hotspot Hero, Chiplet Tycoon, Arbiter Arena, Topology Titans, Photon Pilot, Credit Commander, Deflection Duel, Fault Defender, QoS Gladiator, Volt Vortex, Wireless Wave, and Neuromorphic Nexus).")
     print("✓ Real-time cryptographic credential verification verified.")
 
     print("\n=== 3. VERIFYING 3-TIER DIFFICULTY ENGINE IN QUIZ ===")

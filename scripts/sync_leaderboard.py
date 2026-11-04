@@ -191,6 +191,28 @@ SEED_REGISTRY = [
         "date": "2026-11-04",
         "certId": "POWER-WAVE-6",
         "type": "power"
+    },
+    {
+        "rank": 17,
+        "name": "Dr. Zachary Sterling",
+        "org": "Georgia Tech RF Silicon Group",
+        "track": "Wireless Wave (Wave 6)",
+        "score": 1340,
+        "accuracy": 3.4,
+        "date": "2026-11-04",
+        "certId": "WIRELESS-WAVE-6",
+        "type": "wireless"
+    },
+    {
+        "rank": 18,
+        "name": "Dr. Mei-Ling Zhou",
+        "org": "Tsinghua Brain-Inspired Computing Lab",
+        "track": "Neuromorphic Nexus (Wave 6)",
+        "score": 1310,
+        "accuracy": 46,
+        "date": "2026-11-04",
+        "certId": "SNN-WAVE-6",
+        "type": "neuromorphic"
     }
 ]
 
@@ -475,6 +497,44 @@ def sync_leaderboard(output_json: Path) -> None:
                 "certId": f"POWER-WAVE-{wave}",
                 "date": date_str,
                 "type": "power",
+                "issue_url": issue.get("html_url")
+            })
+        elif item_type == "wireless":
+            name = payload.get("player", payload.get("name", "RF Navigator"))
+            org = payload.get("org", "Silicon Lab")
+            score = int(payload.get("score", 0))
+            wave = int(payload.get("wave", 1))
+            speedup = float(payload.get("speedup", 1.0))
+            date_str = payload.get("date", issue.get("created_at", "")[:10])
+
+            extracted_records.append({
+                "name": name,
+                "org": org,
+                "track": f"Wireless Wave (Wave {wave})",
+                "score": score,
+                "accuracy": speedup,
+                "certId": f"WIRELESS-WAVE-{wave}",
+                "date": date_str,
+                "type": "wireless",
+                "issue_url": issue.get("html_url")
+            })
+        elif item_type == "neuromorphic":
+            name = payload.get("player", payload.get("name", "Neuromorphic Pioneer"))
+            org = payload.get("org", "Silicon Lab")
+            score = int(payload.get("score", 0))
+            wave = int(payload.get("wave", 1))
+            firings = int(payload.get("firings", 0))
+            date_str = payload.get("date", issue.get("created_at", "")[:10])
+
+            extracted_records.append({
+                "name": name,
+                "org": org,
+                "track": f"Neuromorphic Nexus (Wave {wave})",
+                "score": score,
+                "accuracy": firings,
+                "certId": f"SNN-WAVE-{wave}",
+                "date": date_str,
+                "type": "neuromorphic",
                 "issue_url": issue.get("html_url")
             })
 

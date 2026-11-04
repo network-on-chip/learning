@@ -1,7 +1,7 @@
 {
   "ok": true,
   "generated_at": "2026-11-05T00:00:00Z",
-  "total_records": 16,
+  "total_records": 18,
   "source": "network-on-chip/learning GitHub Issues + Seed Hall of Fame",
   "registry": [
     {
@@ -179,6 +179,28 @@
       "date": "2026-11-04",
       "certId": "POWER-WAVE-6",
       "type": "power"
+    },
+    {
+      "rank": 17,
+      "name": "Dr. Zachary Sterling",
+      "org": "Georgia Tech RF Silicon Group",
+      "track": "Wireless Wave (Wave 6)",
+      "score": 1340,
+      "accuracy": 3.4,
+      "date": "2026-11-04",
+      "certId": "WIRELESS-WAVE-6",
+      "type": "wireless"
+    },
+    {
+      "rank": 18,
+      "name": "Dr. Mei-Ling Zhou",
+      "org": "Tsinghua Brain-Inspired Computing Lab",
+      "track": "Neuromorphic Nexus (Wave 6)",
+      "score": 1310,
+      "accuracy": 46,
+      "date": "2026-11-04",
+      "certId": "SNN-WAVE-6",
+      "type": "neuromorphic"
     }
   ]
 }

@@ -270,6 +270,28 @@
 
   <div class="noc-track-card">
     <div>
+      <span class="noc-track-badge" style="background:rgba(14, 165, 233, 0.1); color:#0284c7; border-color:rgba(14, 165, 233, 0.2);">片上无线网</span>
+      <div class="noc-track-title">无线电波：毫米波网络</div>
+      <div class="noc-track-desc">
+        在单时钟周期内穿越整片芯片！利用 60 GHz 毫米波微天线广播，调控 FDMA 频分信道并避免射频多址冲突！
+      </div>
+    </div>
+    <a href="interactive/wireless/" class="noc-track-link">进入无线电波 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(168, 85, 247, 0.1); color:#a855f7; border-color:rgba(168, 85, 247, 0.2);">类脑脉冲</span>
+      <div class="noc-track-title">类脑联结：脉冲网络</div>
+      <div class="noc-track-desc">
+        编排事件驱动的生物动作电位（AER）！构建 1-to-N 硬件组播树，积分漏电膜电位（LIF），激发 STDP 突触可塑性！
+      </div>
+    </div>
+    <a href="interactive/neuromorphic/" class="noc-track-link">进入类脑联结 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
       <span class="noc-track-badge">交互式仿真</span>
       <div class="noc-track-title">二维网格路由仿真器</div>
       <div class="noc-track-desc">

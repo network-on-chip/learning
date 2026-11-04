@@ -68,6 +68,8 @@ plugins:
             "Fault Defender: Silicon Resilience": "故障防御者：硅片韧性与BIST自测"
             "QoS Gladiator: Traffic Arbiter": "服务质量角斗士：混合关键级流量调度"
             "Volt Vortex: Dark Silicon Power": "电压旋涡：暗硅与动态电源门控"
+            "Wireless Wave: mmWave & THz NoC": "无线电波：毫米波与太赫兹片上无线网"
+            "Neuromorphic Nexus: SNN Spikes": "类脑联结：脉冲神经网络片上互连"
             "Certification & Quiz": "认证考核与答题"
             "Public Leaderboard": "荣誉排行榜"
             "Architecture Glossary": "专业术语词典"
@@ -139,6 +141,8 @@ nav:
       - "Fault Defender: Silicon Resilience": interactive/faults.md
       - "QoS Gladiator: Traffic Arbiter": interactive/qos.md
       - "Volt Vortex: Dark Silicon Power": interactive/power.md
+      - "Wireless Wave: mmWave & THz NoC": interactive/wireless.md
+      - "Neuromorphic Nexus: SNN Spikes": interactive/neuromorphic.md
       - "2D Mesh Routing Visualizer": interactive/visualizer.md
   - "Certification & Quiz": quiz.md
   - "Public Leaderboard": leaderboard.md
