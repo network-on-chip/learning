@@ -219,6 +219,7 @@ class DeadlockGame {
     this.flits = [];
     this.deadlockedNodes = new Set();
     this.deadlockedCycles = []; // Array of cycles [[r1, r2, r3, r4], ...]
+    this.deadlockTimer = 0;
     this.nodeBuffers = Array.from({ length: 16 }, () => 0);
     this.nodeWaitTarget = Array.from({ length: 16 }, () => null); // Which node each router is blocked waiting on
     this.particles = []; // Visual particle bursts
@@ -233,11 +234,17 @@ class DeadlockGame {
   }
 
   bindEvents() {
-    this.canvas.addEventListener('click', (e) => {
+    const handleTap = (e) => {
       gameAudio.init();
       if (!this.isPlaying || this.isOver || this.isPaused) return;
       this.flushEscape();
-    });
+    };
+
+    this.canvas.addEventListener('click', handleTap);
+    this.canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      handleTap(e);
+    }, { passive: false });
   }
 
   initCanvas() {
@@ -265,6 +272,7 @@ class DeadlockGame {
     this.particles = [];
     this.deadlockedNodes.clear();
     this.deadlockedCycles = [];
+    this.deadlockTimer = 0;
     this.nodeBuffers.fill(0);
     this.nodeWaitTarget.fill(null);
     this.isPlaying = true;
@@ -464,6 +472,7 @@ class DeadlockGame {
       document.getElementById("comboBadge").textContent = `Combo: ${this.combo}x`;
     }
 
+    this.deadlockTimer = 0;
     this.deadlockedNodes.clear();
     this.deadlockedCycles = [];
     document.getElementById("gameDeadlocks").textContent = "0";
@@ -635,14 +644,20 @@ class DeadlockGame {
     this.detectCycles();
     document.getElementById("gameDeadlocks").textContent = this.deadlockedNodes.size;
 
-    if (this.deadlockedNodes.size > 0 && this.spawnTimer % 40 === 0) {
-      gameAudio.playDeadlockWarning();
-    }
-
-    // Trigger Game Over if 4 or more routers are locked in circular wait!
     if (this.deadlockedNodes.size >= 4) {
-      this.gameOver('deadlock');
-      return;
+      this.deadlockTimer = (this.deadlockTimer || 0) + 1;
+      if (this.deadlockTimer % 20 === 0) {
+        gameAudio.playDeadlockWarning();
+      }
+      if (this.deadlockTimer >= 150) { // ~2.5 seconds grace period
+        this.gameOver('deadlock');
+        return;
+      }
+    } else {
+      this.deadlockTimer = 0;
+      if (this.deadlockedNodes.size > 0 && this.spawnTimer % 40 === 0) {
+        gameAudio.playDeadlockWarning();
+      }
     }
 
     // Update Particles
@@ -784,6 +799,23 @@ class DeadlockGame {
         this.ctx.fillStyle = buf >= 4 ? '#f87171' : (buf >= 2 ? '#fb923c' : '#94a3b8');
         this.ctx.fillText(`buf:${buf}`, px, py + 8);
       }
+    }
+
+    // Deadlock Countdown Warning Banner
+    if (this.deadlockTimer > 0 && this.isPlaying && !this.isOver) {
+      const remainingSec = Math.max(0, ((150 - this.deadlockTimer) / 60)).toFixed(1);
+      const isFlash = Math.floor(this.deadlockTimer / 8) % 2 === 0;
+      this.ctx.fillStyle = isFlash ? 'rgba(239, 68, 68, 0.92)' : 'rgba(185, 28, 28, 0.92)';
+      this.ctx.fillRect(20, 15, this.width - 40, 36);
+      this.ctx.strokeStyle = '#fef08a';
+      this.ctx.lineWidth = 2;
+      this.ctx.strokeRect(20, 15, this.width - 40, 36);
+
+      this.ctx.fillStyle = '#ffffff';
+      this.ctx.font = 'bold 13px sans-serif';
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+      this.ctx.fillText(`🚨 DEADLOCK DETECTED! HIT SPACE / TAP CANVAS TO FLUSH ESCAPE VC (${remainingSec}s)`, this.width / 2, 33);
     }
 
     // Start Screen Overlay
