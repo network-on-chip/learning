@@ -251,6 +251,28 @@ Explore our structured learning pathways designed for undergraduate and graduate
 
   <div class="noc-track-card">
     <div>
+      <span class="noc-track-badge" style="background:rgba(239, 68, 68, 0.1); color:#ef4444; border-color:rgba(239, 68, 68, 0.2);">Real-Time QoS</span>
+      <div class="noc-track-title">QoS Gladiator MCS</div>
+      <div class="noc-track-desc">
+        Arbiter autonomous safety flits against bulk AI DMA transfers! Tune Weighted Fair Queuing (WFQ) and fire emergency preemption interrupts before deadlines expire.
+      </div>
+    </div>
+    <a href="interactive/qos/" class="noc-track-link">Play QoS Gladiator →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(2, 132, 199, 0.1); color:#0284c7; border-color:rgba(2, 132, 199, 0.2);">Dark Silicon</span>
+      <div class="noc-track-title">Volt Vortex Power</div>
+      <div class="noc-track-desc">
+        Power-gate idle router corridors to slash leakage! Navigate wake-up penalties, fire rail power surges, and prevent exceeding thermal design power (TDP) envelopes.
+      </div>
+    </div>
+    <a href="interactive/power/" class="noc-track-link">Play Volt Vortex →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
       <span class="noc-track-badge" style="background:rgba(14, 165, 233, 0.1); color:#0284c7; border-color:rgba(14, 165, 233, 0.2);">Certification</span>
       <div class="noc-track-title">Architecture Assessment &amp; Quiz</div>
       <div class="noc-track-desc">

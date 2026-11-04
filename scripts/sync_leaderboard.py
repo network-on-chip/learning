@@ -169,6 +169,28 @@ SEED_REGISTRY = [
         "date": "2026-11-04",
         "certId": "FAULT-WAVE-6",
         "type": "fault"
+    },
+    {
+        "rank": 15,
+        "name": "Prof. Toshiro Mifune",
+        "org": "Nagoya Automotive Microelectronics",
+        "track": "QoS Gladiator (Wave 6)",
+        "score": 1390,
+        "accuracy": 38,
+        "date": "2026-11-04",
+        "certId": "QOS-WAVE-6",
+        "type": "qos"
+    },
+    {
+        "rank": 16,
+        "name": "Clara Oswald",
+        "org": "Qualcomm Low-Power Architecture",
+        "track": "Volt Vortex (Wave 6)",
+        "score": 1360,
+        "accuracy": 28.4,
+        "date": "2026-11-04",
+        "certId": "POWER-WAVE-6",
+        "type": "power"
     }
 ]
 
@@ -415,6 +437,44 @@ def sync_leaderboard(output_json: Path) -> None:
                 "certId": f"FAULT-WAVE-{wave}",
                 "date": date_str,
                 "type": "fault",
+                "issue_url": issue.get("html_url")
+            })
+        elif item_type == "qos":
+            name = payload.get("player", payload.get("name", "QoS Commander"))
+            org = payload.get("org", "Silicon Lab")
+            score = int(payload.get("score", 0))
+            wave = int(payload.get("wave", 1))
+            delivered = int(payload.get("delivered", 0))
+            date_str = payload.get("date", issue.get("created_at", "")[:10])
+
+            extracted_records.append({
+                "name": name,
+                "org": org,
+                "track": f"QoS Gladiator (Wave {wave})",
+                "score": score,
+                "accuracy": delivered,
+                "certId": f"QOS-WAVE-{wave}",
+                "date": date_str,
+                "type": "qos",
+                "issue_url": issue.get("html_url")
+            })
+        elif item_type == "power":
+            name = payload.get("player", payload.get("name", "Volt Maestro"))
+            org = payload.get("org", "Silicon Lab")
+            score = int(payload.get("score", 0))
+            wave = int(payload.get("wave", 1))
+            saved_joules = float(payload.get("saved_joules", 0.0))
+            date_str = payload.get("date", issue.get("created_at", "")[:10])
+
+            extracted_records.append({
+                "name": name,
+                "org": org,
+                "track": f"Volt Vortex (Wave {wave})",
+                "score": score,
+                "accuracy": saved_joules,
+                "certId": f"POWER-WAVE-{wave}",
+                "date": date_str,
+                "type": "power",
                 "issue_url": issue.get("html_url")
             })
 

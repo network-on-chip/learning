@@ -21,6 +21,8 @@ def test_platform_features():
     credits_md = (docs_dir / "interactive" / "credits.md").read_text(encoding="utf-8")
     deflection_md = (docs_dir / "interactive" / "deflection.md").read_text(encoding="utf-8")
     faults_md = (docs_dir / "interactive" / "faults.md").read_text(encoding="utf-8")
+    qos_md = (docs_dir / "interactive" / "qos.md").read_text(encoding="utf-8")
+    power_md = (docs_dir / "interactive" / "power.md").read_text(encoding="utf-8")
     leaderboard_md = (docs_dir / "leaderboard.md").read_text(encoding="utf-8")
     quiz_md = (docs_dir / "quiz.md").read_text(encoding="utf-8")
 
@@ -106,6 +108,24 @@ def test_platform_features():
     assert "brokenLinks" in faults_md, "faults.md missing brokenLinks state"
     print("✓ Game 10 (Fault Defender: Silicon Resilience): BIST radar pulses, Fault-Ring perimeter detours, hot-spare traces, and audio verified.")
 
+    # QoS Gladiator: Mixed-Criticality Traffic Arbiter
+    assert "qosCanvas" in qos_md, "qos.md missing qosCanvas"
+    assert "saveQosRecord" in qos_md, "qos.md missing saveQosRecord()"
+    assert "submitQosToGithub" in qos_md, "qos.md missing submitQosToGithub()"
+    assert "QosAudio" in qos_md, "qos.md missing procedural audio engine"
+    assert "preemptCharge" in qos_md, "qos.md missing preemptCharge state"
+    assert "hrtDelivered" in qos_md, "qos.md missing hrtDelivered metric"
+    print("✓ Game 11 (QoS Gladiator: Traffic Arbiter): ASIL-D safety deadlines, WFQ scheduling, flit preemption, and audio verified.")
+
+    # Volt Vortex: Dark Silicon & Power Gating
+    assert "powerCanvas" in power_md, "power.md missing powerCanvas"
+    assert "savePowerRecord" in power_md, "power.md missing savePowerRecord()"
+    assert "submitPowerToGithub" in power_md, "power.md missing submitPowerToGithub()"
+    assert "PowerAudio" in power_md, "power.md missing procedural audio engine"
+    assert "surgeEnergy" in power_md, "power.md missing surgeEnergy state"
+    assert "energySavedJ" in power_md, "power.md missing energySavedJ metric"
+    print("✓ Game 12 (Volt Vortex: Dark Silicon Power): Run-time sleep gating, rail surges, TDP budget compliance, and audio verified.")
+
     print("\n=== 2. VERIFYING LEADERBOARD SYNC & FILTERING ===")
     assert "getMergedRegistry" in leaderboard_md, "leaderboard.md missing getMergedRegistry()"
     assert "noc_leaderboard_records" in leaderboard_md, "leaderboard.md missing localStorage read"
@@ -119,10 +139,12 @@ def test_platform_features():
     assert "credit" in leaderboard_md, "leaderboard.md missing credit filter category"
     assert "deflection" in leaderboard_md, "leaderboard.md missing deflection filter category"
     assert "fault" in leaderboard_md, "leaderboard.md missing fault filter category"
+    assert "qos" in leaderboard_md, "leaderboard.md missing qos filter category"
+    assert "power" in leaderboard_md, "leaderboard.md missing power filter category"
     assert "Your Session" in leaderboard_md, "leaderboard.md missing 'Your Session' badge for local player records"
     assert "verifyHash" in leaderboard_md, "leaderboard.md missing certificate verification tool"
     print("✓ Leaderboard dynamically merges browser localStorage records with seeded Hall of Fame.")
-    print("✓ Supports full category filtering: All 10 games (Quiz, Deadlock Buster, Hotspot Hero, Chiplet Tycoon, Arbiter Arena, Topology Titans, Photon Pilot, Credit Commander, Deflection Duel, and Fault Defender).")
+    print("✓ Supports full category filtering: All 12 games (Quiz, Deadlock Buster, Hotspot Hero, Chiplet Tycoon, Arbiter Arena, Topology Titans, Photon Pilot, Credit Commander, Deflection Duel, Fault Defender, QoS Gladiator, and Volt Vortex).")
     print("✓ Real-time cryptographic credential verification verified.")
 
     print("\n=== 3. VERIFYING 3-TIER DIFFICULTY ENGINE IN QUIZ ===")

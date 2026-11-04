@@ -248,6 +248,28 @@
 
   <div class="noc-track-card">
     <div>
+      <span class="noc-track-badge" style="background:rgba(239, 68, 68, 0.1); color:#ef4444; border-color:rgba(239, 68, 68, 0.2);">服务质量</span>
+      <div class="noc-track-title">服务质量角斗士：流量仲裁</div>
+      <div class="noc-track-desc">
+        在车载关键安全流与大吞吐 AI DMA 间精细调度！调优加权公平排队（WFQ），在微秒倒计时耗尽前激发抢占中断！
+      </div>
+    </div>
+    <a href="interactive/qos/" class="noc-track-link">进入流量仲裁 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(2, 132, 199, 0.1); color:#0284c7; border-color:rgba(2, 132, 199, 0.2);">暗硅与电源</span>
+      <div class="noc-track-title">电压旋涡：电源门控</div>
+      <div class="noc-track-desc">
+        对空闲路由器走廊实施休眠门控以削减漏电！驾驭唤醒延迟惩罚，触发瞬时电源轨浪涌，守卫芯片热设计功耗（TDP）红线！
+      </div>
+    </div>
+    <a href="interactive/power/" class="noc-track-link">进入电压旋涡 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
       <span class="noc-track-badge">交互式仿真</span>
       <div class="noc-track-title">二维网格路由仿真器</div>
       <div class="noc-track-desc">

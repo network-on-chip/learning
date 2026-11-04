@@ -51,6 +51,8 @@ Verify any candidate's digital certificate hash against our public registry:
     <option value="credit">Credit Commander (Flow Control Defense)</option>
     <option value="deflection">Deflection Duel (Bufferless NoC)</option>
     <option value="fault">Fault Defender (Silicon Resilience)</option>
+    <option value="qos">QoS Gladiator (Mixed-Criticality NoC)</option>
+    <option value="power">Volt Vortex (Dark Silicon Power)</option>
   </select>
 
   <label style="font-size:0.85rem; font-weight:600; margin-left:0.5rem; cursor:pointer; display:flex; align-items:center; gap:0.35rem;">
@@ -238,6 +240,28 @@ const DEFAULT_REGISTRY = [
     "date": "2026-11-04",
     "certId": "FAULT-WAVE-6",
     "type": "fault"
+  },
+  {
+    "rank": 15,
+    "name": "Prof. Toshiro Mifune",
+    "org": "Nagoya Automotive Microelectronics",
+    "track": "QoS Gladiator (Wave 6)",
+    "score": 1390,
+    "accuracy": 38,
+    "date": "2026-11-04",
+    "certId": "QOS-WAVE-6",
+    "type": "qos"
+  },
+  {
+    "rank": 16,
+    "name": "Clara Oswald",
+    "org": "Qualcomm Low-Power Architecture",
+    "track": "Volt Vortex (Wave 6)",
+    "score": 1360,
+    "accuracy": 28.4,
+    "date": "2026-11-04",
+    "certId": "POWER-WAVE-6",
+    "type": "power"
   }
 ];
 let liveGitHubEntries = [];
@@ -423,6 +447,30 @@ async function fetchLiveGitHubIssues() {
               type: "fault",
               issueUrl: issue.html_url
             });
+          } else if (itemType === "qos") {
+            liveGitHubEntries.push({
+              name: payload.player || payload.name || "QoS Commander",
+              org: payload.org || "Silicon Lab",
+              track: "QoS Gladiator (Wave " + (payload.wave || 1) + ")",
+              score: Number(payload.score) || 0,
+              accuracy: Number(payload.delivered) || 0,
+              certId: "QOS-WAVE-" + (payload.wave || 1),
+              date: payload.date || (issue.created_at || "").slice(0, 10),
+              type: "qos",
+              issueUrl: issue.html_url
+            });
+          } else if (itemType === "power") {
+            liveGitHubEntries.push({
+              name: payload.player || payload.name || "Volt Maestro",
+              org: payload.org || "Silicon Lab",
+              track: "Volt Vortex (Wave " + (payload.wave || 1) + ")",
+              score: Number(payload.score) || 0,
+              accuracy: Number(payload.saved_joules) || 0,
+              certId: "POWER-WAVE-" + (payload.wave || 1),
+              date: payload.date || (issue.created_at || "").slice(0, 10),
+              type: "power",
+              issueUrl: issue.html_url
+            });
           }
         } catch(err) {}
       });
@@ -516,6 +564,12 @@ function renderLeaderboardTable() {
     } else if (e.type === "fault") {
       metricLabel = escapeHtml(e.accuracy) + " packets rescued";
       badgeStyle = 'background:rgba(99, 102, 241, 0.1); color:#6366f1; border-color:rgba(99, 102, 241, 0.2);';
+    } else if (e.type === "qos") {
+      metricLabel = escapeHtml(e.accuracy) + " HRT packets delivered";
+      badgeStyle = 'background:rgba(239, 68, 68, 0.1); color:#ef4444; border-color:rgba(239, 68, 68, 0.2);';
+    } else if (e.type === "power") {
+      metricLabel = escapeHtml(e.accuracy) + " J energy saved";
+      badgeStyle = 'background:rgba(2, 132, 199, 0.1); color:#0284c7; border-color:rgba(2, 132, 199, 0.2);';
     }
     const displayName = shouldMask ? maskName(e.name) : e.name;
     const safeCertId = escapeHtml(e.certId || "");

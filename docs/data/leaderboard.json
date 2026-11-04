@@ -1,7 +1,7 @@
 {
   "ok": true,
   "generated_at": "2026-11-05T00:00:00Z",
-  "total_records": 14,
+  "total_records": 16,
   "source": "network-on-chip/learning GitHub Issues + Seed Hall of Fame",
   "registry": [
     {
@@ -157,6 +157,28 @@
       "date": "2026-11-04",
       "certId": "FAULT-WAVE-6",
       "type": "fault"
+    },
+    {
+      "rank": 15,
+      "name": "Prof. Toshiro Mifune",
+      "org": "Nagoya Automotive Microelectronics",
+      "track": "QoS Gladiator (Wave 6)",
+      "score": 1390,
+      "accuracy": 38,
+      "date": "2026-11-04",
+      "certId": "QOS-WAVE-6",
+      "type": "qos"
+    },
+    {
+      "rank": 16,
+      "name": "Clara Oswald",
+      "org": "Qualcomm Low-Power Architecture",
+      "track": "Volt Vortex (Wave 6)",
+      "score": 1360,
+      "accuracy": 28.4,
+      "date": "2026-11-04",
+      "certId": "POWER-WAVE-6",
+      "type": "power"
     }
   ]
 }
