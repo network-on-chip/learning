@@ -147,6 +147,7 @@ nav:
       - "4.1 Deterministic Dimension-Order Routing (DOR)": track4-routing-deadlock/01-deterministic-dor.md
       - "4.2 Adaptive Routing & The Turn Model": track4-routing-deadlock/02-adaptive-turn-model.md
       - "4.3 Deadlock Theory & Channel Dependency Graphs": track4-routing-deadlock/03-deadlock-theory-cdg.md
+      - "4.4 Fault-Tolerant Routing & Protocol Deadlock": track4-routing-deadlock/04-fault-tolerant-protocol-deadlock.md
   - "Track 5: Thermal & Congestion":
       - Overview: track5-congestion-thermal/index.md
       - "5.1 Hotspot Prediction & Throttling": track5-congestion-thermal/01-hotspot-prediction.md

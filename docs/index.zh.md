@@ -85,7 +85,10 @@
       <span class="noc-track-badge">第四模块</span>
       <div class="noc-track-title">路由算法与死锁避免</div>
       <div class="noc-track-desc">
-        确定性维序路由（XY 路由）、转向模型（西向优先、北向最后）、奇偶路由算法，以及基于信道依赖图（CDG）与杜阿托定理（Duato's Theorem）的形式化无死锁证明。
+        确定性维序路由（XY 路由）、转向模型（西向优先、北向最后）、奇偶路由、杜阿托逃逸信道定理（Duato's Theorem）、生成树容错路由与缓存一致性协议死锁消除（VNET）。
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 包含 4 大交互式仿真器与前瞻路由 Verilog RTL
       </div>
     </div>
     <a href="track4-routing-deadlock/" class="noc-track-link">进入模块四 →</a>

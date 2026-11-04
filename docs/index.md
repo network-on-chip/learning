@@ -86,9 +86,12 @@ Explore our structured learning pathways designed for undergraduate and graduate
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge">Track 4</span>
-      <div class="noc-track-title">Routing & Deadlock Avoidance</div>
+      <div class="noc-track-title">Routing &amp; Deadlock Avoidance</div>
       <div class="noc-track-desc">
-        Deterministic Dimension-Order Routing (DOR), Turn Model (West-First, North-Last), Odd-Even routing, and formal deadlock proofs via Channel Dependency Graphs (CDGs).
+        Deterministic Dimension-Order Routing (DOR), Glass &amp; Ni's Turn Model, Chiu's Odd-Even algorithm, Duato's Escape Channels, Up*/Down* tree routing, and Cache Coherence VNET isolation.
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 4 Interactive Simulators &amp; Lookahead Verilog RTL
       </div>
     </div>
     <a href="track4-routing-deadlock/" class="noc-track-link">Explore Track 4 →</a>
