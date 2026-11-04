@@ -59,7 +59,10 @@ Explore our structured learning pathways designed for undergraduate and graduate
       <span class="noc-track-badge">Track 2</span>
       <div class="noc-track-title">Router Microarchitecture</div>
       <div class="noc-track-desc">
-        Canonical 5-stage router pipelines (BW-RC-VA-SA-ST), 1-stage speculative lookahead bypass routers, matrix arbiters, and crossbar switch allocation.
+        Canonical 5-stage router pipelines (BW-RC-VA-SA-ST), Virtual Channel allocation, sub-200ps LRU matrix arbiters, and SMART single-cycle multi-hop bypass routers.
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 4 Interactive Simulators &amp; Verilog RTL
       </div>
     </div>
     <a href="track2-router-architecture/" class="noc-track-link">Explore Track 2 →</a>

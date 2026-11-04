@@ -133,6 +133,7 @@ nav:
       - "2.1 Canonical Router Pipeline": track2-router-architecture/01-pipeline-stages.md
       - "2.2 Virtual Channel (VC) Design": track2-router-architecture/02-virtual-channels.md
       - "2.3 Arbitration & Crossbar Switching": track2-router-architecture/03-arbitration-crossbar.md
+      - "2.4 Low-Latency & Bypass Routers": track2-router-architecture/04-low-latency-bypass-routers.md
   - "Track 3: Topologies & Metrics":
       - Overview: track3-topologies/index.md
       - "3.1 Direct Topologies (Mesh & Torus)": track3-topologies/01-direct-topologies.md

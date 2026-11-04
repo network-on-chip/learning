@@ -56,7 +56,10 @@
       <span class="noc-track-badge">第二模块</span>
       <div class="noc-track-title">路由器微架构</div>
       <div class="noc-track-desc">
-        标准五级流水线路由器（BW-RC-VA-SA-ST）、单周期前瞻投机路由器、虚通道（Virtual Channel）分配、矩阵仲裁器与交叉开关（Crossbar Switch）微架构设计。
+        标准五级流水线路由器（BW-RC-VA-SA-ST）、虚通道（Virtual Channel）管理、亚200ps矩阵仲裁器（Matrix Arbiter）与SMART单周期多跳旁路微架构。
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 包含 4 大交互式仿真器与 Verilog RTL 实现
       </div>
     </div>
     <a href="track2-router-architecture/" class="noc-track-link">进入模块二 →</a>
