@@ -1,0 +1,144 @@
+<div class="noc-hero">
+  <div class="noc-track-badge">✨ Open-Source Curriculum & Research Lab</div>
+  <h1>Network-on-Chip Learning Hub</h1>
+  <p class="subtitle">
+    An interactive, scholarly curriculum bridging theoretical computer architecture, silicon router microarchitecture, and open-source reproducible research. Grounded in 541 curated IEEE papers and verified hardware simulations.
+  </p>
+  <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+    <a href="track1-fundamentals/" class="noc-sim-btn" style="text-decoration: none;">🚀 Start Learning</a>
+    <a href="interactive/visualizer.md" class="noc-sim-btn secondary" style="text-decoration: none;">🎮 Launch 2D Mesh Simulator</a>
+    <a href="https://network-on-chip.github.io/.github/" target="_blank" class="noc-sim-btn secondary" style="text-decoration: none;">🗺️ Interactive Papers Map</a>
+  </div>
+</div>
+
+<div class="noc-stats-grid">
+  <div class="noc-stat-card">
+    <span class="noc-stat-number">541</span>
+    <span class="noc-stat-label">Curated IEEE Papers</span>
+  </div>
+  <div class="noc-stat-card">
+    <span class="noc-stat-number">37,400+</span>
+    <span class="noc-stat-label">Extracted Figures & RTL</span>
+  </div>
+  <div class="noc-stat-card">
+    <span class="noc-stat-number">7</span>
+    <span class="noc-stat-label">Mastery Tracks</span>
+  </div>
+  <div class="noc-stat-card">
+    <span class="noc-stat-number">100%</span>
+    <span class="noc-stat-label">Open & Reproducible</span>
+  </div>
+</div>
+
+---
+
+## 📚 Curriculum Tracks
+
+Explore our structured learning pathways designed for undergraduate and graduate students, computer architects, and hardware designers.
+
+<div class="noc-tracks-grid">
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Track 1</span>
+      <div class="noc-track-title">Interconnect Fundamentals</div>
+      <div class="noc-track-desc">
+        Why shared buses failed. Packets, flits, and phits. Store-and-Forward vs Virtual Cut-Through vs Wormhole flow control and credit-based backpressure.
+      </div>
+    </div>
+    <a href="track1-fundamentals/" class="noc-track-link">Explore Track 1 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Track 2</span>
+      <div class="noc-track-title">Router Microarchitecture</div>
+      <div class="noc-track-desc">
+        Canonical 5-stage router pipelines (BW-RC-VA-SA-ST), 1-stage speculative lookahead bypass routers, matrix arbiters, and crossbar switch allocation.
+      </div>
+    </div>
+    <a href="track2-router-architecture/" class="noc-track-link">Explore Track 2 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Track 3</span>
+      <div class="noc-track-title">Topologies & Metrics</div>
+      <div class="noc-track-desc">
+        Direct (Mesh, Torus, Folded Torus) vs Indirect (Clos, Butterfly, Fat-Tree). Mathematical modeling of zero-load latency, bisection bandwidth, and path diversity.
+      </div>
+    </div>
+    <a href="track3-topologies/" class="noc-track-link">Explore Track 3 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Track 4</span>
+      <div class="noc-track-title">Routing & Deadlock Avoidance</div>
+      <div class="noc-track-desc">
+        Deterministic Dimension-Order Routing (DOR), Turn Model (West-First, North-Last), Odd-Even routing, and formal deadlock proofs via Channel Dependency Graphs (CDGs).
+      </div>
+    </div>
+    <a href="track4-routing-deadlock/" class="noc-track-link">Explore Track 4 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Track 5</span>
+      <div class="noc-track-title">Thermal & Congestion Management</div>
+      <div class="noc-track-desc">
+        Spatial temperature gradients, dynamic thermal management (DTM), proactive ML hotspot prediction, and optimal sensor placement under Gaussian/non-Gaussian noise.
+      </div>
+    </div>
+    <a href="track5-congestion-thermal/" class="noc-track-link">Explore Track 5 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Track 6</span>
+      <div class="noc-track-title">Chiplets, 3D NoC & Frontiers</div>
+      <div class="noc-track-desc">
+        Multi-die packaging (UCIe, BoW), 3D Through-Silicon Vias (TSVs), Optical/Photonic NoC (ONoC), and Wireless NoC (WNoC) architectures.
+      </div>
+    </div>
+    <a href="track6-chiplets-and-3d/" class="noc-track-link">Explore Track 6 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Track 7</span>
+      <div class="noc-track-title">Landmark Paper Deep Dives</div>
+      <div class="noc-track-desc">
+        High-school and undergraduate readable walkthroughs of seminal IEEE TCAD, TVLSI, and JSSC papers, directly citing figures and experimental data from our 541-paper repository.
+      </div>
+    </div>
+    <a href="track7-paper-walkthroughs/" class="noc-track-link">Explore Track 7 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Interactive Lab</span>
+      <div class="noc-track-title">2D Mesh Routing Simulator</div>
+      <div class="noc-track-desc">
+        Test routing decisions live in your browser. Inject packets, observe flit hops, switch between XY, West-First, and Odd-Even routing, and inspect buffer states.
+      </div>
+    </div>
+    <a href="interactive/visualizer.md" class="noc-track-link">Launch Simulator →</a>
+  </div>
+</div>
+
+---
+
+## 🔬 Bridging Theory, Silicon, and Code
+
+Every concept in this curriculum is paired with concrete, reproducible artifacts from our verified research suite:
+
+```mermaid
+graph LR
+  A["Theory & Literature<br/>(541 IEEE Papers)"] --> B["Curriculum Modules<br/>(Tracks 1–7)"]
+  B --> C["Interactive Browser Lab<br/>(Canvas Routing Simulator)"]
+  B --> D["Hardware Implementations<br/>(projects/ in Verilog & Python)"]
+  D --> E["Benchmarking & Silicon Data<br/>(Thermal, Latency, Energy)"]
+```
+
+### Ready to Start?
+Begin your journey with [Track 1: Interconnect Fundamentals](track1-fundamentals/) or try out the [Interactive Simulator](interactive/visualizer.md)!

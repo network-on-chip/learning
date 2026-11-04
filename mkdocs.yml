@@ -1,0 +1,147 @@
+site_name: "Network-on-Chip Learning Hub"
+site_description: "An open, interactive curriculum bridging Network-on-Chip theory, silicon microarchitecture, and open-source reproducible research."
+site_author: "NoC-Lab Community"
+site_url: "https://network-on-chip.github.io/learning/"
+repo_url: "https://github.com/network-on-chip/learning"
+repo_name: "network-on-chip/learning"
+edit_uri: "edit/main/docs/"
+
+theme:
+  name: material
+  language: en
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: deep orange
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: deep orange
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  font:
+    text: "Inter"
+    code: "JetBrains Mono"
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+
+plugins:
+  - search
+  - i18n:
+      default_language: en
+      languages:
+        - locale: en
+          name: English
+          build: true
+        - locale: zh
+          name: 简体中文
+          build: true
+          nav_translations:
+            "Home": "首页"
+            "Interactive Lab": "交互式仿真器"
+            "Track 1: Interconnect Fundamentals": "第一模块：片上网络基础"
+            "Track 2: Router Microarchitecture": "第二模块：路由器微架构"
+            "Track 3: Topologies & Metrics": "第三模块：拓扑结构与互连指标"
+            "Track 4: Routing & Deadlock": "第四模块：路由算法与死锁避免"
+            "Track 5: Thermal & Congestion": "第五模块：热管理与拥塞控制"
+            "Track 6: Chiplets & 3D NoC": "第六模块：芯粒与三维片上网络"
+            "Track 7: Landmark Papers": "第七模块：经典论文精读"
+            "Overview": "总览"
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.snippets
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+extra_javascript:
+  - assets/js/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+extra_css:
+  - assets/css/custom.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/network-on-chip
+      name: NoC-Lab GitHub
+    - icon: fontawesome/solid/graduation-cap
+      link: https://network-on-chip.github.io/.github/
+      name: Interactive NoC Papers Map
+
+nav:
+  - Home: index.md
+  - "Interactive Lab":
+      - "2D Mesh Routing Visualizer": interactive/visualizer.md
+  - "Track 1: Interconnect Fundamentals":
+      - Overview: track1-fundamentals/index.md
+      - "1.1 Why Network-on-Chip?": track1-fundamentals/01-why-noc.md
+      - "1.2 Packets, Flits & Switching": track1-fundamentals/02-packet-switching-flits.md
+      - "1.3 Flow Control & Credit Mechanism": track1-fundamentals/03-flow-control-credit.md
+  - "Track 2: Router Microarchitecture":
+      - Overview: track2-router-architecture/index.md
+      - "2.1 Canonical Router Pipeline": track2-router-architecture/01-pipeline-stages.md
+      - "2.2 Virtual Channel (VC) Design": track2-router-architecture/02-virtual-channels.md
+      - "2.3 Arbitration & Crossbar Switching": track2-router-architecture/03-arbitration-crossbar.md
+  - "Track 3: Topologies & Metrics":
+      - Overview: track3-topologies/index.md
+      - "3.1 Direct Topologies (Mesh & Torus)": track3-topologies/01-direct-topologies.md
+      - "3.2 Indirect & Concentrated Networks": track3-topologies/02-indirect-hierarchical.md
+  - "Track 4: Routing & Deadlock":
+      - Overview: track4-routing-deadlock/index.md
+      - "4.1 Deterministic Dimension-Order Routing (DOR)": track4-routing-deadlock/01-deterministic-dor.md
+      - "4.2 Adaptive Routing & The Turn Model": track4-routing-deadlock/02-adaptive-turn-model.md
+      - "4.3 Deadlock Theory & Channel Dependency Graphs": track4-routing-deadlock/03-deadlock-theory-cdg.md
+  - "Track 5: Thermal & Congestion":
+      - Overview: track5-congestion-thermal/index.md
+      - "5.1 Hotspot Prediction & Throttling": track5-congestion-thermal/01-hotspot-prediction.md
+      - "5.2 Optimal Thermal Sensor Placement": track5-congestion-thermal/02-thermal-sensor-placement.md
+  - "Track 6: Chiplets & 3D NoC":
+      - Overview: track6-chiplets-and-3d/index.md
+      - "6.1 3D TSV Interconnects": track6-chiplets-and-3d/01-3d-tsv-interconnects.md
+      - "6.2 Multi-Chiplet & UCIe Interconnects": track6-chiplets-and-3d/02-chiplets-ucie-interconnects.md
+  - "Track 7: Landmark Papers":
+      - Overview: track7-paper-walkthroughs/index.md
