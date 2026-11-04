@@ -4,16 +4,21 @@
   <div class="noc-track-badge">🏆 Official Assessment & Credential Registry</div>
   <h1>NoC Architecture Knowledge Assessment</h1>
   <p class="subtitle">
-    Test your mastery across router microarchitecture, deadlock theory, direct/indirect topologies, and chiplet interconnects. Earn a verifiable, cryptographic SVG Certificate of Completion.
+    Test your mastery across 3 difficulty tiers: Fundamentals, Core Microarchitecture, and Silicon Mastery. Earn a verifiable, cryptographic SVG Certificate of Completion and publish your score to the Public Leaderboard.
   </p>
+  <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:1rem;">
+    <span class="noc-track-badge" style="background:rgba(34, 197, 94, 0.12); color:#16a34a; border-color:rgba(34, 197, 94, 0.25);">🟢 Tier 1: Fundamental (100 pts)</span>
+    <span class="noc-track-badge" style="background:rgba(234, 88, 12, 0.12); color:#ea580c; border-color:rgba(234, 88, 12, 0.25);">🟡 Tier 2: Core Engineering (200 pts)</span>
+    <span class="noc-track-badge" style="background:rgba(147, 51, 234, 0.12); color:#9333ea; border-color:rgba(147, 51, 234, 0.25);">🔴 Tier 3: Silicon Mastery (300 pts)</span>
+  </div>
 </div>
 
 <div id="quizApp" class="noc-sim-container">
   <!-- Registration Step -->
   <div id="stepRegistration">
-    <h3 style="margin-top:0;">Candidate Registration</h3>
+    <h3 style="margin-top:0;">Candidate Registration &amp; Tier Selection</h3>
     <p style="color:var(--md-default-fg-color--lighter); font-size:0.92rem;">
-      Enter your details to initialize the assessment session. Your name and institution will be permanently inscribed on your verifiable certificate.
+      Choose your assessment mode. Your final score, accuracy, and cryptographic verification hash will be recorded and published to the Community Leaderboard.
     </p>
 
     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1rem; margin:1.25rem 0;">
@@ -26,10 +31,11 @@
         <input type="text" id="candidateOrg" class="noc-sim-select" style="width:100%; box-sizing:border-box;" placeholder="e.g. Stanford / SJTU / Intel" value="Academic Researcher">
       </div>
       <div>
-        <label style="font-weight:600; font-size:0.85rem; display:block; margin-bottom:0.35rem;">Assessment Mode</label>
+        <label style="font-weight:600; font-size:0.85rem; display:block; margin-bottom:0.35rem;">Assessment Track</label>
         <select id="assessmentMode" class="noc-sim-select" style="width:100%; box-sizing:border-box;">
-          <option value="full">Comprehensive Exam (12 Questions - All Tracks)</option>
-          <option value="sprint">Speedrun Challenge (6 Questions)</option>
+          <option value="full">Comprehensive Certification (12 Questions - Tiers 1, 2, 3)</option>
+          <option value="tier1_sprint">Fundamentals Sprint (4 Questions - Tier 1)</option>
+          <option value="grandmaster">Grandmaster Challenge (4 Questions - Tier 3 Mastery Only)</option>
         </select>
       </div>
     </div>
@@ -44,14 +50,15 @@
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem; padding-bottom:0.75rem; border-bottom:1px solid var(--tcl-border);">
       <div style="font-size:0.85rem; font-weight:600; color:var(--tcl-blue-600);" id="quizProgress">Question 1 of 12</div>
       <div style="display:flex; gap:1rem; align-items:center;">
-        <span id="quizTimer" style="font-family:'JetBrains Mono', monospace; font-size:0.9rem; font-weight:700; color:var(--tcl-heading);">⏱️ 30s</span>
-        <span id="quizScore" style="font-size:0.85rem; font-weight:600; color:var(--md-default-fg-color--lighter);">Score: 0 pts</span>
+        <span id="quizTimer" style="font-family:'JetBrains Mono', monospace; font-size:0.9rem; font-weight:700; color:var(--tcl-heading);">⏱️ 35s</span>
+        <span id="quizScore" style="font-size:0.85rem; font-weight:700; color:var(--tcl-blue-600);">Score: 0 pts</span>
       </div>
     </div>
 
-    <div style="margin-bottom:0.75rem;">
+    <div style="margin-bottom:0.75rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
       <span class="noc-track-badge" id="quizModuleBadge">Track 1</span>
-      <span class="noc-track-badge" id="quizTierBadge" style="margin-left:0.35rem; background:rgba(234, 88, 12, 0.1); color:#ea580c; border-color:rgba(234, 88, 12, 0.2);">Core</span>
+      <span class="noc-track-badge" id="quizTierBadge">Tier 1</span>
+      <span class="noc-track-badge" id="quizPtsBadge" style="background:rgba(37, 99, 235, 0.1); color:var(--tcl-blue-600);">+100 pts</span>
     </div>
 
     <h3 id="quizQuestionText" style="font-size:1.15rem; line-height:1.5; margin-bottom:1.25rem; color:var(--tcl-heading);"></h3>
@@ -79,7 +86,7 @@
       <div id="certCandidateName" style="font-size:1.85rem; font-weight:800; color:#1e3a8a; border-bottom:2px solid #cbd5e1; display:inline-block; padding:0 30px 4px; margin-bottom:12px;">Candidate Name</div>
       <div id="certCandidateOrg" style="font-size:14px; color:#475569; font-style:italic; margin-bottom:18px;">Institution / University</div>
       <div style="font-size:14px; max-width:520px; margin:0 auto 20px; line-height:1.5; color:#334155;">
-        has successfully passed the comprehensive examination in <strong>Network-on-Chip (NoC) Architecture, Router Microarchitecture & Deadlock Avoidance Theory</strong>.
+        has successfully passed the examination in <strong>Network-on-Chip (NoC) Architecture, Router Microarchitecture &amp; Deadlock Avoidance Theory</strong>.
       </div>
 
       <div style="display:flex; justify-content:space-around; align-items:center; border-top:1px solid #e2e8f0; padding-top:16px; font-size:12px; color:#64748b;">
@@ -90,6 +97,7 @@
     </div>
 
     <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;">
+      <button class="noc-sim-btn" onclick="submitToGithubIssue()" style="background:#16a34a;">📤 Submit Score to GitHub Leaderboard</button>
       <button class="noc-sim-btn" onclick="downloadCertificateSVG()">📥 Download Certificate (SVG)</button>
       <a href="../leaderboard/" class="noc-sim-btn secondary" style="text-decoration:none;">🏆 View Public Leaderboard</a>
       <button class="noc-sim-btn secondary" onclick="restartQuiz()">🔄 Retake Exam</button>
@@ -102,193 +110,221 @@ const QUESTIONS_BANK = [
   {
     "id": "q1",
     "module": "Track 1: Fundamentals",
-    "tier": "Fundamental",
-    "question": "Why does Wormhole Switching require significantly less buffer area than Virtual Cut-Through (VCT)?",
+    "tier": "Tier 1: Fundamental",
+    "tier_level": 1,
+    "base_points": 100,
+    "question": "Why did multicore processor architectures replace shared multi-drop buses with packet-switched Networks-on-Chip (NoC)?",
     "options": [
-      "Wormhole switching allocates buffers on an atomic flit-by-flit basis rather than requiring space for the entire packet.",
-      "Wormhole switching eliminates all input buffers and routes directly across wires.",
-      "Wormhole switching uses optical crossbars that require no electrical storage.",
-      "Wormhole switching stores packets exclusively at the source node."
+      "Shared buses suffer from capacitive RC wire delays, serialization bottlenecks (only 1 master at a time), and energy overhead as core count scales.",
+      "Shared buses require optical fibers that are too expensive for consumer silicon.",
+      "Shared buses cannot transmit binary 0s and 1s simultaneously.",
+      "Shared buses consume zero power when idle."
     ],
     "answer": 0,
-    "explanation": "In Wormhole switching, the atomic unit of buffer allocation is a flit (a few bytes), whereas Virtual Cut-Through requires the downstream router to have enough buffer capacity to hold the entire packet."
+    "explanation": "As core count scales, shared global buses experience skyrocketing capacitive loading (RC wire delay) and severe bandwidth contention. NoCs replace long shared wires with short point-to-point links and concurrent multi-hop packet routing."
   },
   {
     "id": "q2",
     "module": "Track 1: Fundamentals",
-    "tier": "Core",
-    "question": "In credit-based flow control, if link wire delay is 1 cycle, processing delay is 1 cycle, and credit return wire is 1 cycle, what is the minimum input buffer depth required to sustain 100% throughput?",
+    "tier": "Tier 1: Fundamental",
+    "tier_level": 1,
+    "base_points": 100,
+    "question": "What is the relationship between Packets, Flits, and Phits in NoC communication?",
     "options": [
-      "1 flit",
-      "2 flits",
-      "3 flits",
-      "8 flits"
+      "A Flit is the routing unit; a Packet is the link unit; a Phit is the application message.",
+      "A Packet is the routing unit; a Flit is the atomic flow control & buffer unit; a Phit is the physical wire width transferred in one clock cycle.",
+      "Flits and Phits are identical units used exclusively in optical networks.",
+      "A Packet contains multiple Phits, which are each split into multiple Flits."
     ],
-    "answer": 2,
-    "explanation": "To sustain 100% throughput without bubbles, the buffer depth must be at least equal to the Round-Trip Time (RTT): B >= t_link + t_proc + t_credit = 1 + 1 + 1 = 3 flits."
+    "answer": 1,
+    "explanation": "A Packet carries the end-to-end addressing headers. It is partitioned into Flits (Head, Body, Tail) for buffer allocation. A Phit is the physical link slice transmitted per cycle."
   },
   {
     "id": "q3",
     "module": "Track 2: Router Microarchitecture",
-    "tier": "Core",
-    "question": "Which router pipeline stages are executed by the Head Flit, but skipped by Body Flits in a canonical wormhole router?",
+    "tier": "Tier 1: Fundamental",
+    "tier_level": 1,
+    "base_points": 100,
+    "question": "What primary performance problem is caused by using a single shared FIFO queue at an input port, and how is it solved?",
     "options": [
-      "Buffer Write (BW) and Switch Traversal (ST)",
-      "Route Computation (RC) and Virtual Channel Allocation (VA)",
-      "Switch Allocation (SA) and Switch Traversal (ST)",
-      "Buffer Write (BW) and Switch Allocation (SA)"
+      "Electromigration breakdown; solved by lowering the supply voltage.",
+      "Head-of-Line (HoL) blocking; solved by dividing the buffer into multiple Virtual Channels (VCs).",
+      "Clock skew; solved by adding PLL multipliers to every router.",
+      "Thermal runaway; solved by turning off adjacent routers."
     ],
     "answer": 1,
-    "explanation": "The Head Flit establishes the routing path (RC) and reserves a downstream virtual channel (VA). Body flits follow in the established virtual channel, only performing BW, SA, and ST."
+    "explanation": "Head-of-Line (HoL) blocking occurs when a blocked packet at the front of a FIFO prevents unblocked trailing packets from advancing. Virtual Channels provide independent logical queues so unblocked packets can bypass blocked ones."
   },
   {
     "id": "q4",
-    "module": "Track 2: Router Microarchitecture",
-    "tier": "Advanced",
-    "question": "How does a Matrix Arbiter guarantee starvation freedom (LRU fairness) when multiple input VCs request the same output port?",
+    "module": "Track 3: Topologies & Metrics",
+    "tier": "Tier 1: Fundamental",
+    "tier_level": 1,
+    "base_points": 100,
+    "question": "In a 2D mesh topology, how does the node degree of a corner router compare to an interior router?",
     "options": [
-      "By maintaining a pseudo-random number generator that picks requesters uniformly.",
-      "By clearing the winner's row to 0 and setting its column to 1 in an NxN triangular priority matrix.",
-      "By assigning static priorities based on physical wire coordinates.",
-      "By dropping contending packets and requesting a retransmission."
+      "Corner routers have degree 2 (+ local port); interior routers have degree 4 (+ local port).",
+      "All routers in a 2D mesh have an identical degree of 6.",
+      "Corner routers have degree 4; interior routers have degree 2.",
+      "Corner routers connect directly to all other routers in 1 hop."
     ],
-    "answer": 1,
-    "explanation": "In a Matrix Arbiter, when client k wins, row k is cleared (making k lowest priority) and column k is set to 1 (all other clients now have priority over k). This provides exact Least Recently Used (LRU) fairness in 2 gate levels."
+    "answer": 0,
+    "explanation": "In an open-boundary 2D mesh, corner nodes only have 2 inter-router channels (e.g. East and South), edge nodes have 3, and interior nodes have 4 orthogonal channels (North, South, East, West)."
   },
   {
     "id": "q5",
-    "module": "Track 3: Topologies & Metrics",
-    "tier": "Core",
-    "question": "What is the network diameter of an 8x8 2D Mesh compared to an 8x8 2D Torus?",
+    "module": "Track 1: Fundamentals",
+    "tier": "Tier 2: Core Engineering",
+    "tier_level": 2,
+    "base_points": 200,
+    "question": "In credit-based flow control, if link traversal takes 1 cycle, buffer processing takes 1 cycle, and credit return takes 1 cycle, what happens if the input buffer capacity is only 2 flits?",
     "options": [
-      "Mesh = 14 hops, Torus = 8 hops",
-      "Mesh = 16 hops, Torus = 16 hops",
-      "Mesh = 8 hops, Torus = 4 hops",
-      "Mesh = 64 hops, Torus = 32 hops"
+      "Throughput remains at 100% because credits travel faster than light.",
+      "The upstream router exhausts its credits on cycle 2 and stalls for at least 1 cycle before the first credit returns, capping throughput below 100%.",
+      "Packets are automatically dropped and must be resent by TCP.",
+      "The router experiences an immediate hardware deadlock."
     ],
-    "answer": 0,
-    "explanation": "For a k x k network (k=8), diameter of a mesh is 2(k - 1) = 2(7) = 14 hops. For a torus, wrap-around links cut the diameter to 2 * floor(k/2) = 2(4) = 8 hops."
+    "answer": 1,
+    "explanation": "Round-Trip Time is RTT = 1 + 1 + 1 = 3 cycles. With only 2 buffer slots, the transmitter sends 2 flits and must stall on cycle 3 awaiting credit arrival, introducing pipeline bubbles."
   },
   {
     "id": "q6",
-    "module": "Track 3: Topologies & Metrics",
-    "tier": "Advanced",
-    "question": "Why does a Folded Torus layout resolve the physical VLSI drawback of standard Torus wrap-around links?",
+    "module": "Track 2: Router Microarchitecture",
+    "tier": "Tier 2: Core Engineering",
+    "tier_level": 2,
+    "base_points": 200,
+    "question": "What are the canonical 5 pipeline stages of a classic Virtual Channel wormhole router?",
     "options": [
-      "It removes wrap-around links completely, turning the torus into a star network.",
-      "It interleaves router placement so all physical link lengths become uniform and at most 2 tile widths.",
-      "It replaces copper wires with wireless radio-frequency transceivers.",
-      "It compresses 4 routers into a single crossbar without physical links."
+      "Fetch, Decode, Execute, Memory, Writeback",
+      "Buffer Write (BW) -> Route Computation (RC) -> VC Allocation (VA) -> Switch Allocation (SA) -> Switch Traversal (ST)",
+      "Sample, Hold, Quantize, Encode, Transmit",
+      "Arbitrate, Forward, Compress, Filter, Evict"
     ],
     "answer": 1,
-    "explanation": "In a standard torus, wrap-around wires span the full die diameter. By folding the physical layout accordion-style, all inter-router links become identical in length (at most 2 tile units), avoiding slow global wire RC delays."
+    "explanation": "The canonical 5-stage router pipeline performs Buffer Write (BW), Route Computation (RC), Virtual Channel Allocation (VA), Switch Allocation (SA), and Crossbar Switch Traversal (ST)."
   },
   {
     "id": "q7",
-    "module": "Track 4: Routing & Deadlock",
-    "tier": "Core",
-    "question": "Why is Dimension-Order Routing (XY Routing) provably deadlock-free in a 2D mesh?",
+    "module": "Track 3: Topologies & Metrics",
+    "tier": "Tier 2: Core Engineering",
+    "tier_level": 2,
+    "base_points": 200,
+    "question": "Why does a 4x4 Concentrated Mesh (cMesh) achieve lower zero-load latency for 64 cores than a traditional 8x8 2D Mesh?",
     "options": [
-      "It allows all 8 turns between X and Y dimensions dynamically.",
-      "It prohibits all 4 turns from dimension Y to dimension X, guaranteeing that the Channel Dependency Graph (CDG) is strictly acyclic.",
-      "It drops flits whenever buffer queues fill up.",
-      "It uses deflection routing to bounce flits away from congested links."
+      "By clustering 4 compute cores around each router, total routers decrease from 64 to 16, cutting network diameter from 14 hops to just 6 hops.",
+      "cMesh routers eliminate the need for crossbar switches.",
+      "cMesh operates at double the clock frequency because wires are longer.",
+      "cMesh replaces packet routing with broadcast radio signals."
     ],
-    "answer": 1,
-    "explanation": "By strictly routing along X then Y, all turns from North/South to East/West are prohibited. Because packets can never turn back into X once in Y, closed dependency cycles cannot form."
+    "answer": 0,
+    "explanation": "Concentrating 4 tiles per router reduces router count by 75% (from 64 to 16), reducing the network grid to 4x4. The diameter drops from 2(8-1)=14 to 2(4-1)=6 hops, significantly cutting per-hop traversal delays."
   },
   {
     "id": "q8",
     "module": "Track 4: Routing & Deadlock",
-    "tier": "Advanced",
-    "question": "According to the Turn Model (Glass & Ni), which two turns are prohibited in the West-First routing algorithm?",
+    "tier": "Tier 2: Core Engineering",
+    "tier_level": 2,
+    "base_points": 200,
+    "question": "In the Turn Model (Glass & Ni), which two turns are prohibited in the West-First routing algorithm, and what adaptivity does it preserve?",
     "options": [
-      "North -> East and South -> East",
-      "South -> West and North -> West",
-      "East -> North and East -> South",
-      "West -> North and West -> South"
+      "Prohibits North->East and South->East; preserves Westbound adaptivity.",
+      "Prohibits South->West and North->West; packets heading west must do so first, leaving 100% full adaptivity when traveling East.",
+      "Prohibits East->North and West->North; forces deterministic YX routing.",
+      "Prohibits all 8 turns; completely disables packet movement."
     ],
     "answer": 1,
-    "explanation": "West-First prohibits South -> West (breaking the clockwise cycle) and North -> West (breaking the counter-clockwise cycle). Packets heading west must do so first, after which they can adaptively route East, North, or South."
+    "explanation": "West-First eliminates South->West (breaking clockwise cycle) and North->West (breaking counter-clockwise cycle). Traveling west is deterministic, but traveling east is fully adaptive across East, North, and South links."
   },
   {
     "id": "q9",
-    "module": "Track 4: Routing & Deadlock",
-    "tier": "Mastery",
-    "question": "What is the core premise of Duato's Theorem for deadlock-free adaptive routing?",
+    "module": "Track 2: Router Microarchitecture",
+    "tier": "Tier 3: Silicon Mastery",
+    "tier_level": 3,
+    "base_points": 300,
+    "question": "In a Matrix Arbiter with an NxN triangular priority matrix M, what is the exact hardware update rule when client k is granted the resource?",
     "options": [
-      "Adaptive channels can have cycles in their dependency graph, provided there exists an acyclic escape subnetwork (e.g. using XY VCs) that blocked packets can always access.",
-      "Every virtual channel must strictly maintain an acyclic channel dependency graph at all times.",
-      "Deadlock can only be prevented if buffers are infinite.",
-      "Packets must be reordered at every intermediate hop."
+      "Row k is cleared to all 0s (M[k,:] = 0) and Column k is set to all 1s (M[:,k] = 1).",
+      "All diagonal elements M[i,i] are inverted from 0 to 1.",
+      "The priority matrix is shifted circularly by one bit using a barrel shifter.",
+      "Matrix M is transposed: M = M^T."
     ],
     "answer": 0,
-    "explanation": "Duato proved that the adaptive channel subnetwork can contain cycles, as long as an acyclic escape channel subnetwork exists and packets can always transition to it when congested."
+    "explanation": "To make client k the lowest priority (Least Recently Used), row k is set to 0 (k has priority over no one) and column k is set to 1 (all other active clients take priority over k). This takes effect in 2 gate levels."
   },
   {
     "id": "q10",
-    "module": "Track 5: Thermal & Congestion",
-    "tier": "Core",
-    "question": "Why does reactive Dynamic Thermal Management (DTM) struggle to prevent thermal overshoots in nanometer multi-core NoCs?",
+    "module": "Track 4: Routing & Deadlock",
+    "tier": "Tier 3: Silicon Mastery",
+    "tier_level": 3,
+    "base_points": 300,
+    "question": "How does Duato's Theorem (1993) enable high-performance adaptive routing without deadlock?",
     "options": [
-      "Silicon thermal capacitance introduces a millisecond-scale heat diffusion lag, meaning temperature has already overshot by the time sensors react.",
-      "Thermal sensors consume more power than the compute cores.",
-      "Clock frequencies cannot be changed dynamically on silicon.",
-      "Thermal hotspots only occur at absolute zero temperatures."
+      "It requires every single virtual channel to be strictly acyclic at all times.",
+      "It partitions virtual channels into an adaptive subnetwork (which may contain cycles) and an acyclic escape subnetwork (e.g. XY VCs) that blocked packets can always access to guarantee forward progress.",
+      "It drops packets as soon as a cycle is detected and requests an end-to-end retransmission.",
+      "It forces all packets to take random Hamiltonian walks across the network."
     ],
-    "answer": 0,
-    "explanation": "Heat diffusion takes milliseconds to reach physical sensors, while clock cycles run in sub-nanoseconds. Proactive ML prediction is needed to anticipate hotspots before the physical overshoot occurs."
+    "answer": 1,
+    "explanation": "Duato proved that the adaptive channel subnetwork can contain cycles in its Channel Dependency Graph, provided there exists a connected acyclic escape subnetwork that packets can always enter when congested."
   },
   {
     "id": "q11",
     "module": "Track 5: Thermal & Congestion",
-    "tier": "Advanced",
-    "question": "When reconstructing continuous on-chip thermal profiles from sparse sensors, why do standard Least Squares estimators degrade under real hardware noise?",
+    "tier": "Tier 3: Silicon Mastery",
+    "tier_level": 3,
+    "base_points": 300,
+    "question": "Why do standard Least Squares estimators fail when reconstructing continuous on-chip thermal fields from sparse physical sensors under real silicon operation?",
     "options": [
-      "Physical thermal diodes experience non-Gaussian noise (dI/dt switching spikes, process variations, and outliers) that violate Gaussian assumptions.",
-      "Least Squares can only be solved on quantum computers.",
-      "Temperature is a discrete integer that cannot be interpolated.",
-      "Thermal equations are purely linear and cannot have noise."
+      "Physical thermal sensors exhibit non-Gaussian disturbances (inductive dI/dt noise, process variations, and heavy-tailed impulsive outliers) that violate Gaussian assumptions.",
+      "Least Squares can only interpolate 1-dimensional signals, not 2-dimensional chip planes.",
+      "Thermal sensors only measure voltage, not temperature.",
+      "Silicon substrate temperature is mathematically non-differentiable."
     ],
     "answer": 0,
-    "explanation": "Real on-chip diodes suffer from inductive dI/dt noise and heavy-tailed outliers. Robust M-estimators or robust Kalman filters are required to prevent non-Gaussian sensor glitches from skewing the reconstructed temperature field."
+    "explanation": "On-chip sensors experience high-frequency switching noise and heavy-tailed non-Gaussian outliers from adjacent clock trees. Robust M-estimators or robust Kalman filters must be used to downweight outlier spikes."
   },
   {
     "id": "q12",
     "module": "Track 6: Chiplets & 3D NoC",
-    "tier": "Core",
-    "question": "In a 7-port 3D NoC router connecting Through-Silicon Vias (TSVs), what are the two additional physical ports compared to a standard 2D router?",
+    "tier": "Tier 3: Silicon Mastery",
+    "tier_level": 3,
+    "base_points": 300,
+    "question": "In multi-chiplet packaging using UCIe (Universal Chiplet Interconnect Express), what architectural advantage does standard die-to-die (D2D) packaging provide compared to traditional PCIe?",
     "options": [
-      "Left and Right",
-      "Up and Down (vertical TSV links to upper and lower silicon tiers)",
-      "Clock and Reset",
-      "PCIe and USB"
+      "UCIe delivers up to 1300 Gbps/mm shoreline bandwidth density with ultra-low energy (< 0.5 pJ/bit) and sub-2ns latency, enabling transparent on-chip NoC extensions across dies.",
+      "UCIe uses wireless RF antennas that eliminate all physical microbumps.",
+      "UCIe is limited to board-to-board cables up to 2 meters in length.",
+      "UCIe only supports serial 1-bit asynchronous communication."
     ],
-    "answer": 1,
-    "explanation": "A 3D NoC router adds 'Up' and 'Down' vertical physical ports connected to TSVs, expanding the internal crossbar from 5x5 to 7x7 crosspoints."
+    "answer": 0,
+    "explanation": "UCIe achieves over 28x higher bandwidth density than PCIe with sub-0.5 pJ/bit energy efficiency, allowing routers on adjacent chiplets to be linked transparently into a unified global mesh."
   }
 ];
 
 let activeQuestions = [];
 let currentIdx = 0;
 let userScore = 0;
+let correctCount = 0;
 let timerInterval = null;
-let timeLeft = 30;
-let candidate = { name: "", org: "", mode: "full" };
+let timeLeft = 35;
+let candidate = { name: "", org: "", mode: "full", certId: "", date: "" };
 
 function startQuiz() {
   candidate.name = document.getElementById("candidateName").value.trim() || "Hardware Architect";
   candidate.org = document.getElementById("candidateOrg").value.trim() || "Research Laboratory";
   candidate.mode = document.getElementById("assessmentMode").value;
 
-  if (candidate.mode === "sprint") {
-    activeQuestions = [...QUESTIONS_BANK].sort(() => 0.5 - Math.random()).slice(0, 6);
+  if (candidate.mode === "tier1_sprint") {
+    activeQuestions = QUESTIONS_BANK.filter(q => q.tier_level === 1);
+  } else if (candidate.mode === "grandmaster") {
+    activeQuestions = QUESTIONS_BANK.filter(q => q.tier_level === 3);
   } else {
     activeQuestions = [...QUESTIONS_BANK];
   }
 
   currentIdx = 0;
   userScore = 0;
+  correctCount = 0;
 
   document.getElementById("stepRegistration").style.display = "none";
   document.getElementById("stepResult").style.display = "none";
@@ -307,6 +343,24 @@ function loadQuestion(idx) {
   document.getElementById("quizProgress").textContent = `Question ${idx + 1} of ${activeQuestions.length}`;
   document.getElementById("quizModuleBadge").textContent = q.module;
   document.getElementById("quizTierBadge").textContent = q.tier;
+  document.getElementById("quizPtsBadge").textContent = `+${q.base_points} pts`;
+
+  // Tier badge color
+  const tBadge = document.getElementById("quizTierBadge");
+  if (q.tier_level === 1) {
+    tBadge.style.background = "rgba(34, 197, 94, 0.12)";
+    tBadge.style.color = "#16a34a";
+    tBadge.style.borderColor = "rgba(34, 197, 94, 0.25)";
+  } else if (q.tier_level === 2) {
+    tBadge.style.background = "rgba(234, 88, 12, 0.12)";
+    tBadge.style.color = "#ea580c";
+    tBadge.style.borderColor = "rgba(234, 88, 12, 0.25)";
+  } else {
+    tBadge.style.background = "rgba(147, 51, 234, 0.12)";
+    tBadge.style.color = "#9333ea";
+    tBadge.style.borderColor = "rgba(147, 51, 234, 0.25)";
+  }
+
   document.getElementById("quizQuestionText").textContent = q.question;
 
   const optionsContainer = document.getElementById("quizOptions");
@@ -349,7 +403,9 @@ function checkAnswer(selectedIdx) {
   const isCorrect = (selectedIdx === q.answer);
 
   if (isCorrect) {
-    userScore += 100 + timeLeft * 2;
+    correctCount++;
+    const speedBonus = timeLeft * 3;
+    userScore += q.base_points + speedBonus;
   }
 
   document.getElementById("quizScore").textContent = `Score: ${userScore} pts`;
@@ -395,9 +451,8 @@ function finishQuiz() {
   document.getElementById("stepQuiz").style.display = "none";
   document.getElementById("stepResult").style.display = "block";
 
-  const maxScore = activeQuestions.length * 170;
-  const accuracy = Math.round((userScore / (activeQuestions.length * 100)) * 100);
-  document.getElementById("resultSummary").innerHTML = `Candidate: <strong>${candidate.name}</strong> | Total Score: <strong>${userScore}</strong> pts | Accuracy: <strong>${accuracy}%</strong>`;
+  const accuracy = Math.round((correctCount / activeQuestions.length) * 100);
+  document.getElementById("resultSummary").innerHTML = `Candidate: <strong>${candidate.name}</strong> | Total Score: <strong>${userScore}</strong> pts | Accuracy: <strong>${accuracy}%</strong> (${correctCount}/${activeQuestions.length} correct)`;
 
   // Set Certificate Fields
   document.getElementById("certCandidateName").textContent = candidate.name;
@@ -405,18 +460,72 @@ function finishQuiz() {
   document.getElementById("certScore").textContent = `${userScore} pts (${accuracy}%)`;
 
   const now = new Date();
-  const dateStr = now.toISOString().split("T")[0];
-  document.getElementById("certDate").textContent = dateStr;
+  candidate.date = now.toISOString().split("T")[0];
+  document.getElementById("certDate").textContent = candidate.date;
 
   // Generate deterministic verification hash
   let hashVal = 0;
-  const hashRaw = `${candidate.name}-${userScore}-${dateStr}`;
+  const hashRaw = `${candidate.name}-${userScore}-${candidate.date}`;
   for (let i = 0; i < hashRaw.length; i++) {
     hashVal = (hashVal << 5) - hashVal + hashRaw.charCodeAt(i);
     hashVal |= 0;
   }
-  const certId = `NOC-CERT-${now.getFullYear()}-${Math.abs(hashVal).toString(16).toUpperCase().padStart(6, '0')}`;
-  document.getElementById("certHash").textContent = certId;
+  candidate.certId = `NOC-CERT-${now.getFullYear()}-${Math.abs(hashVal).toString(16).toUpperCase().padStart(6, '0')}`;
+  document.getElementById("certHash").textContent = candidate.certId;
+
+  // Auto-record to local browser leaderboard storage
+  saveScoreToLocalStorage({
+    name: candidate.name,
+    org: candidate.org,
+    track: candidate.mode === "grandmaster" ? "Grandmaster (Tier 3)" : (candidate.mode === "tier1_sprint" ? "Fundamentals Sprint" : "Comprehensive Exam"),
+    score: userScore,
+    accuracy: accuracy,
+    certId: candidate.certId,
+    date: candidate.date,
+    type: "quiz"
+  });
+}
+
+function saveScoreToLocalStorage(record) {
+  try {
+    const current = JSON.parse(localStorage.getItem("noc_leaderboard_records") || "[]");
+    current.unshift(record);
+    localStorage.setItem("noc_leaderboard_records", JSON.stringify(current.slice(0, 50)));
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+function submitToGithubIssue() {
+  const repo = "network-on-chip/learning";
+  const title = `[quiz-result] ${candidate.name} — ${userScore} pts — ${candidate.certId}`;
+  const accuracy = Math.round((correctCount / activeQuestions.length) * 100);
+  const body = [
+    "### NoC Architecture Assessment Submission",
+    `- **Candidate**: ${candidate.name}`,
+    `- **Institution**: ${candidate.org}`,
+    `- **Assessment Mode**: ${candidate.mode}`,
+    `- **Total Score**: ${userScore} pts`,
+    `- **Accuracy**: ${accuracy}% (${correctCount}/${activeQuestions.length} correct)`,
+    `- **Credential Hash**: \`${candidate.certId}\``,
+    `- **Date**: ${candidate.date}`,
+    "",
+    "```json",
+    JSON.stringify({
+      candidate: candidate.name,
+      org: candidate.org,
+      mode: candidate.mode,
+      score: userScore,
+      accuracy: accuracy,
+      certId: candidate.certId,
+      date: candidate.date,
+      type: "quiz"
+    }, null, 2),
+    "```"
+  ].join("\n");
+
+  const url = `https://github.com/${repo}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&labels=quiz-result,leaderboard`;
+  window.open(url, '_blank');
 }
 
 function downloadCertificateSVG() {
