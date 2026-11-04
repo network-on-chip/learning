@@ -185,27 +185,27 @@ const PUZZLE_LEVELS = [
   {
     id: 4,
     name: "Crossbar Contention Duel",
-    objective: "Both flits seek Core (2,2) and will collide at Router (1,2) at cycle 3! Divert one path.",
-    hint: "Click Router (0,2) to configure a detour, staggering their arrival cycles.",
+    objective: "Both flits seek Core (2,2) and will collide at Router (2,2) at cycle 2 under default XY! Divert one path to stagger arrival.",
+    hint: "Click Router (0,2) or (2,0) to configure a detour or YX turn, staggering their arrival cycles.",
     maxCycles: 14,
     faults: [],
     packets: [
-      { id: 1, src: { x: 1, y: 0 }, dst: { x: 2, y: 2 }, color: '#38bdf8', label: 'P1' },
-      { id: 2, src: { x: 0, y: 2 }, dst: { x: 2, y: 2 }, color: '#ec4899', label: 'P2' }
+      { id: 1, src: { x: 0, y: 2 }, dst: { x: 2, y: 2 }, color: '#38bdf8', label: 'P1' },
+      { id: 2, src: { x: 2, y: 0 }, dst: { x: 2, y: 2 }, color: '#ec4899', label: 'P2' }
     ]
   },
   {
     id: 5,
     name: "Breaking the 4-Node Deadlock Trap",
-    objective: "4 packets are trapped in a potential circular dependency cycle (R5-R6-R10-R9). Deploy turn overrides to break the loop!",
-    hint: "Change the routing rule on R6 or R9 to force an exit from the cycle before buffers saturate.",
+    objective: "4 flits are injected around the central 2x2 ring. Default routing causes immediate crossbar collisions at R(2,1) and R(1,2). Reconfigure turns to resolve all conflicts!",
+    hint: "Configure turns on perimeter routers to route flits along non-overlapping paths.",
     maxCycles: 18,
-    faults: [{ x: 3, y: 1 }, { x: 0, y: 2 }],
+    faults: [{ x: 3, y: 0 }, { x: 0, y: 3 }],
     packets: [
       { id: 1, src: { x: 1, y: 1 }, dst: { x: 2, y: 2 }, color: '#38bdf8', label: 'P1' },
-      { id: 2, src: { x: 2, y: 1 }, dst: { x: 1, y: 2 }, color: '#fb923c', label: 'P2' },
+      { id: 2, src: { x: 3, y: 1 }, dst: { x: 1, y: 1 }, color: '#fb923c', label: 'P2' },
       { id: 3, src: { x: 2, y: 2 }, dst: { x: 1, y: 1 }, color: '#4ade80', label: 'P3' },
-      { id: 4, src: { x: 1, y: 2 }, dst: { x: 2, y: 1 }, color: '#a855f7', label: 'P4' }
+      { id: 4, src: { x: 1, y: 3 }, dst: { x: 2, y: 2 }, color: '#a855f7', label: 'P4' }
     ]
   }
 ];
@@ -222,6 +222,9 @@ class PuzzleGame {
     this.cycle = 0;
     this.isRunning = false;
     this.isCompleted = false;
+    this.isFailed = false;
+    this.stepInterval = null;
+    this.collisionNode = null;
 
     this.routerPreferences = {}; // "x,y" -> 'xy', 'yx', 'alt'
     this.activePackets = [];
@@ -250,24 +253,101 @@ class PuzzleGame {
   }
 
   bindEvents() {
-    this.canvas.addEventListener('click', (e) => {
+    const handleAction = (clientX, clientY) => {
       if (this.isRunning) return;
       const rect = this.canvas.getBoundingClientRect();
       const scaleX = this.width / rect.width;
       const scaleY = this.height / rect.height;
-      const mx = (e.clientX - rect.left) * scaleX;
-      const my = (e.clientY - rect.top) * scaleY;
+      const mx = (clientX - rect.left) * scaleX;
+      const my = (clientY - rect.top) * scaleY;
 
       for (let r = 0; r < this.rows; r++) {
         for (let c = 0; c < this.cols; c++) {
           const { px, py } = this.getNodePos(c, r);
-          if (Math.hypot(mx - px, my - py) <= this.nodeRadius + 6) {
+          if (Math.hypot(mx - px, my - py) <= this.nodeRadius + 8) {
             this.toggleRouterPreference(c, r);
             return;
           }
         }
       }
+    };
+
+    this.canvas.addEventListener('click', (e) => {
+      handleAction(e.clientX, e.clientY);
     });
+
+    this.canvas.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches.length > 0) {
+        e.preventDefault();
+        handleAction(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: false });
+  }
+
+  start() {
+    if (this.isCompleted || this.isFailed) {
+      this.restartRun();
+    }
+    this.isRunning = true;
+    const btn = document.getElementById("runPuzzleBtn");
+    if (btn) btn.textContent = "⏸ Pause Clock";
+
+    if (this.stepInterval) clearInterval(this.stepInterval);
+    this.stepInterval = setInterval(() => {
+      if (!this.isRunning || this.isCompleted || this.isFailed) {
+        this.stop();
+        return;
+      }
+      this.step();
+    }, 450);
+  }
+
+  pause() {
+    this.isRunning = false;
+    if (this.stepInterval) {
+      clearInterval(this.stepInterval);
+      this.stepInterval = null;
+    }
+    const btn = document.getElementById("runPuzzleBtn");
+    if (btn) btn.textContent = "▶ Resume Clock";
+  }
+
+  stop() {
+    this.isRunning = false;
+    if (this.stepInterval) {
+      clearInterval(this.stepInterval);
+      this.stepInterval = null;
+    }
+    const btn = document.getElementById("runPuzzleBtn");
+    if (btn) btn.textContent = "▶ Execute Clock";
+  }
+
+  restartRun() {
+    this.stop();
+    this.cycle = 0;
+    this.isCompleted = false;
+    this.isFailed = false;
+    this.deliveredCount = 0;
+    this.collisionNode = null;
+
+    const lvl = PUZZLE_LEVELS[this.currentLevelIdx];
+    this.activePackets = lvl.packets.map(p => ({
+      ...p,
+      curr: { ...p.src },
+      next: null,
+      progress: 0,
+      done: false
+    }));
+
+    const cycleEl = document.getElementById("puzzleCycle");
+    if (cycleEl) cycleEl.textContent = "0";
+    const delivEl = document.getElementById("puzzleDelivered");
+    if (delivEl) delivEl.textContent = `0 / ${lvl.packets.length}`;
+    const succModal = document.getElementById("puzzleSuccessModal");
+    if (succModal) succModal.style.display = "none";
+    const failModal = document.getElementById("puzzleFailureModal");
+    if (failModal) failModal.style.display = "none";
+    this.draw();
   }
 
   toggleRouterPreference(x, y) {
@@ -285,13 +365,16 @@ class PuzzleGame {
   }
 
   loadLevel(idx) {
+    this.stop();
     this.currentLevelIdx = idx;
     const lvl = PUZZLE_LEVELS[idx];
     this.cycle = 0;
     this.isRunning = false;
     this.isCompleted = false;
+    this.isFailed = false;
     this.deliveredCount = 0;
     this.routerPreferences = {};
+    this.collisionNode = null;
 
     document.getElementById("levelSelect").value = lvl.id;
     document.getElementById("objectiveText").textContent = lvl.objective;
@@ -302,6 +385,8 @@ class PuzzleGame {
     document.getElementById("puzzleTotalPackets").textContent = lvl.packets.length;
     document.getElementById("puzzleStars").textContent = "⭐⭐⭐";
     document.getElementById("puzzleSuccessModal").style.display = "none";
+    const failModal = document.getElementById("puzzleFailureModal");
+    if (failModal) failModal.style.display = "none";
     document.getElementById("runPuzzleBtn").textContent = "▶ Execute Clock";
 
     this.activePackets = lvl.packets.map(p => ({
@@ -390,9 +475,21 @@ class PuzzleGame {
         if (occupied[key]) {
           // Crossbar Collision!
           puzzleAudio.playCollision();
-          this.isRunning = false;
-          alert(`💥 Collision detected at Router (${p.next.x},${p.next.y}) in Cycle ${this.cycle}! Reconfigure router preferences to stagger their arrival.`);
-          this.reset();
+          this.isFailed = true;
+          this.stop();
+          this.collisionNode = { x: p.next.x, y: p.next.y };
+
+          const modal = document.getElementById("puzzleFailureModal");
+          const title = document.getElementById("failureModalTitle");
+          const icon = document.getElementById("failureModalIcon");
+          const summary = document.getElementById("puzzleFailureSummary");
+          if (title) title.textContent = "💥 CROSSBAR CONTENTION DETECTED";
+          if (icon) icon.textContent = "💥";
+          if (summary) {
+            summary.innerHTML = `Packets <strong>P${occupied[key]}</strong> and <strong>P${p.id}</strong> collided at <strong>Router (${p.next.x},${p.next.y})</strong> on <strong>Cycle ${this.cycle}</strong>!<br/><br/>Contending packets attempted to enter the same router port simultaneously. Reconfigure router preferences to stagger their arrival cycles.`;
+          }
+          if (modal) modal.style.display = "flex";
+          this.draw();
           return;
         }
         occupied[key] = p.id;
@@ -412,13 +509,38 @@ class PuzzleGame {
       }
     }
 
+    // Timeout / Livelock budget guard
+    const lvl = PUZZLE_LEVELS[this.currentLevelIdx];
+    if (this.cycle > lvl.maxCycles + 6 && this.deliveredCount < this.activePackets.length) {
+      puzzleAudio.playCollision();
+      this.isFailed = true;
+      this.stop();
+
+      const modal = document.getElementById("puzzleFailureModal");
+      const title = document.getElementById("failureModalTitle");
+      const icon = document.getElementById("failureModalIcon");
+      const summary = document.getElementById("puzzleFailureSummary");
+      if (title) title.textContent = "⏳ CYCLE BUDGET EXCEEDED";
+      if (icon) icon.textContent = "⏳";
+      if (summary) {
+        summary.innerHTML = `Execution reached <strong>Cycle ${this.cycle}</strong> without all flits reaching their destinations (Target Par: ${lvl.maxCycles} cycles).<br/><br/>Flits may be caught in a routing loop or livelock. Check your turn directions!`;
+      }
+      if (modal) modal.style.display = "flex";
+      return;
+    }
+
     // Victory condition check
     if (this.deliveredCount === this.activePackets.length) {
       this.isRunning = false;
       this.isCompleted = true;
+      if (this.stepInterval) {
+        clearInterval(this.stepInterval);
+        this.stepInterval = null;
+      }
+      const btn = document.getElementById("runPuzzleBtn");
+      if (btn) btn.textContent = "▶ Execute Clock";
       puzzleAudio.playWin();
 
-      const lvl = PUZZLE_LEVELS[this.currentLevelIdx];
       let stars = "⭐⭐⭐";
       if (this.cycle > lvl.maxCycles) stars = "⭐";
       else if (this.cycle > lvl.maxCycles - 3) stars = "⭐⭐";
@@ -432,6 +554,8 @@ class PuzzleGame {
   }
 
   reset() {
+    this.stop();
+    this.routerPreferences = {};
     this.loadLevel(this.currentLevelIdx);
   }
 
@@ -541,6 +665,22 @@ class PuzzleGame {
       this.ctx.font = 'bold 9px sans-serif';
       this.ctx.fillText(p.label, pos.px, pos.py);
     }
+
+    // Draw collision indicator if collision occurred
+    if (this.collisionNode) {
+      const { px, py } = this.getNodePos(this.collisionNode.x, this.collisionNode.y);
+      this.ctx.beginPath();
+      this.ctx.arc(px, py, this.nodeRadius + 6, 0, Math.PI * 2);
+      this.ctx.lineWidth = 3;
+      this.ctx.strokeStyle = '#ef4444';
+      this.ctx.stroke();
+
+      this.ctx.fillStyle = '#ef4444';
+      this.ctx.font = 'bold 16px sans-serif';
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'bottom';
+      this.ctx.fillText('💥', px, py - this.nodeRadius - 4);
+    }
   }
 
   animate() {
@@ -570,30 +710,31 @@ function loadPuzzleLevel(lvlId) {
 function runPuzzleSim() {
   if (!puzzleGame) return;
   puzzleAudio.init();
-  if (puzzleGame.isCompleted) {
-    puzzleGame.reset();
+  if (puzzleGame.isRunning) {
+    puzzleGame.pause();
+  } else {
+    puzzleGame.start();
   }
-  puzzleGame.isRunning = true;
-  document.getElementById("runPuzzleBtn").textContent = "⏸ Running...";
-  
-  const stepInterval = setInterval(() => {
-    if (!puzzleGame.isRunning || puzzleGame.isCompleted) {
-      clearInterval(stepInterval);
-      document.getElementById("runPuzzleBtn").textContent = "▶ Execute Clock";
-      return;
-    }
-    puzzleGame.step();
-  }, 450);
 }
 
 function stepPuzzleCycle() {
   if (!puzzleGame) return;
   puzzleAudio.init();
+  if (puzzleGame.isRunning) {
+    puzzleGame.pause();
+  }
+  if (puzzleGame.isCompleted || puzzleGame.isFailed) {
+    puzzleGame.restartRun();
+  }
   puzzleGame.step();
 }
 
 function resetPuzzleSim() {
   if (puzzleGame) puzzleGame.reset();
+}
+
+function retryPuzzleLevel() {
+  if (puzzleGame) puzzleGame.restartRun();
 }
 
 function nextPuzzleLevel() {

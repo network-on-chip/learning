@@ -130,7 +130,10 @@ Explore our structured learning pathways designed for undergraduate and graduate
       <span class="noc-track-badge">Track 7</span>
       <div class="noc-track-title">Landmark Paper Deep Dives</div>
       <div class="noc-track-desc">
-        High-school and undergraduate readable walkthroughs of seminal IEEE TCAD, TVLSI, and JSSC papers, directly citing figures and experimental data from our 541-paper repository.
+        Undergraduate-readable walkthroughs of seminal IEEE JSSC, TCAD, and TVLSI papers: Intel 48-Core SCC (2-TB/s DVFS Mesh), NVIDIA Simba (36-chiplet GRS MCM), 3D Optical NoC (TSVs + Micro-Rings), and In-Network Computing neuromorphic routers.
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 4 Interactive Silicon Simulators &amp; Ground Truth Papers
       </div>
     </div>
     <a href="track7-paper-walkthroughs/" class="noc-track-link">Explore Track 7 →</a>
