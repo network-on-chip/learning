@@ -149,6 +149,16 @@ function maskName(name) {
   });
 }
 
+function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 async function fetchStaticCdnRegistry() {
   const candidateUrls = [
     "../data/leaderboard.json",
@@ -278,19 +288,20 @@ function renderLeaderboardTable() {
     else if (currentRank === 3) rankBadge = "🥉";
 
     const localTag = e.isLocal ? '<span class="noc-track-badge" style="background:rgba(34, 197, 94, 0.15); color:#16a34a; font-size:10px; padding:1px 6px; margin-left:6px;">Your Session</span>' : '';
-    const issueLink = e.issueUrl ? (' <a href="' + e.issueUrl + '" target="_blank" style="font-size:11px; text-decoration:none; opacity:0.75;" title="View GitHub Issue">🔗</a>') : '';
-    const metricLabel = e.type === "game" ? (e.accuracy + " deadlocks cleared") : (e.accuracy + "% accuracy");
+    const issueLink = e.issueUrl ? (' <a href="' + escapeHtml(e.issueUrl) + '" target="_blank" rel="noopener noreferrer" style="font-size:11px; text-decoration:none; opacity:0.75;" title="View GitHub Issue">🔗</a>') : '';
+    const metricLabel = e.type === "game" ? (escapeHtml(e.accuracy) + " deadlocks cleared") : (escapeHtml(e.accuracy) + "% accuracy");
     const displayName = shouldMask ? maskName(e.name) : e.name;
     const badgeStyle = e.type === "game" ? 'background:rgba(234, 88, 12, 0.1); color:#ea580c; border-color:rgba(234, 88, 12, 0.2);' : '';
+    const safeCertId = escapeHtml(e.certId || "");
 
     tr.innerHTML = [
       '<td style="text-align:center; font-weight:700;">' + rankBadge + '</td>',
-      '<td><strong>' + displayName + '</strong>' + localTag + issueLink + '<br><span style="font-size:12px; color:var(--md-default-fg-color--lighter);">' + e.org + '</span></td>',
-      '<td><span class="noc-track-badge" style="' + badgeStyle + '">' + e.track + '</span></td>',
-      '<td style="text-align:right; font-weight:800; color:var(--tcl-blue-600);">' + e.score + ' pts</td>',
+      '<td><strong>' + escapeHtml(displayName) + '</strong>' + localTag + issueLink + '<br><span style="font-size:12px; color:var(--md-default-fg-color--lighter);">' + escapeHtml(e.org) + '</span></td>',
+      '<td><span class="noc-track-badge" style="' + badgeStyle + '">' + escapeHtml(e.track) + '</span></td>',
+      '<td style="text-align:right; font-weight:800; color:var(--tcl-blue-600);">' + escapeHtml(e.score) + ' pts</td>',
       '<td style="text-align:right; font-size:13px;">' + metricLabel + '</td>',
-      '<td style="text-align:center;"><code style="cursor:pointer;" onclick="populateVerify(\'' + e.certId + '\')">' + e.certId + '</code></td>',
-      '<td style="text-align:right; font-size:12px; color:var(--md-default-fg-color--lighter);">' + e.date + '</td>'
+      '<td style="text-align:center;"><code style="cursor:pointer;" onclick="populateVerify(\'' + safeCertId + '\')">' + safeCertId + '</code></td>',
+      '<td style="text-align:right; font-size:12px; color:var(--md-default-fg-color--lighter);">' + escapeHtml(e.date) + '</td>'
     ].join("");
 
     tbody.appendChild(tr);
@@ -339,15 +350,15 @@ function verifyHash() {
     resBox.style.border = "1px solid rgba(34, 197, 94, 0.3)";
     resBox.style.color = "#166534";
     resBox.innerHTML = '<strong>✓ VERIFIED AUTHENTIC CREDENTIAL</strong><br>' +
-      'Candidate: <strong>' + match.name + '</strong> (' + match.org + ')<br>' +
-      'Assessment: <strong>' + match.track + '</strong> | Score: <strong>' + match.score + ' pts</strong><br>' +
-      'Conferred Date: <strong>' + match.date + '</strong> | Registry Status: <strong>ACTIVE &amp; VALID</strong>';
+      'Candidate: <strong>' + escapeHtml(match.name) + '</strong> (' + escapeHtml(match.org) + ')<br>' +
+      'Assessment: <strong>' + escapeHtml(match.track) + '</strong> | Score: <strong>' + escapeHtml(match.score) + ' pts</strong><br>' +
+      'Conferred Date: <strong>' + escapeHtml(match.date) + '</strong> | Registry Status: <strong>ACTIVE &amp; VALID</strong>';
   } else if (hash.startsWith("NOC-CERT-2026-") || hash.startsWith("GAME-WAVE-")) {
     resBox.style.background = "rgba(34, 197, 94, 0.1)";
     resBox.style.border = "1px solid rgba(34, 197, 94, 0.3)";
     resBox.style.color = "#166534";
     resBox.innerHTML = '<strong>✓ VALID CLIENT-GENERATED CREDENTIAL</strong><br>' +
-      'Credential ID: <code>' + hash + '</code> conforms to official NoC-Lab 2026 cryptographic formatting.<br>' +
+      'Credential ID: <code>' + escapeHtml(hash) + '</code> conforms to official NoC-Lab 2026 cryptographic formatting.<br>' +
       'Issued via dynamic session.';
   } else {
     resBox.style.background = "rgba(239, 68, 68, 0.1)";

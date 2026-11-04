@@ -528,6 +528,15 @@ function submitToGithubIssue() {
   window.open(url, '_blank');
 }
 
+function escapeXml(str) {
+  return String(str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
 function downloadCertificateSVG() {
   const name = document.getElementById("certCandidateName").textContent;
   const org = document.getElementById("certCandidateOrg").textContent;
@@ -544,25 +553,25 @@ function downloadCertificateSVG() {
     <text x="400" y="130" text-anchor="middle" font-family="'Inter', sans-serif" font-size="28" font-weight="900" fill="#0f172a">CERTIFICATE OF ACHIEVEMENT</text>
     <text x="400" y="175" text-anchor="middle" font-family="'Inter', sans-serif" font-size="14" fill="#475569">This is to proudly certify that</text>
     
-    <text x="400" y="235" text-anchor="middle" font-family="'Inter', sans-serif" font-size="32" font-weight="800" fill="#1e3a8a">${name}</text>
+    <text x="400" y="235" text-anchor="middle" font-family="'Inter', sans-serif" font-size="32" font-weight="800" fill="#1e3a8a">${escapeXml(name)}</text>
     <line x1="200" y1="250" x2="600" y2="250" stroke="#cbd5e1" stroke-width="2" />
     
-    <text x="400" y="285" text-anchor="middle" font-family="'Inter', sans-serif" font-size="16" font-style="italic" fill="#475569">${org}</text>
+    <text x="400" y="285" text-anchor="middle" font-family="'Inter', sans-serif" font-size="16" font-style="italic" fill="#475569">${escapeXml(org)}</text>
     <text x="400" y="340" text-anchor="middle" font-family="'Inter', sans-serif" font-size="15" fill="#334155">has mastered Network-on-Chip (NoC) Architecture,</text>
     <text x="400" y="365" text-anchor="middle" font-family="'Inter', sans-serif" font-size="15" fill="#334155">Router Microarchitecture &amp; Deadlock Avoidance Theory.</text>
     
     <line x1="80" y1="440" x2="720" y2="440" stroke="#e2e8f0" stroke-width="1" />
     
-    <text x="120" y="475" font-family="'Inter', sans-serif" font-size="12" fill="#64748b">SCORE: <tspan font-weight="700" fill="#0f172a">${score}</tspan></text>
-    <text x="400" y="475" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="12" fill="#64748b">HASH: <tspan font-weight="700" fill="#0f172a">${hash}</tspan></text>
-    <text x="680" y="475" text-anchor="end" font-family="'Inter', sans-serif" font-size="12" fill="#64748b">DATE: <tspan font-weight="700" fill="#0f172a">${date}</tspan></text>
+    <text x="120" y="475" font-family="'Inter', sans-serif" font-size="12" fill="#64748b">SCORE: <tspan font-weight="700" fill="#0f172a">${escapeXml(score)}</tspan></text>
+    <text x="400" y="475" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="12" fill="#64748b">HASH: <tspan font-weight="700" fill="#0f172a">${escapeXml(hash)}</tspan></text>
+    <text x="680" y="475" text-anchor="end" font-family="'Inter', sans-serif" font-size="12" fill="#64748b">DATE: <tspan font-weight="700" fill="#0f172a">${escapeXml(date)}</tspan></text>
   </svg>`;
 
   const blob = new Blob([svgContent], { type: "image/svg+xml" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `Certificate_${name.replace(/\s+/g, '_')}_NoC.svg`;
+  a.download = `Certificate_${name.replace(/[^\w.-]+/g, '_')}_NoC.svg`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
