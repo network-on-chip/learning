@@ -9,6 +9,7 @@
   <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
     <a href="../quiz/" class="noc-sim-btn" style="text-decoration:none;">🎯 Take Certification Exam</a>
     <a href="../interactive/game/" class="noc-sim-btn" style="text-decoration:none; background:#ea580c;">👾 Play Deadlock Buster</a>
+    <a href="../interactive/puzzle/" class="noc-sim-btn" style="text-decoration:none; background:#8b5cf6;">🧩 Packet Master Puzzle</a>
   </div>
 </div>
 

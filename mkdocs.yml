@@ -57,6 +57,7 @@ plugins:
             "Interactive Lab": "交互式实验"
             "2D Mesh Routing Visualizer": "二维网格路由仿真"
             "Deadlock Buster Arcade Game": "死锁大作战游戏"
+            "Packet Master: Routing Puzzle": "数据包路由解密挑战"
             "Certification & Quiz": "认证考核与答题"
             "Public Leaderboard": "荣誉排行榜"
             "Architecture Glossary": "专业术语词典"
@@ -117,8 +118,9 @@ extra:
 nav:
   - Home: index.md
   - "Interactive Lab":
-      - "2D Mesh Routing Visualizer": interactive/visualizer.md
       - "Deadlock Buster Arcade Game": interactive/game.md
+      - "Packet Master: Routing Puzzle": interactive/puzzle.md
+      - "2D Mesh Routing Visualizer": interactive/visualizer.md
   - "Certification & Quiz": quiz.md
   - "Public Leaderboard": leaderboard.md
   - "Architecture Glossary": glossary.md
@@ -138,6 +140,8 @@ nav:
       - Overview: track3-topologies/index.md
       - "3.1 Direct Topologies (Mesh & Torus)": track3-topologies/01-direct-topologies.md
       - "3.2 Indirect & Concentrated Networks": track3-topologies/02-indirect-hierarchical.md
+      - "3.3 Interconnect Metrics & Traffic Patterns": track3-topologies/03-metrics-traffic-patterns.md
+      - "3.4 High-Radix (Dragonfly & Flattened Butterfly)": track3-topologies/04-high-radix-topologies.md
   - "Track 4: Routing & Deadlock":
       - Overview: track4-routing-deadlock/index.md
       - "4.1 Deterministic Dimension-Order Routing (DOR)": track4-routing-deadlock/01-deterministic-dor.md

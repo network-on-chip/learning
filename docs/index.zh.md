@@ -4,11 +4,12 @@
   <p class="subtitle">
     连接理论体系、硅基微架构与可复现工程的交互式片上网络（Network-on-Chip, NoC）学习平台。基于 541 篇 IEEE 顶刊论文与端到端硬件仿真基准构建。
   </p>
-  <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
     <a href="track1-fundamentals/index.md" class="noc-sim-btn" style="text-decoration: none;">🚀 开始学习</a>
+    <a href="quiz/" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">🎯 芯片架构认证考核</a>
+    <a href="interactive/game.md" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 死锁大作战游戏</a>
+    <a href="interactive/puzzle.md" class="noc-sim-btn" style="text-decoration: none; background: #8b5cf6;">🧩 路由解密挑战</a>
     <a href="interactive/visualizer.md" class="noc-sim-btn secondary" style="text-decoration: none;">🎮 启动二维网格仿真器</a>
-    <a href="https://network-on-chip.github.io/.github/" target="_blank" class="noc-sim-btn secondary" style="text-decoration: none;">🗺️ 交互式论文地图</a>
-  </div>
+    <a href="leaderboard/" class="noc-sim-btn secondary" style="text-decoration: none;">🏆 荣誉排行榜</a>
 </div>
 
 <div class="noc-stats-grid">
@@ -68,9 +69,12 @@
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge">第三模块</span>
-      <div class="noc-track-title">拓扑结构与评估指标</div>
+      <div class="noc-track-title">拓扑结构与互连指标</div>
       <div class="noc-track-desc">
-        直接拓扑（Mesh, Torus, 折叠环）与间接拓扑（Clos, Butterfly, Fat-Tree）。网络直径、零负载延迟、对分带宽（Bisection Bandwidth）以及聚集网格（cMesh）理论分析。
+        直接拓扑（Mesh, Torus, 折叠环）、间接与集中拓扑（Fat-Tree, cMesh）与高基数拓扑（Dragonfly, 扁平蝶式网络）。深入推导 $T_0$、$\Theta_{sat}$、对分带宽与 UGAL 自适应路由。
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 包含 4 大交互式仿真器与高基数权衡分析仪
       </div>
     </div>
     <a href="track3-topologies/" class="noc-track-link">进入模块三 →</a>
@@ -118,6 +122,28 @@
       </div>
     </div>
     <a href="track7-paper-walkthroughs/" class="noc-track-link">进入模块七 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(234, 88, 12, 0.1); color:#ea580c; border-color:rgba(234, 88, 12, 0.2);">街机游戏</span>
+      <div class="noc-track-title">死锁大作战挑战</div>
+      <div class="noc-track-desc">
+        在高并发流量潮汐下担任芯片路由器仲裁者！基于杜阿托定理（Duato's Theorem）激活逃逸虚通道，在时钟冻结与过热熔毁前化解环形死锁！
+      </div>
+    </div>
+    <a href="interactive/game.md" class="noc-track-link">进入死锁大作战 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(139, 92, 246, 0.1); color:#8b5cf6; border-color:rgba(139, 92, 246, 0.2);">架构解密</span>
+      <div class="noc-track-title">数据包路由解密挑战</div>
+      <div class="noc-track-desc">
+        配置路由器转向偏好、规避介质击穿故障节点、化解交叉开关端口竞争，在限定周期内引导多色彩数据微元无碰撞送达！
+      </div>
+    </div>
+    <a href="interactive/puzzle.md" class="noc-track-link">进入路由解密挑战 →</a>
   </div>
 
   <div class="noc-track-card">

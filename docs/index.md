@@ -8,6 +8,7 @@
     <a href="track1-fundamentals/index.md" class="noc-sim-btn" style="text-decoration: none;">🚀 Start Learning</a>
     <a href="quiz/" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">🎯 Take Certification Quiz</a>
     <a href="interactive/game.md" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 Play Deadlock Buster</a>
+    <a href="interactive/puzzle.md" class="noc-sim-btn" style="text-decoration: none; background: #8b5cf6;">🧩 Packet Master Puzzle</a>
     <a href="interactive/visualizer.md" class="noc-sim-btn secondary" style="text-decoration: none;">🎮 2D Mesh Simulator</a>
     <a href="leaderboard/" class="noc-sim-btn secondary" style="text-decoration: none;">🏆 Leaderboard</a>
     <a href="glossary.md" class="noc-sim-btn secondary" style="text-decoration: none;">📖 Glossary</a>
@@ -71,9 +72,12 @@ Explore our structured learning pathways designed for undergraduate and graduate
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge">Track 3</span>
-      <div class="noc-track-title">Topologies & Metrics</div>
+      <div class="noc-track-title">Topologies &amp; Interconnect Metrics</div>
       <div class="noc-track-desc">
-        Direct (Mesh, Torus, Folded Torus) vs Indirect (Clos, Butterfly, Fat-Tree). Mathematical modeling of zero-load latency, bisection bandwidth, and path diversity.
+        Direct (Mesh, Torus, Folded Torus), Indirect (Clos, Fat-Tree, cMesh), and High-Radix (Dragonfly, Flattened Butterfly). Mathematical derivations of $T_0$, $\Theta_{sat}$, bisection bandwidth, and UGAL adaptive routing.
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 4 Interactive Simulators &amp; High-Radix Analyzer
       </div>
     </div>
     <a href="track3-topologies/" class="noc-track-link">Explore Track 3 →</a>
@@ -132,6 +136,17 @@ Explore our structured learning pathways designed for undergraduate and graduate
       </div>
     </div>
     <a href="interactive/game.md" class="noc-track-link">Play Deadlock Buster →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(139, 92, 246, 0.1); color:#8b5cf6; border-color:rgba(139, 92, 246, 0.2);">Architect Puzzle</span>
+      <div class="noc-track-title">Packet Master Puzzle</div>
+      <div class="noc-track-desc">
+        Configure turning preferences, resolve crossbar collisions, and route around faulty cores to solve 5 increasingly difficult routing puzzle levels!
+      </div>
+    </div>
+    <a href="interactive/puzzle.md" class="noc-track-link">Play Packet Master →</a>
   </div>
 
   <div class="noc-track-card">
