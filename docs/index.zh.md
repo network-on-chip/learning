@@ -5,7 +5,7 @@
     连接理论体系、硅基微架构与可复现工程的交互式片上网络（Network-on-Chip, NoC）学习平台。基于 541 篇 IEEE 顶刊论文与端到端硬件仿真基准构建。
   </p>
   <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-    <a href="track1-fundamentals/" class="noc-sim-btn" style="text-decoration: none;">🚀 开始学习</a>
+    <a href="track1-fundamentals/index.md" class="noc-sim-btn" style="text-decoration: none;">🚀 开始学习</a>
     <a href="interactive/visualizer.md" class="noc-sim-btn secondary" style="text-decoration: none;">🎮 启动二维网格仿真器</a>
     <a href="https://network-on-chip.github.io/.github/" target="_blank" class="noc-sim-btn secondary" style="text-decoration: none;">🗺️ 交互式论文地图</a>
   </div>
@@ -45,7 +45,7 @@
         从共享总线瓶颈到片上网络架构。数据包（Packet）、微元（Flit）与物理传输单元（Phit）。存储转发、虚拟直通与虫洞交换（Wormhole）及基于信用（Credit）的流控机制。
       </div>
     </div>
-    <a href="track1-fundamentals/" class="noc-track-link">进入模块一 →</a>
+    <a href="track1-fundamentals/index.md" class="noc-track-link">进入模块一 →</a>
   </div>
 
   <div class="noc-track-card">

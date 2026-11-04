@@ -5,7 +5,7 @@
     An interactive, scholarly curriculum bridging theoretical computer architecture, silicon router microarchitecture, and open-source reproducible research. Grounded in 541 curated IEEE papers and verified hardware simulations.
   </p>
   <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-    <a href="track1-fundamentals/" class="noc-sim-btn" style="text-decoration: none;">🚀 Start Learning</a>
+    <a href="track1-fundamentals/index.md" class="noc-sim-btn" style="text-decoration: none;">🚀 Start Learning</a>
     <a href="quiz/" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">🎯 Take Certification Quiz</a>
     <a href="interactive/game.md" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 Play Deadlock Buster</a>
     <a href="interactive/visualizer.md" class="noc-sim-btn secondary" style="text-decoration: none;">🎮 2D Mesh Simulator</a>
@@ -48,7 +48,7 @@ Explore our structured learning pathways designed for undergraduate and graduate
         Why shared buses failed. Packets, flits, and phits. Store-and-Forward vs Virtual Cut-Through vs Wormhole flow control and credit-based backpressure.
       </div>
     </div>
-    <a href="track1-fundamentals/" class="noc-track-link">Explore Track 1 →</a>
+    <a href="track1-fundamentals/index.md" class="noc-track-link">Explore Track 1 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -177,4 +177,4 @@ graph LR
 ```
 
 ### Ready to Start?
-Begin your journey with [Track 1: Interconnect Fundamentals](track1-fundamentals/) or try out the [Interactive Simulator](interactive/visualizer.md)!
+Begin your journey with [Track 1: Interconnect Fundamentals](track1-fundamentals/index.md) or try out the [Interactive Simulator](interactive/visualizer.md)!

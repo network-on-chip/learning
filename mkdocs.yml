@@ -28,7 +28,6 @@ theme:
     text: "Inter"
     code: "JetBrains Mono"
   features:
-    - navigation.instant
     - navigation.tracking
     - navigation.tabs
     - navigation.sections
@@ -45,9 +44,9 @@ theme:
 plugins:
   - search
   - i18n:
-      default_language: en
       languages:
         - locale: en
+          default: true
           name: English
           build: true
         - locale: zh
