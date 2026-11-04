@@ -69,7 +69,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive XY / YX Path Stepper &amp; Turn Auditor, Synthesizable Verilog RTL, Self-Check Quiz.
       </div>
     </div>
-    <a href="01-deterministic-dor.md" class="noc-track-link">Launch Lesson 4.1 →</a>
+    <a href="01-deterministic-dor/" class="noc-track-link">Launch Lesson 4.1 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -83,7 +83,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive Turn Model &amp; Cycle Breaker Playground, Path Diversity Formulas, Self-Check Quiz.
       </div>
     </div>
-    <a href="02-adaptive-turn-model.md" class="noc-track-link">Launch Lesson 4.2 →</a>
+    <a href="02-adaptive-turn-model/" class="noc-track-link">Launch Lesson 4.2 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -97,7 +97,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive CDG Deadlock Simulator &amp; Escape Channel Flusher, Silicon Case Studies, Self-Check Quiz.
       </div>
     </div>
-    <a href="03-deadlock-theory-cdg.md" class="noc-track-link">Launch Lesson 4.3 →</a>
+    <a href="03-deadlock-theory-cdg/" class="noc-track-link">Launch Lesson 4.3 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -111,7 +111,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive Cache Coherence Protocol Deadlock &amp; VNET Isolation Visualizer, Self-Check Quiz.
       </div>
     </div>
-    <a href="04-fault-tolerant-protocol-deadlock.md" class="noc-track-link">Launch Lesson 4.4 →</a>
+    <a href="04-fault-tolerant-protocol-deadlock/" class="noc-track-link">Launch Lesson 4.4 →</a>
   </div>
 </div>
 
@@ -128,4 +128,4 @@ Upon completing Track 4, you will be able to:
 5. **Architect Escape Virtual Channels** ($C = C_1 \cup C_0$) in router crossbars to enable aggressive adaptive routing without deadlock risk.
 6. **Differentiate routing-level deadlock from cache coherence protocol-level deadlock**, and design multi-tier Virtual Networks (VNETs) to eliminate Request-Response dependency cycles.
 
-Ready to begin? Start with **[Lesson 4.1: Deterministic Dimension-Order Routing (DOR)](01-deterministic-dor.md)**.
+Ready to begin? Start with **[Lesson 4.1: Deterministic Dimension-Order Routing (DOR)](01-deterministic-dor/)**.

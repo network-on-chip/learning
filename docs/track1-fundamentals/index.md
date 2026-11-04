@@ -71,7 +71,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive Bus vs Crossbar vs NoC Scalability Calculator, Intel TeraFLOPS &amp; SCC silicon case studies, Self-Check Quiz.
       </div>
     </div>
-    <a href="01-why-noc.md" class="noc-track-link">Launch Lesson 1.1 →</a>
+    <a href="01-why-noc/" class="noc-track-link">Launch Lesson 1.1 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -85,7 +85,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive Switching Techniques Simulator with cycle-by-cycle animation &amp; congestion injection, Self-Check Quiz.
       </div>
     </div>
-    <a href="02-packet-switching-flits.md" class="noc-track-link">Launch Lesson 1.2 →</a>
+    <a href="02-packet-switching-flits/" class="noc-track-link">Launch Lesson 1.2 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -99,7 +99,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive Credit Turnaround Loop Simulator, bubble cycle wave visualizer, On/Off hysteresis modeling, Self-Check Quiz.
       </div>
     </div>
-    <a href="03-flow-control-credit.md" class="noc-track-link">Launch Lesson 1.3 →</a>
+    <a href="03-flow-control-credit/" class="noc-track-link">Launch Lesson 1.3 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -113,7 +113,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive AXI-to-Flit Packetizer Explorer, Gray-code pointer CDC breakdown, ARM CMN-700 case study, Self-Check Quiz.
       </div>
     </div>
-    <a href="04-network-interface-packetization.md" class="noc-track-link">Launch Lesson 1.4 →</a>
+    <a href="04-network-interface-packetization/" class="noc-track-link">Launch Lesson 1.4 →</a>
   </div>
 </div>
 
@@ -146,4 +146,4 @@ The transition from buses to NoCs represents one of the most critical shifts in 
 | **2021** | Apple M1 Max / Ultra | UltraFusion 2.5 TB/s D2D NoC | High-density passive interposer linking dual dies with ultra-low latency packet fabric. |
 | **2023** | AMD EPYC Genoa &amp; Zen 4 | Infinity Fabric NoC | Modular chiplet architecture connecting 12 CCDs through a centralized I/O die. |
 
-Ready to begin? Start with **[Lesson 1.1: Why Network-on-Chip?](01-why-noc.md)**.
+Ready to begin? Start with **[Lesson 1.1: Why Network-on-Chip?](01-why-noc/)**.

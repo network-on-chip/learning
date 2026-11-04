@@ -4,11 +4,11 @@
   <p class="subtitle">
     连接理论体系、硅基微架构与可复现工程的交互式片上网络（Network-on-Chip, NoC）学习平台。基于 541 篇 IEEE 顶刊论文与端到端硬件仿真基准构建。
   </p>
-    <a href="track1-fundamentals/index.md" class="noc-sim-btn" style="text-decoration: none;">🚀 开始学习</a>
+    <a href="track1-fundamentals/" class="noc-sim-btn" style="text-decoration: none;">🚀 开始学习</a>
     <a href="quiz/" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">🎯 芯片架构认证考核</a>
-    <a href="interactive/game.md" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 死锁大作战游戏</a>
-    <a href="interactive/puzzle.md" class="noc-sim-btn" style="text-decoration: none; background: #8b5cf6;">🧩 路由解密挑战</a>
-    <a href="interactive/visualizer.md" class="noc-sim-btn secondary" style="text-decoration: none;">🎮 启动二维网格仿真器</a>
+    <a href="interactive/game/" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 死锁大作战游戏</a>
+    <a href="interactive/puzzle/" class="noc-sim-btn" style="text-decoration: none; background: #8b5cf6;">🧩 路由解密挑战</a>
+    <a href="interactive/visualizer/" class="noc-sim-btn secondary" style="text-decoration: none;">🎮 启动二维网格仿真器</a>
     <a href="leaderboard/" class="noc-sim-btn secondary" style="text-decoration: none;">🏆 荣誉排行榜</a>
 </div>
 
@@ -49,7 +49,7 @@
         ⚡ 包含 4 大交互式仿真器与计算器
       </div>
     </div>
-    <a href="track1-fundamentals/index.md" class="noc-track-link">进入模块一 →</a>
+    <a href="track1-fundamentals/" class="noc-track-link">进入模块一 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -113,7 +113,10 @@
       <span class="noc-track-badge">第六模块</span>
       <div class="noc-track-title">芯粒与三维片上网络</div>
       <div class="noc-track-desc">
-        多芯片集成（UCIe, BoW 接口标准）、三维硅通孔（TSV）片上网络架构、光互连片上网络（ONoC）与无线射频片上网络（WNoC）前沿探索。
+        三维硅通孔（TSV）寄生与热应力禁放区（KOZ）、七端口三维路由器、负二项式良率经济学、先进封装（CoWoS/EMIB）、UCIe 协议栈、3D 堆叠热沉陷、光互连片上网络（ONoC）与无线射频（WNoC）前沿。
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 包含 4 大交互式仿真器与 UCIe 权衡分析引擎
       </div>
     </div>
     <a href="track6-chiplets-and-3d/" class="noc-track-link">进入模块六 →</a>
@@ -138,7 +141,7 @@
         在高并发流量潮汐下担任芯片路由器仲裁者！基于杜阿托定理（Duato's Theorem）激活逃逸虚通道，在时钟冻结与过热熔毁前化解环形死锁！
       </div>
     </div>
-    <a href="interactive/game.md" class="noc-track-link">进入死锁大作战 →</a>
+    <a href="interactive/game/" class="noc-track-link">进入死锁大作战 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -149,7 +152,7 @@
         配置路由器转向偏好、规避介质击穿故障节点、化解交叉开关端口竞争，在限定周期内引导多色彩数据微元无碰撞送达！
       </div>
     </div>
-    <a href="interactive/puzzle.md" class="noc-track-link">进入路由解密挑战 →</a>
+    <a href="interactive/puzzle/" class="noc-track-link">进入路由解密挑战 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -160,6 +163,6 @@
         在浏览器中动态观察数据包生成、微元逐跳转发、虚通道仲裁与拥塞排队，实时对比 XY 维序路由与自适应转向模型的流动行为。
       </div>
     </div>
-    <a href="interactive/visualizer.md" class="noc-track-link">启动仿真器 →</a>
+    <a href="interactive/visualizer/" class="noc-track-link">启动仿真器 →</a>
   </div>
 </div>

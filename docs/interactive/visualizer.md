@@ -200,6 +200,28 @@ class NoCSimulator {
   computeNextHop(curr, dst, src) {
     if (curr.x === dst.x && curr.y === dst.y) return null;
 
+    if (this.topology === 'torus') {
+      // Shortest path on torus with wrap-around
+      let stepX = 0, stepY = 0;
+      if (curr.x !== dst.x) {
+        const diffEast = (dst.x - curr.x + this.cols) % this.cols;
+        const diffWest = (curr.x - dst.x + this.cols) % this.cols;
+        stepX = diffEast <= diffWest ? 1 : -1;
+      }
+      if (curr.y !== dst.y) {
+        const diffSouth = (dst.y - curr.y + this.rows) % this.rows;
+        const diffNorth = (curr.y - dst.y + this.rows) % this.rows;
+        stepY = diffSouth <= diffNorth ? 1 : -1;
+      }
+      if (stepX !== 0) {
+        return { x: (curr.x + stepX + this.cols) % this.cols, y: curr.y };
+      }
+      if (stepY !== 0) {
+        return { x: curr.x, y: (curr.y + stepY + this.rows) % this.rows };
+      }
+      return null;
+    }
+
     if (this.algorithm === 'xy') {
       // Dimension-Order Routing (DOR): strictly exhaust X then Y
       if (curr.x < dst.x) return { x: curr.x + 1, y: curr.y };
@@ -249,12 +271,16 @@ class NoCSimulator {
       p.progress += 0.05 * this.speed;
       if (p.progress >= 1) {
         p.progress = 0;
+        // Track link load before advancing position
+        const x1 = Math.min(p.curr.x, p.next.x);
+        const y1 = Math.min(p.curr.y, p.next.y);
+        const x2 = Math.max(p.curr.x, p.next.x);
+        const y2 = Math.max(p.curr.y, p.next.y);
+        const linkKey = `${x1},${y1}-${x2},${y2}`;
+        this.linkLoad[linkKey] = (this.linkLoad[linkKey] || 0) + 1;
+
         p.curr = { ...p.next };
         p.hops++;
-
-        // Track link load
-        const linkKey = `${Math.min(p.curr.x, p.next.x)},${Math.min(p.curr.y, p.next.y)}-${Math.max(p.curr.x, p.next.x)},${Math.max(p.curr.y, p.next.y)}`;
-        this.linkLoad[linkKey] = (this.linkLoad[linkKey] || 0) + 1;
 
         if (p.curr.x === p.dst.x && p.curr.y === p.dst.y) {
           p.done = true;
@@ -344,8 +370,28 @@ class NoCSimulator {
       if (!p.next) continue;
       const p1 = this.getNodePos(p.curr.x, p.curr.y);
       const p2 = this.getNodePos(p.next.x, p.next.y);
-      const fx = p1.px + (p2.px - p1.px) * p.progress;
-      const fy = p1.py + (p2.py - p1.py) * p.progress;
+      const isWrapX = Math.abs(p.next.x - p.curr.x) > 1;
+      const isWrapY = Math.abs(p.next.y - p.curr.y) > 1;
+      let fx, fy;
+
+      if (isWrapX) {
+        if (p.curr.x > p.next.x) {
+          fx = p.progress < 0.5 ? p1.px + 36 * (p.progress * 2) : p2.px - 36 * ((1 - p.progress) * 2);
+        } else {
+          fx = p.progress < 0.5 ? p1.px - 36 * (p.progress * 2) : p2.px + 36 * ((1 - p.progress) * 2);
+        }
+        fy = p1.py;
+      } else if (isWrapY) {
+        if (p.curr.y > p.next.y) {
+          fy = p.progress < 0.5 ? p1.py + 36 * (p.progress * 2) : p2.py - 36 * ((1 - p.progress) * 2);
+        } else {
+          fy = p.progress < 0.5 ? p1.py - 36 * (p.progress * 2) : p2.py + 36 * ((1 - p.progress) * 2);
+        }
+        fx = p1.px;
+      } else {
+        fx = p1.px + (p2.px - p1.px) * p.progress;
+        fy = p1.py + (p2.py - p1.py) * p.progress;
+      }
 
       // Outer glow
       this.ctx.beginPath();
@@ -485,8 +531,33 @@ function injectBurstTraffic() {
 
 function stepSingleCycle() {
   if (!window.sim) return;
-  window.sim.step();
-  window.sim.draw();
+  const s = window.sim;
+  s.cycle++;
+  for (let i = s.packets.length - 1; i >= 0; i--) {
+    const p = s.packets[i];
+    if (p.done) continue;
+    if (!p.next) p.next = s.computeNextHop(p.curr, p.dst, p.src);
+    if (p.next) {
+      const x1 = Math.min(p.curr.x, p.next.x);
+      const y1 = Math.min(p.curr.y, p.next.y);
+      const x2 = Math.max(p.curr.x, p.next.x);
+      const y2 = Math.max(p.curr.y, p.next.y);
+      s.linkLoad[`${x1},${y1}-${x2},${y2}`] = (s.linkLoad[`${x1},${y1}-${x2},${y2}`] || 0) + 1;
+      p.curr = { ...p.next };
+      p.hops++;
+      p.progress = 0;
+      if (p.curr.x === p.dst.x && p.curr.y === p.dst.y) {
+        p.done = true;
+        s.stats.delivered++;
+        s.stats.totalHops += p.hops;
+        s.log(`[Cycle ${s.cycle}] ✨ Pkt #${p.id} DELIVERED to (${p.dst.x},${p.dst.y}) in ${p.hops} hops.`);
+        s.packets.splice(i, 1);
+      } else {
+        p.next = s.computeNextHop(p.curr, p.dst, p.src);
+      }
+    }
+  }
+  s.draw();
 }
 
 function toggleSim(btn) {

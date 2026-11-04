@@ -64,7 +64,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive 2D Silicon Die Thermal RC Ladder &amp; Heat Spreading Simulator, Self-Check Quiz.
       </div>
     </div>
-    <a href="01-thermal-physics-rc-modeling.md" class="noc-track-link">Launch Lesson 5.1 →</a>
+    <a href="01-thermal-physics-rc-modeling/" class="noc-track-link">Launch Lesson 5.1 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -78,7 +78,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive Network Congestion Tree &amp; RCA Telemetry Visualizer, Saturation Formulas, Self-Check Quiz.
       </div>
     </div>
-    <a href="02-congestion-detection-throttling.md" class="noc-track-link">Launch Lesson 5.2 →</a>
+    <a href="02-congestion-detection-throttling/" class="noc-track-link">Launch Lesson 5.2 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -92,7 +92,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive Proactive vs. Reactive Thermal Predictor &amp; DVFS Simulator, Verified Code Walkthrough, Self-Check Quiz.
       </div>
     </div>
-    <a href="03-hotspot-prediction-ml.md" class="noc-track-link">Launch Lesson 5.3 →</a>
+    <a href="03-hotspot-prediction-ml/" class="noc-track-link">Launch Lesson 5.3 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -106,7 +106,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive Sparse Sensor Placement &amp; Robust Reconstruction Playground, Error Covariance Models, Self-Check Quiz.
       </div>
     </div>
-    <a href="04-thermal-sensor-placement.md" class="noc-track-link">Launch Lesson 5.4 →</a>
+    <a href="04-thermal-sensor-placement/" class="noc-track-link">Launch Lesson 5.4 →</a>
   </div>
 </div>
 
@@ -123,4 +123,4 @@ Upon completing Track 5, you will be able to:
 5. **Optimize thermal sensor placement** via Fisher Information maximization to achieve minimal reconstruction error with a minimal sensor budget ($K \ll N$).
 6. **Apply robust M-estimation and Kalman filtering** to filter out non-Gaussian EMI sensor noise and process variation drift.
 
-Ready to begin? Start with **[Lesson 5.1: Thermal Physics & Compact RC Modeling](01-thermal-physics-rc-modeling.md)**.
+Ready to begin? Start with **[Lesson 5.1: Thermal Physics & Compact RC Modeling](01-thermal-physics-rc-modeling/)**.

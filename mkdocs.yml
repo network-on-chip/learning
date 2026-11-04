@@ -100,7 +100,6 @@ markdown_extensions:
 
 extra_javascript:
   - assets/js/mathjax.js
-  - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 extra_css:
@@ -156,7 +155,9 @@ nav:
       - "5.4 Optimal Sensor Placement & Reconstruction": track5-congestion-thermal/04-thermal-sensor-placement.md
   - "Track 6: Chiplets & 3D NoC":
       - Overview: track6-chiplets-and-3d/index.md
-      - "6.1 3D TSV Interconnects": track6-chiplets-and-3d/01-3d-tsv-interconnects.md
-      - "6.2 Multi-Chiplet & UCIe Interconnects": track6-chiplets-and-3d/02-chiplets-ucie-interconnects.md
+      - "6.1 3D TSV Interconnects & Microarchitecture": track6-chiplets-and-3d/01-3d-tsv-interconnects.md
+      - "6.2 Multi-Chiplet Interconnects & UCIe": track6-chiplets-and-3d/02-chiplets-ucie-interconnects.md
+      - "6.3 3D Topologies, Thermal Stacking & Deadlock": track6-chiplets-and-3d/03-3d-topologies-thermal-deadlock.md
+      - "6.4 Emerging Frontiers: ONoC & WNoC": track6-chiplets-and-3d/04-optical-wireless-frontiers.md
   - "Track 7: Landmark Papers":
       - Overview: track7-paper-walkthroughs/index.md

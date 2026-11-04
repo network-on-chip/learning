@@ -63,4 +63,4 @@ Explore these seminal papers curated from our catalog, each featuring digitized 
 Looking for research on a specific topic? Search, filter, and inspect all 541 papers using our live interactive catalog:
 
 - 🌐 **[Launch Interactive NoC Papers Map](https://network-on-chip.github.io/.github/)**
-- 📂 **[Browse Local `papers/` Directory in Repository](file:///home/yongfu/proj/noc-lab/papers/)**
+- 📂 **[Browse Curated Papers Directory on GitHub](https://github.com/network-on-chip/noc-lab/tree/main/papers)**

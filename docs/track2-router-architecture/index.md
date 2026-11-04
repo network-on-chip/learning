@@ -75,7 +75,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive Cycle-by-Cycle Pipeline Stepper, Lookahead Routing derivation, Self-Check Quiz.
       </div>
     </div>
-    <a href="01-pipeline-stages.md" class="noc-track-link">Launch Lesson 2.1 →</a>
+    <a href="01-pipeline-stages/" class="noc-track-link">Launch Lesson 2.1 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -89,7 +89,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive VC Head-of-Line Blocking Solver &amp; Multi-VC Visualizer, Self-Check Quiz.
       </div>
     </div>
-    <a href="02-virtual-channels.md" class="noc-track-link">Launch Lesson 2.2 →</a>
+    <a href="02-virtual-channels/" class="noc-track-link">Launch Lesson 2.2 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -103,7 +103,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive Live 4×4 Matrix Arbiter Simulator, Verilog RTL implementations, Self-Check Quiz.
       </div>
     </div>
-    <a href="03-arbitration-crossbar.md" class="noc-track-link">Launch Lesson 2.3 →</a>
+    <a href="03-arbitration-crossbar/" class="noc-track-link">Launch Lesson 2.3 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -117,7 +117,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive SMART Multi-Hop Bypass Simulator, Mis-speculation recovery models, Self-Check Quiz.
       </div>
     </div>
-    <a href="04-low-latency-bypass-routers.md" class="noc-track-link">Launch Lesson 2.4 →</a>
+    <a href="04-low-latency-bypass-routers/" class="noc-track-link">Launch Lesson 2.4 →</a>
   </div>
 </div>
 
@@ -133,4 +133,4 @@ Upon completing Track 2, you will be able to:
 4. **Evaluate Separable Switch Allocators** (Input-First vs Output-First) and calculate bipartite matching efficiency under synthetic and real-world traffic patterns.
 5. **Architect single-cycle speculative bypass routers** (SMART and lookahead routing) to compress per-hop traversal penalties from 5 clock cycles down to 1 clock cycle.
 
-Ready to begin? Start with **[Lesson 2.1: Canonical Router Pipeline](01-pipeline-stages.md)**.
+Ready to begin? Start with **[Lesson 2.1: Canonical Router Pipeline](01-pipeline-stages/)**.

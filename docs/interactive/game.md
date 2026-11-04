@@ -226,9 +226,18 @@ class DeadlockGame {
     this.nodeRadius = 22;
     this.padding = 60;
     this.initCanvas();
+    this.bindEvents();
 
     this.loop = this.loop.bind(this);
     requestAnimationFrame(this.loop);
+  }
+
+  bindEvents() {
+    this.canvas.addEventListener('click', (e) => {
+      gameAudio.init();
+      if (!this.isPlaying || this.isOver || this.isPaused) return;
+      this.flushEscape();
+    });
   }
 
   initCanvas() {
@@ -481,7 +490,6 @@ class DeadlockGame {
         : "Circular channel dependencies froze 4+ routers simultaneously, halting the clock.";
       summaryEl.innerHTML = `<strong>${reasonText}</strong><br><br>Final Score: <strong>${this.score} pts</strong> | Wave Reached: <strong>Wave ${this.wave}</strong> | Deadlocks Cleared: <strong>${this.deadlockFlushed}</strong>`;
     }
-    saveGameRecord();
   }
 
   updateHUD() {
@@ -854,7 +862,12 @@ function saveGameRecord() {
 
   try {
     const list = JSON.parse(localStorage.getItem("noc_leaderboard_records") || "[]");
-    list.unshift(record);
+    const existingIdx = list.findIndex(r => r.certId === record.certId && r.score === record.score);
+    if (existingIdx !== -1) {
+      list[existingIdx] = record;
+    } else {
+      list.unshift(record);
+    }
     localStorage.setItem("noc_leaderboard_records", JSON.stringify(list.slice(0, 50)));
     const msg = document.getElementById("saveConfirmMsg");
     if (msg) msg.style.display = "block";
@@ -894,6 +907,9 @@ function submitGameToGithub() {
 }
 
 window.addEventListener('keydown', (e) => {
+  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) {
+    return;
+  }
   if (e.code === 'Space') {
     e.preventDefault();
     activateEscapeChannel();

@@ -5,13 +5,13 @@
     An interactive, scholarly curriculum bridging theoretical computer architecture, silicon router microarchitecture, and open-source reproducible research. Grounded in 541 curated IEEE papers and verified hardware simulations.
   </p>
   <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-    <a href="track1-fundamentals/index.md" class="noc-sim-btn" style="text-decoration: none;">🚀 Start Learning</a>
+    <a href="track1-fundamentals/" class="noc-sim-btn" style="text-decoration: none;">🚀 Start Learning</a>
     <a href="quiz/" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">🎯 Take Certification Quiz</a>
-    <a href="interactive/game.md" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 Play Deadlock Buster</a>
-    <a href="interactive/puzzle.md" class="noc-sim-btn" style="text-decoration: none; background: #8b5cf6;">🧩 Packet Master Puzzle</a>
-    <a href="interactive/visualizer.md" class="noc-sim-btn secondary" style="text-decoration: none;">🎮 2D Mesh Simulator</a>
+    <a href="interactive/game/" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 Play Deadlock Buster</a>
+    <a href="interactive/puzzle/" class="noc-sim-btn" style="text-decoration: none; background: #8b5cf6;">🧩 Packet Master Puzzle</a>
+    <a href="interactive/visualizer/" class="noc-sim-btn secondary" style="text-decoration: none;">🎮 2D Mesh Simulator</a>
     <a href="leaderboard/" class="noc-sim-btn secondary" style="text-decoration: none;">🏆 Leaderboard</a>
-    <a href="glossary.md" class="noc-sim-btn secondary" style="text-decoration: none;">📖 Glossary</a>
+    <a href="glossary/" class="noc-sim-btn secondary" style="text-decoration: none;">📖 Glossary</a>
   </div>
 </div>
 
@@ -52,7 +52,7 @@ Explore our structured learning pathways designed for undergraduate and graduate
         ⚡ 4 Interactive Simulators &amp; Calculators
       </div>
     </div>
-    <a href="track1-fundamentals/index.md" class="noc-track-link">Explore Track 1 →</a>
+    <a href="track1-fundamentals/" class="noc-track-link">Explore Track 1 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -114,9 +114,12 @@ Explore our structured learning pathways designed for undergraduate and graduate
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge">Track 6</span>
-      <div class="noc-track-title">Chiplets, 3D NoC & Frontiers</div>
+      <div class="noc-track-title">Chiplets, 3D NoC &amp; Frontiers</div>
       <div class="noc-track-desc">
-        Multi-die packaging (UCIe, BoW), 3D Through-Silicon Vias (TSVs), Optical/Photonic NoC (ONoC), and Wireless NoC (WNoC) architectures.
+        Through-Silicon Vias (TSVs), 7-port 3D routers, negative binomial yield economics, 2.5D packaging (CoWoS, EMIB), the UCIe standard stack, 3D thermal stacking, Optical NoC (ONoC), and Wireless NoC (WNoC).
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 4 Interactive Simulators &amp; UCIe Trade-Off Engine
       </div>
     </div>
     <a href="track6-chiplets-and-3d/" class="noc-track-link">Explore Track 6 →</a>
@@ -141,7 +144,7 @@ Explore our structured learning pathways designed for undergraduate and graduate
         Act as the router arbiter under heavy traffic bursts. Flush escape channels using Duato's Theorem and prevent buffer lockups before time expires!
       </div>
     </div>
-    <a href="interactive/game.md" class="noc-track-link">Play Deadlock Buster →</a>
+    <a href="interactive/game/" class="noc-track-link">Play Deadlock Buster →</a>
   </div>
 
   <div class="noc-track-card">
@@ -152,7 +155,7 @@ Explore our structured learning pathways designed for undergraduate and graduate
         Configure turning preferences, resolve crossbar collisions, and route around faulty cores to solve 5 increasingly difficult routing puzzle levels!
       </div>
     </div>
-    <a href="interactive/puzzle.md" class="noc-track-link">Play Packet Master →</a>
+    <a href="interactive/puzzle/" class="noc-track-link">Play Packet Master →</a>
   </div>
 
   <div class="noc-track-card">
@@ -185,7 +188,7 @@ Explore our structured learning pathways designed for undergraduate and graduate
         Instant searchable dictionary of 50+ NoC terms, from Flits and Wormhole Switching to Matrix Arbiters, TSVs, and UCIe interfaces.
       </div>
     </div>
-    <a href="glossary.md" class="noc-track-link">Browse Glossary →</a>
+    <a href="glossary/" class="noc-track-link">Browse Glossary →</a>
   </div>
 </div>
 
@@ -204,4 +207,4 @@ graph LR
 ```
 
 ### Ready to Start?
-Begin your journey with [Track 1: Interconnect Fundamentals](track1-fundamentals/index.md) or try out the [Interactive Simulator](interactive/visualizer.md)!
+Begin your journey with [Track 1: Interconnect Fundamentals](track1-fundamentals/) or try out the [Interactive Simulator](interactive/visualizer/)!

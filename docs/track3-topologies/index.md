@@ -64,7 +64,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive Mesh vs. Torus Topology Explorer &amp; Shortest-Path Visualizer, Self-Check Quiz.
       </div>
     </div>
-    <a href="01-direct-topologies.md" class="noc-track-link">Launch Lesson 3.1 →</a>
+    <a href="01-direct-topologies/" class="noc-track-link">Launch Lesson 3.1 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -78,7 +78,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive 64-Core Mesh vs. cMesh Area &amp; Latency Calculator, Self-Check Quiz.
       </div>
     </div>
-    <a href="02-indirect-hierarchical.md" class="noc-track-link">Launch Lesson 3.2 →</a>
+    <a href="02-indirect-hierarchical/" class="noc-track-link">Launch Lesson 3.2 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -92,7 +92,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive Synthetic Traffic &amp; Bisection Stress Visualizer, Bit-Complement proof, Self-Check Quiz.
       </div>
     </div>
-    <a href="03-metrics-traffic-patterns.md" class="noc-track-link">Launch Lesson 3.3 →</a>
+    <a href="03-metrics-traffic-patterns/" class="noc-track-link">Launch Lesson 3.3 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -106,7 +106,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive High-Radix vs. Low-Radix Trade-off Explorer, Slingshot case study, Self-Check Quiz.
       </div>
     </div>
-    <a href="04-high-radix-topologies.md" class="noc-track-link">Launch Lesson 3.4 →</a>
+    <a href="04-high-radix-topologies/" class="noc-track-link">Launch Lesson 3.4 →</a>
   </div>
 </div>
 
@@ -122,4 +122,4 @@ Upon completing Track 3, you will be able to:
 4. **Evaluate throughput limits under benchmark traffic patterns** (Uniform Random, Bit-Complement, Transpose, Tornado) and identify the bottleneck bisection channels.
 5. **Architect High-Radix topologies** (Flattened Butterfly and Dragonfly) to compress network diameter down to 2–3 hops for exascale AI and server fabrics.
 
-Ready to begin? Start with **[Lesson 3.1: Direct Topologies (Mesh & Torus)](01-direct-topologies.md)**.
+Ready to begin? Start with **[Lesson 3.1: Direct Topologies (Mesh & Torus)](01-direct-topologies/)**.

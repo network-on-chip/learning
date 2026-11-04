@@ -150,16 +150,25 @@ function maskName(name) {
 }
 
 async function fetchStaticCdnRegistry() {
-  try {
-    const res = await fetch("../data/leaderboard.json", { cache: "no-store" });
-    if (res.ok) {
-      const json = await res.json();
-      if (json && Array.isArray(json.registry)) {
-        staticCdnEntries = json.registry;
+  const candidateUrls = [
+    "../data/leaderboard.json",
+    "../../data/leaderboard.json",
+    "/learning/data/leaderboard.json",
+    "/data/leaderboard.json"
+  ];
+  for (const url of candidateUrls) {
+    try {
+      const res = await fetch(url, { cache: "no-store" });
+      if (res.ok) {
+        const json = await res.json();
+        if (json && Array.isArray(json.registry)) {
+          staticCdnEntries = json.registry;
+          return;
+        }
       }
+    } catch(e) {
+      // Try next candidate URL
     }
-  } catch(e) {
-    console.warn("Could not load static leaderboard.json:", e);
   }
 }
 
