@@ -205,7 +205,7 @@ def sync_leaderboard(output_json: Path) -> None:
     print(f"Successfully generated {output_json} with {len(merged)} verified entries.")
 
     # Also sync config/site.json to docs/config/site.json for static availability
-    root_dir = output_json.parents[1]
+    root_dir = output_json.parents[2]
     site_cfg_src = root_dir / "config" / "site.json"
     site_cfg_dst = root_dir / "docs" / "config" / "site.json"
     if site_cfg_src.exists():

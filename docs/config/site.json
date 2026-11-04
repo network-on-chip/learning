@@ -1,0 +1,30 @@
+{
+  "certificate": {
+    "issuer": "Network-on-Chip Learning Hub",
+    "endorsement_name": "SJTU NoC-Lab & Open Silicon Community",
+    "endorsement_url": "https://github.com/network-on-chip/learning",
+    "course_label": "NoC Architecture & Silicon Interconnect Certification"
+  },
+  "default_course": "noc_architecture",
+  "courses": {
+    "noc_architecture": {
+      "label": "Network-on-Chip Architecture Certification",
+      "eyebrow": "3-Tier Silicon Interconnect Quest"
+    },
+    "deadlock_buster": {
+      "label": "Deadlock Buster: Buffer Defense Arcade",
+      "eyebrow": "Virtual Channel & Escape Routing Arcade"
+    }
+  },
+  "results": {
+    "endpoint": "",
+    "leaderboard_endpoint": "",
+    "auto_submit": true,
+    "github": {
+      "owner": "network-on-chip",
+      "repo": "learning",
+      "issues_api": "https://api.github.com/repos/network-on-chip/learning/issues?state=all&per_page=100",
+      "new_issue_base": "https://github.com/network-on-chip/learning/issues/new"
+    }
+  }
+}
