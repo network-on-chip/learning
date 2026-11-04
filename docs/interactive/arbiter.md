@@ -311,6 +311,7 @@ class ArbiterGame {
     });
 
     window.addEventListener('keydown', (e) => {
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return;
       if (e.code === 'Space') {
         e.preventDefault();
         this.audio.init();

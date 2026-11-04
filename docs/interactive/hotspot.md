@@ -341,14 +341,23 @@ class HotspotGame {
     });
 
     window.addEventListener('keydown', (e) => {
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) {
+        return;
+      }
       if (e.code === 'Space') {
-        e.preventDefault();
-        this.audio.init();
-        this.activateCryoPulse();
+        if (this.isRunning && !this.isOver && !this.isPaused) {
+          e.preventDefault();
+          this.audio.init();
+          this.activateCryoPulse();
+        }
       } else if (e.key === 'p' || e.key === 'P') {
-        this.togglePause();
+        if (this.isRunning && !this.isOver) {
+          this.togglePause();
+        }
       } else if (e.key === 'r' || e.key === 'R') {
-        this.start();
+        if (this.isRunning || this.isOver) {
+          this.start();
+        }
       }
     });
   }

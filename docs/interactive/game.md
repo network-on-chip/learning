@@ -428,12 +428,14 @@ class DeadlockGame {
   flushEscape() {
     if (!this.isPlaying || this.isOver || this.isPaused) return;
 
-    if (this.escapeEnergy < 25) {
-      // Energy too low!
+    const isEmergency = this.deadlockedNodes.size >= 4;
+    if (this.escapeEnergy < 15 && !isEmergency) {
+      // Energy too low for manual preemptive flush!
       return;
     }
 
-    this.escapeEnergy = Math.max(0, this.escapeEnergy - 35);
+    const energyDeducted = Math.min(this.escapeEnergy, 35);
+    this.escapeEnergy = Math.max(0, this.escapeEnergy - energyDeducted);
     gameAudio.playEscapeFlush();
 
     let clearedCount = 0;
@@ -943,12 +945,18 @@ window.addEventListener('keydown', (e) => {
     return;
   }
   if (e.code === 'Space') {
-    e.preventDefault();
-    activateEscapeChannel();
+    if (game && game.isPlaying && !game.isOver && !game.isPaused) {
+      e.preventDefault();
+      activateEscapeChannel();
+    }
   } else if (e.code === 'KeyP') {
-    togglePauseGame();
+    if (game && game.isPlaying && !game.isOver) {
+      togglePauseGame();
+    }
   } else if (e.code === 'KeyR') {
-    restartGame();
+    if (game && (game.isPlaying || game.isOver)) {
+      restartGame();
+    }
   } else if (e.code === 'Digit1') {
     const sel = document.getElementById("gamePolicy");
     if (sel) { sel.value = "adaptive"; setGamePolicy("adaptive"); }

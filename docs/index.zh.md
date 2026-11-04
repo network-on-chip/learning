@@ -204,6 +204,28 @@
 
   <div class="noc-track-card">
     <div>
+      <span class="noc-track-badge" style="background:rgba(236, 72, 153, 0.1); color:#ec4899; border-color:rgba(236, 72, 153, 0.2);">硅基光子学</span>
+      <div class="noc-track-title">光子领航员：光互连网络</div>
+      <div class="noc-track-desc">
+        在硅基光波导上调度多波长激光（WDM）！热调谐微环谐振腔（MRR），动态补偿热漂移，以光速完成低损耗全光交叉路由！
+      </div>
+    </div>
+    <a href="interactive/optical/" class="noc-track-link">进入光子领航员 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(16, 185, 129, 0.1); color:#10b981; border-color:rgba(16, 185, 129, 0.2);">流控与反压</span>
+      <div class="noc-track-title">信用指挥官：流控防御</div>
+      <div class="noc-track-desc">
+        驾驭飞行延迟（RTT）环境下的信用机制（Credit-Based Flow Control）！精细调优信用批量回传与阈值反压，捍卫零丢包传输！
+      </div>
+    </div>
+    <a href="interactive/credits/" class="noc-track-link">进入信用指挥官 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
       <span class="noc-track-badge">交互式仿真</span>
       <div class="noc-track-title">二维网格路由仿真器</div>
       <div class="noc-track-desc">

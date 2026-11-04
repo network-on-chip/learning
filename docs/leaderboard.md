@@ -14,6 +14,8 @@
     <a href="../interactive/chiplet/" class="noc-sim-btn" style="text-decoration:none; background:#10b981;">🏗️ Chiplet Tycoon</a>
     <a href="../interactive/arbiter/" class="noc-sim-btn" style="text-decoration:none; background:#ea580c;">⚡ Arbiter Arena</a>
     <a href="../interactive/topology/" class="noc-sim-btn" style="text-decoration:none; background:#3b82f6;">🌐 Topology Titans</a>
+    <a href="../interactive/optical/" class="noc-sim-btn" style="text-decoration:none; background:#ec4899;">💡 Photon Pilot</a>
+    <a href="../interactive/credits/" class="noc-sim-btn" style="text-decoration:none; background:#10b981;">💳 Credit Commander</a>
   </div>
 </div>
 
@@ -45,6 +47,8 @@ Verify any candidate's digital certificate hash against our public registry:
     <option value="chiplet">Chiplet Tycoon (Multi-Die Architect)</option>
     <option value="arbiter">Arbiter Arena (Crossbar Clash)</option>
     <option value="topology">Topology Titans (Graph Architect)</option>
+    <option value="optical">Photon Pilot (Optical NoC Grid)</option>
+    <option value="credit">Credit Commander (Flow Control Defense)</option>
   </select>
 
   <label style="font-size:0.85rem; font-weight:600; margin-left:0.5rem; cursor:pointer; display:flex; align-items:center; gap:0.35rem;">
@@ -188,6 +192,28 @@ const DEFAULT_REGISTRY = [
     "date": "2026-11-04",
     "certId": "TOPO-M5-D3",
     "type": "topology"
+  },
+  {
+    "rank": 11,
+    "name": "Dr. Lucian Vance",
+    "org": "Columbia Lightwave Research",
+    "track": "Photon Pilot (Wave 6)",
+    "score": 1540,
+    "accuracy": 8.4,
+    "date": "2026-11-04",
+    "certId": "OPTICAL-WAVE-6",
+    "type": "optical"
+  },
+  {
+    "rank": 12,
+    "name": "Sarah Jenkins",
+    "org": "Intel On-Chip Interconnects",
+    "track": "Credit Commander (Wave 7)",
+    "score": 1490,
+    "accuracy": 96,
+    "date": "2026-11-04",
+    "certId": "CREDIT-WAVE-7",
+    "type": "credit"
   }
 ];
 let liveGitHubEntries = [];
@@ -325,6 +351,30 @@ async function fetchLiveGitHubIssues() {
               type: "topology",
               issueUrl: issue.html_url
             });
+          } else if (itemType === "optical") {
+            liveGitHubEntries.push({
+              name: payload.player || payload.name || "Photon Pilot",
+              org: payload.org || "Silicon Lab",
+              track: "Photon Pilot (Wave " + (payload.wave || 1) + ")",
+              score: Number(payload.score) || 0,
+              accuracy: Number(payload.bandwidth_tbps) || 0,
+              certId: "OPTICAL-WAVE-" + (payload.wave || 1),
+              date: payload.date || (issue.created_at || "").slice(0, 10),
+              type: "optical",
+              issueUrl: issue.html_url
+            });
+          } else if (itemType === "credit") {
+            liveGitHubEntries.push({
+              name: payload.player || payload.name || "Flow Commander",
+              org: payload.org || "Silicon Lab",
+              track: "Credit Commander (Wave " + (payload.wave || 1) + ")",
+              score: Number(payload.score) || 0,
+              accuracy: Number(payload.efficiency) || 100,
+              certId: "CREDIT-WAVE-" + (payload.wave || 1),
+              date: payload.date || (issue.created_at || "").slice(0, 10),
+              type: "credit",
+              issueUrl: issue.html_url
+            });
           }
         } catch(err) {}
       });
@@ -406,6 +456,12 @@ function renderLeaderboardTable() {
     } else if (e.type === "topology") {
       metricLabel = "Diam " + escapeHtml(e.accuracy) + " hops";
       badgeStyle = 'background:rgba(59, 130, 246, 0.1); color:#3b82f6; border-color:rgba(59, 130, 246, 0.2);';
+    } else if (e.type === "optical") {
+      metricLabel = escapeHtml(e.accuracy) + " Tbps bandwidth";
+      badgeStyle = 'background:rgba(236, 72, 153, 0.1); color:#ec4899; border-color:rgba(236, 72, 153, 0.2);';
+    } else if (e.type === "credit") {
+      metricLabel = escapeHtml(e.accuracy) + "% efficiency";
+      badgeStyle = 'background:rgba(16, 185, 129, 0.1); color:#10b981; border-color:rgba(16, 185, 129, 0.2);';
     }
     const displayName = shouldMask ? maskName(e.name) : e.name;
     const safeCertId = escapeHtml(e.certId || "");

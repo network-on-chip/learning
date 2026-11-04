@@ -17,6 +17,8 @@ def test_platform_features():
     chiplet_md = (docs_dir / "interactive" / "chiplet.md").read_text(encoding="utf-8")
     arbiter_md = (docs_dir / "interactive" / "arbiter.md").read_text(encoding="utf-8")
     topo_md = (docs_dir / "interactive" / "topology.md").read_text(encoding="utf-8")
+    optical_md = (docs_dir / "interactive" / "optical.md").read_text(encoding="utf-8")
+    credits_md = (docs_dir / "interactive" / "credits.md").read_text(encoding="utf-8")
     leaderboard_md = (docs_dir / "leaderboard.md").read_text(encoding="utf-8")
     quiz_md = (docs_dir / "quiz.md").read_text(encoding="utf-8")
 
@@ -66,6 +68,24 @@ def test_platform_features():
     assert "TOPO_MISSIONS" in topo_md, "topology.md missing campaign missions"
     print("✓ Game 6 (Topology Titans: Graph Architect): Exascale topology graph, Floyd-Warshall diameter, bisection bandwidth verified.")
 
+    # Photon Pilot: Silicon Photonics WDM Waveguide
+    assert "opticalCanvas" in optical_md, "optical.md missing opticalCanvas"
+    assert "saveOpticalRecord" in optical_md, "optical.md missing saveOpticalRecord()"
+    assert "submitOpticalToGithub" in optical_md, "optical.md missing submitOpticalToGithub()"
+    assert "OpticalAudio" in optical_md, "optical.md missing procedural audio engine"
+    assert "WAVELENGTHS" in optical_md, "optical.md missing WDM wavelength definitions"
+    assert "MRR" in optical_md, "optical.md missing Micro-Ring Resonator physics"
+    print("✓ Game 7 (Photon Pilot: Silicon Photonics): WDM wavelengths, Micro-Ring Resonators, thermal drift, and audio verified.")
+
+    # Credit Commander: Flow Control Protocol Simulator
+    assert "creditCanvas" in credits_md, "credits.md missing creditCanvas"
+    assert "saveCreditRecord" in credits_md, "credits.md missing saveCreditRecord()"
+    assert "submitCreditToGithub" in credits_md, "credits.md missing submitCreditToGithub()"
+    assert "CreditAudio" in credits_md, "credits.md missing procedural audio engine"
+    assert "txCredits" in credits_md, "credits.md missing txCredits state"
+    assert "creditWire" in credits_md, "credits.md missing creditWire flight delay"
+    print("✓ Game 8 (Credit Commander: Flow Control): Credit-based flow control, RTT round-trip delays, drain boost, and audio verified.")
+
     print("\n=== 2. VERIFYING LEADERBOARD SYNC & FILTERING ===")
     assert "getMergedRegistry" in leaderboard_md, "leaderboard.md missing getMergedRegistry()"
     assert "noc_leaderboard_records" in leaderboard_md, "leaderboard.md missing localStorage read"
@@ -75,10 +95,12 @@ def test_platform_features():
     assert "chiplet" in leaderboard_md, "leaderboard.md missing chiplet filter category"
     assert "arbiter" in leaderboard_md, "leaderboard.md missing arbiter filter category"
     assert "topology" in leaderboard_md, "leaderboard.md missing topology filter category"
+    assert "optical" in leaderboard_md, "leaderboard.md missing optical filter category"
+    assert "credit" in leaderboard_md, "leaderboard.md missing credit filter category"
     assert "Your Session" in leaderboard_md, "leaderboard.md missing 'Your Session' badge for local player records"
     assert "verifyHash" in leaderboard_md, "leaderboard.md missing certificate verification tool"
     print("✓ Leaderboard dynamically merges browser localStorage records with seeded Hall of Fame.")
-    print("✓ Supports full category filtering: All, Quiz, Deadlock Buster, Hotspot Hero, Chiplet Tycoon, Arbiter Arena, and Topology Titans.")
+    print("✓ Supports full category filtering: All, Quiz, Deadlock Buster, Hotspot Hero, Chiplet Tycoon, Arbiter Arena, Topology Titans, Photon Pilot, and Credit Commander.")
     print("✓ Real-time cryptographic credential verification verified.")
 
     print("\n=== 3. VERIFYING 3-TIER DIFFICULTY ENGINE IN QUIZ ===")

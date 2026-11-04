@@ -207,6 +207,28 @@ Explore our structured learning pathways designed for undergraduate and graduate
 
   <div class="noc-track-card">
     <div>
+      <span class="noc-track-badge" style="background:rgba(236, 72, 153, 0.1); color:#ec4899; border-color:rgba(236, 72, 153, 0.2);">Silicon Photonics</span>
+      <div class="noc-track-title">Photon Pilot Optical Grid</div>
+      <div class="noc-track-desc">
+        Steer multi-wavelength laser beams ($\lambda_1 \dots \lambda_4$) through silicon waveguides! Tune micro-ring resonators, manage WDM, and counter thermal drift.
+      </div>
+    </div>
+    <a href="interactive/optical/" class="noc-track-link">Play Photon Pilot →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(16, 185, 129, 0.1); color:#10b981; border-color:rgba(16, 185, 129, 0.2);">Flow Control Defense</span>
+      <div class="noc-track-title">Credit Commander Link</div>
+      <div class="noc-track-desc">
+        Govern link-level flow control across flight delays ($RTT=5$ cycles)! Track credit counters, batch credit returns, and defend against buffer overflow.
+      </div>
+    </div>
+    <a href="interactive/credits/" class="noc-track-link">Play Credit Commander →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
       <span class="noc-track-badge" style="background:rgba(14, 165, 233, 0.1); color:#0284c7; border-color:rgba(14, 165, 233, 0.2);">Certification</span>
       <div class="noc-track-title">Architecture Assessment &amp; Quiz</div>
       <div class="noc-track-desc">

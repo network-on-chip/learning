@@ -125,6 +125,28 @@ SEED_REGISTRY = [
         "date": "2026-11-04",
         "certId": "TOPO-M5-D3",
         "type": "topology"
+    },
+    {
+        "rank": 11,
+        "name": "Dr. Lucian Vance",
+        "org": "UCSB Photonics Research",
+        "track": "Photon Pilot (Wave 6)",
+        "score": 1540,
+        "accuracy": 32,
+        "date": "2026-11-04",
+        "certId": "PHOTON-WAVE-6",
+        "type": "optical"
+    },
+    {
+        "rank": 12,
+        "name": "Sarah Jenkins",
+        "org": "Arm Interconnect Systems",
+        "track": "Credit Commander (Wave 6)",
+        "score": 1490,
+        "accuracy": 34,
+        "date": "2026-11-04",
+        "certId": "CREDIT-WAVE-6",
+        "type": "credit"
     }
 ]
 
@@ -295,6 +317,44 @@ def sync_leaderboard(output_json: Path) -> None:
                 "certId": f"TOPO-M{mission}",
                 "date": date_str,
                 "type": "topology",
+                "issue_url": issue.get("html_url")
+            })
+        elif item_type == "optical":
+            name = payload.get("player", payload.get("name", "Photon Pilot"))
+            org = payload.get("org", "Silicon Photonics Lab")
+            score = int(payload.get("score", 0))
+            wave = int(payload.get("wave", 1))
+            guided = int(payload.get("guided", 0))
+            date_str = payload.get("date", issue.get("created_at", "")[:10])
+
+            extracted_records.append({
+                "name": name,
+                "org": org,
+                "track": f"Photon Pilot (Wave {wave})",
+                "score": score,
+                "accuracy": guided,
+                "certId": f"PHOTON-WAVE-{wave}",
+                "date": date_str,
+                "type": "optical",
+                "issue_url": issue.get("html_url")
+            })
+        elif item_type == "credit":
+            name = payload.get("player", payload.get("name", "Credit Commander"))
+            org = payload.get("org", "Interconnect Lab")
+            score = int(payload.get("score", 0))
+            wave = int(payload.get("wave", 1))
+            delivered = int(payload.get("delivered", 0))
+            date_str = payload.get("date", issue.get("created_at", "")[:10])
+
+            extracted_records.append({
+                "name": name,
+                "org": org,
+                "track": f"Credit Commander (Wave {wave})",
+                "score": score,
+                "accuracy": delivered,
+                "certId": f"CREDIT-WAVE-{wave}",
+                "date": date_str,
+                "type": "credit",
                 "issue_url": issue.get("html_url")
             })
 

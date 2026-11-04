@@ -62,6 +62,8 @@ plugins:
             "Chiplet Tycoon: 2.5D/3D Multi-Die": "芯粒大亨：先进封装设计挑战"
             "Arbiter Arena: Crossbar Clash": "仲裁竞技场：交叉开关调度挑战"
             "Topology Titans: Graph Architect": "拓扑巨人：超算图互连架构师"
+            "Photon Pilot: Optical NoC Grid": "光子领航员：光互连网络"
+            "Credit Commander: Flow Control": "信用指挥官：流控与反压防御"
             "Certification & Quiz": "认证考核与答题"
             "Public Leaderboard": "荣誉排行榜"
             "Architecture Glossary": "专业术语词典"
@@ -127,6 +129,8 @@ nav:
       - "Chiplet Tycoon: 2.5D/3D Multi-Die": interactive/chiplet.md
       - "Arbiter Arena: Crossbar Clash": interactive/arbiter.md
       - "Topology Titans: Graph Architect": interactive/topology.md
+      - "Photon Pilot: Optical NoC Grid": interactive/optical.md
+      - "Credit Commander: Flow Control": interactive/credits.md
       - "2D Mesh Routing Visualizer": interactive/visualizer.md
   - "Certification & Quiz": quiz.md
   - "Public Leaderboard": leaderboard.md

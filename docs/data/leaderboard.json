@@ -1,7 +1,7 @@
 {
   "ok": true,
   "generated_at": "2026-11-05T00:00:00Z",
-  "total_records": 10,
+  "total_records": 12,
   "source": "network-on-chip/learning GitHub Issues + Seed Hall of Fame",
   "registry": [
     {
@@ -105,6 +105,28 @@
     },
     {
       "rank": 10,
+      "name": "Dr. Lucian Vance",
+      "org": "UCSB Photonics Research",
+      "track": "Photon Pilot (Wave 6)",
+      "score": 1540,
+      "accuracy": 32,
+      "date": "2026-11-04",
+      "certId": "PHOTON-WAVE-6",
+      "type": "optical"
+    },
+    {
+      "rank": 11,
+      "name": "Sarah Jenkins",
+      "org": "Arm Interconnect Systems",
+      "track": "Credit Commander (Wave 6)",
+      "score": 1490,
+      "accuracy": 34,
+      "date": "2026-11-04",
+      "certId": "CREDIT-WAVE-6",
+      "type": "credit"
+    },
+    {
+      "rank": 12,
       "name": "Lucas Dubois",
       "org": "EPFL Parallel Systems",
       "track": "Deadlock Buster (Wave 5)",

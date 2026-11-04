@@ -149,20 +149,20 @@ const PUZZLE_LEVELS = [
   {
     id: 1,
     name: "Dimension-Order Highway",
-    objective: "Route Blue flit to (3,0) and Green flit to (0,3). All routers operational.",
+    objective: "Route Blue flit along row 0 to (3,0) and Green flit along column 0 to (0,3). All routers operational.",
     hint: "Default XY routing naturally prevents collision as their paths are orthogonal.",
     maxCycles: 12,
     faults: [],
     packets: [
       { id: 1, src: { x: 0, y: 0 }, dst: { x: 3, y: 0 }, color: '#38bdf8', label: 'P1' },
-      { id: 2, src: { x: 0, y: 0 }, dst: { x: 0, y: 3 }, color: '#4ade80', label: 'P2' }
+      { id: 2, src: { x: 0, y: 1 }, dst: { x: 0, y: 3 }, color: '#4ade80', label: 'P2' }
     ]
   },
   {
     id: 2,
     name: "Dielectric Fault Detour",
     objective: "Core (1,1) suffered dielectric breakdown and is OFFLINE. Detour Packets around the dead node.",
-    hint: "Click Router (0,1) to switch from XY to YX so Packet 1 bypasses the dead router (1,1) via column 0.",
+    hint: "Click Router (0,0) to switch to YX so Packet 1 routes South via column 0, avoiding both the collision at (1,0) and the dead router at (1,1).",
     maxCycles: 15,
     faults: [{ x: 1, y: 1 }],
     packets: [
@@ -173,20 +173,20 @@ const PUZZLE_LEVELS = [
   {
     id: 3,
     name: "The Turn Model Maze",
-    objective: "West-bound turns are restricted. Route Orange flit from (2,2) to (0,1) using valid West-First turns.",
-    hint: "In West-First, packets MUST traverse West before any vertical turns to avoid deadlock cycles.",
+    objective: "West-bound turns are restricted under the West-First Turn Model. Route Orange flit from (2,1) to (0,0) and Blue flit from (0,1) to (2,0).",
+    hint: "Orange flit MUST route West first. Blue flit can turn North first by toggling Router (0,1) to YX, preventing collision at R(1,1)!",
     maxCycles: 16,
     faults: [{ x: 1, y: 2 }],
     packets: [
-      { id: 1, src: { x: 2, y: 2 }, dst: { x: 0, y: 1 }, color: '#fb923c', label: 'P1' },
-      { id: 2, src: { x: 1, y: 0 }, dst: { x: 3, y: 2 }, color: '#38bdf8', label: 'P2' }
+      { id: 1, src: { x: 2, y: 1 }, dst: { x: 0, y: 0 }, color: '#fb923c', label: 'P1' },
+      { id: 2, src: { x: 0, y: 1 }, dst: { x: 2, y: 0 }, color: '#38bdf8', label: 'P2' }
     ]
   },
   {
     id: 4,
     name: "Crossbar Contention Duel",
-    objective: "Both flits seek Core (2,2) and will collide at Router (2,2) at cycle 2 under default XY! Divert one path to stagger arrival.",
-    hint: "Click Router (0,2) or (2,0) to configure a detour or YX turn, staggering their arrival cycles.",
+    objective: "Both flits seek Core (2,2) and will collide at Router (2,2) at cycle 2 under default XY! Use an Adaptive Detour to stagger arrival.",
+    hint: "Click Router (0,2) to cycle from XY ➔ YX ➔ TURN (Adaptive Detour). Packet 1 will detour North to (0,1), staggering its arrival by 2 cycles!",
     maxCycles: 14,
     faults: [],
     packets: [
@@ -197,15 +197,15 @@ const PUZZLE_LEVELS = [
   {
     id: 5,
     name: "Breaking the 4-Node Deadlock Trap",
-    objective: "4 flits are injected around the central 2x2 ring. Default routing causes immediate crossbar collisions at R(2,1) and R(1,2). Reconfigure turns to resolve all conflicts!",
-    hint: "Configure turns on perimeter routers to route flits along non-overlapping paths.",
+    objective: "4 flits are injected around the central 2x2 ring. Default XY routing causes immediate crossbar collisions. Reconfigure turns to resolve all conflicts!",
+    hint: "Toggling routers (1,1), (2,1), (2,2), and (1,2) to YX breaks dimension-order symmetry and creates collision-free clockwise flow!",
     maxCycles: 18,
-    faults: [{ x: 3, y: 0 }, { x: 0, y: 3 }],
+    faults: [{ x: 0, y: 0 }, { x: 3, y: 3 }],
     packets: [
       { id: 1, src: { x: 1, y: 1 }, dst: { x: 2, y: 2 }, color: '#38bdf8', label: 'P1' },
-      { id: 2, src: { x: 3, y: 1 }, dst: { x: 1, y: 1 }, color: '#fb923c', label: 'P2' },
+      { id: 2, src: { x: 2, y: 1 }, dst: { x: 1, y: 2 }, color: '#fb923c', label: 'P2' },
       { id: 3, src: { x: 2, y: 2 }, dst: { x: 1, y: 1 }, color: '#4ade80', label: 'P3' },
-      { id: 4, src: { x: 1, y: 3 }, dst: { x: 2, y: 2 }, color: '#a855f7', label: 'P4' }
+      { id: 4, src: { x: 1, y: 2 }, dst: { x: 2, y: 1 }, color: '#a855f7', label: 'P4' }
     ]
   }
 ];
@@ -431,13 +431,22 @@ class PuzzleGame {
       if (curr.x < dst.x && tryStep('E')) return tryStep('E');
       if (curr.x > dst.x && tryStep('W')) return tryStep('W');
     } else if (pref === 'alt') {
-      // Adaptive alternate
+      // Adaptive alternate & detour
       const cand = [];
-      if (curr.x < dst.x && tryStep('E')) cand.push(tryStep('E'));
-      if (curr.x > dst.x && tryStep('W')) cand.push(tryStep('W'));
+      // If aligned in one dimension, allow orthogonal detour step
+      if (curr.y === dst.y) {
+        if (curr.y > 0 && tryStep('N')) cand.push(tryStep('N'));
+        else if (curr.y < this.rows - 1 && tryStep('S')) cand.push(tryStep('S'));
+      } else if (curr.x === dst.x) {
+        if (curr.x > 0 && tryStep('W')) cand.push(tryStep('W'));
+        else if (curr.x < this.cols - 1 && tryStep('E')) cand.push(tryStep('E'));
+      }
+      // Minimal candidates
       if (curr.y < dst.y && tryStep('S')) cand.push(tryStep('S'));
       if (curr.y > dst.y && tryStep('N')) cand.push(tryStep('N'));
-      if (cand.length > 0) return cand[cand.length - 1];
+      if (curr.x < dst.x && tryStep('E')) cand.push(tryStep('E'));
+      if (curr.x > dst.x && tryStep('W')) cand.push(tryStep('W'));
+      if (cand.length > 0) return cand[0];
     } else {
       // Strict XY (Horizontal first)
       if (curr.x < dst.x && tryStep('E')) return tryStep('E');
