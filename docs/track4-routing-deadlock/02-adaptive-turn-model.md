@@ -82,4 +82,4 @@ By alternating turn restrictions across column parity, Odd-Even achieves **the h
 | **Odd-Even** | Dynamic based on column parity | 6 turns / column | **Balanced Adaptive** | **Balanced Adaptive** |
 
 > [!TIP]
-> Experience the difference yourself! Head over to the [Interactive 2D Mesh Simulator](../../interactive/visualizer.md) and watch packets adaptively divert under West-First and Odd-Even rules.
+> Experience the difference yourself! Head over to the [Interactive 2D Mesh Simulator](../interactive/visualizer.md) and watch packets adaptively divert under West-First and Odd-Even rules.
