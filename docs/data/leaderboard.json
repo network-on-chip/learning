@@ -1,7 +1,7 @@
 {
   "ok": true,
   "generated_at": "2026-11-05T00:00:00Z",
-  "total_records": 8,
+  "total_records": 10,
   "source": "network-on-chip/learning GitHub Issues + Seed Hall of Fame",
   "registry": [
     {
@@ -83,6 +83,28 @@
     },
     {
       "rank": 8,
+      "name": "Kavita Rao",
+      "org": "NVIDIA Networking Research",
+      "track": "Arbiter Arena (Wave 7)",
+      "score": 1680,
+      "accuracy": 38,
+      "date": "2026-11-04",
+      "certId": "ARBITER-WAVE-7",
+      "type": "arbiter"
+    },
+    {
+      "rank": 9,
+      "name": "Prof. Kenji Takahashi",
+      "org": "Tokyo Tech Exascale Lab",
+      "track": "Topology Titans (Mission 5)",
+      "score": 1590,
+      "accuracy": 3,
+      "date": "2026-11-04",
+      "certId": "TOPO-M5-D3",
+      "type": "topology"
+    },
+    {
+      "rank": 10,
       "name": "Lucas Dubois",
       "org": "EPFL Parallel Systems",
       "track": "Deadlock Buster (Wave 5)",

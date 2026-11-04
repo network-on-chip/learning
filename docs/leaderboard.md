@@ -12,6 +12,8 @@
     <a href="../interactive/puzzle/" class="noc-sim-btn" style="text-decoration:none; background:#8b5cf6;">🧩 Packet Master Puzzle</a>
     <a href="../interactive/hotspot/" class="noc-sim-btn" style="text-decoration:none; background:#ef4444;">🔥 Hotspot Hero</a>
     <a href="../interactive/chiplet/" class="noc-sim-btn" style="text-decoration:none; background:#10b981;">🏗️ Chiplet Tycoon</a>
+    <a href="../interactive/arbiter/" class="noc-sim-btn" style="text-decoration:none; background:#ea580c;">⚡ Arbiter Arena</a>
+    <a href="../interactive/topology/" class="noc-sim-btn" style="text-decoration:none; background:#3b82f6;">🌐 Topology Titans</a>
   </div>
 </div>
 
@@ -41,6 +43,8 @@ Verify any candidate's digital certificate hash against our public registry:
     <option value="game">Deadlock Buster Arcade (Game Only)</option>
     <option value="hotspot">Hotspot Hero (Thermal Defense)</option>
     <option value="chiplet">Chiplet Tycoon (Multi-Die Architect)</option>
+    <option value="arbiter">Arbiter Arena (Crossbar Clash)</option>
+    <option value="topology">Topology Titans (Graph Architect)</option>
   </select>
 
   <label style="font-size:0.85rem; font-weight:600; margin-left:0.5rem; cursor:pointer; display:flex; align-items:center; gap:0.35rem;">
@@ -162,6 +166,28 @@ const DEFAULT_REGISTRY = [
     "date": "2026-11-04",
     "certId": "CHIPLET-M5-35",
     "type": "chiplet"
+  },
+  {
+    "rank": 9,
+    "name": "Kavita Rao",
+    "org": "NVIDIA Networking Research",
+    "track": "Arbiter Arena (Wave 7)",
+    "score": 1680,
+    "accuracy": 38,
+    "date": "2026-11-04",
+    "certId": "ARBITER-WAVE-7",
+    "type": "arbiter"
+  },
+  {
+    "rank": 10,
+    "name": "Prof. Kenji Takahashi",
+    "org": "Tokyo Tech Exascale Lab",
+    "track": "Topology Titans (Mission 5)",
+    "score": 1590,
+    "accuracy": 3,
+    "date": "2026-11-04",
+    "certId": "TOPO-M5-D3",
+    "type": "topology"
   }
 ];
 let liveGitHubEntries = [];
@@ -275,6 +301,30 @@ async function fetchLiveGitHubIssues() {
               type: "chiplet",
               issueUrl: issue.html_url
             });
+          } else if (itemType === "arbiter") {
+            liveGitHubEntries.push({
+              name: payload.player || payload.name || "Arbiter Prime",
+              org: payload.org || "Silicon Lab",
+              track: "Arbiter Arena (Wave " + (payload.wave || 1) + ")",
+              score: Number(payload.score) || 0,
+              accuracy: Number(payload.delivered) || 0,
+              certId: "ARBITER-WAVE-" + (payload.wave || 1),
+              date: payload.date || (issue.created_at || "").slice(0, 10),
+              type: "arbiter",
+              issueUrl: issue.html_url
+            });
+          } else if (itemType === "topology") {
+            liveGitHubEntries.push({
+              name: payload.player || payload.name || "Topology Titan",
+              org: payload.org || "Silicon Lab",
+              track: "Topology Titans (Mission " + (payload.mission || 1) + ")",
+              score: Number(payload.score) || 0,
+              accuracy: Number(payload.diameter) || 4,
+              certId: "TOPO-M" + (payload.mission || 1),
+              date: payload.date || (issue.created_at || "").slice(0, 10),
+              type: "topology",
+              issueUrl: issue.html_url
+            });
           }
         } catch(err) {}
       });
@@ -350,6 +400,12 @@ function renderLeaderboardTable() {
     } else if (e.type === "chiplet") {
       metricLabel = escapeHtml(e.accuracy) + " TB/s bandwidth";
       badgeStyle = 'background:rgba(16, 185, 129, 0.1); color:#10b981; border-color:rgba(16, 185, 129, 0.2);';
+    } else if (e.type === "arbiter") {
+      metricLabel = escapeHtml(e.accuracy) + " flits delivered";
+      badgeStyle = 'background:rgba(234, 88, 12, 0.1); color:#ea580c; border-color:rgba(234, 88, 12, 0.2);';
+    } else if (e.type === "topology") {
+      metricLabel = "Diam " + escapeHtml(e.accuracy) + " hops";
+      badgeStyle = 'background:rgba(59, 130, 246, 0.1); color:#3b82f6; border-color:rgba(59, 130, 246, 0.2);';
     }
     const displayName = shouldMask ? maskName(e.name) : e.name;
     const safeCertId = escapeHtml(e.certId || "");

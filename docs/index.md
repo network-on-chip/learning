@@ -185,6 +185,28 @@ Explore our structured learning pathways designed for undergraduate and graduate
 
   <div class="noc-track-card">
     <div>
+      <span class="noc-track-badge" style="background:rgba(234, 88, 12, 0.1); color:#ea580c; border-color:rgba(234, 88, 12, 0.2);">Microarchitecture Clash</span>
+      <div class="noc-track-title">Arbiter Arena Clash</div>
+      <div class="noc-track-desc">
+        Arbitrate a 5×5 crossbar switch in real time! Bypass Head-of-Line (HOL) blocking using Virtual Channels and deploy iSLIP scheduling before FIFOs overflow.
+      </div>
+    </div>
+    <a href="interactive/arbiter/" class="noc-track-link">Play Arbiter Arena →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(59, 130, 246, 0.1); color:#3b82f6; border-color:rgba(59, 130, 246, 0.2);">Graph Architect</span>
+      <div class="noc-track-title">Topology Titans Exascale</div>
+      <div class="noc-track-desc">
+        Wire exascale supercomputing topologies (Hypercube, Torus, Dragonfly, Fat-Tree). Minimize diameter and hop latency under physical radix and wire cost budgets!
+      </div>
+    </div>
+    <a href="interactive/topology/" class="noc-track-link">Play Topology Titans →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
       <span class="noc-track-badge" style="background:rgba(14, 165, 233, 0.1); color:#0284c7; border-color:rgba(14, 165, 233, 0.2);">Certification</span>
       <div class="noc-track-title">Architecture Assessment &amp; Quiz</div>
       <div class="noc-track-desc">

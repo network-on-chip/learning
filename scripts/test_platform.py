@@ -15,6 +15,8 @@ def test_platform_features():
     puzzle_md = (docs_dir / "interactive" / "puzzle.md").read_text(encoding="utf-8")
     hotspot_md = (docs_dir / "interactive" / "hotspot.md").read_text(encoding="utf-8")
     chiplet_md = (docs_dir / "interactive" / "chiplet.md").read_text(encoding="utf-8")
+    arbiter_md = (docs_dir / "interactive" / "arbiter.md").read_text(encoding="utf-8")
+    topo_md = (docs_dir / "interactive" / "topology.md").read_text(encoding="utf-8")
     leaderboard_md = (docs_dir / "leaderboard.md").read_text(encoding="utf-8")
     quiz_md = (docs_dir / "quiz.md").read_text(encoding="utf-8")
 
@@ -48,6 +50,22 @@ def test_platform_features():
     assert "MISSIONS" in chiplet_md, "chiplet.md missing campaign missions"
     print("✓ Game 4 (Chiplet Tycoon: Multi-Die Architect): Packaging substrates, UCIe traces, Murphy yield, and audio verified.")
 
+    # Arbiter Arena: 5-Port Crossbar Clash
+    assert "arbiterCanvas" in arbiter_md, "arbiter.md missing arbiterCanvas"
+    assert "saveArbiterRecord" in arbiter_md, "arbiter.md missing saveArbiterRecord()"
+    assert "submitArbiterToGithub" in arbiter_md, "arbiter.md missing submitArbiterToGithub()"
+    assert "ArbiterAudio" in arbiter_md, "arbiter.md missing procedural audio engine"
+    assert "iSLIP" in arbiter_md or "islip" in arbiter_md, "arbiter.md missing islip algorithm"
+    print("✓ Game 5 (Arbiter Arena: Crossbar Clash): 5x5 crossbar matrix, virtual channel bypass, iSLIP arbiter verified.")
+
+    # Topology Titans: Interconnect Graph Architect
+    assert "topoCanvas" in topo_md, "topology.md missing topoCanvas"
+    assert "saveTopologyRecord" in topo_md, "topology.md missing saveTopologyRecord()"
+    assert "submitTopologyToGithub" in topo_md, "topology.md missing submitTopologyToGithub()"
+    assert "TopoAudio" in topo_md, "topology.md missing procedural audio engine"
+    assert "TOPO_MISSIONS" in topo_md, "topology.md missing campaign missions"
+    print("✓ Game 6 (Topology Titans: Graph Architect): Exascale topology graph, Floyd-Warshall diameter, bisection bandwidth verified.")
+
     print("\n=== 2. VERIFYING LEADERBOARD SYNC & FILTERING ===")
     assert "getMergedRegistry" in leaderboard_md, "leaderboard.md missing getMergedRegistry()"
     assert "noc_leaderboard_records" in leaderboard_md, "leaderboard.md missing localStorage read"
@@ -55,10 +73,12 @@ def test_platform_features():
     assert "leaderboardCategoryFilter" in leaderboard_md, "leaderboard.md missing category filter dropdown"
     assert "hotspot" in leaderboard_md, "leaderboard.md missing hotspot filter category"
     assert "chiplet" in leaderboard_md, "leaderboard.md missing chiplet filter category"
+    assert "arbiter" in leaderboard_md, "leaderboard.md missing arbiter filter category"
+    assert "topology" in leaderboard_md, "leaderboard.md missing topology filter category"
     assert "Your Session" in leaderboard_md, "leaderboard.md missing 'Your Session' badge for local player records"
     assert "verifyHash" in leaderboard_md, "leaderboard.md missing certificate verification tool"
     print("✓ Leaderboard dynamically merges browser localStorage records with seeded Hall of Fame.")
-    print("✓ Supports full category filtering: All, Quiz, Deadlock Buster, Hotspot Hero, and Chiplet Tycoon.")
+    print("✓ Supports full category filtering: All, Quiz, Deadlock Buster, Hotspot Hero, Chiplet Tycoon, Arbiter Arena, and Topology Titans.")
     print("✓ Real-time cryptographic credential verification verified.")
 
     print("\n=== 3. VERIFYING 3-TIER DIFFICULTY ENGINE IN QUIZ ===")

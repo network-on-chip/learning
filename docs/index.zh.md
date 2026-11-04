@@ -182,6 +182,28 @@
 
   <div class="noc-track-card">
     <div>
+      <span class="noc-track-badge" style="background:rgba(234, 88, 12, 0.1); color:#ea580c; border-color:rgba(234, 88, 12, 0.2);">微架构竞技</span>
+      <div class="noc-track-title">仲裁竞技场：交叉开关挑战</div>
+      <div class="noc-track-desc">
+        在时钟周期级别实时仲裁 5×5 交叉开关！利用虚通道（VC）化解队头阻塞（HOL Blocking），部署 iSLIP 调度抵御队列溢出！
+      </div>
+    </div>
+    <a href="interactive/arbiter/" class="noc-track-link">进入仲裁竞技场 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(59, 130, 246, 0.1); color:#3b82f6; border-color:rgba(59, 130, 246, 0.2);">图拓扑架构</span>
+      <div class="noc-track-title">拓扑巨人：超算图架构师</div>
+      <div class="noc-track-desc">
+        亲手连线超算互连网络（超立方体、环形、蜻蜓 Dragonfly、胖树 Fat-Tree）！在引脚度数与线缆成本约束下压减网络直径与延迟！
+      </div>
+    </div>
+    <a href="interactive/topology/" class="noc-track-link">进入拓扑巨人挑战 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
       <span class="noc-track-badge">交互式仿真</span>
       <div class="noc-track-title">二维网格路由仿真器</div>
       <div class="noc-track-desc">

@@ -103,6 +103,28 @@ SEED_REGISTRY = [
         "date": "2026-11-04",
         "certId": "CHIPLET-M5-35",
         "type": "chiplet"
+    },
+    {
+        "rank": 9,
+        "name": "Kavita Rao",
+        "org": "NVIDIA Networking Research",
+        "track": "Arbiter Arena (Wave 7)",
+        "score": 1680,
+        "accuracy": 38,
+        "date": "2026-11-04",
+        "certId": "ARBITER-WAVE-7",
+        "type": "arbiter"
+    },
+    {
+        "rank": 10,
+        "name": "Prof. Kenji Takahashi",
+        "org": "Tokyo Tech Exascale Lab",
+        "track": "Topology Titans (Mission 5)",
+        "score": 1590,
+        "accuracy": 3,
+        "date": "2026-11-04",
+        "certId": "TOPO-M5-D3",
+        "type": "topology"
     }
 ]
 
@@ -235,6 +257,44 @@ def sync_leaderboard(output_json: Path) -> None:
                 "certId": f"CHIPLET-M{mission}",
                 "date": date_str,
                 "type": "chiplet",
+                "issue_url": issue.get("html_url")
+            })
+        elif item_type == "arbiter":
+            name = payload.get("player", payload.get("name", "Arbiter Prime"))
+            org = payload.get("org", "Silicon Lab")
+            score = int(payload.get("score", 0))
+            wave = int(payload.get("wave", 1))
+            delivered = int(payload.get("delivered", 0))
+            date_str = payload.get("date", issue.get("created_at", "")[:10])
+
+            extracted_records.append({
+                "name": name,
+                "org": org,
+                "track": f"Arbiter Arena (Wave {wave})",
+                "score": score,
+                "accuracy": delivered,
+                "certId": f"ARBITER-WAVE-{wave}",
+                "date": date_str,
+                "type": "arbiter",
+                "issue_url": issue.get("html_url")
+            })
+        elif item_type == "topology":
+            name = payload.get("player", payload.get("name", "Topology Titan"))
+            org = payload.get("org", "Silicon Lab")
+            score = int(payload.get("score", 0))
+            mission = str(payload.get("mission", "1"))
+            diam = int(payload.get("diameter", 4))
+            date_str = payload.get("date", issue.get("created_at", "")[:10])
+
+            extracted_records.append({
+                "name": name,
+                "org": org,
+                "track": f"Topology Titans (Mission {mission})",
+                "score": score,
+                "accuracy": diam,
+                "certId": f"TOPO-M{mission}",
+                "date": date_str,
+                "type": "topology",
                 "issue_url": issue.get("html_url")
             })
 

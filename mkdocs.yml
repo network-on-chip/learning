@@ -60,6 +60,8 @@ plugins:
             "Packet Master: Routing Puzzle": "数据包路由解密挑战"
             "Hotspot Hero: Thermal Defense": "硅温保卫战：热管理游戏"
             "Chiplet Tycoon: 2.5D/3D Multi-Die": "芯粒大亨：先进封装设计挑战"
+            "Arbiter Arena: Crossbar Clash": "仲裁竞技场：交叉开关调度挑战"
+            "Topology Titans: Graph Architect": "拓扑巨人：超算图互连架构师"
             "Certification & Quiz": "认证考核与答题"
             "Public Leaderboard": "荣誉排行榜"
             "Architecture Glossary": "专业术语词典"
@@ -123,6 +125,8 @@ nav:
       - "Packet Master: Routing Puzzle": interactive/puzzle.md
       - "Hotspot Hero: Thermal Defense": interactive/hotspot.md
       - "Chiplet Tycoon: 2.5D/3D Multi-Die": interactive/chiplet.md
+      - "Arbiter Arena: Crossbar Clash": interactive/arbiter.md
+      - "Topology Titans: Graph Architect": interactive/topology.md
       - "2D Mesh Routing Visualizer": interactive/visualizer.md
   - "Certification & Quiz": quiz.md
   - "Public Leaderboard": leaderboard.md
