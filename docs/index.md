@@ -100,9 +100,12 @@ Explore our structured learning pathways designed for undergraduate and graduate
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge">Track 5</span>
-      <div class="noc-track-title">Thermal & Congestion Management</div>
+      <div class="noc-track-title">Thermal &amp; Congestion Management</div>
       <div class="noc-track-desc">
-        Spatial temperature gradients, dynamic thermal management (DTM), proactive ML hotspot prediction, and optimal sensor placement under Gaussian/non-Gaussian noise.
+        Fourier heat diffusion, compact RC ladder models, Regional Congestion Awareness (RCA), source quenching, proactive ML hotspot forecasting, and sparse sensor reconstruction under non-Gaussian noise.
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 4 Interactive Simulators &amp; In-Lab ML Research
       </div>
     </div>
     <a href="track5-congestion-thermal/" class="noc-track-link">Explore Track 5 →</a>

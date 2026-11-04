@@ -150,8 +150,10 @@ nav:
       - "4.4 Fault-Tolerant Routing & Protocol Deadlock": track4-routing-deadlock/04-fault-tolerant-protocol-deadlock.md
   - "Track 5: Thermal & Congestion":
       - Overview: track5-congestion-thermal/index.md
-      - "5.1 Hotspot Prediction & Throttling": track5-congestion-thermal/01-hotspot-prediction.md
-      - "5.2 Optimal Thermal Sensor Placement": track5-congestion-thermal/02-thermal-sensor-placement.md
+      - "5.1 Thermal Physics & Compact RC Modeling": track5-congestion-thermal/01-thermal-physics-rc-modeling.md
+      - "5.2 Congestion Detection & Source Quenching": track5-congestion-thermal/02-congestion-detection-throttling.md
+      - "5.3 Proactive Hotspot Prediction (ML-DTM)": track5-congestion-thermal/03-hotspot-prediction-ml.md
+      - "5.4 Optimal Sensor Placement & Reconstruction": track5-congestion-thermal/04-thermal-sensor-placement.md
   - "Track 6: Chiplets & 3D NoC":
       - Overview: track6-chiplets-and-3d/index.md
       - "6.1 3D TSV Interconnects": track6-chiplets-and-3d/01-3d-tsv-interconnects.md

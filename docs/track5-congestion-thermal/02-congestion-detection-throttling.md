@@ -1,0 +1,528 @@
+# 5.2 Congestion Detection & Source Quenching
+
+In a packet-switched network-on-chip, interconnect performance does not degrade gracefully under overload. Once packet injection exceeds the network's saturation threshold ($\lambda > \Theta_{sat}$), the system experiences a catastrophic non-linear phenomenon known as **Throughput Collapse**.
+
+A single overloaded destination (e.g., an L2 memory controller or synchronization barrier) causes buffers to back up across the chip, forming a sprawling **Saturation Tree** that blocks completely unrelated traffic flows.
+
+In this lesson, we analyze the mechanics of saturation trees, examine **Regional Congestion Awareness (RCA)**, explore closed-loop **Source Quenching**, and simulate congestion spread and mitigation in real time.
+
+---
+
+## 1. The Anatomy of a Saturation Tree
+
+How does congestion at a single router paralyze an entire multi-core chip?
+
+The root cause is the combination of **lossless credit-based flow control** and **Head-of-Line (HoL) blocking**:
+
+```
+Propagation of a Saturation Tree:
+=============================================================================
+Step 1 (Root):   Target router R(2,2) receives more flits than its output port can service.
+                 Its input FIFO buffers fill to 100% capacity. Credits drop to 0.
+
+Step 2 (Trunk):  Upstream routers R(1,2) and R(2,1) run out of credits for R(2,2).
+                 Flits targeting R(2,2) stall inside R(1,2) and R(2,1)'s buffers.
+
+Step 3 (Branch): Inside R(1,2), flits destined for UNCONGESTED node R(0,3) are trapped
+                 BEHIND the stalled flits targeting R(2,2) (Head-of-Line Blocking)!
+
+Step 4 (Leaf):   R(1,2) runs out of buffer space. It stops issuing credits to R(0,2).
+                 The congestion tree spreads backwards to all traffic sources,
+                 strangling the entire network!
+=============================================================================
+```
+
+```mermaid
+graph TD
+  Hotspot["Bottleneck Core R(2,2)<br/>(Memory Hotspot - 100% Full)"]
+  
+  Hotspot --- L1["Upstream R(1,2)<br/>(Exhausted Credits)"]
+  Hotspot --- L2["Upstream R(2,1)<br/>(Exhausted Credits)"]
+  
+  L1 --- L3["R(0,2)<br/>(HoL Blocked)"]
+  L1 --- L4["R(1,1)<br/>(HoL Blocked)"]
+  L2 --- L5["R(2,0)<br/>(HoL Blocked)"]
+  L2 --- L6["R(3,1)<br/>(HoL Blocked)"]
+
+  classDef hotStyle fill:#fee2e2,stroke:#ef4444,stroke-width:2px,color:#991b1b;
+  classDef treeStyle fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#92400e;
+
+  class Hotspot hotStyle;
+  class L1,L2,L3,L4,L5,L6 treeStyle;
+```
+
+Once a saturation tree forms:
+- Average packet latency increases by **$10\times\text{ to }50\times$**.
+- Sustainable throughput collapses, because links not involved in the hotspot are starved of packets.
+
+---
+
+## 2. Congestion Detection Metrics
+
+To prevent saturation trees, routers must monitor network stress. Telemetry metrics fall into three scopes:
+
+### 1. Local Congestion Metrics
+Measured directly at the local router:
+- **Free Credit Count ($C_{free}$):** Number of available buffer slots at the downstream neighbor.
+- **Buffer Queue Depth ($q_{depth}$):** Number of occupied flits in the local input FIFOs.
+- **Crossbar Wait Time ($t_{wait}$):** Number of cycles a flit spends requesting an output port before grant.
+
+*Limitation:* Local metrics are purely **reactive**. By the time a local buffer fills up, the saturation tree has already reached the router!
+
+### 2. Regional Congestion Awareness (RCA)
+Introduced by Paul Gratz, Stephen Keckler, and William Dally (HPCA 2008), **RCA** aggregates congestion telemetry from multi-hop neighborhoods.
+
+Routers broadcast a small scalar congestion status (e.g., 2–3 bits) along coordinate wires to adjacent routers:
+
+$$S_{regional} = w_0 \cdot S_{local} + w_1 \cdot S_{1-hop} + w_2 \cdot S_{2-hop}$$
+
+Where weights typically follow an exponential decay:
+$$w_0 = 1.0, \quad w_1 = 0.5, \quad w_2 = 0.25$$
+
+```
+Regional Congestion Awareness (RCA) Wire Network:
+  [Router R0] ----RCA Telemetry Wire----> [Router R1] ----RCA Wire----> [Router R2]
+   (Hotspot!)      (Receives stress S)     (Knows of distant hotspot BEFORE buffers fill!)
+```
+
+Because RCA telemetry propagates along dedicated lightweight 1-bit wires, **upstream routers learn of downstream congestion 5–10 cycles before their own buffers fill**, allowing them to take evasive action early!
+
+### 3. Global Congestion Awareness (GCA / DBCA)
+Destination-Based Congestion Awareness broadcasts bisection channel loads and memory controller queue depths chip-wide, allowing Network Interfaces (NIs) to detect full-system pressure.
+
+---
+
+## 3. Dynamic Congestion Mitigation Mechanisms
+
+Once congestion is detected, how do routers resolve it?
+
+### Mechanism A: Closed-Loop Source Quenching (Token Bucket)
+The most effective way to eliminate a saturation tree is to **stop injecting packets at the source**:
+- When a router's RCA stress exceeds threshold $S_{thresh}$, it transmits a **Quench Signal** back to the Network Interfaces (NIs) of cores injecting traffic toward that zone.
+- The NI throttles packet generation using a **Token Bucket Rate Limiter**:
+
+$$\text{Tokens: } T_{bucket}[k+1] = \min\big( B_{max}, \ T_{bucket}[k] + r_{refill} \cdot \Delta t \big)$$
+
+- A packet is injected only if $T_{bucket} \ge L_{flits}$.
+- Under high stress, $r_{refill}$ is dynamically dialed down, keeping packets in core memory rather than clogging on-chip router FIFOs!
+
+```
+Core L1/L2 Cache --------> [NI Token Bucket] ======== NoC Mesh Links ========> Hotspot
+                              ^
+                              | (Quench Feedback)
+                              +--- Downstream Router Reports S > S_thresh
+```
+
+### Mechanism B: Congestion-Aware Adaptive Routing (DyAD)
+In **Dynamic Adaptive/Deterministic (DyAD)** routing:
+1. **In Cold / Low-Stress Regions ($S < S_{thresh}$):** Packets follow deterministic XY routing.
+   - *Benefits:* Ultra-low router delay, zero virtual channel arbitration conflicts, guaranteed in-order flit arrival.
+2. **In Hot / Congested Regions ($S \ge S_{thresh}$):** Routers dynamically switch to adaptive routing (e.g., West-First or Odd-Even), steering flits onto alternate, empty parallel channels around the hotspot.
+
+---
+
+## 4. 🔬 Interactive Network Congestion & RCA Simulator
+
+Experience how a single hotspot creates a saturation tree across a $5 \times 5$ 2D mesh, and watch how **Regional Congestion Awareness (RCA)** and **Source Quenching** clear the traffic jam:
+
+<div class="noc-sim-container" id="rca-sim">
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;">
+    <div style="font-weight:700; font-size:1.05rem; color:var(--tcl-heading);">
+      ⚡ Saturation Tree Formation &amp; RCA Mitigation Engine
+    </div>
+    <span class="noc-track-badge" style="background:rgba(34,197,94,0.1); color:#22c55e;" id="rca_badge">
+      Network Clear
+    </span>
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; margin-bottom:1rem;">
+    <div>
+      <label style="font-size:0.82rem; font-weight:600; display:block; margin-bottom:0.25rem;">Traffic Pattern:</label>
+      <select id="rca_pattern" class="noc-sim-select" onchange="resetRCASim()">
+        <option value="HOTSPOT" selected>Severe Hotspot (Target: Core 12 @ Center)</option>
+        <option value="UNIFORM">Uniform Random Traffic</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-size:0.82rem; font-weight:600; display:block; margin-bottom:0.25rem;">Control Policy:</label>
+      <select id="rca_policy" class="noc-sim-select" onchange="resetRCASim()">
+        <option value="NONE" selected>Naive XY (No RCA, No Throttling)</option>
+        <option value="RCA">RCA Telemetry Enabled (Early Diversion)</option>
+        <option value="QUENCH">RCA + Source Quenching (Proactive Throttling)</option>
+      </select>
+    </div>
+    <div style="display:flex; align-items:flex-end; gap:0.5rem;">
+      <button class="noc-sim-btn" onclick="stepRCASim()">⏱ Step (+5 Cycles)</button>
+      <button class="noc-sim-btn" style="background:#ef4444;" onclick="burstTraffic()">💥 Traffic Burst</button>
+      <button class="noc-sim-btn" style="background:var(--md-default-fg-color--lightest); color:var(--md-default-fg-color); border:1px solid var(--tcl-border);" onclick="resetRCASim()">🔄 Reset</button>
+    </div>
+  </div>
+
+  <div style="display:flex; gap:1.25rem; flex-wrap:wrap; align-items:flex-start;">
+    <div style="flex:1; min-width:280px; text-align:center;">
+      <canvas id="rcaCanvas" width="340" height="340" style="background:#0f172a; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.25); max-width:100%; height:auto;"></canvas>
+      <div style="font-size:0.75rem; color:#94a3b8; margin-top:0.35rem;">
+        Buffer Fill: <span style="color:#38bdf8;">■ &lt;25%</span> ➔ <span style="color:#22c55e;">■ 50%</span> ➔ <span style="color:#eab308;">■ 75%</span> ➔ <span style="color:#ef4444;">■ 100% (Saturated)</span>
+      </div>
+    </div>
+
+    <div style="flex:1.2; min-width:280px;">
+      <div style="background:var(--md-default-fg-color--lightest); border:1px solid var(--tcl-border); border-radius:8px; padding:0.85rem; font-size:0.85rem; margin-bottom:0.75rem;">
+        <div style="font-weight:700; color:var(--tcl-heading); margin-bottom:0.4rem;">📊 Congestion Telemetry:</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.4rem;">
+          <div>Cycle Count: <strong id="rca_cycle">0</strong></div>
+          <div>Saturated Routers: <strong id="rca_sat_count" style="color:#22c55e;">0 of 25</strong></div>
+          <div>Avg Flit Latency: <strong id="rca_lat">3.2 cyc</strong></div>
+          <div>Delivered Throughput: <strong id="rca_tp">0.85 flits/cyc</strong></div>
+          <div>RCA Stress Flag: <strong id="rca_stress_lbl">Low (Nominal)</strong></div>
+          <div>Throttled Cores: <strong id="rca_throttled">0 Cores</strong></div>
+        </div>
+      </div>
+
+      <div style="background:var(--md-default-fg-color--lightest); border:1px solid var(--tcl-border); border-radius:8px; padding:0.85rem; font-size:0.82rem;">
+        <div style="font-weight:700; color:var(--tcl-heading); margin-bottom:0.4rem;">🔍 Saturation Log:</div>
+        <div id="rca_log" style="font-family:monospace; height:120px; overflow-y:auto; line-height:1.5; color:var(--md-default-fg-color--lighter);">
+          <span style="color:#22c55e;">[READY] 5x5 Mesh initialized. Buffers empty.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const rcaState = {
+  cycle: 0,
+  bufferFill: new Array(25).fill(0), // 0 to 100%
+  rcaStress: new Array(25).fill(0),
+  throttled: 0
+};
+
+function resetRCASim() {
+  rcaState.cycle = 0;
+  rcaState.bufferFill = new Array(25).fill(10); // baseline 10%
+  rcaState.rcaStress = new Array(25).fill(0);
+  rcaState.throttled = 0;
+
+  document.getElementById("rca_badge").textContent = "Network Clear";
+  document.getElementById("rca_badge").style.background = "rgba(34,197,94,0.15)";
+  document.getElementById("rca_badge").style.color = "#22c55e";
+
+  document.getElementById("rca_cycle").textContent = "0";
+  document.getElementById("rca_sat_count").textContent = "0 of 25";
+  document.getElementById("rca_sat_count").style.color = "#22c55e";
+  document.getElementById("rca_lat").textContent = "3.2 cyc";
+  document.getElementById("rca_tp").textContent = "0.85 flits/cyc";
+  document.getElementById("rca_stress_lbl").textContent = "Low (Nominal)";
+  document.getElementById("rca_throttled").textContent = "0 Cores";
+
+  document.getElementById("rca_log").innerHTML = `<span style="color:#22c55e;">[READY] 5x5 Mesh initialized. Buffers empty.</span>`;
+
+  drawRCACanvas();
+}
+
+function burstTraffic() {
+  for (let i = 0; i < 4; i++) {
+    stepRCASim(true);
+  }
+}
+
+function stepRCASim(isBurst = false) {
+  rcaState.cycle += 5;
+  const pat = document.getElementById("rca_pattern").value;
+  const pol = document.getElementById("rca_policy").value;
+
+  const target = (pat === "HOTSPOT") ? 12 : Math.floor(Math.random() * 25);
+  const injection = isBurst ? 45 : 20;
+
+  // 1. Inject traffic into hotspot
+  if (pol === "QUENCH" && rcaState.rcaStress[target] > 50) {
+    // Source quenching throttles injection!
+    rcaState.bufferFill[target] = Math.min(100, rcaState.bufferFill[target] + 8);
+    rcaState.throttled = 8;
+  } else {
+    rcaState.bufferFill[target] = Math.min(100, rcaState.bufferFill[target] + injection);
+    rcaState.throttled = 0;
+  }
+
+  // 2. Propagate saturation tree backwards to upstream neighbors
+  const newFill = [...rcaState.bufferFill];
+  const trgR = Math.floor(target / 5);
+  const trgC = target % 5;
+
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      const idx = r * 5 + c;
+      if (idx === target) continue;
+
+      const dist = Math.abs(r - trgR) + Math.abs(c - trgC);
+      if (pat === "HOTSPOT") {
+        if (rcaState.bufferFill[target] >= 80) {
+          if (dist === 1) {
+            newFill[idx] = Math.min(100, newFill[idx] + (pol === "RCA" ? 8 : (pol === "QUENCH" ? 4 : 22)));
+          } else if (dist === 2 && newFill[target] === 100) {
+            newFill[idx] = Math.min(100, newFill[idx] + (pol === "NONE" ? 18 : 3));
+          }
+        }
+      } else {
+        // Uniform
+        newFill[idx] = Math.max(10, Math.min(100, newFill[idx] + (Math.random() * 10 - 6)));
+      }
+
+      // Normal drain
+      if (newFill[idx] > 15 && pol !== "NONE") {
+        newFill[idx] = Math.max(10, newFill[idx] - 6);
+      }
+    }
+  }
+
+  // 3. Compute RCA Stress
+  for (let i = 0; i < 25; i++) {
+    rcaState.rcaStress[i] = newFill[i];
+  }
+
+  rcaState.bufferFill = newFill;
+
+  // Count saturated routers (>80%)
+  const satCount = rcaState.bufferFill.filter(b => b >= 80).length;
+
+  document.getElementById("rca_cycle").textContent = rcaState.cycle;
+  document.getElementById("rca_sat_count").textContent = `${satCount} of 25`;
+  document.getElementById("rca_sat_count").style.color = (satCount > 5) ? "#ef4444" : ((satCount > 0) ? "#f97316" : "#22c55e");
+
+  const badge = document.getElementById("rca_badge");
+  const log = document.getElementById("rca_log");
+
+  if (satCount > 8) {
+    badge.textContent = "CRITICAL: SATURATION TREE FORMED";
+    badge.style.background = "rgba(239,68,68,0.2)";
+    badge.style.color = "#ef4444";
+    document.getElementById("rca_lat").textContent = "42.8 cyc (COLLAPSE)";
+    document.getElementById("rca_tp").textContent = "0.18 flits/cyc";
+    document.getElementById("rca_stress_lbl").textContent = "CRITICAL (100%)";
+    log.innerHTML += `<br/><span style="color:#ef4444;">[CYCLE ${rcaState.cycle}] Saturation tree spread to ${satCount} routers! Throughput collapsed by 78%.</span>`;
+  } else if (satCount > 0) {
+    badge.textContent = "WARNING: LOCAL CONGESTION";
+    badge.style.background = "rgba(234,179,8,0.2)";
+    badge.style.color = "#ca8a04";
+    document.getElementById("rca_lat").textContent = "12.4 cyc";
+    document.getElementById("rca_tp").textContent = "0.62 flits/cyc";
+    document.getElementById("rca_stress_lbl").textContent = "Elevated (RCA Active)";
+    if (pol === "QUENCH") {
+      log.innerHTML += `<br/><span style="color:#22c55e;">[CYCLE ${rcaState.cycle}] RCA Quench active: Throttled 8 source cores. Saturation contained!</span>`;
+    } else {
+      log.innerHTML += `<br/><span style="color:#ca8a04;">[CYCLE ${rcaState.cycle}] Hotspot at R12 spreading to upstream neighbors.</span>`;
+    }
+  } else {
+    badge.textContent = "Network Clear";
+    badge.style.background = "rgba(34,197,94,0.15)";
+    badge.style.color = "#22c55e";
+    document.getElementById("rca_lat").textContent = "3.2 cyc";
+    document.getElementById("rca_tp").textContent = "0.85 flits/cyc";
+    document.getElementById("rca_stress_lbl").textContent = "Low (Nominal)";
+  }
+
+  document.getElementById("rca_throttled").textContent = `${rcaState.throttled} Cores`;
+  log.scrollTop = log.scrollHeight;
+
+  drawRCACanvas();
+}
+
+function drawRCACanvas() {
+  const canvas = document.getElementById("rcaCanvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const w = canvas.width;
+  const h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  const pad = 28;
+  const step = (w - pad * 2) / 4;
+
+  // Draw links
+  ctx.lineWidth = 2.5;
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      const idx = r * 5 + c;
+      const x = pad + c * step;
+      const y = pad + r * step;
+
+      // East link
+      if (c < 4) {
+        const nextIdx = idx + 1;
+        const avgFill = (rcaState.bufferFill[idx] + rcaState.bufferFill[nextIdx]) / 2;
+        ctx.strokeStyle = avgFill > 75 ? "#ef4444" : (avgFill > 45 ? "#f97316" : "#334155");
+        ctx.lineWidth = avgFill > 75 ? 4 : 2;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + step, y);
+        ctx.stroke();
+      }
+      // South link
+      if (r < 4) {
+        const nextIdx = idx + 5;
+        const avgFill = (rcaState.bufferFill[idx] + rcaState.bufferFill[nextIdx]) / 2;
+        ctx.strokeStyle = avgFill > 75 ? "#ef4444" : (avgFill > 45 ? "#f97316" : "#334155");
+        ctx.lineWidth = avgFill > 75 ? 4 : 2;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x, y + step);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Draw Router Nodes
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      const idx = r * 5 + c;
+      const x = pad + c * step;
+      const y = pad + r * step;
+      const fill = rcaState.bufferFill[idx];
+
+      ctx.beginPath();
+      ctx.arc(x, y, 13, 0, Math.PI * 2);
+
+      if (fill >= 80) {
+        ctx.fillStyle = "#ef4444";
+        ctx.strokeStyle = "#fca5a5";
+      } else if (fill >= 50) {
+        ctx.fillStyle = "#f97316";
+        ctx.strokeStyle = "#fed7aa";
+      } else if (fill >= 25) {
+        ctx.fillStyle = "#22c55e";
+        ctx.strokeStyle = "#bbf7d0";
+      } else {
+        ctx.fillStyle = "#1e293b";
+        ctx.strokeStyle = "#38bdf8";
+      }
+
+      ctx.lineWidth = 2;
+      ctx.fill();
+      ctx.stroke();
+
+      // Node label
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 8.5px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(`R${idx}`, x, y);
+    }
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", resetRCASim);
+} else {
+  resetRCASim();
+}
+</script>
+
+---
+
+## 5. Worked Numerical Example: Saturation Tree Latency Amplification
+
+> [!TIP]
+> **Problem Statement:**  
+> A $8 \times 8$ 2D Mesh NoC operates with a nominal Zero-Load Latency of $T_0 = 12\text{ clock cycles}$.  
+> - A hotspot memory controller at Router $R(4,4)$ receives traffic from $16$ client cores.
+> - Router FIFO input buffers hold $B = 8\text{ flits}$ per port.
+> - When $R(4,4)$ saturates, upstream routers stall, forming a saturation tree encompassing $10\text{ routers}$ along the bisection.
+> - An unrelated packet from Source $R(0,0)$ to Destination $R(7,0)$ (completely disjoint destination!) traverses through an upstream router whose buffer is HoL-blocked by the saturation tree.
+> 
+> Calculate:
+> 1. The Head-of-Line queuing delay encountered by the unrelated packet if the blocked queue takes $120\text{ cycles}$ to drain.
+> 2. The relative latency penalty suffered by the innocent packet.
+> 3. How Regional Congestion Awareness (RCA) resolves this penalty.
+
+### Step 1: Head-of-Line Delay Calculation
+- Under normal operation: $T_{normal} = T_0 = 12\text{ cycles}$.
+- When entering the HoL-blocked router:
+  $$T_{congested} = T_0 + T_{HoL\_wait} = 12 + 120 = \mathbf{132\text{ clock cycles}}$$
+
+### Step 2: Relative Latency Penalty
+$$\text{Penalty Factor} = \frac{T_{congested}}{T_{normal}} = \frac{132}{12} = \mathbf{11.0\times\text{ (1,000\% Latency Spike)!}}$$
+
+### Step 3: RCA Resolution
+With **Regional Congestion Awareness (RCA)**:
+- Router $R(1,0)$ receives upstream RCA telemetry indicating that the central column is saturated ($S_{regional} > S_{thresh}$).
+- Instead of routing deterministically through the congested trunk, the router **adaptively diverts** the packet along the peripheral ring (via row 0).
+- The diverted path adds only **$2\text{ hops}$** of distance ($\Delta T = 2 \times 2 = 4\text{ cycles}$).
+- New latency with RCA: $T_{RCA} = 12 + 4 = \mathbf{16\text{ cycles}}$, avoiding the $132\text{-cycle}$ stall completely!
+
+---
+
+## 6. 🎯 Knowledge Check: Lesson 5.2
+
+<div class="noc-sim-container" id="quiz52" style="margin-top:1rem;">
+  <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
+    📝 Concept Check: Congestion Control &amp; RCA
+  </div>
+
+  <div id="q52_block">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>Question:</b> Why does Regional Congestion Awareness (RCA) outperform purely local buffer occupancy metrics in preventing Head-of-Line (HoL) throughput collapse?
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q52_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz52(0)">
+        A. Because RCA doubles the physical wire width of all links.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz52(1)">
+        B. Because local buffer metrics only trigger after a router's own FIFOs have already filled, whereas RCA propagates multi-hop stress signals upstream along dedicated wires, alerting routers to steer packets onto alternate paths BEFORE local buffers fill up.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz52(2)">
+        C. Because RCA disables all packet routing algorithms and forces flits into memory.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz52(3)">
+        D. Because RCA uses optical links instead of copper traces.
+      </button>
+    </div>
+
+    <div id="q52_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+</div>
+
+<script>
+function checkQuiz52(idx) {
+  const fb = document.getElementById("q52_feedback");
+  fb.style.display = "block";
+  const opts = document.getElementById("q52_options").children;
+  for (let i = 0; i < opts.length; i++) {
+    opts[i].onclick = null;
+    opts[i].style.cursor = "default";
+  }
+
+  if (idx === 1) {
+    opts[1].style.background = "rgba(34,197,94,0.15)";
+    opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)";
+    fb.style.border = "1px solid rgba(34,197,94,0.3)";
+    fb.style.color = "#166534";
+    fb.innerHTML = "<strong>✓ Correct!</strong> Purely local buffer occupancy is reactive—it only warns a router when the saturation tree has already reached it. RCA transmits lightweight multi-hop telemetry upstream, allowing routers to divert traffic early before their own queues fill.";
+  } else {
+    opts[idx].style.background = "rgba(239,68,68,0.15)";
+    opts[idx].style.borderColor = "#ef4444";
+    opts[1].style.background = "rgba(34,197,94,0.15)";
+    opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)";
+    fb.style.border = "1px solid rgba(239,68,68,0.3)";
+    fb.style.color = "#991b1b";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. RCA provides proactive upstream visibility into downstream bottlenecks.";
+  }
+}
+</script>
+
+---
+
+## Summary & Next Steps
+
+In this lesson, we established:
+- **Saturation Trees & HoL Blocking**: How a single congested destination traps unrelated flows, triggering throughput collapse.
+- **RCA Telemetry**: Propagating multi-hop stress signals upstream to detect bottlenecks early.
+- **Source Quenching & DyAD**: Closed-loop token-bucket rate limiting and adaptive rerouting to relieve network pressure.
+
+Now, what if we combine real-time network traffic telemetry with **machine learning** to predict thermal hotspots before they even occur?
+
+In the next lesson, we explore **Proactive Hotspot Prediction with Machine Learning**.
+
+👉 **Proceed to [Lesson 5.3: Proactive Hotspot Prediction (ML-DTM)](03-hotspot-prediction-ml.md)**

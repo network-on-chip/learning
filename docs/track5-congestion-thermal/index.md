@@ -1,25 +1,126 @@
 # Track 5: Thermal & Congestion Management
 
-In modern nanometer manycore chips, power density routinely exceeds hundreds of watts per square centimeter, creating localized **thermal hotspots**. Excessive heat degrades transistor reliability (electromigration, dielectric breakdown), accelerates timing jitter, and can cause catastrophic thermal runaway.
-
-In this track, we study how Network-on-Chip routers and intelligent management policies monitor, predict, and mitigate thermal emergencies, grounded directly in our lab's verified open-source simulation projects.
+<div class="noc-hero">
+  <div class="noc-track-badge">Network Architecture • Module 05</div>
+  <h1>Thermal Physics, Congestion Control &amp; Predictive AI</h1>
+  <p class="subtitle">
+    Master how nanometer multi-core processors battle localized thermal hotspots and network traffic saturation. From fundamental RC thermal modeling to Regional Congestion Awareness (RCA), machine-learning hotspot forecasting, and sparse sensor reconstruction under non-Gaussian noise.
+  </p>
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
+    <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">⏱️ 4 In-Depth Lessons</span>
+    <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: rgba(16, 185, 129, 0.2);">🔬 4 Interactive Simulators &amp; Visualizers</span>
+    <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">🔥 Grounded in Verified Open-Source Lab Projects</span>
+    <span class="noc-track-badge" style="background: rgba(147, 51, 234, 0.1); color: #9333ea; border-color: rgba(147, 51, 234, 0.2);">📐 Physics-Based RC Thermal Networks</span>
+  </div>
+</div>
 
 ---
 
-## 🗺️ Track Roadmap
+## 🗺️ Thermal & Congestion Architecture Roadmap
+
+The diagram below outlines how heat dissipation physics, network telemetry, predictive machine learning, and sparse sensor estimation interact to maintain high-performance, reliable silicon operation:
 
 ```mermaid
 graph TD
-  A["Thermal Physics in Manycores<br/>RC Thermal RC Ladders, Hotspots"] --> B["Proactive Hotspot Prediction<br/>ML-Driven Dynamic Thermal Throttling"]
-  B --> C["Optimal Sensor Placement<br/>Gaussian & Non-Gaussian Sensor Noise"]
-  C --> D["Thermal Reconstruction<br/>Spatial Field Interpolation & Kalman Filtering"]
+  subgraph Physical_Thermal_Layer ["1. Thermal & Network Physics Layer"]
+    Power["Tile Dynamic & Static Power Dissipation"] --> RC["RC Thermal Ladder Model<br/>(Silicon substrate + TIM + Heat Sink)"]
+    Traffic["High Injection Workload"] --> Saturation["Buffer Saturation & Congestion Trees"]
+  end
+
+  subgraph Telemetry_Sensing_Layer ["2. Telemetry & Sensor Layer"]
+    RC --> Sensors["Sparse Physical Thermal Diodes<br/>(Noise: Gaussian EMI + Non-Gaussian Glitches)"]
+    Saturation --> RCA_Telemetry["Regional Congestion Awareness (RCA)<br/>(Buffer fullness & credit turnaround)"]
+  end
+
+  subgraph Control_Mitigation_Layer ["3. Intelligent Control & Mitigation Layer"]
+    Sensors --> Recon["Robust Spatial Reconstruction<br/>(Huber M-Estimation & Kalman Filter)"]
+    RCA_Telemetry --> Quench["Closed-Loop Source Quenching<br/>(Token bucket injection throttling)"]
+    Recon --> ML_Predict["Proactive ML Hotspot Predictor<br/>(Predicts T at t + Δt using IPC & NoC counters)"]
+    ML_Predict --> DTM["Proactive DVFS & Thermal-Aware Routing (TAR)<br/>(Deflects flits around hot routers)"]
+  end
+
+  classDef physStyle fill:#fee2e2,stroke:#ef4444,stroke-width:1.5px,color:#991b1b;
+  classDef telemStyle fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#92400e;
+  classDef ctrlStyle fill:#dcfce7,stroke:#22c55e,stroke-width:1.5px,color:#166534;
+
+  class Power,RC,Traffic,Saturation physStyle;
+  class Sensors,RCA_Telemetry telemStyle;
+  class Recon,Quench,ML_Predict,DTM ctrlStyle;
 ```
 
 ---
 
-## 📖 Lessons in this Track
+## 📚 Syllabus & Chapters in Track 5
 
-1. **[5.1 Hotspot Prediction & Throttling](01-hotspot-prediction.md)**  
-   Understanding thermal transients in manycore NoCs. Reactive vs proactive thermal management. Machine-learning-based hotspot prediction models (grounded in [`projects/intelligent-hotspot-prediction-for-network-on-chip-based-multicore-systems`](https://github.com/network-on-chip/intelligent-hotspot-prediction-for-network-on-chip-based-multicore-systems)).
-2. **[5.2 Optimal Thermal Sensor Placement](02-thermal-sensor-placement.md)**  
-   How to place a limited number of on-chip thermal sensors to accurately reconstruct the continuous temperature profile of the die under Gaussian and non-Gaussian noise (grounded in [`projects/thermal-sensor-placement-and-thermal-reconstruction...`](https://github.com/network-on-chip/thermal-sensor-placement-and-thermal-reconstruction-under-gaussian-and-non-gaussian-sensor)).
+<div class="noc-tracks-grid">
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Lesson 5.1</span>
+      <div class="noc-track-title">Thermal Physics &amp; Compact RC Modeling</div>
+      <div class="noc-track-desc">
+        Fourier's law of heat conduction, the thermal-electrical duality ($R_{th}, C_{th}$), and compact RC grid models (HotSpot). Analyze the $10^7\times$ timescale mismatch between electrical clock cycles and thermal diffusion constants, and calculate reliability degradation via Black's electromigration equation.
+      </div>
+      <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
+        ⚡ <strong>Features:</strong> Interactive 2D Silicon Die Thermal RC Ladder &amp; Heat Spreading Simulator, Self-Check Quiz.
+      </div>
+    </div>
+    <a href="01-thermal-physics-rc-modeling.md" class="noc-track-link">Launch Lesson 5.1 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Lesson 5.2</span>
+      <div class="noc-track-title">Congestion Detection &amp; Source Quenching</div>
+      <div class="noc-track-desc">
+        Physics of network saturation trees and Head-of-Line (HoL) blocking amplification. Gratz &amp; Keckler's Regional Congestion Awareness (RCA) propagating multi-hop congestion vectors upstream. Closed-loop source quenching, token-bucket throttling, and DyAD adaptive routing.
+      </div>
+      <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
+        ⚡ <strong>Features:</strong> Interactive Network Congestion Tree &amp; RCA Telemetry Visualizer, Saturation Formulas, Self-Check Quiz.
+      </div>
+    </div>
+    <a href="02-congestion-detection-throttling.md" class="noc-track-link">Launch Lesson 5.2 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Lesson 5.3</span>
+      <div class="noc-track-title">Proactive Hotspot Prediction with Machine Learning</div>
+      <div class="noc-track-desc">
+        Why reactive Dynamic Thermal Management (DTM) suffers catastrophic thermal overshoot. Grounded in our open-source lab project: training lightweight ML models (Ridge, SVR, MLP) on real-time router counters to forecast hotspots at $(t + \Delta t)$, cutting violations by $85\%$ with $<3\%$ penalty.
+      </div>
+      <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
+        ⚡ <strong>Features:</strong> Interactive Proactive vs. Reactive Thermal Predictor &amp; DVFS Simulator, Verified Code Walkthrough, Self-Check Quiz.
+      </div>
+    </div>
+    <a href="03-hotspot-prediction-ml.md" class="noc-track-link">Launch Lesson 5.3 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Lesson 5.4</span>
+      <div class="noc-track-title">Optimal Thermal Sensor Placement &amp; Field Reconstruction</div>
+      <div class="noc-track-desc">
+        Reconstructing full die temperature fields from $K \ll N$ physical sensor diodes. Grounded in our verified lab project: Fisher Information Matrix (FIM) optimization, handling non-Gaussian EMI switching noise and sensor glitches, and robust Huber M-estimation and Kalman filtering.
+      </div>
+      <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
+        ⚡ <strong>Features:</strong> Interactive Sparse Sensor Placement &amp; Robust Reconstruction Playground, Error Covariance Models, Self-Check Quiz.
+      </div>
+    </div>
+    <a href="04-thermal-sensor-placement.md" class="noc-track-link">Launch Lesson 5.4 →</a>
+  </div>
+</div>
+
+---
+
+## 🎯 Track Learning Objectives
+
+Upon completing Track 5, you will be able to:
+
+1. **Construct compact RC thermal ladder models** for 2D multi-core dies, mapping silicon substrate, thermal interface material (TIM), and heat sinks to equivalent circuit elements.
+2. **Quantify the thermal time constant lag** ($\tau_{th} \approx 5\text{–}15\text{ ms}$) and explain why reactive DTM creates thermal overshoot and reliability failure.
+3. **Implement Regional Congestion Awareness (RCA)** in router microarchitecture to detect and divert traffic before saturation trees form.
+4. **Deploy machine learning models** (Ridge Regression, MLPs) using hardware performance counters to predict temperatures $10\text{ ms}$ into the future.
+5. **Optimize thermal sensor placement** via Fisher Information maximization to achieve minimal reconstruction error with a minimal sensor budget ($K \ll N$).
+6. **Apply robust M-estimation and Kalman filtering** to filter out non-Gaussian EMI sensor noise and process variation drift.
+
+Ready to begin? Start with **[Lesson 5.1: Thermal Physics & Compact RC Modeling](01-thermal-physics-rc-modeling.md)**.

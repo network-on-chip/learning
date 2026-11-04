@@ -99,7 +99,10 @@
       <span class="noc-track-badge">第五模块</span>
       <div class="noc-track-title">热管理与拥塞控制</div>
       <div class="noc-track-desc">
-        空间温度梯度、动态热管理（DTM）、基于机器学习的热点预测控制，以及在高斯与非高斯噪声下的最佳温度传感器布局与重建算法（直接源自实际复现工程）。
+        傅里叶热扩散定律、RC紧凑热网络、区域拥塞感知（RCA）、源端限流压制、机器学习热点前瞻预测与非高斯噪声下稀疏传感器重构（深度融合实验室开源复现成果）。
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 包含 4 大交互式仿真器与实验室机器学习模型
       </div>
     </div>
     <a href="track5-congestion-thermal/" class="noc-track-link">进入模块五 →</a>
