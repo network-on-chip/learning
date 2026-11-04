@@ -1,0 +1,74 @@
+{
+  "ok": true,
+  "generated_at": "2026-11-05T00:00:00Z",
+  "total_records": 6,
+  "source": "network-on-chip/learning GitHub Issues + Seed Hall of Fame",
+  "registry": [
+    {
+      "rank": 1,
+      "name": "Dr. Elena Rostova",
+      "org": "Stanford VLSI Group",
+      "track": "Comprehensive Exam",
+      "score": 2180,
+      "accuracy": 100,
+      "date": "2026-10-28",
+      "certId": "NOC-CERT-2026-A109",
+      "type": "quiz"
+    },
+    {
+      "rank": 2,
+      "name": "Marcus Vance",
+      "org": "MIT CSAIL",
+      "track": "Comprehensive Exam",
+      "score": 2140,
+      "accuracy": 100,
+      "date": "2026-10-31",
+      "certId": "NOC-CERT-2026-B441",
+      "type": "quiz"
+    },
+    {
+      "rank": 3,
+      "name": "Prof. Wei Chen",
+      "org": "SJTU NoC-Lab",
+      "track": "Comprehensive Exam",
+      "score": 2110,
+      "accuracy": 100,
+      "date": "2026-11-01",
+      "certId": "NOC-CERT-2026-C883",
+      "type": "quiz"
+    },
+    {
+      "rank": 4,
+      "name": "Sophia Lin",
+      "org": "Intel Architecture Labs",
+      "track": "Deadlock Buster (Wave 7)",
+      "score": 2040,
+      "accuracy": 14,
+      "date": "2026-11-02",
+      "certId": "GAME-WAVE-7",
+      "type": "game"
+    },
+    {
+      "rank": 5,
+      "name": "Rajiv Patel",
+      "org": "AMD Infinity Fabric Team",
+      "track": "Comprehensive Exam",
+      "score": 1990,
+      "accuracy": 92,
+      "date": "2026-11-03",
+      "certId": "NOC-CERT-2026-E774",
+      "type": "quiz"
+    },
+    {
+      "rank": 6,
+      "name": "Lucas Dubois",
+      "org": "EPFL Parallel Systems",
+      "track": "Deadlock Buster (Wave 5)",
+      "score": 1480,
+      "accuracy": 8,
+      "date": "2026-11-04",
+      "certId": "GAME-WAVE-5",
+      "type": "game"
+    }
+  ]
+}

@@ -186,6 +186,7 @@ class DeadlockGame {
     modal.style.display = "flex";
     document.getElementById("gameOverSummary").innerHTML = 
       `Final Score: <strong>${this.score} pts</strong> | Wave Reached: <strong>Wave ${this.wave}</strong> | Deadlocks Cleared: <strong>${this.deadlockFlushed}</strong>`;
+    saveGameRecord();
   }
 
   update() {
