@@ -96,7 +96,7 @@ class NoCSimulator {
 
   injectPacket(src, dst) {
     this.packetCounter++;
-    const flitColors = ['#0f766e', '#14b8a6', '#f97316'];
+    const flitColors = ['#2563eb', '#38bdf8', '#fb923c'];
     const p = {
       id: this.packetCounter,
       src: { ...src },
@@ -265,11 +265,11 @@ class NoCSimulator {
         this.ctx.arc(px, py, this.nodeRadius, 0, Math.PI * 2);
 
         if (isSrc) {
-          this.ctx.fillStyle = '#0ea5e9'; // Source cyan
+          this.ctx.fillStyle = '#2563eb'; // Source Royal Blue
         } else if (isDst) {
-          this.ctx.fillStyle = '#ea580c'; // Dst orange
+          this.ctx.fillStyle = '#ea580c'; // Dst Orange
         } else {
-          this.ctx.fillStyle = '#0f766e'; // Default Teal
+          this.ctx.fillStyle = '#0f172a'; // Default Slate 900
         }
         this.ctx.fill();
 
