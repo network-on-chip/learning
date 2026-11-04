@@ -147,6 +147,28 @@ SEED_REGISTRY = [
         "date": "2026-11-04",
         "certId": "CREDIT-WAVE-6",
         "type": "credit"
+    },
+    {
+        "rank": 13,
+        "name": "Dr. Elena Rostova",
+        "org": "CMU SAFARI Research Group",
+        "track": "Deflection Duel (Wave 6)",
+        "score": 1450,
+        "accuracy": 36,
+        "date": "2026-11-04",
+        "certId": "DEFLECT-WAVE-6",
+        "type": "deflection"
+    },
+    {
+        "rank": 14,
+        "name": "Marcus Aurelius Vance",
+        "org": "NASA JPL Deep Space Microelectronics",
+        "track": "Fault Defender (Wave 6)",
+        "score": 1420,
+        "accuracy": 41,
+        "date": "2026-11-04",
+        "certId": "FAULT-WAVE-6",
+        "type": "fault"
     }
 ]
 
@@ -355,6 +377,44 @@ def sync_leaderboard(output_json: Path) -> None:
                 "certId": f"CREDIT-WAVE-{wave}",
                 "date": date_str,
                 "type": "credit",
+                "issue_url": issue.get("html_url")
+            })
+        elif item_type == "deflection":
+            name = payload.get("player", payload.get("name", "Deflection Ace"))
+            org = payload.get("org", "Silicon Lab")
+            score = int(payload.get("score", 0))
+            wave = int(payload.get("wave", 1))
+            delivered = int(payload.get("delivered", 0))
+            date_str = payload.get("date", issue.get("created_at", "")[:10])
+
+            extracted_records.append({
+                "name": name,
+                "org": org,
+                "track": f"Deflection Duel (Wave {wave})",
+                "score": score,
+                "accuracy": delivered,
+                "certId": f"DEFLECT-WAVE-{wave}",
+                "date": date_str,
+                "type": "deflection",
+                "issue_url": issue.get("html_url")
+            })
+        elif item_type == "fault":
+            name = payload.get("player", payload.get("name", "Silicon Defender"))
+            org = payload.get("org", "Silicon Lab")
+            score = int(payload.get("score", 0))
+            wave = int(payload.get("wave", 1))
+            rescued = int(payload.get("rescued", 0))
+            date_str = payload.get("date", issue.get("created_at", "")[:10])
+
+            extracted_records.append({
+                "name": name,
+                "org": org,
+                "track": f"Fault Defender (Wave {wave})",
+                "score": score,
+                "accuracy": rescued,
+                "certId": f"FAULT-WAVE-{wave}",
+                "date": date_str,
+                "type": "fault",
                 "issue_url": issue.get("html_url")
             })
 

@@ -1,7 +1,7 @@
 {
   "ok": true,
   "generated_at": "2026-11-05T00:00:00Z",
-  "total_records": 12,
+  "total_records": 14,
   "source": "network-on-chip/learning GitHub Issues + Seed Hall of Fame",
   "registry": [
     {
@@ -135,6 +135,28 @@
       "date": "2026-11-04",
       "certId": "GAME-WAVE-5",
       "type": "game"
+    },
+    {
+      "rank": 13,
+      "name": "Dr. Elena Rostova",
+      "org": "CMU SAFARI Research Group",
+      "track": "Deflection Duel (Wave 6)",
+      "score": 1450,
+      "accuracy": 36,
+      "date": "2026-11-04",
+      "certId": "DEFLECT-WAVE-6",
+      "type": "deflection"
+    },
+    {
+      "rank": 14,
+      "name": "Marcus Aurelius Vance",
+      "org": "NASA JPL Deep Space Microelectronics",
+      "track": "Fault Defender (Wave 6)",
+      "score": 1420,
+      "accuracy": 41,
+      "date": "2026-11-04",
+      "certId": "FAULT-WAVE-6",
+      "type": "fault"
     }
   ]
 }

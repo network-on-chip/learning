@@ -64,6 +64,8 @@ plugins:
             "Topology Titans: Graph Architect": "拓扑巨人：超算图互连架构师"
             "Photon Pilot: Optical NoC Grid": "光子领航员：光互连网络"
             "Credit Commander: Flow Control": "信用指挥官：流控与反压防御"
+            "Deflection Duel: Bufferless NoC": "偏斜决斗：无缓存网络对决"
+            "Fault Defender: Silicon Resilience": "故障防御者：硅片韧性与BIST自测"
             "Certification & Quiz": "认证考核与答题"
             "Public Leaderboard": "荣誉排行榜"
             "Architecture Glossary": "专业术语词典"
@@ -131,6 +133,8 @@ nav:
       - "Topology Titans: Graph Architect": interactive/topology.md
       - "Photon Pilot: Optical NoC Grid": interactive/optical.md
       - "Credit Commander: Flow Control": interactive/credits.md
+      - "Deflection Duel: Bufferless NoC": interactive/deflection.md
+      - "Fault Defender: Silicon Resilience": interactive/faults.md
       - "2D Mesh Routing Visualizer": interactive/visualizer.md
   - "Certification & Quiz": quiz.md
   - "Public Leaderboard": leaderboard.md

@@ -226,6 +226,28 @@
 
   <div class="noc-track-card">
     <div>
+      <span class="noc-track-badge" style="background:rgba(234, 179, 8, 0.1); color:#ca8a04; border-color:rgba(234, 179, 8, 0.2);">无缓存对决</span>
+      <div class="noc-track-title">偏斜决斗：无缓存网络</div>
+      <div class="noc-track-desc">
+        彻底移除路由器输入缓存！调控热土豆偏斜路由，仲裁端口竞争冲突，释放黄金微元（Golden Flit）并阻断活锁死循环丢包！
+      </div>
+    </div>
+    <a href="interactive/deflection/" class="noc-track-link">进入偏斜决斗 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(99, 102, 241, 0.1); color:#6366f1; border-color:rgba(99, 102, 241, 0.2);">硅片韧性</span>
+      <div class="noc-track-title">故障防御者：BIST自测</div>
+      <div class="noc-track-desc">
+        抗击电迁移断路与高能粒子翻转！触发 BIST 雷达自测波束，构筑环形绕行容错环（Fault-Ring），激活冗余备份金属链路！
+      </div>
+    </div>
+    <a href="interactive/faults/" class="noc-track-link">进入故障防御者 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
       <span class="noc-track-badge">交互式仿真</span>
       <div class="noc-track-title">二维网格路由仿真器</div>
       <div class="noc-track-desc">

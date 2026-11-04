@@ -19,6 +19,8 @@ def test_platform_features():
     topo_md = (docs_dir / "interactive" / "topology.md").read_text(encoding="utf-8")
     optical_md = (docs_dir / "interactive" / "optical.md").read_text(encoding="utf-8")
     credits_md = (docs_dir / "interactive" / "credits.md").read_text(encoding="utf-8")
+    deflection_md = (docs_dir / "interactive" / "deflection.md").read_text(encoding="utf-8")
+    faults_md = (docs_dir / "interactive" / "faults.md").read_text(encoding="utf-8")
     leaderboard_md = (docs_dir / "leaderboard.md").read_text(encoding="utf-8")
     quiz_md = (docs_dir / "quiz.md").read_text(encoding="utf-8")
 
@@ -86,6 +88,24 @@ def test_platform_features():
     assert "creditWire" in credits_md, "credits.md missing creditWire flight delay"
     print("✓ Game 8 (Credit Commander: Flow Control): Credit-based flow control, RTT round-trip delays, drain boost, and audio verified.")
 
+    # Deflection Duel: Bufferless NoC Blitz
+    assert "deflectionCanvas" in deflection_md, "deflection.md missing deflectionCanvas"
+    assert "saveDeflectionRecord" in deflection_md, "deflection.md missing saveDeflectionRecord()"
+    assert "submitDeflectionToGithub" in deflection_md, "deflection.md missing submitDeflectionToGithub()"
+    assert "DeflectionAudio" in deflection_md, "deflection.md missing procedural audio engine"
+    assert "goldenEnergy" in deflection_md, "deflection.md missing goldenEnergy state"
+    assert "arbitrateNode" in deflection_md, "deflection.md missing arbitrateNode bufferless arbitration"
+    print("✓ Game 9 (Deflection Duel: Bufferless NoC): Zero-buffer hot-potato routing, Golden Flit surge, livelock prevention, and audio verified.")
+
+    # Fault Defender: Silicon Resilience & BIST
+    assert "faultCanvas" in faults_md, "faults.md missing faultCanvas"
+    assert "saveFaultRecord" in faults_md, "faults.md missing saveFaultRecord()"
+    assert "submitFaultToGithub" in faults_md, "faults.md missing submitFaultToGithub()"
+    assert "FaultAudio" in faults_md, "faults.md missing procedural audio engine"
+    assert "bistCharge" in faults_md, "faults.md missing bistCharge state"
+    assert "brokenLinks" in faults_md, "faults.md missing brokenLinks state"
+    print("✓ Game 10 (Fault Defender: Silicon Resilience): BIST radar pulses, Fault-Ring perimeter detours, hot-spare traces, and audio verified.")
+
     print("\n=== 2. VERIFYING LEADERBOARD SYNC & FILTERING ===")
     assert "getMergedRegistry" in leaderboard_md, "leaderboard.md missing getMergedRegistry()"
     assert "noc_leaderboard_records" in leaderboard_md, "leaderboard.md missing localStorage read"
@@ -97,10 +117,12 @@ def test_platform_features():
     assert "topology" in leaderboard_md, "leaderboard.md missing topology filter category"
     assert "optical" in leaderboard_md, "leaderboard.md missing optical filter category"
     assert "credit" in leaderboard_md, "leaderboard.md missing credit filter category"
+    assert "deflection" in leaderboard_md, "leaderboard.md missing deflection filter category"
+    assert "fault" in leaderboard_md, "leaderboard.md missing fault filter category"
     assert "Your Session" in leaderboard_md, "leaderboard.md missing 'Your Session' badge for local player records"
     assert "verifyHash" in leaderboard_md, "leaderboard.md missing certificate verification tool"
     print("✓ Leaderboard dynamically merges browser localStorage records with seeded Hall of Fame.")
-    print("✓ Supports full category filtering: All, Quiz, Deadlock Buster, Hotspot Hero, Chiplet Tycoon, Arbiter Arena, Topology Titans, Photon Pilot, and Credit Commander.")
+    print("✓ Supports full category filtering: All 10 games (Quiz, Deadlock Buster, Hotspot Hero, Chiplet Tycoon, Arbiter Arena, Topology Titans, Photon Pilot, Credit Commander, Deflection Duel, and Fault Defender).")
     print("✓ Real-time cryptographic credential verification verified.")
 
     print("\n=== 3. VERIFYING 3-TIER DIFFICULTY ENGINE IN QUIZ ===")

@@ -49,6 +49,8 @@ Verify any candidate's digital certificate hash against our public registry:
     <option value="topology">Topology Titans (Graph Architect)</option>
     <option value="optical">Photon Pilot (Optical NoC Grid)</option>
     <option value="credit">Credit Commander (Flow Control Defense)</option>
+    <option value="deflection">Deflection Duel (Bufferless NoC)</option>
+    <option value="fault">Fault Defender (Silicon Resilience)</option>
   </select>
 
   <label style="font-size:0.85rem; font-weight:600; margin-left:0.5rem; cursor:pointer; display:flex; align-items:center; gap:0.35rem;">
@@ -214,6 +216,28 @@ const DEFAULT_REGISTRY = [
     "date": "2026-11-04",
     "certId": "CREDIT-WAVE-7",
     "type": "credit"
+  },
+  {
+    "rank": 13,
+    "name": "Dr. Elena Rostova",
+    "org": "CMU SAFARI Research Group",
+    "track": "Deflection Duel (Wave 6)",
+    "score": 1450,
+    "accuracy": 36,
+    "date": "2026-11-04",
+    "certId": "DEFLECT-WAVE-6",
+    "type": "deflection"
+  },
+  {
+    "rank": 14,
+    "name": "Marcus Aurelius Vance",
+    "org": "NASA JPL Deep Space Microelectronics",
+    "track": "Fault Defender (Wave 6)",
+    "score": 1420,
+    "accuracy": 41,
+    "date": "2026-11-04",
+    "certId": "FAULT-WAVE-6",
+    "type": "fault"
   }
 ];
 let liveGitHubEntries = [];
@@ -375,6 +399,30 @@ async function fetchLiveGitHubIssues() {
               type: "credit",
               issueUrl: issue.html_url
             });
+          } else if (itemType === "deflection") {
+            liveGitHubEntries.push({
+              name: payload.player || payload.name || "Deflection Ace",
+              org: payload.org || "Silicon Lab",
+              track: "Deflection Duel (Wave " + (payload.wave || 1) + ")",
+              score: Number(payload.score) || 0,
+              accuracy: Number(payload.delivered) || 0,
+              certId: "DEFLECT-WAVE-" + (payload.wave || 1),
+              date: payload.date || (issue.created_at || "").slice(0, 10),
+              type: "deflection",
+              issueUrl: issue.html_url
+            });
+          } else if (itemType === "fault") {
+            liveGitHubEntries.push({
+              name: payload.player || payload.name || "Silicon Defender",
+              org: payload.org || "Silicon Lab",
+              track: "Fault Defender (Wave " + (payload.wave || 1) + ")",
+              score: Number(payload.score) || 0,
+              accuracy: Number(payload.rescued) || 0,
+              certId: "FAULT-WAVE-" + (payload.wave || 1),
+              date: payload.date || (issue.created_at || "").slice(0, 10),
+              type: "fault",
+              issueUrl: issue.html_url
+            });
           }
         } catch(err) {}
       });
@@ -462,6 +510,12 @@ function renderLeaderboardTable() {
     } else if (e.type === "credit") {
       metricLabel = escapeHtml(e.accuracy) + "% efficiency";
       badgeStyle = 'background:rgba(16, 185, 129, 0.1); color:#10b981; border-color:rgba(16, 185, 129, 0.2);';
+    } else if (e.type === "deflection") {
+      metricLabel = escapeHtml(e.accuracy) + " flits delivered";
+      badgeStyle = 'background:rgba(234, 179, 8, 0.1); color:#ca8a04; border-color:rgba(234, 179, 8, 0.2);';
+    } else if (e.type === "fault") {
+      metricLabel = escapeHtml(e.accuracy) + " packets rescued";
+      badgeStyle = 'background:rgba(99, 102, 241, 0.1); color:#6366f1; border-color:rgba(99, 102, 241, 0.2);';
     }
     const displayName = shouldMask ? maskName(e.name) : e.name;
     const safeCertId = escapeHtml(e.certId || "");

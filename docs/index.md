@@ -229,6 +229,28 @@ Explore our structured learning pathways designed for undergraduate and graduate
 
   <div class="noc-track-card">
     <div>
+      <span class="noc-track-badge" style="background:rgba(234, 179, 8, 0.1); color:#ca8a04; border-color:rgba(234, 179, 8, 0.2);">Bufferless Blitz</span>
+      <div class="noc-track-title">Deflection Duel NoC</div>
+      <div class="noc-track-desc">
+        Eliminate input buffers entirely! Steer hot-potato flits, arbitrate deflection conflicts, unleash Golden Flit surges, and avoid livelock drops.
+      </div>
+    </div>
+    <a href="interactive/deflection/" class="noc-track-link">Play Deflection Duel →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(99, 102, 241, 0.1); color:#6366f1; border-color:rgba(99, 102, 241, 0.2);">Silicon Resilience</span>
+      <div class="noc-track-title">Fault Defender BIST</div>
+      <div class="noc-track-desc">
+        Combat electromigration and cosmic ray strikes! Fire BIST radar pulses, establish Fault-Ring perimeter detours, and activate hot-spare interconnects.
+      </div>
+    </div>
+    <a href="interactive/faults/" class="noc-track-link">Play Fault Defender →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
       <span class="noc-track-badge" style="background:rgba(14, 165, 233, 0.1); color:#0284c7; border-color:rgba(14, 165, 233, 0.2);">Certification</span>
       <div class="noc-track-title">Architecture Assessment &amp; Quiz</div>
       <div class="noc-track-desc">
