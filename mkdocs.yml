@@ -55,7 +55,12 @@ plugins:
           build: true
           nav_translations:
             "Home": "首页"
-            "Interactive Lab": "交互式仿真器"
+            "Interactive Lab": "交互式实验"
+            "2D Mesh Routing Visualizer": "二维网格路由仿真"
+            "Deadlock Buster Arcade Game": "死锁大作战游戏"
+            "Certification & Quiz": "认证考核与答题"
+            "Public Leaderboard": "荣誉排行榜"
+            "Architecture Glossary": "专业术语词典"
             "Track 1: Interconnect Fundamentals": "第一模块：片上网络基础"
             "Track 2: Router Microarchitecture": "第二模块：路由器微架构"
             "Track 3: Topologies & Metrics": "第三模块：拓扑结构与互连指标"
@@ -114,6 +119,10 @@ nav:
   - Home: index.md
   - "Interactive Lab":
       - "2D Mesh Routing Visualizer": interactive/visualizer.md
+      - "Deadlock Buster Arcade Game": interactive/game.md
+  - "Certification & Quiz": quiz.md
+  - "Public Leaderboard": leaderboard.md
+  - "Architecture Glossary": glossary.md
   - "Track 1: Interconnect Fundamentals":
       - Overview: track1-fundamentals/index.md
       - "1.1 Why Network-on-Chip?": track1-fundamentals/01-why-noc.md

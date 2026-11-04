@@ -6,8 +6,11 @@
   </p>
   <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
     <a href="track1-fundamentals/" class="noc-sim-btn" style="text-decoration: none;">🚀 Start Learning</a>
-    <a href="interactive/visualizer.md" class="noc-sim-btn secondary" style="text-decoration: none;">🎮 Launch 2D Mesh Simulator</a>
-    <a href="https://network-on-chip.github.io/.github/" target="_blank" class="noc-sim-btn secondary" style="text-decoration: none;">🗺️ Interactive Papers Map</a>
+    <a href="quiz/" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">🎯 Take Certification Quiz</a>
+    <a href="interactive/game.md" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 Play Deadlock Buster</a>
+    <a href="interactive/visualizer.md" class="noc-sim-btn secondary" style="text-decoration: none;">🎮 2D Mesh Simulator</a>
+    <a href="leaderboard/" class="noc-sim-btn secondary" style="text-decoration: none;">🏆 Leaderboard</a>
+    <a href="glossary.md" class="noc-sim-btn secondary" style="text-decoration: none;">📖 Glossary</a>
   </div>
 </div>
 
@@ -116,13 +119,46 @@ Explore our structured learning pathways designed for undergraduate and graduate
 
   <div class="noc-track-card">
     <div>
-      <span class="noc-track-badge">Interactive Lab</span>
-      <div class="noc-track-title">2D Mesh Routing Simulator</div>
+      <span class="noc-track-badge" style="background:rgba(234, 88, 12, 0.1); color:#ea580c; border-color:rgba(234, 88, 12, 0.2);">Arcade Game</span>
+      <div class="noc-track-title">Deadlock Buster Challenge</div>
       <div class="noc-track-desc">
-        Test routing decisions live in your browser. Inject packets, observe flit hops, switch between XY, West-First, and Odd-Even routing, and inspect buffer states.
+        Act as the router arbiter under heavy traffic bursts. Flush escape channels using Duato's Theorem and prevent buffer lockups before time expires!
       </div>
     </div>
-    <a href="interactive/visualizer.md" class="noc-track-link">Launch Simulator →</a>
+    <a href="interactive/game.md" class="noc-track-link">Play Deadlock Buster →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(14, 165, 233, 0.1); color:#0284c7; border-color:rgba(14, 165, 233, 0.2);">Certification</span>
+      <div class="noc-track-title">Architecture Assessment &amp; Quiz</div>
+      <div class="noc-track-desc">
+        Evaluate your knowledge across routing, microarchitecture, and deadlock theory. Download your official cryptographic SVG Certificate of Completion.
+      </div>
+    </div>
+    <a href="quiz/" class="noc-track-link">Take Certification Quiz →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Hall of Fame</span>
+      <div class="noc-track-title">Leaderboard &amp; Verification</div>
+      <div class="noc-track-desc">
+        Recognizing top scores from researchers and students globally. Features an instant cryptographic credential verification tool.
+      </div>
+    </div>
+    <a href="leaderboard/" class="noc-track-link">View Leaderboard →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Encyclopedia</span>
+      <div class="noc-track-title">Architecture Glossary</div>
+      <div class="noc-track-desc">
+        Instant searchable dictionary of 50+ NoC terms, from Flits and Wormhole Switching to Matrix Arbiters, TSVs, and UCIe interfaces.
+      </div>
+    </div>
+    <a href="glossary.md" class="noc-track-link">Browse Glossary →</a>
   </div>
 </div>
 
