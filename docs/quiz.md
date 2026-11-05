@@ -682,6 +682,54 @@ const QUESTIONS_BANK = [
     ],
     "answer": 0,
     "explanation": "In standard packaging, the single die sits directly on the heat sink. In 3D stacks, only Tier 0 has direct thermal contact with the heat sink. Upper tiers must conduct heat through the entire thermal resistance ladder (accumulating inter-tier dielectric resistances), elevating top-tier temperatures by 25\u00b0C to 40\u00b0C over bottom tiers."
+  },
+  {
+    "id": "q37",
+    "module": "Track 6: Chiplets & 3D (Book Ch 9)",
+    "tier": "Tier 1: Fundamental",
+    "tier_level": 1,
+    "base_points": 100,
+    "question": "Why does disaggregating a massive monolithic system-on-chip into smaller chiplets dramatically reduce total manufacturing cost, according to the Murphy and Seeds yield models?",
+    "options": [
+      "Because die yield decays exponentially with active silicon area (Y ~ e^{-sqrt(A * D0)}); splitting an 800 mm\u00b2 die into four 200 mm\u00b2 chiplets increases per-die yield from ~25% to >80%, offsetting packaging costs.",
+      "Because chiplets eliminate the need for silicon wafers entirely.",
+      "Because packaging costs for chiplets are strictly negative.",
+      "Because chiplets can only be manufactured using 180nm lithography."
+    ],
+    "answer": 0,
+    "explanation": "Under Murphy/Seeds yield formulations, defect probability escalates nonlinearly with die area. A large monolithic die suffers from very low yields (e.g. 25%), discarding entire functional sections when a single defect strikes. Smaller chiplets achieve >80% yield, dramatically reducing discarded silicon."
+  },
+  {
+    "id": "q38",
+    "module": "Track 6: Chiplets & 3D (Book Ch 9)",
+    "tier": "Tier 2: Core Engineering",
+    "tier_level": 2,
+    "base_points": 200,
+    "question": "In the Universal Chiplet Interconnect Express (UCIe) standard, what is the role of the Die-to-Die (D2D) Adapter Layer between the Protocol Layer and the Physical Layer (PHY)?",
+    "options": [
+      "It provides link state management, packet framing, CRC error detection, retry retransmission buffers (Go-Back-N / Selective), and credit-based flow control turnaround.",
+      "It converts digital electrical signals into optical photons.",
+      "It dynamically shifts the processor clock between 1 Hz and 100 GHz.",
+      "It provides high-voltage DC power conversion from 120V AC wall power."
+    ],
+    "answer": 0,
+    "explanation": "The UCIe D2D Adapter layer abstracts the physical signaling interface from high-level protocol flits. It manages link training states, calculates and checks CRC (CRC-16 or CRC-32), coordinates retransmission retry buffers, and maintains flow control credit counters."
+  },
+  {
+    "id": "q39",
+    "module": "Track 6: Chiplets & 3D (Book Ch 9)",
+    "tier": "Tier 3: Silicon Mastery",
+    "tier_level": 3,
+    "base_points": 300,
+    "question": "Why can composing individually deadlock-free 2D mesh chiplets produce system-level routing deadlocks, and how does the In/Outbound Swap backtracking mechanism (Wang et al., IEEE TCAD 2026) resolve this without overprovisioning Virtual Channels?",
+    "options": [
+      "Hierarchical routing across die-to-die boundaries can form cyclic buffer dependency loops across inter-chiplet bridge routers; the In/Outbound Swap detects stalls exceeding a timeout threshold and diverts blocked head flits into an escape register, severing the cyclic dependency loop and allowing trailing flits to advance.",
+      "Deadlocks only occur if the interposer runs out of electrical ground wires.",
+      "In/Outbound Swap drops all packets currently stored in the router buffers whenever a stall occurs.",
+      "Multi-chiplet deadlocks are mathematically impossible because turn models always apply across multiple dies without restriction."
+    ],
+    "answer": 0,
+    "explanation": "Local turn models (like XY DOR) only guarantee acyclic dependencies within a single die. Combining multiple dies through D2D bridges creates global cycles in the channel dependency graph. Wang et al.'s In/Outbound Swap monitors stall timeouts (tau_stall) and temporarily diverts stalled flits into swap escape buffers, breaking the circular wait condition without dropping packets or dedicating multiple redundant VCs."
   }
 ];
 
