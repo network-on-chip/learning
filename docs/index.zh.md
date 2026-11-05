@@ -116,7 +116,7 @@
         三维硅通孔（TSV）寄生与热应力禁放区（KOZ）、七端口三维路由器、负二项式良率经济学、先进封装（CoWoS/EMIB）、UCIe 协议栈、3D 堆叠热沉陷、光互连片上网络（ONoC）与无线射频（WNoC）前沿。
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 包含 4 大交互式仿真器与 UCIe 权衡分析引擎
+        ⚡ 包含 4 大可综合 Verilog RTL 模块、4 大交互式仿真器与街机实战链接
       </div>
     </div>
     <a href="track6-chiplets-and-3d/" class="noc-track-link">进入模块六 →</a>

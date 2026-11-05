@@ -413,61 +413,319 @@ $$P_{D2D} = (8.448 \times 10^{12} \ \text{bits/sec}) \times (0.45 \times 10^{-12
 
 ---
 
-## 7. Self-Assessment Concept Check
+## 7. Synthesizable Verilog Module: `ucie_d2d_link_adapter.v`
 
-<div style="background:var(--md-code-bg-color); border:1px solid var(--md-default-fg-color--lightest); border-radius:8px; padding:20px; margin:24px 0;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:12px; color:var(--md-typeset-color);">
-    Question 1: Why does a multi-chiplet partition achieve dramatically higher wafer yield than a monolithic die of equal total silicon area?
-  </div>
-  <div style="display:flex; flex-direction:column; gap:8px;">
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="a"> A) Smaller chiplets operate at lower clock frequencies, reducing gate oxide breakdown.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="b"> B) Wafer yield drops exponentially with die area in the negative binomial model; a defect ruins only one small chiplet rather than the entire monolithic chip.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="c"> C) Chiplets eliminate the need for electrostatic discharge (ESD) protection diodes.</label>
-  </div>
-  <button onclick="checkQ1()" style="margin-top:12px; padding:6px 14px; border-radius:4px; background:#0284c7; color:#fff; border:none; cursor:pointer; font-weight:600;">Check Answer</button>
-  <div id="q1-feedback" style="margin-top:10px; font-size:0.9rem; font-weight:600;"></div>
-</div>
+At the boundary between chiplets, the Die-to-Die (D2D) Adapter layer is responsible for converting internal NoC flits into standard UCIe physical frames, generating CRC error detection checksums, and buffering unacknowledged packets in a circular replay buffer for Link-Level Retry. The module below implements a synthesizable **UCIe D2D Link Adapter** with 16-bit CRC generation and an 8-entry sliding window replay buffer.
 
-<div style="background:var(--md-code-bg-color); border:1px solid var(--md-default-fg-color--lightest); border-radius:8px; padding:20px; margin:24px 0;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:12px; color:var(--md-typeset-color);">
-    Question 2: In a distributed NoC crossing a multi-chiplet boundary via UCIe, why must the border routers allocate significantly larger credit buffer queues than internal on-die routers?
+```verilog
+//=============================================================================
+// File: ucie_d2d_link_adapter.v
+// Module: ucie_d2d_link_adapter
+// Description: Synthesizable UCIe Die-to-Die (D2D) Link Adapter.
+//              Features:
+//              - Ingests 64-bit NoC flits with 8-bit routing header.
+//              - Computes 16-bit CRC (polynomial: x^16 + x^12 + x^5 + 1).
+//              - Packages data into 92-bit UCIe physical frames:
+//                {Header[7:0], SeqNum[3:0], Payload[63:0], CRC[15:0]}.
+//              - 8-entry sliding window replay buffer for Link-Level Retry.
+//              - Ingests ACK/NACK responses to retire or retransmit frames.
+//=============================================================================
+
+`timescale 1ns / 1ps
+
+module ucie_d2d_link_adapter #(
+    parameter integer REPLAY_BUF_DEPTH = 8
+)(
+    input  wire        clk,                  // D2D Adapter core clock
+    input  wire        rst_n,                // Active-low synchronous reset
+    
+    // Inbound Flit from Local Router Crossbar
+    input  wire        flit_valid_in,        // Flit push request
+    input  wire [7:0]  flit_header_in,       // Destination & VC header
+    input  wire [63:0] flit_payload_in,      // 64-bit flit data
+    output reg         flit_ready_out,       // Ready to accept new flit
+    
+    // Outbound UCIe Physical Interface (to PHY RDI)
+    output reg         frame_valid_out,      // Valid frame transmitted to PHY
+    output reg  [91:0] frame_data_out,       // Formatted 92-bit UCIe frame
+    input  wire        phy_tx_ready,         // PHY ready for transmission
+    
+    // Inbound Feedback from Remote Die
+    input  wire        remote_ack_valid,     // Remote die sent ACK
+    input  wire [3:0]  remote_ack_seq,       // Sequence number acknowledged
+    input  wire        remote_nack_valid,    // Remote die detected CRC error (NACK)
+    input  wire [3:0]  remote_nack_seq       // Sequence number to replay
+);
+
+    // Sequence Number Generator (4-bit, 0..15)
+    reg [3:0] tx_seq_num;
+    reg [3:0] ack_ptr;
+
+    // 16-bit CRC Generator: polynomial 16'h1021
+    function [15:0] calc_crc16;
+        input [71:0] data; // 8-bit header + 64-bit payload
+        integer b;
+        reg [15:0] crc;
+        begin
+            crc = 16'hFFFF;
+            for (b = 71; b >= 0; b = b - 1) begin
+                if ((crc[15] ^ data[b]) == 1'b1) begin
+                    crc = (crc << 1) ^ 16'h1021;
+                end else begin
+                    crc = (crc << 1);
+                end
+            end
+            calc_crc16 = crc;
+        end
+    endfunction
+
+    wire [15:0] computed_crc = calc_crc16({flit_header_in, flit_payload_in});
+
+    // 8-entry Replay Buffer
+    reg [91:0] replay_buffer [0:REPLAY_BUF_DEPTH-1];
+    reg [2:0]  replay_head;
+    reg [2:0]  replay_tail;
+    reg [3:0]  replay_count;
+    reg        replaying_mode;
+
+    wire replay_buf_full = (replay_count >= REPLAY_BUF_DEPTH[3:0]);
+
+    always @(*) begin
+        flit_ready_out = !replay_buf_full && !replaying_mode;
+    end
+
+    // Frame Packaging & Transmission Logic
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            tx_seq_num       <= 4'd0;
+            ack_ptr          <= 4'd0;
+            frame_valid_out  <= 1'b0;
+            frame_data_out   <= 92'd0;
+            replay_head      <= 3'd0;
+            replay_tail      <= 3'd0;
+            replay_count     <= 4'd0;
+            replaying_mode   <= 1'b0;
+        end else begin
+            frame_valid_out <= 1'b0;
+
+            // Handle Inbound Remote ACKs
+            if (remote_ack_valid) begin
+                if (replay_count > 4'd0) begin
+                    replay_tail  <= (replay_tail + 3'd1) % REPLAY_BUF_DEPTH[2:0];
+                    replay_count <= replay_count - 4'd1;
+                    ack_ptr      <= remote_ack_seq;
+                end
+            end
+
+            // Handle Inbound Remote NACK (Enter Replay Mode)
+            if (remote_nack_valid) begin
+                replaying_mode <= 1'b1;
+            end
+
+            // Normal Transmit Path
+            if (!replaying_mode) begin
+                if (flit_valid_in && flit_ready_out && phy_tx_ready) begin
+                    // Assemble 92-bit UCIe frame:
+                    // [91:84] Header, [83:80] Seq, [79:16] Payload, [15:0] CRC
+                    frame_data_out   <= {flit_header_in, tx_seq_num, flit_payload_in, computed_crc};
+                    frame_valid_out  <= 1'b1;
+
+                    // Push to Replay Buffer
+                    replay_buffer[replay_head] <= {flit_header_in, tx_seq_num, flit_payload_in, computed_crc};
+                    replay_head                <= (replay_head + 3'd1) % REPLAY_BUF_DEPTH[2:0];
+                    replay_count               <= replay_count + 4'd1;
+                    tx_seq_num                 <= tx_seq_num + 4'd1;
+                end
+            end else begin
+                // Replay Path: Retransmit from tail
+                if (phy_tx_ready && (replay_count > 4'd0)) begin
+                    frame_data_out  <= replay_buffer[replay_tail];
+                    frame_valid_out <= 1'b1;
+                    replaying_mode  <= 1'b0; // Retransmit completed
+                end
+            end
+        end
+    end
+
+endmodule
+```
+
+---
+
+## 8. 🕹️ Interactive Simulation & Arcade Linkages
+
+Deepen your practical understanding of multi-die packaging, interposer microbumps, and credit buffer turnaround through our interactive arcade games:
+
+- 🎮 **[Chiplet Tycoon: Multi-Die Architect](../interactive/chiplet.md):** Balance microbump pitches, packaging substrate costs (CoWoS vs EMIB vs Organic), and Murphy yield curves to optimize cost-per-good-die.
+- 🎮 **[Credit Commander: Flow Control](../interactive/credits.md):** Manage multi-cycle D2D round-trip latency, deep credit buffer sizing, and prevent shoreline throughput collapse.
+
+---
+
+## 9. 🎯 Concept Check: Lesson 6.2
+
+Test your mastery of multi-chiplet yield economics, packaging technologies, and UCIe standard protocols with this 3-question self-assessment.
+
+<div class="noc-sim-container" id="quiz62" style="margin-top:1rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+    <div style="font-weight:700; font-size:1.05rem; color:var(--tcl-heading);">
+      📝 Concept Check: Multi-Chiplet Interconnects &amp; UCIe
+    </div>
+    <div id="q62_score_badge" style="font-size:0.85rem; font-weight:600; padding:4px 10px; border-radius:12px; background:rgba(37,99,235,0.1); color:#2563eb;">
+      Score: 0 / 3
+    </div>
   </div>
-  <div style="display:flex; flex-direction:column; gap:8px;">
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="a"> A) The D2D round-trip time (RTT) is 10–16 cycles due to CRC, retry buffers, and PHY clock crossing, requiring B_min >= RTT * Bandwidth to avoid throughput collapse.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="b"> B) Interposer copper wires suffer from skin effect losses that invert the credit signal polarity.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="c"> C) UCIe mandates that all flits must be held for 100 clock cycles before transmission.</label>
+
+  <!-- Question 1 -->
+  <div id="q62_1_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>1. Negative Binomial Yield Economics:</b> Why does a multi-chiplet partition achieve dramatically higher wafer yield and lower manufacturing cost than a monolithic die of equal total silicon area?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q62_1_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ62(1, 0)">
+        A. Smaller chiplets operate at lower clock frequencies, preventing gate oxide breakdown.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ62(1, 1)">
+        B. Wafer yield drops exponentially with die area in the negative binomial model ($Y \propto (1 + D_0 A / \alpha)^{-\alpha}$); a random silicon defect ruins only one small modular chiplet ($160\text{ mm}^2$) rather than discarding an entire $800\text{ mm}^2$ monolithic die.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ62(1, 2)">
+        C. Multi-chiplet systems eliminate all silicon substrate testing requirements.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ62(1, 3)">
+        D. Chiplets allow using copper wires with zero electrical resistance.
+      </button>
+    </div>
+    <div id="q62_1_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
   </div>
-  <button onclick="checkQ2()" style="margin-top:12px; padding:6px 14px; border-radius:4px; background:#0284c7; color:#fff; border:none; cursor:pointer; font-weight:600;">Check Answer</button>
-  <div id="q2-feedback" style="margin-top:10px; font-size:0.9rem; font-weight:600;"></div>
+
+  <!-- Question 2 -->
+  <div id="q62_2_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>2. Advanced Packaging Shoreline Density:</b> How does advanced silicon interposer packaging (TSMC CoWoS / Intel EMIB with $45\text{–}55\ \mu\text{m}$ pitch) achieve shoreline bandwidth exceeding $1,300\text{ Gbps/mm}$ compared to standard organic substrates ($110\text{–}130\ \mu\text{m}$ pitch)?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q62_2_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ62(2, 0)">
+        A. By increasing the operating voltage to 12 Volts.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ62(2, 1)">
+        B. Sub-micron lithographic metal traces on silicon interposers provide over $10\times$ higher wire routing density ($>200\text{ lines/mm/layer}$) and short trace lengths with low capacitance ($<0.3\text{ pF/mm}$), enabling dense multi-lane parallel buses.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ62(2, 2)">
+        C. Organic substrates can only route signals in the vertical Z dimension.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ62(2, 3)">
+        D. Interposers eliminate the need for analog PHY receivers.
+      </button>
+    </div>
+    <div id="q62_2_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div id="q62_3_block" style="margin-bottom:1rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>3. D2D Flow Control &amp; Buffer Depth:</b> In a distributed NoC crossing a multi-chiplet boundary via UCIe, why must border routers allocate significantly larger credit buffer queues ($B_{min} \ge \text{RTT} \times \text{BW}$) than internal on-die routers?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q62_3_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ62(3, 0)">
+        A. Because the D2D round-trip time (RTT) spans 10–16 clock cycles due to CRC generation, sliding-window retry buffers, and PHY clock-domain crossings, requiring deeper queues to prevent throughput collapse.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ62(3, 1)">
+        B. Interposer copper wires suffer from skin effect losses that invert the credit signal polarity.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ62(3, 2)">
+        C. UCIe mandates that all flits must be held for 100 clock cycles before transmission.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ62(3, 3)">
+        D. Border routers convert all packets into optical pulses.
+      </button>
+    </div>
+    <div id="q62_3_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <div style="margin-top:1rem; text-align:right;">
+    <button class="noc-sim-btn" onclick="resetQuiz62()" style="padding:4px 12px; font-size:0.85rem;">🔄 Reset Quiz</button>
+  </div>
 </div>
 
 <script>
-function checkQ1() {
-  const sel = document.querySelector('input[name="q1"]:checked');
-  const fb = document.getElementById('q1-feedback');
-  if (!sel) { fb.innerHTML = '<span style="color:#f59e0b;">Please select an option.</span>'; return; }
-  if (sel.value === 'b') {
-    fb.innerHTML = '<span style="color:#10b981;">✓ Correct! In the negative binomial model, yield decreases exponentially with area (A). When a random silicon defect strikes an 800 mm² monolithic die, the entire $1,800 die is scrapped. With four 200 mm² chiplets, only the single struck $80 chiplet is discarded!</span>';
+const q62Answers = { 1: 1, 2: 1, 3: 0 };
+let q62UserScore = { 1: false, 2: false, 3: false };
+
+function checkQ62(qNum, optIdx) {
+  const fb = document.getElementById(`q62_${qNum}_fb`);
+  const opts = document.getElementById(`q62_${qNum}_opts`).children;
+  fb.style.display = "block";
+
+  for (let i = 0; i < opts.length; i++) {
+    opts[i].onclick = null;
+    opts[i].style.cursor = "default";
+  }
+
+  const isCorrect = (optIdx === q62Answers[qNum]);
+  q62UserScore[qNum] = isCorrect;
+
+  if (isCorrect) {
+    opts[optIdx].style.background = "rgba(34,197,94,0.15)";
+    opts[optIdx].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)";
+    fb.style.border = "1px solid rgba(34,197,94,0.3)";
+    fb.style.color = "#166534";
+    if (qNum === 1) {
+      fb.innerHTML = "<strong>✓ Correct!</strong> In the negative binomial model, yield decreases exponentially with area. When a defect strikes an 800 mm² monolithic die, the entire $1,800 die is scrapped. With smaller chiplets, only the single struck $80 chiplet is discarded!";
+    } else if (qNum === 2) {
+      fb.innerHTML = "<strong>✓ Correct!</strong> Advanced packaging leverages fine-pitch microbumps and sub-micron lithography on silicon substrates to achieve unprecedented wire routing density with sub-picojoule energy efficiency.";
+    } else {
+      fb.innerHTML = "<strong>✓ Correct!</strong> Because D2D round-trip latency spans multiple protocol, CDC, and analog PHY pipeline stages (RTT ≈ 10–16 cycles), credit replenishment takes longer. By Little's Law, buffer depth must satisfy B_min >= RTT * BW to prevent link starvation.";
+    }
   } else {
-    fb.innerHTML = '<span style="color:#ef4444;">✗ Incorrect. Yield collapses exponentially with die area. Splitting a massive SoC into smaller chiplets isolates defect casualties to individual small dies.</span>';
+    opts[optIdx].style.background = "rgba(239,68,68,0.15)";
+    opts[optIdx].style.borderColor = "#ef4444";
+    opts[q62Answers[qNum]].style.background = "rgba(34,197,94,0.15)";
+    opts[q62Answers[qNum]].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)";
+    fb.style.border = "1px solid rgba(239,68,68,0.3)";
+    fb.style.color = "#991b1b";
+    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q62Answers[qNum])}</strong>.`;
+  }
+
+  updateQ62Score();
+}
+
+function updateQ62Score() {
+  const score = Object.values(q62UserScore).filter(Boolean).length;
+  const badge = document.getElementById("q62_score_badge");
+  badge.textContent = `Score: ${score} / 3`;
+  if (score === 3) {
+    badge.style.background = "rgba(34,197,94,0.2)";
+    badge.style.color = "#166534";
   }
 }
 
-function checkQ2() {
-  const sel = document.querySelector('input[name="q2"]:checked');
-  const fb = document.getElementById('q2-feedback');
-  if (!sel) { fb.innerHTML = '<span style="color:#f59e0b;">Please select an option.</span>'; return; }
-  if (sel.value === 'a') {
-    fb.innerHTML = '<span style="color:#10b981;">✓ Correct! Because D2D round-trip latency spans multiple protocol, CDC, and analog PHY pipeline stages (RTT ≈ 10–16 cycles), credit replenishment takes longer. By Little’s Law / flow control theory, buffer depth must satisfy B_min >= RTT * BW to prevent link starvation.</span>';
-  } else {
-    fb.innerHTML = '<span style="color:#ef4444;">✗ Incorrect. In credit flow control, minimum buffer capacity is directly proportional to the credit round-trip loop latency (B_min >= RTT * BW). The multi-cycle D2D crossing demands deeper credit queues.</span>';
+function resetQuiz62() {
+  q62UserScore = { 1: false, 2: false, 3: false };
+  for (let q = 1; q <= 3; q++) {
+    const fb = document.getElementById(`q62_${q}_fb`);
+    fb.style.display = "none";
+    fb.innerHTML = "";
+    const opts = document.getElementById(`q62_${q}_opts`).children;
+    for (let i = 0; i < opts.length; i++) {
+      opts[i].style.background = "";
+      opts[i].style.borderColor = "";
+      opts[i].style.cursor = "pointer";
+      opts[i].onclick = (function(qNum, optIdx) {
+        return function() { checkQ62(qNum, optIdx); };
+      })(q, i);
+    }
   }
+  const badge = document.getElementById("q62_score_badge");
+  badge.textContent = "Score: 0 / 3";
+  badge.style.background = "rgba(37,99,235,0.1)";
+  badge.style.color = "#2563eb";
 }
 </script>
 
 ---
 
-## 8. Summary & Next Steps
+## 10. Summary & Next Steps
 
 Disaggregating monolithic processors into multi-die chiplets circumvents the $858\text{ mm}^2$ reticle limit and saves $50\text{–}70\%$ in manufacturing costs. Advanced packaging (CoWoS, EMIB) and the open UCIe standard deliver shoreline bandwidth exceeding $1.3\text{ Tbps/mm}$ at sub-picojoule energy efficiency.
 

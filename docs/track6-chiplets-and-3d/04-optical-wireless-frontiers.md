@@ -434,63 +434,344 @@ $$P_{elec} = \frac{P_{laser} (\text{mW})}{\eta_{wall}} = \frac{0.0912 \ \text{mW
 
 ---
 
-## 8. Self-Assessment Concept Check
+## 8. Synthesizable Verilog Module: `onoc_mrr_thermal_tuner.v`
 
-<div style="background:var(--md-code-bg-color); border:1px solid var(--md-default-fg-color--lightest); border-radius:8px; padding:20px; margin:24px 0;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:12px; color:var(--md-typeset-color);">
-    Question 1: Why does a localized temperature increase of only 5°C to 10°C threaten the operational integrity of a dense WDM Optical Network-on-Chip?
-  </div>
-  <div style="display:flex; flex-direction:column; gap:8px;">
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="a"> A) The silicon waveguide melts at 35°C.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="b"> B) Silicon has a high thermo-optic coefficient (dn/dT ≈ 1.86e-4 /K), causing the resonant wavelength to drift (dλ/dT ≈ 0.1 nm/°C) into adjacent optical channels, inducing severe crosstalk.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="c"> C) Photons lose kinetic energy and slow down by 90% under elevated temperatures.</label>
-  </div>
-  <button onclick="checkQ1()" style="margin-top:12px; padding:6px 14px; border-radius:4px; background:#0284c7; color:#fff; border:none; cursor:pointer; font-weight:600;">Check Answer</button>
-  <div id="q1-feedback" style="margin-top:10px; font-size:0.9rem; font-weight:600;"></div>
-</div>
+Because silicon possesses a strong positive thermo-optic coefficient ($dn/dT \approx 1.86 \times 10^{-4}\text{ K}^{-1}$), ambient temperature fluctuations shift optical resonance peaks across the WDM spectrum ($\approx 0.1\text{ nm/}^\circ\text{C}$). To maintain lock between silicon micro-ring resonators (MRRs) and off-chip continuous-wave lasers, each resonant node incorporates an integrated resistive micro-heater regulated by a digital feedback tracking loop.
 
-<div style="background:var(--md-code-bg-color); border:1px solid var(--md-default-fg-color--lightest); border-radius:8px; padding:20px; margin:24px 0;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:12px; color:var(--md-typeset-color);">
-    Question 2: What is the principal architectural advantage of a hybrid Wireless NoC (WNoC) over a purely 2D electrical mesh?
+The synthesizable module below implements an **MRR Closed-Loop Thermal Resonance Tuner**. It samples drop-port optical power via an integrated Germanium photodetector ADC, executes a hill-climbing dither search to track peak optical coupling, and drives the resistive micro-heater through a first-order **Delta-Sigma Pulse Density Modulator (PDM)** to ensure uniform thermal dissipation with minimal optical ripple.
+
+```verilog
+//=============================================================================
+// File: onoc_mrr_thermal_tuner.v
+// Module: onoc_mrr_thermal_tuner
+// Description: Synthesizable Closed-Loop Digital Thermal Controller for Silicon
+//              Micro-Ring Resonators (MRRs) in Optical Network-on-Chip (ONoC).
+//              Features:
+//              - Closed-loop dither/hill-climbing optical peak resonance tracker.
+//              - Monitors drop-port optical power via Ge photodetector / TIA ADC.
+//              - Generates 8-bit digital heating power level (heater_dac_val).
+//              - First-order Delta-Sigma Pulse Density Modulator (PDM) driving
+//                on-chip integrated resistive micro-heater FET (heater_pwm_out).
+//              - Real-time resonance_locked flag and detuned_alert alarm.
+//              - Thermal-aware sample-rate decimation divider.
+//=============================================================================
+
+`timescale 1ns / 1ps
+
+module onoc_mrr_thermal_tuner #(
+    parameter integer DATA_WIDTH  = 10,       // Optical power & temp ADC width
+    parameter integer DAC_WIDTH   = 8,        // Micro-heater control resolution (0..255)
+    parameter [DATA_WIDTH-1:0] LOCK_THRESH = 10'd720, // Optical power threshold for lock
+    parameter [DAC_WIDTH-1:0]  DITHER_STEP = 8'd1,   // DAC step per feedback adjustment
+    parameter integer SAMPLE_DIV  = 16        // Clock divider for thermal time constant
+)(
+    input  wire                   clk,
+    input  wire                   rst_n,
+    input  wire                   enable,
+    
+    // Telemetry Sensors
+    input  wire [DATA_WIDTH-1:0]  optical_pwr_sense, // Drop-port photodiode ADC reading
+    input  wire [DATA_WIDTH-1:0]  temp_sense,        // Local on-die thermal diode reading
+    input  wire [3:0]             target_channel_id, // WDM wavelength slot identifier
+    
+    // Micro-Heater Actuator Output
+    output wire                   heater_pwm_out,    // Delta-Sigma PDM heater drive pulse
+    output reg  [DAC_WIDTH-1:0]   heater_dac_val,    // Current digital heater power (0..255)
+    
+    // Status Telemetry
+    output reg                    resonance_locked,  // 1: Ring aligned with laser wavelength
+    output reg                    detuned_alert,     // 1: Severe thermal drift / out of range
+    output reg                    tuning_active      // 1: Dither feedback actively adjusting
+);
+
+    // FSM States
+    localparam [2:0] ST_IDLE    = 3'b001;
+    localparam [2:0] ST_SAMPLE  = 3'b010;
+    localparam [2:0] ST_DITHER  = 3'b100;
+
+    reg [2:0]  state;
+    reg [7:0]  div_cnt;
+    reg [DATA_WIDTH-1:0] prev_optical_pwr;
+    reg        tune_dir; // 1: Increase heating, 0: Decrease heating
+    
+    // First-Order Delta-Sigma Accumulator for Heater Drive
+    // Accumulates 8-bit DAC value into 9-bit accumulator; MSB overflow is output pulse
+    reg [DAC_WIDTH:0] sigma_acc;
+    assign heater_pwm_out = sigma_acc[DAC_WIDTH];
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            sigma_acc <= {(DAC_WIDTH+1){1'b0}};
+        end else begin
+            sigma_acc <= sigma_acc[DAC_WIDTH-1:0] + heater_dac_val;
+        end
+    end
+
+    // Thermal Tracking Feedback Loop
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            state            <= ST_IDLE;
+            div_cnt          <= 8'd0;
+            heater_dac_val   <= 8'd64; // Default initial pre-heat bias
+            prev_optical_pwr <= {DATA_WIDTH{1'b0}};
+            tune_dir         <= 1'b1;
+            resonance_locked <= 1'b0;
+            detuned_alert    <= 1'b0;
+            tuning_active    <= 1'b0;
+        end else if (!enable) begin
+            state            <= ST_IDLE;
+            div_cnt          <= 8'd0;
+            heater_dac_val   <= 8'd0;
+            resonance_locked <= 1'b0;
+            detuned_alert    <= 1'b0;
+            tuning_active    <= 1'b0;
+        end else begin
+            case (state)
+                ST_IDLE: begin
+                    div_cnt          <= 8'd0;
+                    tuning_active    <= 1'b1;
+                    prev_optical_pwr <= optical_pwr_sense;
+                    state            <= ST_SAMPLE;
+                end
+
+                ST_SAMPLE: begin
+                    if (div_cnt >= (SAMPLE_DIV - 1)) begin
+                        div_cnt <= 8'd0;
+                        state   <= ST_DITHER;
+                    end else begin
+                        div_cnt <= div_cnt + 8'd1;
+                    end
+                end
+
+                ST_DITHER: begin
+                    // Evaluate Optical Resonance Alignment
+                    if (optical_pwr_sense >= LOCK_THRESH) begin
+                        resonance_locked <= 1'b1;
+                        detuned_alert    <= 1'b0;
+                    end else begin
+                        resonance_locked <= 1'b0;
+                    end
+
+                    // Hill-Climbing Perturbation:
+                    // Did optical power improve compared to previous evaluation?
+                    if (optical_pwr_sense > prev_optical_pwr) begin
+                        // Power improved: continue moving in same direction
+                        if (tune_dir) begin
+                            if (heater_dac_val <= (8'hFF - DITHER_STEP))
+                                heater_dac_val <= heater_dac_val + DITHER_STEP;
+                            else
+                                detuned_alert <= (optical_pwr_sense < LOCK_THRESH);
+                        end else begin
+                            if (heater_dac_val >= DITHER_STEP)
+                                heater_dac_val <= heater_dac_val - DITHER_STEP;
+                            else
+                                detuned_alert <= (optical_pwr_sense < LOCK_THRESH);
+                        end
+                    end else if (optical_pwr_sense < prev_optical_pwr) begin
+                        // Power degraded: reverse search direction
+                        tune_dir <= ~tune_dir;
+                        if (~tune_dir) begin
+                            if (heater_dac_val <= (8'hFF - DITHER_STEP))
+                                heater_dac_val <= heater_dac_val + DITHER_STEP;
+                        end else begin
+                            if (heater_dac_val >= DITHER_STEP)
+                                heater_dac_val <= heater_dac_val - DITHER_STEP;
+                        end
+                    end
+
+                    // Update baseline reading and loop back to sample timer
+                    prev_optical_pwr <= optical_pwr_sense;
+                    state            <= ST_SAMPLE;
+                end
+
+                default: state <= ST_IDLE;
+            endcase
+        end
+    end
+
+endmodule
+```
+
+---
+
+## 9. 🕹️ Interactive Simulation & Arcade Linkages
+
+Deepen your practical mastery of photonic micro-ring tuning, optical link budgets, and on-chip wireless broadcast with our interactive arcade games:
+
+- 🎮 **[Photon Pilot: Silicon Photonics](../interactive/optical.md):** Command laser wavelengths, align micro-ring resonators, and tune thermal micro-heaters in an interactive optical NoC simulator.
+- 🎮 **[Wireless Wave: mmWave & THz WNoC](../interactive/wireless.md):** Deploy hybrid on-chip wireless hubs, configure token MAC protocols, and bypass planar copper congestion with speed-of-light shortcuts.
+
+---
+
+## 10. 🎯 Concept Check: Lesson 6.4
+
+Test your understanding of optical NoC physics, thermal detuning, and wireless interconnects with this 3-question self-assessment.
+
+<div class="noc-sim-container" id="quiz64" style="margin-top:1rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+    <div style="font-weight:700; font-size:1.05rem; color:var(--tcl-heading);">
+      📝 Concept Check: Optical &amp; Wireless NoC Frontiers
+    </div>
+    <div id="q64_score_badge" style="font-size:0.85rem; font-weight:600; padding:4px 10px; border-radius:12px; background:rgba(37,99,235,0.1); color:#2563eb;">
+      Score: 0 / 3
+    </div>
   </div>
-  <div style="display:flex; flex-direction:column; gap:8px;">
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="a"> A) Wireless transceivers allow long-range diametric flits to bypass 10–20 intermediate router hops in a single clock cycle shortcut.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="b"> B) Wireless waves can transmit power directly into the battery of a smartphone.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="c"> C) Wireless antennas eliminate the need for virtual channels and routing tables completely.</label>
+
+  <!-- Question 1 -->
+  <div id="q64_1_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>1. Thermo-Optic Detuning:</b> Why does a localized temperature variation of only $5^\circ\text{C}$ to $10^\circ\text{C}$ threaten the operational integrity of a dense WDM Optical Network-on-Chip?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q64_1_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ64(1, 0)">
+        A. Silicon has a high thermo-optic coefficient ($dn/dT \approx 1.86 \times 10^{-4}\text{ K}^{-1}$), causing the resonant wavelength to drift ($d\lambda/dT \approx 0.1\text{ nm/}^\circ\text{C}$) into adjacent optical channels, inducing severe inter-channel crosstalk and signal loss.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ64(1, 1)">
+        B. Silicon waveguides physically melt and deform at temperatures above $40^\circ\text{C}$.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ64(1, 2)">
+        C. Photons lose kinetic energy and drop their propagation velocity by $90\%$ under moderate heat.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ64(1, 3)">
+        D. High temperature reverses the polarity of the Germanium photodiode.
+      </button>
+    </div>
+    <div id="q64_1_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
   </div>
-  <button onclick="checkQ2()" style="margin-top:12px; padding:6px 14px; border-radius:4px; background:#0284c7; color:#fff; border:none; cursor:pointer; font-weight:600;">Check Answer</button>
-  <div id="q2-feedback" style="margin-top:10px; font-size:0.9rem; font-weight:600;"></div>
+
+  <!-- Question 2 -->
+  <div id="q64_2_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>2. Wireless NoC Topology Advantage:</b> What is the principal architectural benefit of introducing millimeter-wave or THz wireless transceivers into a conventional 2D mesh?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q64_2_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ64(2, 0)">
+        A. On-chip antennas allow long-distance diametric packets to bypass 10–20 intermediate router hops in a single sub-nanosecond wireless shortcut, dramatically shrinking average hop count and network diameter.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ64(2, 1)">
+        B. Wireless links completely eliminate the need for routing tables, flow control, and input buffers.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ64(2, 2)">
+        C. Wireless transmission allows packets to be broadcast directly into off-chip smartphone antennas.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ64(2, 3)">
+        D. Millimeter-wave signals eliminate dielectric substrate losses entirely.
+      </button>
+    </div>
+    <div id="q64_2_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div id="q64_3_block" style="margin-bottom:1rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>3. Optical vs Electrical Energy Dissipation:</b> Why is the dynamic energy of optical waveguide transmission fundamentally distance-independent, whereas electrical copper wire energy scales linearly with length?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q64_3_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ64(3, 0)">
+        A. Once a photon is launched into a silicon waveguide, it dissipates zero capacitive dynamic energy during flight ($C=0$), whereas every micrometer of copper wire adds parasitic capacitance ($C = c_{wire} \cdot L$) that must be charged and discharged ($P = C V^2 f$).
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ64(3, 1)">
+        B. Photons generate electricity as they travel through silicon dioxide cladding.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ64(3, 2)">
+        C. Copper wires have infinite resistance, causing 100% signal decay after 1 mm.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ64(3, 3)">
+        D. Lasers only consume power when the receiving tile requests a memory write.
+      </button>
+    </div>
+    <div id="q64_3_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <div style="margin-top:1rem; text-align:right;">
+    <button class="noc-sim-btn" onclick="resetQuiz64()" style="padding:4px 12px; font-size:0.85rem;">🔄 Reset Quiz</button>
+  </div>
 </div>
 
 <script>
-function checkQ1() {
-  const sel = document.querySelector('input[name="q1"]:checked');
-  const fb = document.getElementById('q1-feedback');
-  if (!sel) { fb.innerHTML = '<span style="color:#f59e0b;">Please select an option.</span>'; return; }
-  if (sel.value === 'b') {
-    fb.innerHTML = '<span style="color:#10b981;">✓ Correct! Silicon’s high thermo-optic coefficient shifts the refractive index, which drifts the ring’s resonant wavelength by ~0.1 nm/°C. In dense WDM with 0.4–0.8 nm channel spacing, a 5°C shift causes the signal to jump into a neighboring channel!</span>';
+const q64Answers = [0, 0, 0];
+const q64Feedback = [
+  "✓ Correct! Silicon's high thermo-optic coefficient shifts the refractive index with temperature, drifting resonant peaks by ~0.1 nm/°C. In dense WDM channels spaced by 0.4–0.8 nm, a 5°C shift causes the signal to jump into a neighboring channel!",
+  "✓ Correct! On-chip mmWave wireless links act as long-distance shortcuts, slashing network diameter and letting diagonally opposite nodes communicate across the chip in a single sub-nanosecond hop.",
+  "✓ Correct! In electrical copper interconnects, dynamic energy scales linearly with distance because each micrometer adds physical capacitance (C = c_wire * L). In silicon photonics, once photons enter the waveguide, optical flight is purely ballistic with zero capacitive charging!"
+];
+let q64Score = [0, 0, 0];
+
+function checkQ64(qIdx, optIdx) {
+  const fb = document.getElementById(`q64_${qIdx}_fb`);
+  const opts = document.querySelectorAll(`#q64_${qIdx}_opts button`);
+  
+  opts.forEach(b => {
+    b.disabled = true;
+    b.style.opacity = '0.7';
+  });
+
+  fb.style.display = 'block';
+  if (optIdx === q64Answers[qIdx - 1]) {
+    opts[optIdx].style.border = '2px solid #10b981';
+    opts[optIdx].style.background = 'rgba(16, 185, 129, 0.15)';
+    opts[optIdx].style.opacity = '1';
+    fb.style.background = 'rgba(16, 185, 129, 0.1)';
+    fb.style.border = '1px solid #10b981';
+    fb.style.color = '#10b981';
+    fb.textContent = q64Feedback[qIdx - 1];
+    q64Score[qIdx - 1] = 1;
   } else {
-    fb.innerHTML = '<span style="color:#ef4444;">✗ Incorrect. Silicon photonics is hypersensitive to temperature because temperature shifts refractive index (thermo-optic effect), drifting resonance peaks by ~0.1 nm/°C.</span>';
+    opts[optIdx].style.border = '2px solid #ef4444';
+    opts[optIdx].style.background = 'rgba(239, 68, 68, 0.15)';
+    opts[optIdx].style.opacity = '1';
+    opts[q64Answers[qIdx - 1]].style.border = '2px solid #10b981';
+    opts[q64Answers[qIdx - 1]].style.opacity = '1';
+    fb.style.background = 'rgba(239, 68, 68, 0.1)';
+    fb.style.border = '1px solid #ef4444';
+    fb.style.color = '#ef4444';
+    fb.textContent = "✗ Incorrect. " + q64Feedback[qIdx - 1];
+    q64Score[qIdx - 1] = 0;
+  }
+
+  const total = q64Score.reduce((a, b) => a + b, 0);
+  const badge = document.getElementById('q64_score_badge');
+  badge.textContent = `Score: ${total} / 3`;
+  if (total === 3) {
+    badge.style.background = 'rgba(16, 185, 129, 0.15)';
+    badge.style.color = '#10b981';
   }
 }
 
-function checkQ2() {
-  const sel = document.querySelector('input[name="q2"]:checked');
-  const fb = document.getElementById('q2-feedback');
-  if (!sel) { fb.innerHTML = '<span style="color:#f59e0b;">Please select an option.</span>'; return; }
-  if (sel.value === 'a') {
-    fb.innerHTML = '<span style="color:#10b981;">✓ Correct! On-chip mmWave wireless links act as long-distance shortcuts, slashing network diameter and letting diagonally opposite nodes communicate in a single sub-nanosecond hop.</span>';
-  } else {
-    fb.innerHTML = '<span style="color:#ef4444;">✗ Incorrect. WNoCs deploy on-chip antennas as long-distance shortcuts to circumvent multi-hop router latency.</span>';
+function resetQuiz64() {
+  q64Score = [0, 0, 0];
+  const badge = document.getElementById('q64_score_badge');
+  badge.textContent = 'Score: 0 / 3';
+  badge.style.background = 'rgba(37,99,235,0.1)';
+  badge.style.color = '#2563eb';
+
+  for (let q = 1; q <= 3; q++) {
+    const fb = document.getElementById(`q64_${q}_fb`);
+    fb.style.display = 'none';
+    fb.textContent = '';
+    const opts = document.querySelectorAll(`#q64_${q}_opts button`);
+    opts.forEach(b => {
+      b.disabled = false;
+      b.style.border = '';
+      b.style.background = '';
+      b.style.opacity = '1';
+    });
   }
 }
 </script>
 
 ---
 
-## 9. Summary & Congratulations!
+## 11. 🏁 Summary & Track 6 Completion!
 
-You have completed **Track 6: Chiplets, 3D NoC & Emerging Frontiers**!
-From microscopic copper TSVs and 2.5D UCIe chiplet protocols to 3D thermal stacking dynamics, optical waveguides, and wireless shortcuts, you now command the complete spectrum of advanced spatial interconnect technologies.
+Congratulations on completing **Track 6: Chiplets, 3D NoC & Emerging Frontiers**!
 
-In **[Track 7: Landmark Papers](../track7-paper-walkthroughs/index.md)**, we dive into seminal, award-winning research literature that shaped the modern Network-on-Chip landscape!
+Across this track, you have mastered:
+1. **Vertical 3D TSVs:** $7 \times 7$ switch crossbar scaling, Keep-Out Zone (KOZ) piezoresistive stress modeling, and sub-picosecond vertical Elmore delays.
+2. **2.5D Chiplet Architectures & UCIe:** Die-to-die protocol stacks, sliding-window replay buffers, shoreline bandwidth density ($>1300\text{ Gbps/mm}$), and credit queue round-trip latency sizing.
+3. **3D Topologies, Thermal Stacking & Deadlocks:** Monotonic $X \to Y \to Z$ dimension-order routing (XYZ DOR), acyclic 3D CDG proofs, sparse elevator hybrid networks, and bottom-tier thermal resistance accumulation.
+4. **Optical (ONoC) & Wireless Frontiers:** Silicon micro-ring resonator WDM multiplexing, thermo-optic resonance drift mitigation via Delta-Sigma digital heater feedback loops, and sub-nanosecond mmWave wireless shortcuts.
+
+### Continue Your Journey:
+Proceed to **[Track 7: Landmark Papers](../track7-paper-walkthroughs/index.md)** to analyze classic, award-winning research literature that defined the foundations of modern Network-on-Chip architecture!
+

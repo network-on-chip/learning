@@ -555,61 +555,278 @@ However, if air cooling degraded the heatsink to $R_{sink} = 0.65 \ \text{K/W}$,
 
 ---
 
-## 6. Self-Assessment Concept Check
+## 6. Synthesizable Verilog Module: `xyz_3d_dor_router.v`
 
-<div style="background:var(--md-code-bg-color); border:1px solid var(--md-default-fg-color--lightest); border-radius:8px; padding:20px; margin:24px 0;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:12px; color:var(--md-typeset-color);">
-    Question 1: Why does 3D XYZ Dimension-Order Routing guarantee deadlock freedom across a 3D mesh network?
-  </div>
-  <div style="display:flex; flex-direction:column; gap:8px;">
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="a"> A) Packets cannot make turns from Z channels back into X or Y channels, establishing a strictly monotonic channel ranking that prevents cycles in the CDG.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="b"> B) Vertical TSV links operate at double the clock frequency of planar links.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="c"> C) Flits are dropped whenever a buffer fills in the Z dimension.</label>
-  </div>
-  <button onclick="checkQ1()" style="margin-top:12px; padding:6px 14px; border-radius:4px; background:#0284c7; color:#fff; border:none; cursor:pointer; font-weight:600;">Check Answer</button>
-  <div id="q1-feedback" style="margin-top:10px; font-size:0.9rem; font-weight:600;"></div>
-</div>
+To guarantee deadlock freedom across a 3D stacked mesh, packets must navigate dimensions in a strictly monotonic order ($X \to Y \to Z$). The module below implements a synthesizable **3D Dimension-Order Routing (XYZ DOR) Engine**. It compares current 3D coordinates $(X_{cur}, Y_{cur}, Z_{cur})$ against destination coordinates $(X_{dest}, Y_{dest}, Z_{dest})$, resolves dimension conflicts in monotonic sequence to eliminate cycles in the 3D Channel Dependency Graph, and incorporates a thermal sensor alert input that stalls vertical TSV elevation if the local tier exceeds a critical thermal threshold.
 
-<div style="background:var(--md-code-bg-color); border:1px solid var(--md-default-fg-color--lightest); border-radius:8px; padding:20px; margin:24px 0;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:12px; color:var(--md-typeset-color);">
-    Question 2: What is the primary architectural motivation for using a Hybrid/Partial 3D NoC (sparse TSV elevators) instead of a fully symmetric 3D mesh?
+```verilog
+//=============================================================================
+// File: xyz_3d_dor_router.v
+// Module: xyz_3d_dor_router
+// Description: Synthesizable 3D Dimension-Order Routing (XYZ DOR) Engine.
+//              Port Encoding:
+//              3'd0: Local, 3'd1: East (+X), 3'd2: West (-X),
+//              3'd3: North (+Y), 3'd4: South (-Y),
+//              3'd5: Up (+Z TSV), 3'd6: Down (-Z TSV)
+//              Features:
+//              - Monotonic X -> Y -> Z dimension routing.
+//              - Acyclic 3D Channel Dependency Graph (CDG) guarantee.
+//              - Thermal elevation gate: pauses vertical TSV injection if
+//                tier_overheated alert is asserted.
+//              - Combinational single-cycle evaluation.
+//=============================================================================
+
+`timescale 1ns / 1ps
+
+module xyz_3d_dor_router #(
+    parameter integer MESH_X_BITS = 3, // Supports up to 8x8x4 3D mesh
+    parameter integer MESH_Y_BITS = 3,
+    parameter integer MESH_Z_BITS = 2
+)(
+    // Current Router Coordinates
+    input  wire [MESH_X_BITS-1:0] cur_x,
+    input  wire [MESH_Y_BITS-1:0] cur_y,
+    input  wire [MESH_Z_BITS-1:0] cur_z,
+    
+    // Packet Destination Coordinates (from Flit Header)
+    input  wire [MESH_X_BITS-1:0] dest_x,
+    input  wire [MESH_Y_BITS-1:0] dest_y,
+    input  wire [MESH_Z_BITS-1:0] dest_z,
+    
+    // Safety & Thermal Telemetry
+    input  wire                   tier_overheated,   // 1: Local tier near thermal limit
+    
+    // Computed Downstream Output Direction
+    output reg  [2:0]             out_port,          // Output port selected (0..6)
+    output reg                    route_valid,       // 1 if routing succeeded
+    output reg                    vertical_hold      // 1 if vertical hop paused by thermal
+);
+
+    localparam PORT_LOCAL = 3'd0;
+    localparam PORT_EAST  = 3'd1; // +X
+    localparam PORT_WEST  = 3'd2; // -X
+    localparam PORT_NORTH = 3'd3; // +Y
+    localparam PORT_SOUTH = 3'd4; // -Y
+    localparam PORT_UP    = 3'd5; // +Z (TSV Up)
+    localparam PORT_DOWN  = 3'd6; // -Z (TSV Down)
+
+    always @(*) begin
+        route_valid   = 1'b1;
+        vertical_hold = 1'b0;
+
+        // Stage 1: Route in X Dimension (Monotonic First Priority)
+        if (dest_x > cur_x) begin
+            out_port = PORT_EAST;
+        end else if (dest_x < cur_x) begin
+            out_port = PORT_WEST;
+        end
+        // Stage 2: Route in Y Dimension (Second Priority)
+        else if (dest_y > cur_y) begin
+            out_port = PORT_NORTH;
+        end else if (dest_y < cur_y) begin
+            out_port = PORT_SOUTH;
+        end
+        // Stage 3: Route in Z Dimension (Third Priority via TSVs)
+        else if (dest_z > cur_z) begin
+            if (tier_overheated) begin
+                out_port      = PORT_LOCAL; // Hold flit in local buffer
+                vertical_hold = 1'b1;
+            end else begin
+                out_port = PORT_UP;
+            end
+        end else if (dest_z < cur_z) begin
+            if (tier_overheated) begin
+                out_port      = PORT_LOCAL;
+                vertical_hold = 1'b1;
+            end else begin
+                out_port = PORT_DOWN;
+            end
+        end
+        // Stage 4: Arrived at Destination Node
+        else begin
+            out_port = PORT_LOCAL;
+        end
+    end
+
+endmodule
+```
+
+---
+
+## 7. 🕹️ Interactive Simulation & Arcade Linkages
+
+Deepen your practical understanding of 3D thermal stacking and deadlock avoidance through our interactive arcade games:
+
+- 🎮 **[Hotspot Hero: Silicon Thermal Defender](../interactive/hotspot.md):** Defend 3D vertically stacked silicon tiers from severe thermal accumulation and adhesive layer degradation.
+- 🎮 **[Deadlock Buster Arcade](../interactive/game.md):** Prove 3D Channel Dependency Graph cycle prevention under Dimension-Order Routing and bust deadlock spirals in real time.
+
+---
+
+## 8. 🎯 Concept Check: Lesson 6.3
+
+Test your mastery of 3D topologies, thermal stacking resistance, and 3D deadlock avoidance with this 3-question self-assessment.
+
+<div class="noc-sim-container" id="quiz63" style="margin-top:1rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+    <div style="font-weight:700; font-size:1.05rem; color:var(--tcl-heading);">
+      📝 Concept Check: 3D Topologies, Thermal Stacking &amp; Deadlock
+    </div>
+    <div id="q63_score_badge" style="font-size:0.85rem; font-weight:600; padding:4px 10px; border-radius:12px; background:rgba(37,99,235,0.1); color:#2563eb;">
+      Score: 0 / 3
+    </div>
   </div>
-  <div style="display:flex; flex-direction:column; gap:8px;">
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="a"> A) Fully symmetric 3D meshes cannot support dimension-order routing.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="b"> B) Sparse elevators eliminate 75% of vertical TSVs, Keep-Out Zones, and crossbar area scaling overheads with only a minimal (~15%) latency increase.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="c"> C) Solder microbumps cannot conduct digital logic signals.</label>
+
+  <!-- Question 1 -->
+  <div id="q63_1_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>1. Deadlock Freedom in 3D Space:</b> Why does 3D XYZ Dimension-Order Routing strictly guarantee deadlock freedom across a 3D mesh network?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q63_1_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ63(1, 0)">
+        A. Packets traverse dimensions monotonically ($X \to Y \to Z$); turns from Z channels back into X or Y channels are strictly forbidden, ensuring the 3D Channel Dependency Graph (CDG) contains zero cycles.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ63(1, 1)">
+        B. Vertical TSV links operate at double the clock frequency of planar links.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ63(1, 2)">
+        C. Flits are automatically dropped whenever a buffer fills in the Z dimension.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ63(1, 3)">
+        D. Because 3D networks do not require virtual channels.
+      </button>
+    </div>
+    <div id="q63_1_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
   </div>
-  <button onclick="checkQ2()" style="margin-top:12px; padding:6px 14px; border-radius:4px; background:#0284c7; color:#fff; border:none; cursor:pointer; font-weight:600;">Check Answer</button>
-  <div id="q2-feedback" style="margin-top:10px; font-size:0.9rem; font-weight:600;"></div>
+
+  <!-- Question 2 -->
+  <div id="q63_2_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>2. Hybrid Sparse Elevators:</b> What is the primary architectural motivation for deploying a Hybrid 3D NoC (sparse TSV elevators) rather than a fully symmetric 3D mesh?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q63_2_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ63(2, 0)">
+        A. Fully symmetric 3D meshes cannot support dimension-order routing.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ63(2, 1)">
+        B. Sparse elevators eliminate 75% of vertical TSVs, Keep-Out Zones, and crossbar area scaling overheads ($5\times 5$ switches used on most tiles instead of $7\times 7$), with only a minor latency penalty.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ63(2, 2)">
+        C. Solder microbumps cannot conduct digital logic signals.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ63(2, 3)">
+        D. Sparse elevators allow routers to run without power supplies.
+      </button>
+    </div>
+    <div id="q63_2_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div id="q63_3_block" style="margin-bottom:1rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>3. 3D Thermal Entrapment:</b> In a multi-tier vertical silicon stack, why does the bottom compute tier (Tier 0) suffer the highest operating temperature and greatest risk of thermal runaway?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q63_3_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ63(3, 0)">
+        A. Heat from Tier 0 must conduct upwards across multiple dielectric adhesive bonding layers ($k_{bond} \approx 0.25\text{ W/m}\cdot\text{K}$) before reaching the top heat sink, accumulating thermal resistance in series.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ63(3, 1)">
+        B. Gravity pulls hot phonons downwards towards the circuit board.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ63(3, 2)">
+        C. The bottom tier has lower clock frequency than upper tiers.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ63(3, 3)">
+        D. TSVs act as perfect thermal insulators that completely block heat flow.
+      </button>
+    </div>
+    <div id="q63_3_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <div style="margin-top:1rem; text-align:right;">
+    <button class="noc-sim-btn" onclick="resetQuiz63()" style="padding:4px 12px; font-size:0.85rem;">🔄 Reset Quiz</button>
+  </div>
 </div>
 
 <script>
-function checkQ1() {
-  const sel = document.querySelector('input[name="q1"]:checked');
-  const fb = document.getElementById('q1-feedback');
-  if (!sel) { fb.innerHTML = '<span style="color:#f59e0b;">Please select an option.</span>'; return; }
-  if (sel.value === 'a') {
-    fb.innerHTML = '<span style="color:#10b981;">✓ Correct! In XYZ DOR, turns from C_Z to C_X or C_Z to C_Y are forbidden. By defining channel ranks R(C_X) < R(C_Y) < R(C_Z), every routing hop strictly increases rank, guaranteeing that the Channel Dependency Graph is acyclic.</span>';
+const q63Answers = { 1: 0, 2: 1, 3: 0 };
+let q63UserScore = { 1: false, 2: false, 3: false };
+
+function checkQ63(qNum, optIdx) {
+  const fb = document.getElementById(`q63_${qNum}_fb`);
+  const opts = document.getElementById(`q63_${qNum}_opts`).children;
+  fb.style.display = "block";
+
+  for (let i = 0; i < opts.length; i++) {
+    opts[i].onclick = null;
+    opts[i].style.cursor = "default";
+  }
+
+  const isCorrect = (optIdx === q63Answers[qNum]);
+  q63UserScore[qNum] = isCorrect;
+
+  if (isCorrect) {
+    opts[optIdx].style.background = "rgba(34,197,94,0.15)";
+    opts[optIdx].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)";
+    fb.style.border = "1px solid rgba(34,197,94,0.3)";
+    fb.style.color = "#166534";
+    if (qNum === 1) {
+      fb.innerHTML = "<strong>✓ Correct!</strong> In XYZ DOR, turns from C_Z to C_X or C_Z to C_Y are strictly forbidden. By defining channel ranks R(C_X) < R(C_Y) < R(C_Z), every routing hop strictly increases rank, guaranteeing that the Channel Dependency Graph is acyclic.";
+    } else if (qNum === 2) {
+      fb.innerHTML = "<strong>✓ Correct!</strong> A full 3D mesh forces every router to adopt a 7x7 crossbar (+96% area) and creates KOZ exclusion zones everywhere. Sparse vertical elevators preserve 2D 5-port routers across most tiles, slashing silicon overhead.";
+    } else {
+      fb.innerHTML = "<strong>✓ Correct!</strong> Heat conduction in a 3D stack is a 1D thermal resistance ladder. The bottom die must push its thermal dissipation through every inter-tier bonding layer and silicon substrate before reaching the cold plate.";
+    }
   } else {
-    fb.innerHTML = '<span style="color:#ef4444;">✗ Incorrect. Deadlock freedom stems from the acyclic Channel Dependency Graph produced by prohibiting back-turns from higher to lower dimension channels.</span>';
+    opts[optIdx].style.background = "rgba(239,68,68,0.15)";
+    opts[optIdx].style.borderColor = "#ef4444";
+    opts[q63Answers[qNum]].style.background = "rgba(34,197,94,0.15)";
+    opts[q63Answers[qNum]].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)";
+    fb.style.border = "1px solid rgba(239,68,68,0.3)";
+    fb.style.color = "#991b1b";
+    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q63Answers[qNum])}</strong>.`;
+  }
+
+  updateQ63Score();
+}
+
+function updateQ63Score() {
+  const score = Object.values(q63UserScore).filter(Boolean).length;
+  const badge = document.getElementById("q63_score_badge");
+  badge.textContent = `Score: ${score} / 3`;
+  if (score === 3) {
+    badge.style.background = "rgba(34,197,94,0.2)";
+    badge.style.color = "#166534";
   }
 }
 
-function checkQ2() {
-  const sel = document.querySelector('input[name="q2"]:checked');
-  const fb = document.getElementById('q2-feedback');
-  if (!sel) { fb.innerHTML = '<span style="color:#f59e0b;">Please select an option.</span>'; return; }
-  if (sel.value === 'b') {
-    fb.innerHTML = '<span style="color:#10b981;">✓ Correct! A full 3D mesh forces every router to adopt a 7x7 crossbar (+96% area) and creates KOZ exclusion zones everywhere. Sparse vertical elevators preserve 2D 5-port routers across most tiles, slashing silicon overhead.</span>';
-  } else {
-    fb.innerHTML = '<span style="color:#ef4444;">✗ Incorrect. Hybrid 3D topologies are chosen to optimize silicon area and KOZ layout by deploying vertical TSVs only at designated elevator nodes.</span>';
+function resetQuiz63() {
+  q63UserScore = { 1: false, 2: false, 3: false };
+  for (let q = 1; q <= 3; q++) {
+    const fb = document.getElementById(`q63_${q}_fb`);
+    fb.style.display = "none";
+    fb.innerHTML = "";
+    const opts = document.getElementById(`q63_${q}_opts`).children;
+    for (let i = 0; i < opts.length; i++) {
+      opts[i].style.background = "";
+      opts[i].style.borderColor = "";
+      opts[i].style.cursor = "pointer";
+      opts[i].onclick = (function(qNum, optIdx) {
+        return function() { checkQ63(qNum, optIdx); };
+      })(q, i);
+    }
   }
+  const badge = document.getElementById("q63_score_badge");
+  badge.textContent = "Score: 0 / 3";
+  badge.style.background = "rgba(37,99,235,0.1)";
+  badge.style.color = "#2563eb";
 }
 </script>
 
 ---
 
-## 7. Summary & Next Steps
+## 9. Summary & Next Steps
 
 3D integration cuts planar hop counts and expands bisection bandwidth, but introduces severe thermal entrapment in bottom tiers and multiplies potential deadlock cycles. By employing sparse vertical TSV elevators and proving deadlock freedom through 3D XYZ Dimension-Order Routing, architects safely harness vertical scalability.
 

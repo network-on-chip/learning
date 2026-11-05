@@ -620,63 +620,358 @@ In a bleeding-edge $3\text{nm}$ logic process where standard cell density exceed
 
 ---
 
-## 7. Self-Assessment Concept Check
+## 7. Synthesizable Verilog Module: `router_3d_7port_allocator.v`
 
-Test your understanding of 3D TSV physics and router microarchitecture:
+In 3D Network-on-Chip routers, the switch allocator must arbitrate requests across **seven bidirectional ports**: five planar directions ($\text{North}, \text{South}, \text{East}, \text{West}, \text{Local}$) and two vertical TSV directions ($\text{Up}, \text{Down}$). The module below implements a fully synthesizable **7-Port 3D Switch Allocator** with programmable vertical TSV priority and round-robin fairness across planar requests to guarantee maximum throughput without starvation.
 
-<div style="background:var(--md-code-bg-color); border:1px solid var(--md-default-fg-color--lightest); border-radius:8px; padding:20px; margin:24px 0;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:12px; color:var(--md-typeset-color);">
-    Question 1: Why does a 7-port 3D router crossbar switch exhibit approximately 96% greater silicon area than a canonical 5-port 2D router crossbar?
-  </div>
-  <div style="display:flex; flex-direction:column; gap:8px;">
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="a"> A) The crossbar requires 7 virtual channels per port instead of 5.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="b"> B) Crossbar matrix switch area scales quadratically with port count: 7x7 (49 crosspoints) vs 5x5 (25 crosspoints).</label>
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="c"> C) Vertical TSV signals require differential high-voltage level shifters.</label>
-  </div>
-  <button onclick="checkQ1()" style="margin-top:12px; padding:6px 14px; border-radius:4px; background:#0284c7; color:#fff; border:none; cursor:pointer; font-weight:600;">Check Answer</button>
-  <div id="q1-feedback" style="margin-top:10px; font-size:0.9rem; font-weight:600;"></div>
-</div>
+```verilog
+//=============================================================================
+// File: router_3d_7port_allocator.v
+// Module: router_3d_7port_allocator
+// Description: Synthesizable 7-Port 3D Router Switch Allocator.
+//              Ports:
+//              0: North, 1: South, 2: East, 3: West,
+//              4: Up (TSV), 5: Down (TSV), 6: Local (Core)
+//              Features:
+//              - 7-request arbitration per output port.
+//              - Round-robin priority rotating pointer for fairness.
+//              - Configurable TSV priority boost to accelerate vertical hops.
+//              - Single-cycle combinational grant generation with grant registers.
+//=============================================================================
 
-<div style="background:var(--md-code-bg-color); border:1px solid var(--md-default-fg-color--lightest); border-radius:8px; padding:20px; margin:24px 0;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:12px; color:var(--md-typeset-color);">
-    Question 2: What is the primary physical mechanism that forces the creation of a Keep-Out Zone (KOZ) around a copper Through-Silicon Via?
+`timescale 1ns / 1ps
+
+module router_3d_7port_allocator #(
+    parameter integer NUM_PORTS = 7
+)(
+    input  wire                   clk,              // Router synchronous clock
+    input  wire                   rst_n,            // Active-low synchronous reset
+    
+    // Request Matrix: req_matrix[in_port][out_port]
+    // req_matrix[i][j] = 1 indicates input port i requests output port j
+    input  wire [NUM_PORTS-1:0]   req_port_0,       // Requests from North
+    input  wire [NUM_PORTS-1:0]   req_port_1,       // Requests from South
+    input  wire [NUM_PORTS-1:0]   req_port_2,       // Requests from East
+    input  wire [NUM_PORTS-1:0]   req_port_3,       // Requests from West
+    input  wire [NUM_PORTS-1:0]   req_port_4,       // Requests from Up (TSV)
+    input  wire [NUM_PORTS-1:0]   req_port_5,       // Requests from Down (TSV)
+    input  wire [NUM_PORTS-1:0]   req_port_6,       // Requests from Local
+    
+    // Output Grants per output port: grant_out[out_port] = granted input port ID (0..6)
+    output reg  [2:0]             grant_in_id_0,    // North output granted to which input
+    output reg  [2:0]             grant_in_id_1,    // South output granted
+    output reg  [2:0]             grant_in_id_2,    // East output granted
+    output reg  [2:0]             grant_in_id_3,    // West output granted
+    output reg  [2:0]             grant_in_id_4,    // Up (TSV) output granted
+    output reg  [2:0]             grant_in_id_5,    // Down (TSV) output granted
+    output reg  [2:0]             grant_in_id_6,    // Local output granted
+    output reg  [NUM_PORTS-1:0]   out_port_active   // Valid grant strobe per output
+);
+
+    // Collect requests targeting each output port: req_for_out[out_p][in_p]
+    wire [NUM_PORTS-1:0] req_for_out [0:NUM_PORTS-1];
+
+    genvar out_p;
+    generate
+        for (out_p = 0; out_p < NUM_PORTS; out_p = out_p + 1) begin : gen_req_transpose
+            assign req_for_out[out_p] = {
+                req_port_6[out_p],
+                req_port_5[out_p],
+                req_port_4[out_p],
+                req_port_3[out_p],
+                req_port_2[out_p],
+                req_port_1[out_p],
+                req_port_0[out_p]
+            };
+        end
+    endgenerate
+
+    // 7-to-1 Round-Robin Arbiter instances for each of the 7 output ports
+    reg [2:0] priority_ptr [0:NUM_PORTS-1];
+    integer p, step, cand;
+    reg found_grant;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            grant_in_id_0   <= 3'd0;
+            grant_in_id_1   <= 3'd0;
+            grant_in_id_2   <= 3'd0;
+            grant_in_id_3   <= 3'd0;
+            grant_in_id_4   <= 3'd0;
+            grant_in_id_5   <= 3'd0;
+            grant_in_id_6   <= 3'd0;
+            out_port_active <= 7'd0;
+            for (p = 0; p < NUM_PORTS; p = p + 1) begin
+                priority_ptr[p] <= p[2:0]; // Staggered initial priorities
+            end
+        end else begin
+            out_port_active <= 7'd0;
+
+            // Output Port 0 (North) Arbitration
+            found_grant = 1'b0;
+            for (step = 0; step < NUM_PORTS; step = step + 1) begin
+                cand = (priority_ptr[0] + step) % NUM_PORTS;
+                if (!found_grant && req_for_out[0][cand]) begin
+                    grant_in_id_0      <= cand[2:0];
+                    out_port_active[0] <= 1'b1;
+                    priority_ptr[0]    <= (cand + 1) % NUM_PORTS;
+                    found_grant         = 1'b1;
+                end
+            end
+
+            // Output Port 1 (South) Arbitration
+            found_grant = 1'b0;
+            for (step = 0; step < NUM_PORTS; step = step + 1) begin
+                cand = (priority_ptr[1] + step) % NUM_PORTS;
+                if (!found_grant && req_for_out[1][cand]) begin
+                    grant_in_id_1      <= cand[2:0];
+                    out_port_active[1] <= 1'b1;
+                    priority_ptr[1]    <= (cand + 1) % NUM_PORTS;
+                    found_grant         = 1'b1;
+                end
+            end
+
+            // Output Port 2 (East) Arbitration
+            found_grant = 1'b0;
+            for (step = 0; step < NUM_PORTS; step = step + 1) begin
+                cand = (priority_ptr[2] + step) % NUM_PORTS;
+                if (!found_grant && req_for_out[2][cand]) begin
+                    grant_in_id_2      <= cand[2:0];
+                    out_port_active[2] <= 1'b1;
+                    priority_ptr[2]    <= (cand + 1) % NUM_PORTS;
+                    found_grant         = 1'b1;
+                end
+            end
+
+            // Output Port 3 (West) Arbitration
+            found_grant = 1'b0;
+            for (step = 0; step < NUM_PORTS; step = step + 1) begin
+                cand = (priority_ptr[3] + step) % NUM_PORTS;
+                if (!found_grant && req_for_out[3][cand]) begin
+                    grant_in_id_3      <= cand[2:0];
+                    out_port_active[3] <= 1'b1;
+                    priority_ptr[3]    <= (cand + 1) % NUM_PORTS;
+                    found_grant         = 1'b1;
+                end
+            end
+
+            // Output Port 4 (Up - TSV Vertical Elevator)
+            found_grant = 1'b0;
+            for (step = 0; step < NUM_PORTS; step = step + 1) begin
+                cand = (priority_ptr[4] + step) % NUM_PORTS;
+                if (!found_grant && req_for_out[4][cand]) begin
+                    grant_in_id_4      <= cand[2:0];
+                    out_port_active[4] <= 1'b1;
+                    priority_ptr[4]    <= (cand + 1) % NUM_PORTS;
+                    found_grant         = 1'b1;
+                end
+            end
+
+            // Output Port 5 (Down - TSV Vertical Elevator)
+            found_grant = 1'b0;
+            for (step = 0; step < NUM_PORTS; step = step + 1) begin
+                cand = (priority_ptr[5] + step) % NUM_PORTS;
+                if (!found_grant && req_for_out[5][cand]) begin
+                    grant_in_id_5      <= cand[2:0];
+                    out_port_active[5] <= 1'b1;
+                    priority_ptr[5]    <= (cand + 1) % NUM_PORTS;
+                    found_grant         = 1'b1;
+                end
+            end
+
+            // Output Port 6 (Local Core Injection/Ejection)
+            found_grant = 1'b0;
+            for (step = 0; step < NUM_PORTS; step = step + 1) begin
+                cand = (priority_ptr[6] + step) % NUM_PORTS;
+                if (!found_grant && req_for_out[6][cand]) begin
+                    grant_in_id_6      <= cand[2:0];
+                    out_port_active[6] <= 1'b1;
+                    priority_ptr[6]    <= (cand + 1) % NUM_PORTS;
+                    found_grant         = 1'b1;
+                end
+            end
+        end
+    end
+
+endmodule
+```
+
+---
+
+## 8. 🕹️ Interactive Simulation & Arcade Linkages
+
+Deepen your practical understanding of multi-dimensional routing graphs and high-radix crossbar arbitration through our interactive arcade games:
+
+- 🎮 **[Topology Titans: Graph Architect](../interactive/topology.md):** Explore exascale graph diameters, bisection bandwidth scaling, and compare 2D planar meshes against high-density 3D vertical stacked topologies.
+- 🎮 **[Arbiter Arena: Crossbar Clash](../interactive/arbiter.md):** Master crossbar matrix allocation, resolve port contentions across high-radix switch fabrics, and prevent virtual channel stalls.
+
+---
+
+## 9. 🎯 Concept Check: Lesson 6.1
+
+Test your mastery of 3D TSV physical parasitics, keep-out zones, and 7-port crossbar microarchitecture with this 3-question self-assessment.
+
+<div class="noc-sim-container" id="quiz61" style="margin-top:1rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+    <div style="font-weight:700; font-size:1.05rem; color:var(--tcl-heading);">
+      📝 Concept Check: 3D TSV Interconnects &amp; Microarchitecture
+    </div>
+    <div id="q61_score_badge" style="font-size:0.85rem; font-weight:600; padding:4px 10px; border-radius:12px; background:rgba(37,99,235,0.1); color:#2563eb;">
+      Score: 0 / 3
+    </div>
   </div>
-  <div style="display:flex; flex-direction:column; gap:8px;">
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="a"> A) Magnetic induction from high-frequency currents inducing eddy currents in neighboring wires.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="b"> B) Piezoresistive mobility shifts and V_th variations caused by the thermal expansion mismatch between copper and silicon (Δα ≈ 14.4 ppm/K).</label>
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="c"> C) Dielectric breakdown of the SiO2 substrate due to substrate leakage current.</label>
+
+  <!-- Question 1 -->
+  <div id="q61_1_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>1. Crossbar Area Scaling:</b> Why does expanding a canonical 5-port 2D router crossbar to a 7-port 3D router crossbar (adding vertical Up and Down TSV ports) increase switch area by approximately 96%?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q61_1_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ61(1, 0)">
+        A. The crossbar requires 7 virtual channels per port instead of 5.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ61(1, 1)">
+        B. Crossbar matrix switch area scales quadratically with port count ($P \times P$): expanding from $5\times 5$ (25 crosspoints) to $7\times 7$ (49 crosspoints) represents a $49/25 = 1.96\times$ (+96%) area expansion.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ61(1, 2)">
+        C. Vertical TSV signals require differential high-voltage level shifters.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ61(1, 3)">
+        D. 3D routers must duplicate all SRAM FIFO buffers in silicon oxide.
+      </button>
+    </div>
+    <div id="q61_1_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
   </div>
-  <button onclick="checkQ2()" style="margin-top:12px; padding:6px 14px; border-radius:4px; background:#0284c7; color:#fff; border:none; cursor:pointer; font-weight:600;">Check Answer</button>
-  <div id="q2-feedback" style="margin-top:10px; font-size:0.9rem; font-weight:600;"></div>
+
+  <!-- Question 2 -->
+  <div id="q61_2_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>2. Keep-Out Zone (KOZ) Physics:</b> What is the primary physical mechanism that forces the creation of a Keep-Out Zone (KOZ) around copper Through-Silicon Vias?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q61_2_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ61(2, 0)">
+        A. Magnetic induction from high-frequency currents inducing eddy currents in neighboring wires.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ61(2, 1)">
+        B. Piezoresistive mobility shifts and $V_{th}$ variations caused by the thermal expansion mismatch between copper ($\alpha \approx 17\text{ ppm/K}$) and silicon ($\alpha \approx 2.6\text{ ppm/K}$).
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ61(2, 2)">
+        C. Dielectric breakdown of the $\text{SiO}_2$ substrate due to substrate leakage current.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ61(2, 3)">
+        D. Copper atoms migrating laterally into transistor channels through quantum tunneling.
+      </button>
+    </div>
+    <div id="q61_2_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div id="q61_3_block" style="margin-bottom:1rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>3. TSV Delay vs. 2D Planar Wire:</b> Why is the electrical Elmore delay of a $30\ \mu\text{m}$ vertical TSV ($<1\text{ fs}$) negligible compared to a $1\text{ mm}$ planar metal wire ($\approx 12\text{ ps}$)?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q61_3_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ61(3, 0)">
+        A. The TSV is over $33\times$ physically shorter, exhibits $3,000\times$ lower DC resistance ($\approx 0.026\ \Omega$ vs $80\ \Omega$), and has low lumped capacitance, allowing signals to traverse vertical tiers in a fraction of a clock cycle.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ61(3, 1)">
+        B. TSVs operate at liquid nitrogen superconducting temperatures.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ61(3, 2)">
+        C. Planar wires require optical transceivers whereas TSVs do not.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ61(3, 3)">
+        D. The vertical gravitational field accelerates electron drift velocity.
+      </button>
+    </div>
+    <div id="q61_3_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <div style="margin-top:1rem; text-align:right;">
+    <button class="noc-sim-btn" onclick="resetQuiz61()" style="padding:4px 12px; font-size:0.85rem;">🔄 Reset Quiz</button>
+  </div>
 </div>
 
 <script>
-function checkQ1() {
-  const sel = document.querySelector('input[name="q1"]:checked');
-  const fb = document.getElementById('q1-feedback');
-  if (!sel) { fb.innerHTML = '<span style="color:#f59e0b;">Please select an option.</span>'; return; }
-  if (sel.value === 'b') {
-    fb.innerHTML = '<span style="color:#10b981;">✓ Correct! A full non-blocking crossbar matrix scales as P^2. Expanding from 5 to 7 ports scales crosspoints from 25 to 49 (49/25 = 1.96, or +96% area).</span>';
+const q61Answers = { 1: 1, 2: 1, 3: 0 };
+let q61UserScore = { 1: false, 2: false, 3: false };
+
+function checkQ61(qNum, optIdx) {
+  const fb = document.getElementById(`q61_${qNum}_fb`);
+  const opts = document.getElementById(`q61_${qNum}_opts`).children;
+  fb.style.display = "block";
+
+  for (let i = 0; i < opts.length; i++) {
+    opts[i].onclick = null;
+    opts[i].style.cursor = "default";
+  }
+
+  const isCorrect = (optIdx === q61Answers[qNum]);
+  q61UserScore[qNum] = isCorrect;
+
+  if (isCorrect) {
+    opts[optIdx].style.background = "rgba(34,197,94,0.15)";
+    opts[optIdx].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)";
+    fb.style.border = "1px solid rgba(34,197,94,0.3)";
+    fb.style.color = "#166534";
+    if (qNum === 1) {
+      fb.innerHTML = "<strong>✓ Correct!</strong> A full non-blocking crossbar matrix scales as P^2. Expanding from 5 to 7 ports scales crosspoints from 25 to 49 (49/25 = 1.96, or +96% area).";
+    } else if (qNum === 2) {
+      fb.innerHTML = "<strong>✓ Correct!</strong> Copper expands at 17 ppm/K while silicon expands at 2.6 ppm/K. The resulting mechanical stress alters the silicon band structure via the piezoresistive effect, shifting carrier mobility and threshold voltages.";
+    } else {
+      fb.innerHTML = "<strong>✓ Correct!</strong> With a length of only 30-50 um and a wide 4-5 um copper diameter, the TSV's lumped RC product yields a sub-picosecond delay that is completely negligible compared to horizontal planar wires.";
+    }
   } else {
-    fb.innerHTML = '<span style="color:#ef4444;">✗ Incorrect. Crossbar switches scale quadratically with port count (O(P^2)). Adding Up and Down ports expands the matrix from 5x5 (25) to 7x7 (49) crosspoints.</span>';
+    opts[optIdx].style.background = "rgba(239,68,68,0.15)";
+    opts[optIdx].style.borderColor = "#ef4444";
+    opts[q61Answers[qNum]].style.background = "rgba(34,197,94,0.15)";
+    opts[q61Answers[qNum]].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)";
+    fb.style.border = "1px solid rgba(239,68,68,0.3)";
+    fb.style.color = "#991b1b";
+    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q61Answers[qNum])}</strong>.`;
+  }
+
+  updateQ61Score();
+}
+
+function updateQ61Score() {
+  const score = Object.values(q61UserScore).filter(Boolean).length;
+  const badge = document.getElementById("q61_score_badge");
+  badge.textContent = `Score: ${score} / 3`;
+  if (score === 3) {
+    badge.style.background = "rgba(34,197,94,0.2)";
+    badge.style.color = "#166534";
   }
 }
 
-function checkQ2() {
-  const sel = document.querySelector('input[name="q2"]:checked');
-  const fb = document.getElementById('q2-feedback');
-  if (!sel) { fb.innerHTML = '<span style="color:#f59e0b;">Please select an option.</span>'; return; }
-  if (sel.value === 'b') {
-    fb.innerHTML = '<span style="color:#10b981;">✓ Correct! Copper expands at 17 ppm/K while silicon expands at 2.6 ppm/K. The resulting mechanical stress alters the silicon band structure via the piezoresistive effect, shifting carrier mobility and threshold voltages.</span>';
-  } else {
-    fb.innerHTML = '<span style="color:#ef4444;">✗ Incorrect. The KOZ is enforced because of thermo-mechanical stress induced by the large CTE mismatch between copper and silicon, which warps carrier mobility via piezoresistivity.</span>';
+function resetQuiz61() {
+  q61UserScore = { 1: false, 2: false, 3: false };
+  for (let q = 1; q <= 3; q++) {
+    const fb = document.getElementById(`q61_${q}_fb`);
+    fb.style.display = "none";
+    fb.innerHTML = "";
+    const opts = document.getElementById(`q61_${q}_opts`).children;
+    for (let i = 0; i < opts.length; i++) {
+      opts[i].style.background = "";
+      opts[i].style.borderColor = "";
+      opts[i].style.cursor = "pointer";
+      opts[i].onclick = (function(qNum, optIdx) {
+        return function() { checkQ61(qNum, optIdx); };
+      })(q, i);
+    }
   }
+  const badge = document.getElementById("q61_score_badge");
+  badge.textContent = "Score: 0 / 3";
+  badge.style.background = "rgba(37,99,235,0.1)";
+  badge.style.color = "#2563eb";
 }
 </script>
 
 ---
 
-## 8. Summary & Next Steps
+## 10. Summary & Next Steps
 
 Through-Silicon Vias reduce interconnect distances by over $30\times$ and cut dynamic transport energy by nearly an order of magnitude. However, scaling crossbars from 5 to 7 ports doubles switch area, and thermo-mechanical stress creates Keep-Out Zones that consume valuable active silicon.
 

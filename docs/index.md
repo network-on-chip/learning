@@ -119,7 +119,7 @@ Explore our structured learning pathways designed for undergraduate and graduate
         Through-Silicon Vias (TSVs), 7-port 3D routers, negative binomial yield economics, 2.5D packaging (CoWoS, EMIB), the UCIe standard stack, 3D thermal stacking, Optical NoC (ONoC), and Wireless NoC (WNoC).
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Interactive Simulators &amp; UCIe Trade-Off Engine
+        ⚡ 4 Synthesizable Verilog RTLs • 4 Interactive Simulators &amp; Arcade Links
       </div>
     </div>
     <a href="track6-chiplets-and-3d/" class="noc-track-link">Explore Track 6 →</a>
