@@ -9,7 +9,7 @@
 
 ## 9.1 The Chiplet Revolution: Breaking the Monolithic Barrier
 
-> [!NOTE] 💡 High-School Intuition: The Giant Pizza Problem (Why the World Switched to Chiplets)
+> [!NOTE] 💡 Architectural Intuition: The Giant Pizza Problem (Why the World Switched to Chiplets)
 > Imagine you are a baker running a pizza kitchen. If you try to bake one **gigantic pizza the size of a dining table** ($800\text{ mm}^2$), what happens if a single fly or dust speck lands anywhere on it during baking? The health inspector forces you to throw the **entire giant pizza** into the dumpster! Because tiny dust particles randomly land on silicon wafers during manufacturing, attempting to print one massive monolithic chip means up to **$75\%$ of the wafer is ruined and discarded**.
 >
 > Now imagine instead baking **four separate personal-sized pizzas** ($200\text{ mm}^2$ each) and placing them side by side on a serving board. If a dust speck lands on one pizza, you throw away only that single small pizza and serve the other three! Your success rate skyrockets from $25\%$ to **over $80\%$**.
@@ -51,7 +51,7 @@ For over four decades, Moore's Law advanced by packing ever-more transistors ont
 
 ## 9.2 2.5D Packaging Taxonomies: How Chiplets Talk to Each Other
 
-> [!TIP] 💡 High-School Intuition: Dirt Roads vs. 16-Lane Glass Bridges
+> [!TIP] 💡 Architectural Intuition: Dirt Roads vs. 16-Lane Glass Bridges
 > If you have two houses on opposite sides of a river, how do you travel between them?
 > - **Standard Organic Packaging**: Like driving across a bumpy dirt road. The wires are thick, far apart ($110\ \mu\text{m}$ pitch), and slow. It takes lots of energy ($1.2\text{ pJ/bit}$) to push electrical signals across centimeters of circuit board.
 > - **Advanced Silicon Interposer (2.5D)**: Like building a **16-lane high-speed glass bridge** directly between the two houses! The bridge is made of pure polished silicon. The wires are microscopic ($45\ \mu\text{m}$ micro-bumps, thousands of lines), ultra-short ($1.8\text{ mm}$), and lightning-fast. It takes less than **one-third the energy** ($0.33\text{ pJ/bit}$) and carries **four times more data**!
@@ -82,7 +82,7 @@ In passive interposers, the carrier wafer contains only copper wiring traces. In
 
 ## 9.3 The Universal Chiplet Interconnect Express (UCIe) Standard
 
-> [!NOTE] 💡 High-School Intuition: A Universal USB Cable for Chiplets
+> [!NOTE] 💡 Architectural Intuition: A Universal USB Cable for Chiplets
 > If AMD makes a compute chiplet, can you plug it into an Intel memory chiplet or an Apple graphics chiplet?
 > In the past, no—every company used secret, proprietary wiring formats.
 > **UCIe (Universal Chiplet Interconnect Express)** is like creating the **USB-C standard for chiplets**! It establishes a single open rulebook so that any chiplet built anywhere in the world can plug into any other chiplet and exchange data immediately.
@@ -141,7 +141,7 @@ If a round-trip credit token takes $8.5\text{ ns}$ to return at a $2.0\text{ GHz
 
 ## 9.5 Deadlock in Multi-Chiplet Networks & In/Outbound Swap Recovery
 
-> [!IMPORTANT] 💡 High-School Intuition: The 4-Way Traffic Jam at an Intersection
+> [!IMPORTANT] 💡 Architectural Intuition: The 4-Way Traffic Jam at an Intersection
 > Imagine four cars approach a narrow 4-way intersection simultaneously.
 > - Car 1 is waiting for Car 2 to move forward.
 > - Car 2 is waiting for Car 3 to move forward.

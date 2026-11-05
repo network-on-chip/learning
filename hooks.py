@@ -19,3 +19,4 @@ def on_post_build(config):
                 os.symlink(os.path.relpath(src_assets, zh_dir), zh_assets)
             except (OSError, AttributeError):
                 shutil.copytree(src_assets, zh_assets)
+

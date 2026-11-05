@@ -9,7 +9,7 @@
 
 ## 8.1 The Three-Dimensional Scaling Paradigm
 
-> [!NOTE] 💡 High-School Intuition: Sprawling Suburbs vs. City Skyscrapers
+> [!NOTE] 💡 Architectural Intuition: Sprawling Suburbs vs. City Skyscrapers
 > Imagine a sprawling suburban town of 64 single-story houses spread across a massive county. If the person living in the bottom-left corner wants to visit the person in the top-right corner, they have to drive across 14 miles of crowded highways, hitting stoplights at every intersection!
 >
 > Now imagine taking those 64 houses and stacking them vertically into an **8-story skyscraper**!
@@ -97,7 +97,7 @@ To economize TSV footprint and routing area, many architectures deploy **shared 
 
 ## 8.4 Thermal Stacking & Heat Trapping
 
-> [!WARNING] 💡 High-School Intuition: The Attic Oven (Why the Top Floor is Boiling Hot!)
+> [!WARNING] 💡 Architectural Intuition: The Attic Oven (Why the Top Floor is Boiling Hot!)
 > Have you ever noticed that in a multi-story house, the top floor or attic is always scorching hot in the summer?
 > 
 > The exact same thing happens in a 3D chip! The heavy copper heat sink and cooling fan sit on the **bottom floor (Tier 0)**. Heat generated in the middle and top floors cannot easily escape: it gets trapped between layers of insulating glue and silicon. To reach the heat sink, heat from Tier 2 must crawl all the way down through Tier 1 and Tier 0.

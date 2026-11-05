@@ -9,7 +9,7 @@
 
 ## 10.1 The Non-Traditional Interconnect Paradigm
 
-> [!NOTE] 💡 High-School Intuition: Garden Hoses vs. Laser Pointers
+> [!NOTE] 💡 Architectural Intuition: Garden Hoses vs. Laser Pointers
 > Why are computer chips replacing copper wires with light beams and wireless radio waves?
 > - **The Copper Wire (The Garden Hose)**: Imagine a very long, empty garden hose. To get water out of the nozzle at the far end, you first have to turn on the faucet and fill up the **entire volume of the hose** with water under high pressure. In electronics, every copper wire has electrical capacitance ($C$); before a 1 can reach the receiver, the transmitter has to spend electrical energy charging up the entire wire! This creates delay and generates lots of waste heat.
 > - **The Optical Waveguide (The Laser Pointer)**: Now imagine shining a laser pointer across the room. The moment you press the button, photons travel across the room at the **speed of light**! Even better: it doesn't take more battery power whether you flash the laser slowly or blink it 10 billion times every second.
@@ -39,7 +39,7 @@ Silicon nanophotonics allows engineers to build microscopic "fiber optic cables"
 
 ### 10.2.1 Micro-Ring Resonators: The Optical Tuning Fork
 
-> [!TIP] 💡 High-School Intuition: The Musical Tuning Fork
+> [!TIP] 💡 Architectural Intuition: The Musical Tuning Fork
 > If you have a musical tuning fork tuned to middle C ($261.6\text{ Hz}$), what happens when a singer sings middle C across the room? The tuning fork catches the sound wave and begins to vibrate! But if the singer sings a D or an E, the tuning fork ignores it completely.
 >
 > An **optical Micro-Ring Resonator (MRR)** is a microscopic silicon ring that acts as an **optical tuning fork**. It has a specific cavity size ($R \approx 5\text{--}10\ \mu\text{m}$). When light of its exact resonant color (wavelength $\lambda_{\text{res}}$) arrives, it gets pulled into the ring and sent to the drop port. All other colors pass straight through!
@@ -85,7 +85,7 @@ Because electrical laser power scales exponentially with decibel loss ($P \propt
 
 ## 10.4 Thermal Drift: What Happens When the Chip Gets Hot?
 
-> [!WARNING] 💡 High-School Intuition: The Out-of-Tune Guitar
+> [!WARNING] 💡 Architectural Intuition: The Out-of-Tune Guitar
 > If you leave a guitar in the hot sun, the strings expand, and the guitar goes completely out of tune!
 > 
 > Silicon does the exact same thing! Silicon has a positive **thermo-optic coefficient**: as temperature rises, silicon's refractive index changes, causing the micro-ring resonator to expand optically by **$0.10\text{ nm}$ for every $1^\circ\text{C}$ of heat**!

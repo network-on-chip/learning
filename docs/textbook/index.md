@@ -2,14 +2,14 @@
 ## Architecture, Co-Design & Emerging Frontiers
 
 <div class="noc-hero">
-  <div class="noc-track-badge">📖 Official Open Textbook • 10 Chapters • 140 Pages</div>
+  <div class="noc-track-badge">📖 Official Open Textbook • 10 Chapters • 200 Pages</div>
   <h1>Network-on-Chip and Advanced Interconnects</h1>
   <p class="subtitle">
-    The definitive open-access monograph and textbook covering 10 cohesive, rigorously grounded chapters across 5 architectural parts. Written with an intuitive, step-by-step pedagogical style accessible from high school students to leading silicon architects.
+    The definitive open-access monograph and textbook covering 10 cohesive, rigorously grounded chapters across 5 architectural parts. Written with an intuitive, step-by-step pedagogical style accessible from engineering students to leading silicon architects.
   </p>
   <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem;">
     <a href="ch01-interconnect-crisis/" class="noc-sim-btn" style="text-decoration: none;">🚀 Read Chapter 1 Online</a>
-    <a href="../assets/book.pdf" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 Download Monograph PDF (140 Pages)</a>
+    <a href="../assets/book.pdf" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 Download Monograph PDF (200 Pages)</a>
     <a href="https://github.com/network-on-chip/book" target="_blank" class="noc-sim-btn secondary" style="text-decoration: none;">🐙 GitHub Book Source</a>
     <a href="../interactive/" class="noc-sim-btn secondary" style="text-decoration: none; background: #ea580c; color: white;">👾 Interactive Labs</a>
   </div>
@@ -25,7 +25,7 @@
     <span class="noc-stat-label">Architectural Parts</span>
   </div>
   <div class="noc-stat-card">
-    <span class="noc-stat-number">140</span>
+    <span class="noc-stat-number">200</span>
     <span class="noc-stat-label">Camera-Ready Pages</span>
   </div>
   <div class="noc-stat-card">
@@ -40,7 +40,7 @@
 
 Modern multi-core processors, AI accelerators (GPUs, TPUs, NPUs), and multi-chiplet superchips spend up to **40% of their total power and area** moving data across silicon. Yet interconnection networks are often taught using abstract, impenetrable formulas.
 
-This textbook bridges **rigorous physical equations** (Elmore RC delays, Murphy yield models, Channel Dependency Graphs, thermo-optic resonance drift) with **vivid, intuitive real-world metaphors** so that any curious high school student or undergraduate can immediately build an intuitive mental model:
+This textbook bridges **rigorous physical equations** (Elmore RC delays, Murphy yield models, Channel Dependency Graphs, thermo-optic resonance drift) with **vivid, intuitive real-world metaphors** so that any curious engineering student or researcher can immediately build an intuitive mental model:
 
 <div class="noc-tracks-grid" style="margin-top: 1.5rem;">
   <div class="noc-track-card">
