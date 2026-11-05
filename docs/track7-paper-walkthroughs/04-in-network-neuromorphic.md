@@ -326,61 +326,298 @@ $$\text{Savings} = \frac{E_{traditional} - E_{INC}}{E_{traditional}} = \frac{127
 
 ## 6. Self-Assessment Concept Check
 
-<div style="background:var(--md-code-bg-color); border:1px solid var(--md-default-fg-color--lightest); border-radius:8px; padding:20px; margin:24px 0;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:12px; color:var(--md-typeset-color);">
-    Question 1: What is the primary limitation of traditional "Split-and-Merge" mapping in neuromorphic architectures when a layer exceeds single-core capacity?
-  </div>
-  <div style="display:flex; flex-direction:column; gap:8px;">
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="a"> A) The cores run out of clock cycles and shut down.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="b"> B) Each split core produces an incomplete partial sum that must be quantized into intermediate spikes, causing accuracy loss and requiring dedicated merge cores that congest the network.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="c"> C) SNN neurons cannot process negative weights.</label>
-  </div>
-  <button onclick="checkQ1()" style="margin-top:12px; padding:6px 14px; border-radius:4px; background:#0284c7; color:#fff; border:none; cursor:pointer; font-weight:600;">Check Answer</button>
-  <div id="q1-feedback" style="margin-top:10px; font-size:0.9rem; font-weight:600;"></div>
-</div>
+---
 
-<div style="background:var(--md-code-bg-color); border:1px solid var(--md-default-fg-color--lightest); border-radius:8px; padding:20px; margin:24px 0;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:12px; color:var(--md-typeset-color);">
-    Question 2: Why does the NUS neuromorphic processor deploy two separate physical NoC fabrics (Spike Router and Partial-Sum Router)?
+## 7. Synthesizable Verilog Module: `neuromorphic_psum_router.v`
+
+To eliminate the memory traffic bottlenecks of traditional neuromorphic mapping, the NUS architecture performs **In-Network Computing** by embedding arithmetic accumulation units directly inside router crossbars.
+
+The synthesizable module below implements the **Dual-Plane In-Network Neuromorphic Router**. It features an event spike plane for 1-bit AER multicasting and an arithmetic plane that merges converging 16-bit partial-sum flits directly in-flight, emitting a single reduced flit downstream while evaluating a local Leaky Integrate-and-Fire (LIF) threshold comparator.
+
+```verilog
+//=============================================================================
+// File: neuromorphic_psum_router.v
+// Module: neuromorphic_psum_router
+// Description: Synthesizable Dual-Plane In-Network Computing Router with
+//              In-Flight Partial-Sum Arithmetic Reduction and AER Spike Multicast
+//              based on the NUS Neuromorphic Processor (IEEE JSSC 2023).
+//              Features:
+//              - Dual-plane routing: 1-bit AER Event Plane + 16-bit P-Sum Plane.
+//              - In-flight 16-bit signed partial-sum accumulator inside crossbar.
+//              - Slashes memory traffic by merging converging partial sums.
+//              - Embedded Leaky Integrate-and-Fire (LIF) spike threshold fire unit.
+//=============================================================================
+
+`timescale 1ns / 1ps
+
+module neuromorphic_psum_router #(
+    parameter integer PSUM_WIDTH    = 16,     // 16-bit signed partial sum
+    parameter signed [PSUM_WIDTH-1:0] LIF_THRESHOLD = 16'sh0800 // Membrane threshold
+)(
+    input  wire                          clk,
+    input  wire                          rst_n,
+    
+    // Plane 0: 1-Bit AER Spike Event Input
+    input  wire                          spike_in_valid,
+    input  wire [7:0]                    spike_in_neuron_id,
+    output reg                           spike_out_valid,
+    output reg  [7:0]                    spike_out_neuron_id,
+    
+    // Plane 1: Two Converging 16-bit Partial-Sum Channels (e.g. from East and South)
+    input  wire                          psum_a_valid,
+    input  wire signed [PSUM_WIDTH-1:0]  psum_a_data,
+    input  wire [7:0]                    psum_a_dest_id,
+    
+    input  wire                          psum_b_valid,
+    input  wire signed [PSUM_WIDTH-1:0]  psum_b_data,
+    input  wire [7:0]                    psum_b_dest_id,
+    
+    // Downstream Reduced Partial-Sum Output
+    output reg                           psum_out_valid,
+    output reg  signed [PSUM_WIDTH-1:0]  psum_out_data,
+    output reg  [7:0]                    psum_out_dest_id,
+    
+    // In-Network Reduction Telemetry
+    output reg                           in_flight_reduction_active,
+    output reg                           lif_spike_fired
+);
+
+    // Plane 0: AER Spike Forwarding
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            spike_out_valid     <= 1'b0;
+            spike_out_neuron_id <= 8'd0;
+        end else begin
+            spike_out_valid     <= spike_in_valid;
+            spike_out_neuron_id <= spike_in_neuron_id;
+        end
+    end
+
+    // Plane 1: In-Flight Partial-Sum Reduction Datapath
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            psum_out_valid             <= 1'b0;
+            psum_out_data              <= {PSUM_WIDTH{1'b0}};
+            psum_out_dest_id           <= 8'd0;
+            in_flight_reduction_active <= 1'b0;
+            lif_spike_fired            <= 1'b0;
+        end else begin
+            // Check if both input channels arrive simultaneously targeting the SAME neuron
+            if (psum_a_valid && psum_b_valid && (psum_a_dest_id == psum_b_dest_id)) begin
+                // In-Network Arithmetic Reduction: Sum both partial sums in-flight!
+                psum_out_valid             <= 1'b1;
+                psum_out_data              <= psum_a_data + psum_b_data;
+                psum_out_dest_id           <= psum_a_dest_id;
+                in_flight_reduction_active <= 1'b1;
+                
+                // LIF Membrane Potential Evaluation
+                if ((psum_a_data + psum_b_data) >= LIF_THRESHOLD)
+                    lif_spike_fired <= 1'b1;
+                else
+                    lif_spike_fired <= 1'b0;
+
+            end else if (psum_a_valid) begin
+                // Only channel A valid: forward directly
+                psum_out_valid             <= 1'b1;
+                psum_out_data              <= psum_a_data;
+                psum_out_dest_id           <= psum_a_dest_id;
+                in_flight_reduction_active <= 1'b0;
+                lif_spike_fired            <= (psum_a_data >= LIF_THRESHOLD);
+
+            end else if (psum_b_valid) begin
+                // Only channel B valid: forward directly
+                psum_out_valid             <= 1'b1;
+                psum_out_data              <= psum_b_data;
+                psum_out_dest_id           <= psum_b_dest_id;
+                in_flight_reduction_active <= 1'b0;
+                lif_spike_fired            <= (psum_b_data >= LIF_THRESHOLD);
+
+            end else begin
+                psum_out_valid             <= 1'b0;
+                psum_out_data              <= {PSUM_WIDTH{1'b0}};
+                psum_out_dest_id           <= 8'd0;
+                in_flight_reduction_active <= 1'b0;
+                lif_spike_fired            <= 1'b0;
+            end
+        end
+    end
+
+endmodule
+```
+
+---
+
+## 8. 🕹️ Interactive Simulation & Arcade Linkages
+
+Deepen your practical mastery of neuromorphic packet routing, SNN spike timing, and multicast trees with our interactive arcade games:
+
+- 🎮 **[Neuromorphic Nexus: SNN Spikes](../interactive/neuromorphic.md):** Route spiking neural events, manage LIF membrane potentials, and optimize AER multicast trees under real-time biologically plausible timing constraints.
+- 🎮 **[Packet Master: Routing Puzzle](../interactive/puzzle.md):** Solve multi-turn routing constraints and steer in-flight traffic through convergent network nodes to eliminate hot-potato deflections.
+
+---
+
+## 9. 🎯 Concept Check: Lesson 7.4
+
+Test your mastery of In-Network Computing and Neuromorphic Interconnect architectures with this 3-question self-assessment.
+
+<div class="noc-sim-container" id="quiz74" style="margin-top:1rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+    <div style="font-weight:700; font-size:1.05rem; color:var(--tcl-heading);">
+      📝 Concept Check: In-Network Neuromorphic Landmark Paper
+    </div>
+    <div id="q74_score_badge" style="font-size:0.85rem; font-weight:600; padding:4px 10px; border-radius:12px; background:rgba(37,99,235,0.1); color:#2563eb;">
+      Score: 0 / 3
+    </div>
   </div>
-  <div style="display:flex; flex-direction:column; gap:8px;">
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="a"> A) To isolate lightweight 1-bit event spikes from 16-bit arithmetic partial-sum reduction traffic, avoiding Head-of-Line blocking and protocol deadlock.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="b"> B) Because one router operates on alternating current (AC) and the other on direct current (DC).</label>
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="c"> C) The second router is purely a backup in case the first router experiences physical electromigration failure.</label>
+
+  <!-- Question 1 -->
+  <div id="q74_1_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>1. The Split-and-Merge Mapping Bottleneck:</b> What is the primary architectural limitation of traditional "Split-and-Merge" mapping in neuromorphic processors when a neural layer exceeds single-core fan-in capacity?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q74_1_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ74(1, 0)">
+        A. Each split core produces an incomplete partial sum that must be quantized into lossy intermediate spikes, causing severe classification accuracy degradation and requiring dedicated merge cores that congest the network with redundant memory traffic.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ74(1, 1)">
+        B. The silicon cores run out of clock cycles and shut down permanently.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ74(1, 2)">
+        C. SNN neurons cannot physically process negative synaptic weights.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ74(1, 3)">
+        D. Neuromorphic architectures do not support CMOS transistors.
+      </button>
+    </div>
+    <div id="q74_1_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
   </div>
-  <button onclick="checkQ2()" style="margin-top:12px; padding:6px 14px; border-radius:4px; background:#0284c7; color:#fff; border:none; cursor:pointer; font-weight:600;">Check Answer</button>
-  <div id="q2-feedback" style="margin-top:10px; font-size:0.9rem; font-weight:600;"></div>
+
+  <!-- Question 2 -->
+  <div id="q74_2_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>2. Dual-Plane NoC Physical Isolation:</b> Why does the NUS neuromorphic processor deploy two physically separate on-chip network fabrics (Spike Router plane and Partial-Sum Router plane)?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q74_2_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ74(2, 0)">
+        A. To completely isolate lightweight, latency-critical 1-bit event spikes from 16-bit arithmetic partial-sum reduction traffic, eliminating Head-of-Line blocking, buffer saturation, and protocol deadlocks.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ74(2, 1)">
+        B. Because one router runs on alternating current (AC) and the other on direct current (DC).
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ74(2, 2)">
+        C. The second plane is purely a non-functional spare for electromigration redundancy.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ74(2, 3)">
+        D. To allow packets to fly through the air via wireless RF broadcast.
+      </button>
+    </div>
+    <div id="q74_2_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div id="q74_3_block" style="margin-bottom:1rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>3. In-Flight Partial-Sum Reduction Energy:</b> How does performing arithmetic accumulation directly inside intermediate router crossbars slash system-level data movement energy by over $50\%$?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q74_3_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ74(3, 0)">
+        A. Converging partial sums targeting the same neuron are added together in-flight as they pass through the router, turning two memory-bound packets into a single merged flit and eliminating round-trip SRAM writes and reads.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ74(3, 1)">
+        B. By rounding all synaptic weights to 0.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ74(3, 2)">
+        C. Routers generate negative electrical power when computing additions.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ74(3, 3)">
+        D. Neuromorphic arithmetic eliminates the need for ground wires.
+      </button>
+    </div>
+    <div id="q74_3_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <div style="margin-top:1rem; text-align:right;">
+    <button class="noc-sim-btn" onclick="resetQuiz74()" style="padding:4px 12px; font-size:0.85rem;">🔄 Reset Quiz</button>
+  </div>
 </div>
 
 <script>
-function checkQ1() {
-  const sel = document.querySelector('input[name="q1"]:checked');
-  const fb = document.getElementById('q1-feedback');
-  if (!sel) { fb.innerHTML = '<span style="color:#f59e0b;">Please select an option.</span>'; return; }
-  if (sel.value === 'b') {
-    fb.innerHTML = '<span style="color:#10b981;">✓ Correct! In the split-and-merge scheme, cores emit intermediate spikes from truncated sums, introducing quantization errors that necessitate retraining and create severe data movement bottlenecks.</span>';
+const q74Answers = [0, 0, 0];
+const q74Feedback = [
+  "✓ Correct! In traditional split-and-merge mappings, each partial core truncates sums into intermediate spikes, degrading accuracy and multiplying data transfers through dedicated merge cores.",
+  "✓ Correct! 1-bit event spikes require low-latency multicast, whereas 16-bit partial sums require multi-bit arithmetic reduction. Separating them onto dedicated physical planes eliminates protocol interference and deadlock.",
+  "✓ Correct! In-flight accumulation merges converging partial-sum flits directly inside crossbar buffers ($P_{sum\_out} = P_{sum\_a} + P_{sum\_b}$), cutting downstream memory writes and saving over 50% in interconnect energy!"
+];
+let q74Score = [0, 0, 0];
+
+function checkQ74(qIdx, optIdx) {
+  const fb = document.getElementById(`q74_${qIdx}_fb`);
+  const opts = document.querySelectorAll(`#q74_${qIdx}_opts button`);
+  
+  opts.forEach(b => {
+    b.disabled = true;
+    b.style.opacity = '0.7';
+  });
+
+  fb.style.display = 'block';
+  if (optIdx === q74Answers[qIdx - 1]) {
+    opts[optIdx].style.border = '2px solid #10b981';
+    opts[optIdx].style.background = 'rgba(16, 185, 129, 0.15)';
+    opts[optIdx].style.opacity = '1';
+    fb.style.background = 'rgba(16, 185, 129, 0.1)';
+    fb.style.border = '1px solid #10b981';
+    fb.style.color = '#10b981';
+    fb.textContent = q74Feedback[qIdx - 1];
+    q74Score[qIdx - 1] = 1;
   } else {
-    fb.innerHTML = '<span style="color:#ef4444;">✗ Incorrect. Traditional split-and-merge requires quantizing partial sums into intermediate spikes, degrading accuracy and multiplying data transfers.</span>';
+    opts[optIdx].style.border = '2px solid #ef4444';
+    opts[optIdx].style.background = 'rgba(239, 68, 68, 0.15)';
+    opts[optIdx].style.opacity = '1';
+    opts[q74Answers[qIdx - 1]].style.border = '2px solid #10b981';
+    opts[q74Answers[qIdx - 1]].style.opacity = '1';
+    fb.style.background = 'rgba(239, 68, 68, 0.1)';
+    fb.style.border = '1px solid #ef4444';
+    fb.style.color = '#ef4444';
+    fb.textContent = "✗ Incorrect. " + q74Feedback[qIdx - 1];
+    q74Score[qIdx - 1] = 0;
+  }
+
+  const total = q74Score.reduce((a, b) => a + b, 0);
+  const badge = document.getElementById('q74_score_badge');
+  badge.textContent = `Score: ${total} / 3`;
+  if (total === 3) {
+    badge.style.background = 'rgba(16, 185, 129, 0.15)';
+    badge.style.color = '#10b981';
   }
 }
 
-function checkQ2() {
-  const sel = document.querySelector('input[name="q2"]:checked');
-  const fb = document.getElementById('q2-feedback');
-  if (!sel) { fb.innerHTML = '<span style="color:#f59e0b;">Please select an option.</span>'; return; }
-  if (sel.value === 'a') {
-    fb.innerHTML = '<span style="color:#10b981;">✓ Correct! 1-bit spikes require ultra-fast event multicasting, whereas 16-bit partial sums require multi-bit arithmetic reduction. Separating them into dedicated planes eliminates protocol interference and deadlock.</span>';
-  } else {
-    fb.innerHTML = '<span style="color:#ef4444;">✗ Incorrect. The dual-plane NoC isolates 1-bit spike traffic from 16-bit partial-sum arithmetic to eliminate Head-of-Line blocking and protocol interference.</span>';
+function resetQuiz74() {
+  q74Score = [0, 0, 0];
+  const badge = document.getElementById('q74_score_badge');
+  badge.textContent = 'Score: 0 / 3';
+  badge.style.background = 'rgba(37,99,235,0.1)';
+  badge.style.color = '#2563eb';
+
+  for (let q = 1; q <= 3; q++) {
+    const fb = document.getElementById(`q74_${q}_fb`);
+    fb.style.display = 'none';
+    fb.textContent = '';
+    const opts = document.querySelectorAll(`#q74_${q}_opts button`);
+    opts.forEach(b => {
+      b.disabled = false;
+      b.style.border = '';
+      b.style.background = '';
+      b.style.opacity = '1';
+    });
   }
 }
 </script>
 
 ---
 
-## 7. Summary & Course Conclusion
+## 10. Summary & Curriculum Mastery
 
-This IEEE TVLSI paper illustrates the exciting frontier of on-chip networks: **In-Network Computing**. By embedding lightweight arithmetic units directly inside router crossbars, the interconnect ceases to be a passive pipe and becomes an active accelerator, slashing data movement energy by over $50\%$.
+This landmark IEEE TVLSI / JSSC paper illustrates the exciting frontier of on-chip interconnects: **In-Network Computing**. By embedding lightweight arithmetic units directly inside router crossbars, the interconnect ceases to be a passive pipe and becomes an active computing accelerator, slashing data movement energy by over $50\%$.
 
 ---
 
@@ -396,3 +633,4 @@ Congratulations on mastering all seven learning tracks:
 7. **[Track 7: Landmark Papers](index.md)** — Silicon case studies from Intel SCC, NVIDIA Simba, 3D Optical NoC, and Neuromorphic In-Network Computing.
 
 To certify your silicon knowledge and claim your verified cryptographic credential, head over to the **[NoC Architecture Certification Challenge](../quiz.md)** or compete on the global **[Leaderboard](../leaderboard.md)**!
+

@@ -130,7 +130,7 @@
         顶刊论文精读手册：英特尔 48 核 SCC 处理器（2-TB/s DVFS 网格）、英伟达 Simba 36 芯粒 GRS 封装、三维光互连片上网络（3D ONoC）以及类脑网内计算路由器。
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 包含 4 大真实芯片仿真器与 541 篇顶刊库溯源
+        ⚡ 包含 4 大可综合 Verilog RTL 模块、4 大真实芯片仿真器与街机实战链接
       </div>
     </div>
     <a href="track7-paper-walkthroughs/" class="noc-track-link">进入模块七 →</a>

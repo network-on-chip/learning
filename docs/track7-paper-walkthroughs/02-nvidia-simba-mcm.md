@@ -346,62 +346,274 @@ $$P_{port} = (176 \times 10^9 \ \text{bits/sec}) \times (0.54 \times 10^{-12} \ 
 
 ---
 
-## 7. Self-Assessment Concept Check
+## 7. Synthesizable Verilog Module: `simba_multicast_router.v`
 
-<div style="background:var(--md-code-bg-color); border:1px solid var(--md-default-fg-color--lightest); border-radius:8px; padding:20px; margin:24px 0;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:12px; color:var(--md-typeset-color);">
-    Question 1: What physical feature of Ground-Referenced Signaling (GRS) allows Simba to achieve 0.54 pJ/bit energy efficiency across standard organic package flip-chip bumps?
-  </div>
-  <div style="display:flex; flex-direction:column; gap:8px;">
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="a"> A) Differential high-voltage (3.3V) signals driving long terminated coaxial cables.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="b"> B) Single-ended signaling with an ultra-low 200 mV swing referenced directly to ground (V_ss), eliminating high-voltage charging and complex multi-tap equalizers.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="c"> C) Photonic lasers converting bits into optical infrared pulses.</label>
-  </div>
-  <button onclick="checkQ1()" style="margin-top:12px; padding:6px 14px; border-radius:4px; background:#0284c7; color:#fff; border:none; cursor:pointer; font-weight:600;">Check Answer</button>
-  <div id="q1-feedback" style="margin-top:10px; font-size:0.9rem; font-weight:600;"></div>
-</div>
+During Deep Neural Network inference on the Simba 36-chiplet package, weight tensors and activation maps are frequently broadcast across multiple processing elements. Rather than flooding the package with redundant point-to-point unicast packets, Simba deployed **Hardware Multicast Tree Routing** inside its on-package routers.
 
-<div style="background:var(--md-code-bg-color); border:1px solid var(--md-default-fg-color--lightest); border-radius:8px; padding:20px; margin:24px 0;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:12px; color:var(--md-typeset-color);">
-    Question 2: How does Simba's hardware multicast tree routing in the Network-on-Package reduce communication energy during deep learning inference?
+The synthesizable module below implements the **Simba Hardware Multicast Router Core**. It evaluates destination bitmasks in incoming flits, checks downstream credit availability across all target directions simultaneously, replicates flits to multiple output ports in a single cycle without store-and-forward penalty, and tracks multicast fan-out efficiency.
+
+```verilog
+//=============================================================================
+// File: simba_multicast_router.v
+// Module: simba_multicast_router
+// Description: Synthesizable On-Package Multicast Router with Bitmask Branch
+//              Replication and GRS Credit Gate based on NVIDIA Simba (JSSC 2020).
+//              Ports: 0: North, 1: South, 2: East, 3: West, 4: Local Chiplet
+//              Features:
+//              - Single-cycle multicast replication across multiple output ports.
+//              - Atomic credit availability gating across all requested directions.
+//              - GRS low-swing link flow control handshake.
+//              - Multicast fan-out performance telemetry.
+//=============================================================================
+
+`timescale 1ns / 1ps
+
+module simba_multicast_router #(
+    parameter integer FLIT_WIDTH = 64,         // Simba flit payload width
+    parameter integer PORT_COUNT = 5          // N, S, E, W, Local
+)(
+    input  wire                          clk,
+    input  wire                          rst_n,
+    
+    // Incoming Flit from Local/Upstream Input FIFO
+    input  wire                          in_flit_valid,
+    input  wire [PORT_COUNT-1:0]         in_dest_mask,    // 1-hot or multi-hot output bitmask
+    input  wire [FLIT_WIDTH-1:0]         in_flit_data,
+    output wire                          in_flit_ready,   // Handshake ready to input buffer
+    
+    // Downstream GRS Link Buffer Credits (1 bit per port)
+    input  wire [PORT_COUNT-1:0]         downstream_credits,
+    
+    // Replicated Multicast Output Channels
+    output reg  [PORT_COUNT-1:0]         out_flit_valid,
+    output reg  [FLIT_WIDTH-1:0]         out_flit_data [PORT_COUNT-1:0],
+    
+    // Performance & Energy Telemetry
+    output reg  [31:0]                   total_multicast_replications
+);
+
+    // Atomic Multicast Branch Credit Evaluation:
+    // Flit can only advance if ALL destination ports in the mask have credits available
+    wire multicast_ready;
+    assign multicast_ready = ((in_dest_mask & downstream_credits) == in_dest_mask) && (in_dest_mask != 5'b00000);
+    assign in_flit_ready   = in_flit_valid && multicast_ready;
+
+    // Population count helper to count fan-out branches
+    function [2:0] popcount5(input [4:0] mask);
+        begin
+            popcount5 = mask[0] + mask[1] + mask[2] + mask[3] + mask[4];
+        end
+    endfunction
+
+    // Multicast Replication Datapath
+    integer p;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            out_flit_valid               <= {PORT_COUNT{1'b0}};
+            total_multicast_replications <= 32'd0;
+            for (p = 0; p < PORT_COUNT; p = p + 1) begin
+                out_flit_data[p] <= {FLIT_WIDTH{1'b0}};
+            end
+        end else begin
+            if (in_flit_valid && multicast_ready) begin
+                // Replicate flit data simultaneously to all masked output ports
+                for (p = 0; p < PORT_COUNT; p = p + 1) begin
+                    if (in_dest_mask[p]) begin
+                        out_flit_valid[p] <= 1'b1;
+                        out_flit_data[p]  <= in_flit_data;
+                    end else begin
+                        out_flit_valid[p] <= 1'b0;
+                        out_flit_data[p]  <= {FLIT_WIDTH{1'b0}};
+                    end
+                end
+
+                // Track total replicated branches for telemetry
+                total_multicast_replications <= total_multicast_replications + popcount5(in_dest_mask);
+            end else begin
+                out_flit_valid <= {PORT_COUNT{1'b0}};
+                for (p = 0; p < PORT_COUNT; p = p + 1) begin
+                    out_flit_data[p] <= {FLIT_WIDTH{1'b0}};
+                end
+            end
+        end
+    end
+
+endmodule
+```
+
+---
+
+## 8. 🕹️ Interactive Simulation & Arcade Linkages
+
+Deepen your practical mastery of multi-chiplet packaging, GRS signaling, and multicast network routing with our interactive arcade games:
+
+- 🎮 **[Chiplet Tycoon: Multi-Die Architect](../interactive/chiplet.md):** Architect 2.5D Multi-Chip-Modules, tune GRS/UCIe shoreline bandwidth, and optimize MCM packaging yields against the Murphy yield model.
+- 🎮 **[QoS Gladiator: Traffic Arbiter](../interactive/qos.md):** Manage multi-tenant DNN tensor flows, multicast distribution queues, and packet prioritization under stringent latency bounds.
+
+---
+
+## 9. 🎯 Concept Check: Lesson 7.2
+
+Test your mastery of the NVIDIA Simba 36-Chiplet MCM Architecture with this 3-question self-assessment.
+
+<div class="noc-sim-container" id="quiz72" style="margin-top:1rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+    <div style="font-weight:700; font-size:1.05rem; color:var(--tcl-heading);">
+      📝 Concept Check: NVIDIA Simba Landmark Paper
+    </div>
+    <div id="q72_score_badge" style="font-size:0.85rem; font-weight:600; padding:4px 10px; border-radius:12px; background:rgba(37,99,235,0.1); color:#2563eb;">
+      Score: 0 / 3
+    </div>
   </div>
-  <div style="display:flex; flex-direction:column; gap:8px;">
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="a"> A) Routers replicate flits internally at branching points, eliminating redundant point-to-point unicast copies across the package bisection links.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="b"> B) Packets are compressed using ZIP lossless compression algorithms.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="c"> C) Flits skip router arbitration by flying through the air via wireless antennas.</label>
+
+  <!-- Question 1 -->
+  <div id="q72_1_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>1. Ground-Referenced Signaling (GRS) Physics:</b> What physical operating principle enables GRS to achieve $0.54\text{ pJ/bit}$ energy efficiency across standard organic package flip-chip bumps?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q72_1_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ72(1, 0)">
+        A. Single-ended signaling with an ultra-low 200 mV voltage swing referenced directly to ground ($V_{ss}$), slashing dynamic charging energy ($P = C V^2 f$) and eliminating power-hungry multi-tap analog equalizers.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ72(1, 1)">
+        B. Differential high-voltage (3.3V) signals driving long terminated coaxial cables.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ72(1, 2)">
+        C. On-chip lasers converting digital bits into optical infrared pulses.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ72(1, 3)">
+        D. Superconducting niobium wires operating at liquid helium temperatures.
+      </button>
+    </div>
+    <div id="q72_1_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
   </div>
-  <button onclick="checkQ2()" style="margin-top:12px; padding:6px 14px; border-radius:4px; background:#0284c7; color:#fff; border:none; cursor:pointer; font-weight:600;">Check Answer</button>
-  <div id="q2-feedback" style="margin-top:10px; font-size:0.9rem; font-weight:600;"></div>
+
+  <!-- Question 2 -->
+  <div id="q72_2_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>2. Hardware Multicast Tree Routing:</b> How does Simba's hardware multicast routing across the on-package mesh reduce communication traffic and energy during deep learning inference?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q72_2_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ72(2, 0)">
+        A. Intermediate routers replicate flits internally at branching points using bitmasks, eliminating redundant point-to-point unicast copies and slashing package bisection link traffic by $>70\%$.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ72(2, 1)">
+        B. Flits skip router arbitration by flying through the air via wireless antennas.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ72(2, 2)">
+        C. Packets are compressed using ZIP lossless compression algorithms.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ72(2, 3)">
+        D. Every core receives all memory traffic regardless of destination.
+      </button>
+    </div>
+    <div id="q72_2_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div id="q72_3_block" style="margin-bottom:1rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>3. Hierarchical NoC Addressing:</b> What is the primary architectural motivation for decoupling the interconnect into a 2-level hierarchy (intra-chiplet crossbar + inter-chiplet package mesh)?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q72_3_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ72(3, 0)">
+        A. It localizes high-bandwidth intra-chiplet traffic to sub-nanosecond planar wires, simplifies routing tables, and limits package GRS crossings to inter-chiplet exchanges.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ72(3, 1)">
+        B. It allows each chiplet to use a completely different binary instruction set.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ72(3, 2)">
+        C. Package traces cannot conduct more than 8 bits of data per day.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ72(3, 3)">
+        D. Hierarchical networks eliminate the need for clock oscillators.
+      </button>
+    </div>
+    <div id="q72_3_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <div style="margin-top:1rem; text-align:right;">
+    <button class="noc-sim-btn" onclick="resetQuiz72()" style="padding:4px 12px; font-size:0.85rem;">🔄 Reset Quiz</button>
+  </div>
 </div>
 
 <script>
-function checkQ1() {
-  const sel = document.querySelector('input[name="q1"]:checked');
-  const fb = document.getElementById('q1-feedback');
-  if (!sel) { fb.innerHTML = '<span style="color:#f59e0b;">Please select an option.</span>'; return; }
-  if (sel.value === 'b') {
-    fb.innerHTML = '<span style="color:#10b981;">✓ Correct! By restricting the voltage swing to 200 mV referenced to ground, dynamic energy (C*V^2) drops quadratically. Simple inverter receivers eliminate high-power analog SerDes equalizers.</span>';
+const q72Answers = [0, 0, 0];
+const q72Feedback = [
+  "✓ Correct! By restricting the voltage swing to 200 mV referenced to ground (V_ss), dynamic energy (C*V^2) drops quadratically. Simple inverter receivers eliminate high-power analog SerDes equalizers, achieving 0.54 pJ/bit.",
+  "✓ Correct! Instead of sending 36 independent unicast copies of a weight tensor across the network, a single flit traverses shared links and branches only at intermediate routers, cutting bisection traffic by over 70%.",
+  "✓ Correct! Decoupling intra-chiplet crossbars from the global package mesh confines dense local traffic within the silicon die, saving package power and keeping inter-chiplet routing tables lightweight."
+];
+let q72Score = [0, 0, 0];
+
+function checkQ72(qIdx, optIdx) {
+  const fb = document.getElementById(`q72_${qIdx}_fb`);
+  const opts = document.querySelectorAll(`#q72_${qIdx}_opts button`);
+  
+  opts.forEach(b => {
+    b.disabled = true;
+    b.style.opacity = '0.7';
+  });
+
+  fb.style.display = 'block';
+  if (optIdx === q72Answers[qIdx - 1]) {
+    opts[optIdx].style.border = '2px solid #10b981';
+    opts[optIdx].style.background = 'rgba(16, 185, 129, 0.15)';
+    opts[optIdx].style.opacity = '1';
+    fb.style.background = 'rgba(16, 185, 129, 0.1)';
+    fb.style.border = '1px solid #10b981';
+    fb.style.color = '#10b981';
+    fb.textContent = q72Feedback[qIdx - 1];
+    q72Score[qIdx - 1] = 1;
   } else {
-    fb.innerHTML = '<span style="color:#ef4444;">✗ Incorrect. GRS achieves sub-picojoule energy efficiency by using single-ended low-swing (200 mV) signaling referenced to ground over short package traces.</span>';
+    opts[optIdx].style.border = '2px solid #ef4444';
+    opts[optIdx].style.background = 'rgba(239, 68, 68, 0.15)';
+    opts[optIdx].style.opacity = '1';
+    opts[q72Answers[qIdx - 1]].style.border = '2px solid #10b981';
+    opts[q72Answers[qIdx - 1]].style.opacity = '1';
+    fb.style.background = 'rgba(239, 68, 68, 0.1)';
+    fb.style.border = '1px solid #ef4444';
+    fb.style.color = '#ef4444';
+    fb.textContent = "✗ Incorrect. " + q72Feedback[qIdx - 1];
+    q72Score[qIdx - 1] = 0;
+  }
+
+  const total = q72Score.reduce((a, b) => a + b, 0);
+  const badge = document.getElementById('q72_score_badge');
+  badge.textContent = `Score: ${total} / 3`;
+  if (total === 3) {
+    badge.style.background = 'rgba(16, 185, 129, 0.15)';
+    badge.style.color = '#10b981';
   }
 }
 
-function checkQ2() {
-  const sel = document.querySelector('input[name="q2"]:checked');
-  const fb = document.getElementById('q2-feedback');
-  if (!sel) { fb.innerHTML = '<span style="color:#f59e0b;">Please select an option.</span>'; return; }
-  if (sel.value === 'a') {
-    fb.innerHTML = '<span style="color:#10b981;">✓ Correct! Instead of sending 36 independent unicast copies of a weight tensor across the network, a single flit traverses shared links and branches only at intermediate routers, cutting traffic by over 70%.</span>';
-  } else {
-    fb.innerHTML = '<span style="color:#ef4444;">✗ Incorrect. Multicast tree routing replicates flits inside the router crossbar at branching points, slashing redundant bisection traffic.</span>';
+function resetQuiz72() {
+  q72Score = [0, 0, 0];
+  const badge = document.getElementById('q72_score_badge');
+  badge.textContent = 'Score: 0 / 3';
+  badge.style.background = 'rgba(37,99,235,0.1)';
+  badge.style.color = '#2563eb';
+
+  for (let q = 1; q <= 3; q++) {
+    const fb = document.getElementById(`q72_${q}_fb`);
+    fb.style.display = 'none';
+    fb.textContent = '';
+    const opts = document.querySelectorAll(`#q72_${q}_opts button`);
+    opts.forEach(b => {
+      b.disabled = false;
+      b.style.border = '';
+      b.style.background = '';
+      b.style.opacity = '1';
+    });
   }
 }
 </script>
 
 ---
 
-## 8. Summary & Next Steps
+## 10. Summary & Next Steps
 
 NVIDIA Simba proved that disaggregating deep learning acceleration into modular chiplets interconnected via low-swing Ground-Referenced Signaling achieves near-monolithic performance while unlocking unprecedented yield and scaling flexibility.
 
 In **[Lesson 7.3: Stacking the 3rd Dimension: 3D Optical NoC](03-3d-optical-noc.md)**, we examine how researchers unified Through-Silicon Vias and Silicon Nanophotonics to shatter the memory bandwidth bottleneck!
+

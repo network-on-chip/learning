@@ -425,62 +425,331 @@ $$\text{Energy per bit} = \frac{0.50 \ \text{Joules/sec}}{1.28 \times 10^{12} \ 
 
 ---
 
-## 7. Self-Assessment Concept Check
+## 7. Synthesizable Verilog Module: `scc_mesh_router_wwfa.v`
 
-<div style="background:var(--md-code-bg-color); border:1px solid var(--md-default-fg-color--lightest); border-radius:8px; padding:20px; margin:24px 0;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:12px; color:var(--md-typeset-color);">
-    Question 1: Why did Intel's SCC architecture employ on-die Message Passing Buffers (MPBs) instead of a monolithic hardware MESI/MOESI cache coherence directory across its 48 cores?
-  </div>
-  <div style="display:flex; flex-direction:column; gap:8px;">
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="a"> A) The IA-32 instruction set does not support load and store operations.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="b"> B) Directory-based hardware cache coherence introduces exponential messaging traffic, directory area explosions, and high power dissipation when scaling past 16–32 cores.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q1" value="c"> C) 45nm silicon cannot fabricate SRAM cells.</label>
-  </div>
-  <button onclick="checkQ1()" style="margin-top:12px; padding:6px 14px; border-radius:4px; background:#0284c7; color:#fff; border:none; cursor:pointer; font-weight:600;">Check Answer</button>
-  <div id="q1-feedback" style="margin-top:10px; font-size:0.9rem; font-weight:600;"></div>
-</div>
+To achieve the headline $2.0 \ \text{TB/s}$ bisection throughput at $2.0 \ \text{GHz}$, the Intel SCC architecture deployed a high-speed 5-port 2D mesh router featuring **Lookahead Routing** and a single-cycle **Wrapped Wave-Front Allocator (WWFA)**.
 
-<div style="background:var(--md-code-bg-color); border:1px solid var(--md-default-fg-color--lightest); border-radius:8px; padding:20px; margin:24px 0;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:12px; color:var(--md-typeset-color);">
-    Question 2: In the SCC 4-stage router pipeline, what architectural technique allows the router to achieve a 2.0 ns per-hop latency while sustaining >90% switch utilization?
+The synthesizable module below implements the core of the SCC router switch allocation and crossbar datapath. It decodes destination coordinates to pre-compute the next-hop direction, performs 5x5 contention-free port matching via a rotating wave-front diagonal matrix, and switches 128-bit flits concurrently to downstream tiles while checking credit availability.
+
+```verilog
+//=============================================================================
+// File: scc_mesh_router_wwfa.v
+// Module: scc_mesh_router_wwfa
+// Description: Synthesizable 5-Port Mesh Router with Wrapped Wave-Front
+//              Allocation (WWFA) and Lookahead Routing based on the Intel 48-Core
+//              Single-Chip Cloud Computer (SCC, IEEE JSSC 2011).
+//              Ports: 0: North, 1: South, 2: East, 3: West, 4: Local (Tile)
+//              Features:
+//              - 128-bit flit datapath matching SCC physical link width.
+//              - Single-cycle Wrapped Wave-Front Allocator (WWFA) matching
+//                up to 5 inputs to 5 outputs concurrently.
+//              - Rotating priority offset for starvation-free round-robin fairness.
+//              - Downstream buffer credit gating.
+//              - Lookahead route pre-computation for hop N+1.
+//=============================================================================
+
+`timescale 1ns / 1ps
+
+module scc_mesh_router_wwfa #(
+    parameter integer DATA_WIDTH = 128,       // SCC flit data width (16 Bytes)
+    parameter integer MESH_X     = 6,         // 6x4 2D Mesh
+    parameter integer MESH_Y     = 4
+)(
+    input  wire                    clk_mesh,  // 2.0 GHz mesh clock
+    input  wire                    rst_n,
+    
+    // Current Tile Position
+    input  wire [2:0]              cur_x,     // 0..5
+    input  wire [1:0]              cur_y,     // 0..3
+    
+    // 5 Input Channels (N, S, E, W, L)
+    input  wire [4:0]              req_valid,
+    input  wire [2:0]              dest_x [4:0],
+    input  wire [1:0]              dest_y [4:0],
+    input  wire [DATA_WIDTH-1:0]   flit_in [4:0],
+    
+    // Downstream Flow Control Credits
+    input  wire [4:0]              out_credit_avail,
+    
+    // 5 Output Channels (N, S, E, W, L)
+    output reg  [4:0]              flit_out_valid,
+    output reg  [DATA_WIDTH-1:0]   flit_out [4:0],
+    output reg  [2:0]              lookahead_dir [4:0], // Next-hop precomputed port
+    output reg  [2:0]              grant_count          // Active concurrent grants (0..5)
+);
+
+    // Port Enumeration
+    localparam PORT_NORTH = 3'd0;
+    localparam PORT_SOUTH = 3'd1;
+    localparam PORT_EAST  = 3'd2;
+    localparam PORT_WEST  = 3'd3;
+    localparam PORT_LOCAL = 3'd4;
+
+    // Route Pre-Computation (Lookahead Dimension-Order Routing X-Y)
+    reg [2:0] target_port [4:0];
+    integer i;
+
+    always @(*) begin
+        for (i = 0; i < 5; i = i + 1) begin
+            if (req_valid[i]) begin
+                if (dest_x[i] > cur_x)
+                    target_port[i] = PORT_EAST;
+                else if (dest_x[i] < cur_x)
+                    target_port[i] = PORT_WEST;
+                else if (dest_y[i] > cur_y)
+                    target_port[i] = PORT_SOUTH;
+                else if (dest_y[i] < cur_y)
+                    target_port[i] = PORT_NORTH;
+                else
+                    target_port[i] = PORT_LOCAL;
+            end else begin
+                target_port[i] = PORT_LOCAL;
+            end
+        end
+    end
+
+    // Wrapped Wave-Front Allocation (WWFA) Priority Diagonal Rotation
+    reg [2:0] prio_offset;
+
+    always @(posedge clk_mesh or negedge rst_n) begin
+        if (!rst_n) begin
+            prio_offset <= 3'd0;
+        end else begin
+            prio_offset <= (prio_offset == 3'd4) ? 3'd0 : prio_offset + 3'd1;
+        end
+    end
+
+    // Match 5 Inputs to 5 Outputs without Port Collisions
+    reg [4:0] input_granted;
+    reg [4:0] output_taken;
+    reg [2:0] out_map [4:0]; // out_map[out_port] = granted_in_port
+    integer step, in_idx, out_idx;
+
+    always @(*) begin
+        input_granted  = 5'b00000;
+        output_taken   = 5'b00000;
+        grant_count    = 3'd0;
+
+        for (out_idx = 0; out_idx < 5; out_idx = out_idx + 1) begin
+            out_map[out_idx] = 3'd7; // None
+        end
+
+        // Evaluate requests in wave-front priority order
+        for (step = 0; step < 5; step = step + 1) begin
+            in_idx = (prio_offset + step) % 5;
+            if (req_valid[in_idx]) begin
+                out_idx = target_port[in_idx];
+                // Check if target output is free and has downstream buffer credits
+                if (!output_taken[out_idx] && out_credit_avail[out_idx]) begin
+                    input_granted[in_idx]  = 1'b1;
+                    output_taken[out_idx]   = 1'b1;
+                    out_map[out_idx]        = in_idx[2:0];
+                    grant_count             = grant_count + 3'd1;
+                end
+            end
+        end
+    end
+
+    // Crossbar Switch Datapath & Register Stage
+    integer p;
+    always @(posedge clk_mesh or negedge rst_n) begin
+        if (!rst_n) begin
+            flit_out_valid <= 5'b00000;
+            for (p = 0; p < 5; p = p + 1) begin
+                flit_out[p]      <= {DATA_WIDTH{1'b0}};
+                lookahead_dir[p] <= PORT_LOCAL;
+            end
+        end else begin
+            for (p = 0; p < 5; p = p + 1) begin
+                if (output_taken[p]) begin
+                    flit_out_valid[p] <= 1'b1;
+                    flit_out[p]       <= flit_in[out_map[p]];
+                    lookahead_dir[p]  <= target_port[out_map[p]];
+                end else begin
+                    flit_out_valid[p] <= 1'b0;
+                    flit_out[p]       <= {DATA_WIDTH{1'b0}};
+                    lookahead_dir[p]  <= PORT_LOCAL;
+                end
+            end
+        end
+    end
+
+endmodule
+```
+
+---
+
+## 8. 🕹️ Interactive Simulation & Arcade Linkages
+
+Deepen your practical mastery of multi-core switch allocation, wave-front arbitration, and tile-level power management with our interactive arcade games:
+
+- 🎮 **[Arbiter Arena: Crossbar Clash](../interactive/arbiter.md):** Master 5x5 crossbar switch matching, wave-front allocation algorithms, and arbitration fairness under high-injection workloads.
+- 🎮 **[Volt Vortex: Dark Silicon Power](../interactive/power.md):** Regulate per-tile DVFS voltage domains, manage on-chip thermal budgets, and prevent thermal runaway across manycore dies.
+
+---
+
+## 9. 🎯 Concept Check: Lesson 7.1
+
+Test your understanding of the Intel 48-Core Single-Chip Cloud Computer architecture with this 3-question self-assessment.
+
+<div class="noc-sim-container" id="quiz71" style="margin-top:1rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+    <div style="font-weight:700; font-size:1.05rem; color:var(--tcl-heading);">
+      📝 Concept Check: Intel 48-Core SCC Landmark Paper
+    </div>
+    <div id="q71_score_badge" style="font-size:0.85rem; font-weight:600; padding:4px 10px; border-radius:12px; background:rgba(37,99,235,0.1); color:#2563eb;">
+      Score: 0 / 3
+    </div>
   </div>
-  <div style="display:flex; flex-direction:column; gap:8px;">
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="a"> A) Lookahead routing and speculative early buffer writing coupled with a single-cycle Wrapped Wave-Front Allocator (WWFA).</label>
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="b"> B) Dropping packets whenever an output port experiences contention.</label>
-    <label style="cursor:pointer;"><input type="radio" name="q2" value="c"> C) Operating the crossbar on analog optical signals.</label>
+
+  <!-- Question 1 -->
+  <div id="q71_1_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>1. Eliminating Hardware Cache Coherence:</b> Why did Intel's SCC architecture employ on-die Message Passing Buffers (MPBs) instead of a monolithic hardware MESI/MOESI directory across its 48 cores?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q71_1_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ71(1, 0)">
+        A. Maintaining hardware directory-based cache coherence across 48 cores induces exponential coherence invalidation traffic, directory area explosions, and catastrophic power dissipation.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ71(1, 1)">
+        B. The IA-32 instruction set architecture does not support load and store instructions.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ71(1, 2)">
+        C. 45-nm CMOS cannot physically fabricate static RAM memory cells.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ71(1, 3)">
+        D. Message Passing Buffers completely eliminate the need for physical interconnect wires.
+      </button>
+    </div>
+    <div id="q71_1_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
   </div>
-  <button onclick="checkQ2()" style="margin-top:12px; padding:6px 14px; border-radius:4px; background:#0284c7; color:#fff; border:none; cursor:pointer; font-weight:600;">Check Answer</button>
-  <div id="q2-feedback" style="margin-top:10px; font-size:0.9rem; font-weight:600;"></div>
+
+  <!-- Question 2 -->
+  <div id="q71_2_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>2. SCC 4-Stage Router Pipeline Latency:</b> In the SCC router pipeline, what architectural techniques allow the router to achieve a 2.0 ns per-hop latency while sustaining >90% switch utilization?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q71_2_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ71(2, 0)">
+        A. Lookahead routing pre-computation and speculative early buffer writing coupled with a single-cycle Wrapped Wave-Front Allocator (WWFA).
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ71(2, 1)">
+        B. Automatically dropping flits whenever an output port experiences contention.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ71(2, 2)">
+        C. Operating the entire crossbar on analog optical lasers.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ71(2, 3)">
+        D. Using a single shared central queue for all 5 router ports.
+      </button>
+    </div>
+    <div id="q71_2_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div id="q71_3_block" style="margin-bottom:1rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>3. Independent Mesh Voltage &amp; Frequency Domain:</b> Why did Intel place the 2D mesh router network on an independent power domain ($1.1\text{ V}, 2.0\text{ GHz}$) separate from the 24 core tile voltage domains?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q71_3_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ71(3, 0)">
+        A. To guarantee that communication fabric bandwidth ($2.0\text{ TB/s}$) and packet transit latencies remain deterministic even when individual computing tiles throttle down to low frequency or enter sleep states.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ71(3, 1)">
+        B. Routers require higher voltage because copper traces have zero electrical resistance.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ71(3, 2)">
+        C. Because IA-32 CPU cores cannot run on direct current (DC).
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ71(3, 3)">
+        D. To allow flits to be stored permanently in routers without power.
+      </button>
+    </div>
+    <div id="q71_3_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <div style="margin-top:1rem; text-align:right;">
+    <button class="noc-sim-btn" onclick="resetQuiz71()" style="padding:4px 12px; font-size:0.85rem;">🔄 Reset Quiz</button>
+  </div>
 </div>
 
 <script>
-function checkQ1() {
-  const sel = document.querySelector('input[name="q1"]:checked');
-  const fb = document.getElementById('q1-feedback');
-  if (!sel) { fb.innerHTML = '<span style="color:#f59e0b;">Please select an option.</span>'; return; }
-  if (sel.value === 'b') {
-    fb.innerHTML = '<span style="color:#10b981;">✓ Correct! Maintaining full hardware cache coherence across 48 cores creates severe invalidation storms and massive directory overhead. Intel’s message-passing architecture treats the chip as a distributed cluster, scaling cleanly.</span>';
+const q71Answers = [0, 0, 0];
+const q71Feedback = [
+  "✓ Correct! Maintaining full hardware cache coherence across 48 cores creates severe invalidation storms and exponential directory area overhead. Intel's message-passing architecture treats the chip as a distributed cloud cluster, scaling cleanly.",
+  "✓ Correct! By computing the next hop in advance (lookahead routing) and writing flits speculatively into input buffers, the SCC router hides arbitration delay, completing contention-free switch matching in a single-cycle Wrapped Wave-Front Allocator.",
+  "✓ Correct! Decoupling the mesh fabric onto a dedicated 1.1 V / 2.0 GHz power grid ensures that packets traverse the chip at maximum speed without stalling, even when surrounding compute tiles sleep or dynamically throttle to save power."
+];
+let q71Score = [0, 0, 0];
+
+function checkQ71(qIdx, optIdx) {
+  const fb = document.getElementById(`q71_${qIdx}_fb`);
+  const opts = document.querySelectorAll(`#q71_${qIdx}_opts button`);
+  
+  opts.forEach(b => {
+    b.disabled = true;
+    b.style.opacity = '0.7';
+  });
+
+  fb.style.display = 'block';
+  if (optIdx === q71Answers[qIdx - 1]) {
+    opts[optIdx].style.border = '2px solid #10b981';
+    opts[optIdx].style.background = 'rgba(16, 185, 129, 0.15)';
+    opts[optIdx].style.opacity = '1';
+    fb.style.background = 'rgba(16, 185, 129, 0.1)';
+    fb.style.border = '1px solid #10b981';
+    fb.style.color = '#10b981';
+    fb.textContent = q71Feedback[qIdx - 1];
+    q71Score[qIdx - 1] = 1;
   } else {
-    fb.innerHTML = '<span style="color:#ef4444;">✗ Incorrect. The SCC abandoned monolithic hardware cache coherence to eliminate directory scaling bottlenecks and invalidation overhead across 48 cores.</span>';
+    opts[optIdx].style.border = '2px solid #ef4444';
+    opts[optIdx].style.background = 'rgba(239, 68, 68, 0.15)';
+    opts[optIdx].style.opacity = '1';
+    opts[q71Answers[qIdx - 1]].style.border = '2px solid #10b981';
+    opts[q71Answers[qIdx - 1]].style.opacity = '1';
+    fb.style.background = 'rgba(239, 68, 68, 0.1)';
+    fb.style.border = '1px solid #ef4444';
+    fb.style.color = '#ef4444';
+    fb.textContent = "✗ Incorrect. " + q71Feedback[qIdx - 1];
+    q71Score[qIdx - 1] = 0;
+  }
+
+  const total = q71Score.reduce((a, b) => a + b, 0);
+  const badge = document.getElementById('q71_score_badge');
+  badge.textContent = `Score: ${total} / 3`;
+  if (total === 3) {
+    badge.style.background = 'rgba(16, 185, 129, 0.15)';
+    badge.style.color = '#10b981';
   }
 }
 
-function checkQ2() {
-  const sel = document.querySelector('input[name="q2"]:checked');
-  const fb = document.getElementById('q2-feedback');
-  if (!sel) { fb.innerHTML = '<span style="color:#f59e0b;">Please select an option.</span>'; return; }
-  if (sel.value === 'a') {
-    fb.innerHTML = '<span style="color:#10b981;">✓ Correct! By computing the next hop in advance (lookahead) and writing flits speculatively into FIFOs, the router hides arbitration and queuing overhead, completing switch matching in a single-cycle WWFA.</span>';
-  } else {
-    fb.innerHTML = '<span style="color:#ef4444;">✗ Incorrect. The SCC router achieves 2 ns per-hop latency via lookahead routing, speculative early buffer write, and a single-cycle Wrapped Wave-Front Allocator.</span>';
+function resetQuiz71() {
+  q71Score = [0, 0, 0];
+  const badge = document.getElementById('q71_score_badge');
+  badge.textContent = 'Score: 0 / 3';
+  badge.style.background = 'rgba(37,99,235,0.1)';
+  badge.style.color = '#2563eb';
+
+  for (let q = 1; q <= 3; q++) {
+    const fb = document.getElementById(`q71_${q}_fb`);
+    fb.style.display = 'none';
+    fb.textContent = '';
+    const opts = document.querySelectorAll(`#q71_${q}_opts button`);
+    opts.forEach(b => {
+      b.disabled = false;
+      b.style.border = '';
+      b.style.background = '';
+      b.style.opacity = '1';
+    });
   }
 }
 </script>
 
 ---
 
-## 8. Summary & Next Steps
+## 10. Summary & Next Steps
 
 Intel’s 48-Core Single-Chip Cloud Computer demonstrated that a packet-switched 2D mesh combined with tile-level DVFS and message passing can scale manycore architectures to commercial reality.
 
 In **[Lesson 7.2: The Multi-Chiplet Revolution: NVIDIA Simba](02-nvidia-simba-mcm.md)**, we examine how NVIDIA scaled deep learning acceleration across **36 chiplets** using Ground-Referenced Signaling (GRS) and hierarchical on-package networks!
+
