@@ -67,6 +67,7 @@ Any attempt by nodes to inject traffic at a rate $\lambda > \Theta_{sat}$ will c
 A fundamental physical limit on saturation throughput is dictated by the **Bisection Bandwidth ($B_b$)**. If a fraction $\beta$ of all injected packets must cross the bisection:
 
 $$\text{Total Bisection Demand} = N \cdot \lambda \cdot \beta$$
+
 $$\text{Total Bisection Capacity} = 2 B_b$$
 
 $$\mathbf{\Theta_{sat} \le \frac{2 B_b}{\beta \cdot N \cdot L}}$$
@@ -83,24 +84,32 @@ Source Node Coordinates: (x_s, y_s) in a k × k Mesh
 
 ### 1. Uniform Random (UR)
 - Each node injects packets to any destination with equal probability:
-  $$P(\text{dest} = j) = \frac{1}{N - 1} \quad (j \ne i)$$
+
+    $$P(\text{dest} = j) = \frac{1}{N - 1} \quad (j \ne i)$$
+
 - **Characteristics:** Perfectly distributed, benign baseline. Exercises all links evenly. Under UR, exactly **50% of traffic crosses the bisection** ($\beta = 0.5$).
 
 ### 2. Bit-Complement (BC)
 - Each bit of the node coordinate is inverted:
-  $$(x_d, y_d) = (k - 1 - x_s, \ k - 1 - y_s)$$
+
+    $$(x_d, y_d) = (k - 1 - x_s, \ k - 1 - y_s)$$
+
 - *Example in $4 \times 4$ Mesh:* Node $(0,0) \rightarrow (3,3)$; Node $(0,1) \rightarrow (3,2)$.
 - **Characteristics:** **100% of packets must cross both the horizontal and vertical bisections ($\beta = 1.0$)!** Creates extreme bisection congestion.
 
 ### 3. Transpose (TP)
 - Inverts the coordinates across the main diagonal:
-  $$(x_d, y_d) = (y_s, x_s)$$
+
+    $$(x_d, y_d) = (y_s, x_s)$$
+
 - *Example in $4 \times 4$ Mesh:* Node $(1,3) \rightarrow (3,1)$.
 - **Characteristics:** Common in matrix transposition and FFT operations. Stresses crossbar dimension switching while leaving diagonal nodes idle.
 
 ### 4. Tornado (TOR)
 - Shifts packets halfway across the dimension:
-  $$x_d = \left( x_s + \left\lfloor \frac{k}{2} \right\rfloor - 1 \right) \bmod k, \quad y_d = y_s$$
+
+    $$x_d = \left( x_s + \left\lfloor \frac{k}{2} \right\rfloor - 1 \right) \bmod k, \quad y_d = y_s$$
+
 - **Characteristics:** Designed specifically to stress 2D Torus topologies by forcing packets to travel maximum distance along one direction without exploiting wrap-arounds.
 
 ### 5. Rent's Rule & Real-World Traffic Locality
@@ -116,27 +125,34 @@ Where $p$ is the **Rentian exponent** ($p \approx 0.5\text{–}0.7$). In cache-c
 
 > [!IMPORTANT]
 > **Theorem:** In any symmetric $k \times k$ 2D Mesh, the saturation throughput under Bit-Complement traffic is **strictly 50% of the saturation throughput under Uniform Random traffic**:
+>
 > $$\Theta_{sat, BC} = \frac{1}{2} \Theta_{sat, UR}$$
 
 ### Proof:
+
 1. **Under Uniform Random (UR) Traffic:**  
-   The bisection cut divides the network into Left and Right halves ($N/2$ nodes each).  
-   The probability that a packet injected in the Left half has its destination in the Right half is:
-   $$\beta_{UR} = \frac{N/2}{N} = \frac{1}{2} = 50\%$$
-   The total number of packets crossing the bisection per cycle is:
-   $$\text{Load}_{bisection, UR} = \left(\frac{N}{2} \cdot \lambda \right) \times \frac{1}{2} \times 2\text{ (both ways)} = \frac{N \lambda}{2}$$
+   The bisection cut divides the network into Left and Right halves ($N/2$ nodes each). The probability that a packet injected in the Left half has its destination in the Right half is $\beta_{UR} = \frac{N/2}{N} = \frac{1}{2} = 50\%$. The total number of packets crossing the bisection per cycle is:
+
+$$\text{Load}_{bisection, UR} = \left(\frac{N}{2} \cdot \lambda \right) \times \frac{1}{2} \times 2\text{ (both ways)} = \frac{N \lambda}{2}$$
+
    Because the bisection has $B_b = 2k$ channels:
-   $$\gamma_{max, UR} = \frac{N/2}{2k} = \frac{k^2}{4k} = \frac{k}{4}$$
-   $$\Theta_{sat, UR} = \frac{1}{\gamma_{max, UR}} = \mathbf{\frac{4}{k}}$$
+
+$$\gamma_{max, UR} = \frac{N/2}{2k} = \frac{k^2}{4k} = \frac{k}{4}$$
+
+$$\Theta_{sat, UR} = \frac{1}{\gamma_{max, UR}} = \mathbf{\frac{4}{k}}$$
 
 2. **Under Bit-Complement (BC) Traffic:**  
    Every node in the Left half has its complement in the Right half ($x_d = k - 1 - x_s$). Therefore, **100% of injected packets must cross the bisection** ($\beta_{BC} = 1.0$):
-   $$\text{Load}_{bisection, BC} = N \cdot \lambda$$
-   $$\gamma_{max, BC} = \frac{N}{2k} = \frac{k^2}{2k} = \frac{k}{2}$$
-   $$\Theta_{sat, BC} = \frac{1}{\gamma_{max, BC}} = \mathbf{\frac{2}{k}}$$
+
+$$\text{Load}_{bisection, BC} = N \cdot \lambda$$
+
+$$\gamma_{max, BC} = \frac{N}{2k} = \frac{k^2}{2k} = \frac{k}{2}$$
+
+$$\Theta_{sat, BC} = \frac{1}{\gamma_{max, BC}} = \mathbf{\frac{2}{k}}$$
 
 3. **Comparison:**
-   $$\frac{\Theta_{sat, BC}}{\Theta_{sat, UR}} = \frac{2/k}{4/k} = \mathbf{\frac{1}{2} = 50\%} \quad \blacksquare$$
+
+$$\frac{\Theta_{sat, BC}}{\Theta_{sat, UR}} = \frac{2/k}{4/k} = \mathbf{\frac{1}{2} = 50\%} \quad \blacksquare$$
 
 Under Bit-Complement traffic, the bisection channels saturate at **exactly half the injection rate** of Uniform Random traffic!
 
@@ -427,18 +443,21 @@ if (document.readyState === "loading") {
 > 3. The aggregate sustained network bandwidth (in TB/s) at the saturation threshold for both patterns.
 
 ### Step 1: Compute Saturation Injection Rates
+
 For a $k \times k$ mesh with $k = 8$:
-- **Uniform Random:**
-  $$\Theta_{sat, UR} = \frac{4}{k} = \frac{4}{8} = \mathbf{0.50\text{ flits/node/cycle}}$$
-- **Bit-Complement:**
-  $$\Theta_{sat, BC} = \frac{2}{k} = \frac{2}{8} = \mathbf{0.25\text{ flits/node/cycle}}$$
+
+- **Uniform Random:** $\Theta_{sat, UR} = \frac{4}{k} = \frac{4}{8} = \mathbf{0.50\text{ flits/node/cycle}}$
+- **Bit-Complement:** $\Theta_{sat, BC} = \frac{2}{k} = \frac{2}{8} = \mathbf{0.25\text{ flits/node/cycle}}$
 
 ### Step 2: Compute Aggregate Bandwidth at Saturation
 Total nodes $N = 64$. Total flits injected per cycle across the entire chip:
+
 $$\text{Flits/cycle (UR)} = N \times \Theta_{sat, UR} = 64 \times 0.50 = 32\text{ flits/cycle}$$
+
 $$\text{Aggregate Bandwidth (UR)} = 32\text{ flits/cycle} \times 16\text{ Bytes/flit} \times 2.0\text{ GHz} = \mathbf{1,024\text{ GB/s} = 1.024\text{ TB/s}}$$
 
 $$\text{Flits/cycle (BC)} = N \times \Theta_{sat, BC} = 64 \times 0.25 = 16\text{ flits/cycle}$$
+
 $$\text{Aggregate Bandwidth (BC)} = 16\text{ flits/cycle} \times 16\text{ Bytes/flit} \times 2.0\text{ GHz} = \mathbf{512\text{ GB/s} = 0.512\text{ TB/s}}$$
 
 ### Takeaway:

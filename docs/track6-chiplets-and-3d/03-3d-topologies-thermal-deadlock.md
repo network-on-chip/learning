@@ -26,14 +26,11 @@ graph TD
 ```
 
 ### 1. Symmetric 3D Mesh ($k_x \times k_y \times k_z$)
-In a fully symmetric 3D mesh, every tile on every tier contains a 7-port router connected to vertical TSV links.
-- **Network Diameter ($D$):**
 
-  $$D = (k_x - 1) + (k_y - 1) + (k_z - 1)$$
+In a fully symmetric 3D mesh, every tile on every tier contains a 7-port router connected to vertical TSV links:
 
-- **Average Hop Count ($H_{avg}$):**
-
-  $$H_{avg} \approx \frac{k_x + k_y + k_z}{3}$$
+- **Network Diameter ($D$):** $D = (k_x - 1) + (k_y - 1) + (k_z - 1)$
+- **Average Hop Count ($H_{avg}$):** $H_{avg} \approx \frac{k_x + k_y + k_z}{3}$
 
 #### Comparison: 64-Node 2D Mesh vs 64-Node 3D Mesh
 Consider connecting 64 compute cores:

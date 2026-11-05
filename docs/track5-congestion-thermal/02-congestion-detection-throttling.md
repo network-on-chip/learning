@@ -77,6 +77,7 @@ Routers broadcast a small scalar congestion status (e.g., 2–3 bits) along coor
 $$S_{regional} = w_0 \cdot S_{local} + w_1 \cdot S_{1-hop} + w_2 \cdot S_{2-hop}$$
 
 Where weights typically follow an exponential decay:
+
 $$w_0 = 1.0, \quad w_1 = 0.5, \quad w_2 = 0.25$$
 
 ```
@@ -437,9 +438,11 @@ if (document.readyState === "loading") {
 ### Step 1: Head-of-Line Delay Calculation
 - Under normal operation: $T_{normal} = T_0 = 12\text{ cycles}$.
 - When entering the HoL-blocked router:
-  $$T_{congested} = T_0 + T_{HoL\_wait} = 12 + 120 = \mathbf{132\text{ clock cycles}}$$
+
+    $$T_{congested} = T_0 + T_{HoL\_wait} = 12 + 120 = \mathbf{132\text{ clock cycles}}$$
 
 ### Step 2: Relative Latency Penalty
+
 $$\text{Penalty Factor} = \frac{T_{congested}}{T_{normal}} = \frac{132}{12} = \mathbf{11.0\times\text{ (1,000\% Latency Spike)!}}$$
 
 ### Step 3: RCA Resolution

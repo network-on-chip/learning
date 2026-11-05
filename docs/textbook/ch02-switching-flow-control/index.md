@@ -93,9 +93,11 @@ Node 2:             [Tail][Body][Head] --->
 In Store-and-Forward switching, a router must receive, buffer, and verify the **entire packet** before forwarding its first flit to the downstream router.
 
 $$\text{Serialization Latency per Hop: } t_{serial} = \frac{L}{W}$$
+
 $$\text{Total Zero-Load Latency: } T_{SAF} = H \cdot \left( t_r + \frac{L}{W} + t_{link} \right)$$
 
 If $t_r + t_{link} \ll \frac{L}{W}$, the latency scales as:
+
 $$T_{SAF} \approx H \cdot \frac{L}{W} \propto H \cdot L$$
 
 **Critical Drawbacks**:
@@ -106,7 +108,9 @@ $$T_{SAF} \approx H \cdot \frac{L}{W} \propto H \cdot L$$
 Introduced by Kermani & Kleinrock (1979), Virtual Cut-Through permits a router to forward the Head flit to the next hop **immediately** after route computation and arbitration, without awaiting the remainder of the packet, provided the downstream router has sufficient buffer space.
 
 $$\text{Head Flit Arrival Time at Destination: } t_{head} = H \cdot (t_r + t_{link})$$
+
 $$\text{Remaining Tail Flit Serialization: } t_{tail} = \frac{L - 1}{W}$$
+
 $$\text{Total Zero-Load Latency: } T_{VCT} = H \cdot (t_r + t_{link}) + \frac{L - 1}{W}$$
 
 Notice that distance $H$ and packet length $L$ are now **additive** rather than multiplicative ($H + L$ instead of $H \cdot L$).
@@ -226,10 +230,10 @@ If $B < B_{min}$, the transmitter exhausts its credits before the first credit p
 
 ### 2.5.1 On/Off Flow Control
 Instead of transmitting credit pulses for every flit, **On/Off Flow Control** transmits a continuous state bit:
+
 - Sends an `OFF` signal when free buffer space falls below an upper threshold $T_{off}$.
 - Sends an `ON` signal when free buffer space recovers above a lower threshold $T_{on}$.
-- **Hysteresis Constraint**: To prevent buffer overflow during signal flight, the threshold must satisfy:
-  $$T_{off} \ge t_{flight\_fwd} + t_{flight\_signal}$$
+- **Hysteresis Constraint**: To prevent buffer overflow during signal flight, the threshold must satisfy $T_{off} \ge t_{flight\_fwd} + t_{flight\_signal}$.
 
 ### 2.5.2 Token Flow Control: The SWIFT NoC (TVLSI 2013)
 

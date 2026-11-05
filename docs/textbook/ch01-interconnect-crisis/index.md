@@ -68,6 +68,7 @@ A shared bus consists of long physical metal traces spanning across the entire s
 $$\tau_{bus} \approx 0.38 \cdot R_{wire} \cdot C_{wire} + R_{driver} \cdot \left( C_{wire} + \sum_{i=1}^{N} C_{tap, i} \right) + \sum_{i=1}^{N} R_{wire, i} \cdot C_{tap, i}$$
 
 Where:
+
 - $R_{wire} = r_{wire} \cdot L$ is the total resistance of the global metal wire across the die ($L \approx 10\text{–}20\text{ mm}$).
 - $C_{wire} = c_{wire} \cdot L$ is the distributed wire capacitance (area capacitance to substrate + fringe capacitance).
 - $C_{tap, i}$ is the input/output capacitance of the $i$-th master/slave transceiver tap.
@@ -98,13 +99,11 @@ Table 1.1: Physical Interconnect Scaling Across Core Counts (Die Edge: 12 mm, Pr
 ```
 
 ### 1.2.2 The Serialization Contention Bottleneck
+
 A shared bus is a **single shared transmission medium**. At any given clock cycle, the centralized bus arbiter can grant bus access to **exactly one master**.
-- **Fixed Aggregate Bandwidth**:
-  $$BW_{agg} = W \times f_{bus}$$
-  where $W$ is the bus width (e.g., 64 or 128 bits) and $f_{bus}$ is the bus clock frequency.
-- **Per-Core Bandwidth Starvation**:
-  $$BW_{per\_core} \le \frac{W \times f_{bus}}{N}$$
-  As core count $N$ increases, the bandwidth available to each processing element approaches zero.
+
+- **Fixed Aggregate Bandwidth**: $BW_{agg} = W \times f_{bus}$, where $W$ is the bus width (e.g., 64 or 128 bits) and $f_{bus}$ is the bus clock frequency.
+- **Per-Core Bandwidth Starvation**: $BW_{per\_core} \le \frac{W \times f_{bus}}{N}$. As core count $N$ increases, the bandwidth available to each processing element approaches zero.
 - **Arbitration Latency Scalability**: Centralized round-robin or priority arbiters require $O(N)$ logic depth. Grant generation time becomes a critical path delay.
 
 ---
@@ -124,16 +123,22 @@ $$\lambda_0 \approx 39.0\text{ nm}$$
 When the physical width $w$ of an on-chip metal wire shrinks below $2 \lambda_0 \approx 80\text{ nm}$, two scattering mechanisms cause the effective resistivity $\rho_{eff}$ to surge dramatically above the bulk value ($\rho_{bulk} \approx 1.68 \times 10^{-8}\ \Omega\cdot\text{m}$):
 
 1. **Surface Scattering (Fuchs-Sondheimer Model)**: Electrons reflect diffusely off the outer interfaces of the wire:
-   $$\frac{\rho_{FS}}{\rho_{bulk}} = 1 + \frac{3}{8 \kappa} (1 - p)$$
-   where $\kappa = \frac{w_{eff}}{\lambda_0}$ is the normalized wire dimension and $p \in [0, 1]$ is the specularity parameter ($p \approx 0.2$ for realistic barriers).
+
+    $$\frac{\rho_{FS}}{\rho_{bulk}} = 1 + \frac{3}{8 \kappa} (1 - p)$$
+
+    where $\kappa = \frac{w_{eff}}{\lambda_0}$ is the normalized wire dimension and $p \in [0, 1]$ is the specularity parameter ($p \approx 0.2$ for realistic barriers).
 
 2. **Grain Boundary Scattering (Mayadas-Shatzkes Model)**: Nanoscale copper recrystallizes into small grains with average grain diameter $d \approx w_{eff}$. Electrons scatter at grain boundaries:
-   $$\frac{\rho_{MS}}{\rho_{bulk}} = \frac{1}{3 \left[ \frac{1}{3} - \frac{\alpha}{2} + \alpha^2 - \alpha^3 \ln\left(1 + \frac{1}{\alpha}\right) \right]}$$
-   where $\alpha = \frac{\lambda_0}{d} \frac{R}{1 - R}$, with $R \approx 0.3\text{–}0.5$ representing the grain boundary reflection coefficient.
+
+    $$\frac{\rho_{MS}}{\rho_{bulk}} = \frac{1}{3 \left[ \frac{1}{3} - \frac{\alpha}{2} + \alpha^2 - \alpha^3 \ln\left(1 + \frac{1}{\alpha}\right) \right]}$$
+
+    where $\alpha = \frac{\lambda_0}{d} \frac{R}{1 - R}$, with $R \approx 0.3\text{–}0.5$ representing the grain boundary reflection coefficient.
 
 3. **Diffusion Barrier Liner Encroachment**: Copper electromigration requires high-resistivity diffusion liners (Ta/TaN, Co, Ru) of thickness $t_{barrier} \approx 1.0\text{–}1.5\text{ nm}$. Because the liner does not scale down proportionally with the wire trench, the conductive copper cross-sectional area $A_{Cu}$ shrinks much faster than total wire trench area:
-   $$A_{Cu} = (w - 2 t_{barrier}) \cdot (h - t_{barrier})$$
-   $$\rho_{total} = \rho_{eff} \cdot \left(\frac{w \cdot h}{A_{Cu}}\right)$$
+
+    $$A_{Cu} = (w - 2 t_{barrier}) \cdot (h - t_{barrier})$$
+
+    $$\rho_{total} = \rho_{eff} \cdot \left(\frac{w \cdot h}{A_{Cu}}\right)$$
 
 At the 3nm node ($w \approx 10\text{ nm}$), the effective copper resistivity exceeds $15\times$ bulk copper, turning long global wires into unbearable thermal, resistance, and latency bottlenecks.
 
@@ -161,6 +166,7 @@ graph LR
 While a crossbar allows non-interfering parallel communication between disjoint pairs of masters and slaves, its hardware complexity scales quadratically:
 
 $$\text{Crosspoints} = N \times M \approx O(N^2)$$
+
 $$\text{Wiring Tracks} = (N + M) \times W_{data\_width} \approx O(N)$$
 
 For an MPSoC with $N = 64$ cores, a full crossbar requires:
@@ -210,7 +216,9 @@ graph TD
 1. **Bounded Wire Lengths**: Every link connects strictly adjacent routers. The link wire length is fixed to the physical pitch of one compute tile ($L_{link} \approx 0.5\text{–}1.5\text{ mm}$), regardless of whether the chip contains 16 or 2,048 cores.
 2. **Predictable Timing & Pipelining**: Because link wire delay is short and localized, routers and links can be clocked at high frequencies ($f_{clk} \approx 1.5\text{–}2.5\text{ GHz}$) without repeater insertion crises.
 3. **Concurrent Multi-Hop Communication**: Multiple packets traverse non-overlapping segments of the network simultaneously, yielding aggregate throughput that scales proportionally with the network size:
-   $$BW_{bisection} \propto \sqrt{N} \times W_{link} \times f_{clk}$$
+
+    $$BW_{bisection} \propto \sqrt{N} \times W_{link} \times f_{clk}$$
+
 4. **Modularity & Silicon Reuse**: Adding processing tiles does not require redesigning the global wiring tree.
 
 ---

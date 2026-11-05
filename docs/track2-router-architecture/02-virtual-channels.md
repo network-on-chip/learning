@@ -500,13 +500,17 @@ Because **VNET 2 (Responses) has dedicated buffer queues that can never be consu
 > 3. If the router uses flip-flop registers requiring 12 standard-cell transistors per bit, calculate the total transistor count dedicated to router buffers.
 
 ### Step 1: Buffer Storage per Port
+
 $$\text{Storage per VC} = 4\text{ flits} \times 128\text{ bits/flit} = 512\text{ bits (64 Bytes)}$$
+
 $$\text{Port Storage} = 4\text{ VCs} \times 512\text{ bits} = \mathbf{2,048\text{ bits (256 Bytes / port)}}$$
 
 ### Step 2: Total Router Storage (5 Ports)
+
 $$\text{Total Router Buffer Memory} = 5\text{ ports} \times 2,048\text{ bits} = \mathbf{10,240\text{ bits (1,280 Bytes)}}$$
 
 ### Step 3: Buffer Transistor Count
+
 $$\text{Buffer Transistors} = 10,240\text{ bits} \times 12\text{ transistors/bit} \approx \mathbf{122,880\text{ transistors}}$$
 
 ### Architectural Takeaway:

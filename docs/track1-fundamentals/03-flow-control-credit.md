@@ -45,18 +45,20 @@ sequenceDiagram
 
 1. **Reset & Initialization**:  
    At system reset, the upstream router initializes an internal register `credit_count` to the total capacity of the downstream input buffer:
-   $$\text{credit\_count} \leftarrow B_{total} \quad (\text{e.g., } 4\text{ flits})$$
+
+    $$\text{credit\_count} \leftarrow B_{total} \quad (\text{e.g., } 4\text{ flits})$$
+
 2. **Transmission & Decrement**:  
    When the upstream router has a flit ready to send:
    - It checks if $\text{credit\_count} > 0$.
-   - If $\text{credit\_count} > 0$, the flit is placed onto the forward physical link wires, and `credit_count` is decremented by 1:
-     $$\text{credit\_count} \leftarrow \text{credit\_count} - 1$$
+   - If $\text{credit\_count} > 0$, the flit is placed onto the forward physical link wires, and `credit_count` is decremented by 1: $\text{credit\_count} \leftarrow \text{credit\_count} - 1$.
    - If $\text{credit\_count} == 0$, the upstream router **must stall**. It is forbidden from transmitting, guaranteeing zero buffer overflow at the receiver!
 3. **Buffer Dequeue & Credit Generation**:  
    The downstream router stores the incoming flit in its input FIFO. Eventually, the flit wins switch allocation and traverses the crossbar switch to the next router. At the exact cycle the buffer slot is emptied, the downstream router pulses a high bit on a dedicated backward **credit return wire**.
 4. **Credit Reception & Increment**:  
    Upon detecting the credit pulse, the upstream router increments its credit register:
-   $$\text{credit\_count} \leftarrow \text{credit\_count} + 1$$
+
+    $$\text{credit\_count} \leftarrow \text{credit\_count} + 1$$
 
 ---
 
@@ -554,18 +556,24 @@ While bufferless designs achieve dramatic area savings under ultra-light injecti
 > 3. If the microarchitect only provisions a buffer of $B = 5\text{ flits}$ to save area, calculate the maximum achievable channel utilization and sustained throughput (in GB/s) for a 128-bit flit channel.
 
 ### Step 1: Calculate $RTT$
+
 $$RTT = t_{link} + t_{bw} + t_{deq} + t_{cred\_gen} + t_{cred\_wire} + t_{up\_proc}$$
+
 $$RTT = 2 + 1 + 2 + 1 + 2 + 1 = \mathbf{9\text{ clock cycles}}$$
 
 ### Step 2: Determine Minimum Buffer Depth
+
 $$B_{min} = \lceil RTT \rceil = \mathbf{9\text{ flits}}$$
+
 To achieve 100% channel utilization without pipeline bubbles, the downstream router must allocate at least **9 flits** of buffer capacity per virtual channel.
 
 ### Step 3: Analyze Under-Buffered Scenario ($B = 5$ flits)
 If $B = 5$ flits:
+
 $$\text{Channel Utilization: } \eta = \frac{B}{RTT} = \frac{5}{9} \approx \mathbf{55.56\%}$$
 
-$$\text{Ideal 100% Bandwidth: } BW_{ideal} = 16\text{ Bytes/flit} \times 2.4\text{ GHz} = 38.4\text{ GB/s}$$
+$$\text{Ideal 100\% Bandwidth: } BW_{ideal} = 16\text{ Bytes/flit} \times 2.4\text{ GHz} = 38.4\text{ GB/s}$$
+
 $$\text{Actual Sustained Bandwidth: } BW_{actual} = 38.4\text{ GB/s} \times 55.56\% = \mathbf{21.33\text{ GB/s}}$$
 
 The link wastes **$44.44\%$ of its theoretical bandwidth** due to credit starvation pipeline bubbles!

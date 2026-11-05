@@ -163,7 +163,7 @@ graph LR
 1. **Crossbar Area & Power Quadratic Scaling:**
    A canonical 2D 5-port router requires a $5 \times 5 = 25$ crosspoint switch. Expanding to a 7-port 3D router requires a $7 \times 7 = 49$ crosspoint switch:
 
-   $$\text{Area Overlap Ratio} = \frac{7^2}{5^2} = \frac{49}{25} = 1.96 \ (+96\% \text{ crossbar area})$$
+    $$\text{Area Overlap Ratio} = \frac{7^2}{5^2} = \frac{49}{25} = 1.96 \ (+96\% \text{ crossbar area})$$
 
    Multiplexer gate count and capacitive wire loading inside the switch matrix almost double, increasing per-hop crossbar traversal energy by $60\text{–}80\%$.
 

@@ -18,18 +18,21 @@ In this lesson, we derive the mathematical foundations of planar direct topologi
 Any interconnect network can be formally modeled as a graph $G = (V, E)$, where $V$ represents the set of router/processing nodes ($|V| = N$) and $E$ represents the set of bidirectional physical channels ($|E| = C$).
 
 ### Key Topological Metrics:
+
 1. **Node Degree (Radix $\delta$):**  
    The number of physical channels connected to a single router. Higher radix increases router crossbar complexity but reduces network hop distance.
 2. **Network Diameter ($D$):**  
-   The maximum shortest-path distance between any pair of nodes in the network:
-   $$D = \max_{u, v \in V} \text{dist}(u, v)$$
-   Diameter dictates the worst-case zero-load communication latency across the chip.
+   The maximum shortest-path distance between any pair of nodes in the network: $D = \max_{u, v \in V} \text{dist}(u, v)$. Diameter dictates the worst-case zero-load communication latency across the chip.
 3. **Average Hop Distance ($H_{avg}$):**  
    The expected shortest-path distance averaged across all source-destination pairs under uniform random traffic:
-   $$H_{avg} = \frac{1}{N(N - 1)} \sum_{u \in V} \sum_{v \ne u} \text{dist}(u, v)$$
+
+$$H_{avg} = \frac{1}{N(N - 1)} \sum_{u \in V} \sum_{v \ne u} \text{dist}(u, v)$$
+
 4. **Bisection Bandwidth ($B_b$):**  
    The minimum number of channel links that must be severed to partition the network into two equal halves ($N/2$ nodes each), multiplied by channel link width $w$:
-   $$B_b = \min_{A \subset V, |A| = N/2} \sum_{u \in A, v \in V \setminus A} \text{capacity}(u, v)$$
+
+$$B_b = \min_{A \subset V, |A| = N/2} \sum_{u \in A, v \in V \setminus A} \text{capacity}(u, v)$$
+
    Bisection bandwidth sets the absolute upper bound on global cross-chip data throughput.
 
 ---
@@ -66,20 +69,27 @@ Unlike symmetric networks, a 2D mesh has open physical boundaries:
 
 #### B. Network Diameter ($D_{mesh}$):
 The worst-case path connects diagonally opposite corners (e.g., from Node $(0,0)$ to Node $(k-1, k-1)$):
+
 $$D_{mesh} = (k - 1) + (k - 1) = 2(k - 1) = 2(\sqrt{N} - 1)$$
+
 *Example:* For an $8 \times 8$ mesh ($N = 64$ cores), $D = 2 \times (8 - 1) = \mathbf{14\text{ hops}}$.
 
 #### C. Average Hop Distance ($H_{avg, mesh}$):
 In a 1D linear array of $k$ nodes, the average distance between any two nodes is:
+
 $$H_{avg, 1D} = \frac{1}{k^2} \sum_{i=0}^{k-1} \sum_{j=0}^{k-1} |i - j| = \frac{k^2 - 1}{3k} \approx \frac{k}{3}$$
 
 Because orthogonal dimensions in a 2D mesh are independent:
+
 $$H_{avg, mesh} = 2 \times H_{avg, 1D} = \frac{2(k^2 - 1)}{3k} \approx \mathbf{\frac{2}{3} k = \frac{2}{3} \sqrt{N}}$$
+
 *Example:* For $N = 64$ ($k = 8$), $H_{avg} \approx \frac{2}{3} \times 8 = \mathbf{5.33\text{ hops}}$.
 
 #### D. Bisection Bandwidth ($B_{b, mesh}$):
 Bisecting a $k \times k$ mesh vertically cuts through exactly $k$ horizontal bidirectional channels. Each channel carries $2$ unidirectional physical links of width $w$:
+
 $$B_{b, mesh} = 2k \cdot w = \mathbf{2\sqrt{N} \cdot w}$$
+
 *Example:* For $N = 64$ with $128\text{-bit}$ channels ($16\text{ Bytes}$), the bisection cut slices $2 \times 8 = 16\text{ links}$, yielding $B_b = 16 \times 16\text{ Bytes} = \mathbf{256\text{ Bytes/cycle}}$.
 
 ---
@@ -106,15 +116,20 @@ Because of wrap-around links, boundary nodes no longer exist! **Every router in 
 
 #### B. Network Diameter ($D_{torus}$):
 In each dimension, a packet never needs to travel more than $\lfloor k/2 \rfloor$ hops:
+
 $$D_{torus} = 2 \times \left\lfloor \frac{k}{2} \right\rfloor \approx \mathbf{k = \sqrt{N}}$$
+
 *Example:* For an $8 \times 8$ torus, $D = 2 \times 4 = \mathbf{8\text{ hops}}$ (cutting diameter by **43%** compared to 14 hops in a mesh!).
 
 #### C. Average Hop Distance ($H_{avg, torus}$):
+
 $$H_{avg, torus} \approx \mathbf{\frac{1}{2} k = \frac{1}{2} \sqrt{N}}$$
+
 *Example:* For $N = 64$ ($k = 8$), $H_{avg} \approx 4.0\text{ hops}$ (compared to $5.33$ in a mesh).
 
 #### D. Bisection Bandwidth ($B_{b, torus}$):
 Cutting a torus into two equal halves severs both the center channels AND the wrap-around channels:
+
 $$B_{b, torus} = 4k \cdot w = \mathbf{4\sqrt{N} \cdot w} \quad \text{(Exactly DOUBLE the Mesh!)}$$
 
 ---
@@ -538,20 +553,20 @@ if (document.readyState === "loading") {
 > between a **2D Mesh** and a **Folded 2D Torus**.
 
 ### Step 1: Bisection Bandwidth Comparison
+
 In an $8 \times 8$ grid ($k = 8$):
-- **2D Mesh:** Slices $2k = 16\text{ channels}$:
-  $$B_{b, mesh} = 16\text{ channels} \times 16\text{ Bytes/cycle} \times 2.0\text{ GHz} = \mathbf{512\text{ GB/s} = 0.512\text{ TB/s}}$$
-- **Folded 2D Torus:** Slices $4k = 32\text{ channels}$:
-  $$B_{b, torus} = 32\text{ channels} \times 16\text{ Bytes/cycle} \times 2.0\text{ GHz} = \mathbf{1,024\text{ GB/s} = 1.024\text{ TB/s}} \quad (\mathbf{2.0\times\text{ Higher!}})$$
+
+- **2D Mesh:** Slices $2k = 16\text{ channels}$: $B_{b, mesh} = 16\text{ channels} \times 16\text{ Bytes/cycle} \times 2.0\text{ GHz} = \mathbf{512\text{ GB/s} = 0.512\text{ TB/s}}$
+- **Folded 2D Torus:** Slices $4k = 32\text{ channels}$: $B_{b, torus} = 32\text{ channels} \times 16\text{ Bytes/cycle} \times 2.0\text{ GHz} = \mathbf{1,024\text{ GB/s} = 1.024\text{ TB/s}} \quad (\mathbf{2.0\times\text{ Higher!}})$
 
 ### Step 2: Average Zero-Load Latency Comparison
+
 Under uniform random traffic:
+
 $$T_{zero\_load} = H_{avg} \times (t_r + t_{link}) + \frac{L}{w}$$
 
-- **2D Mesh ($H_{avg} = \frac{2}{3} \times 8 \approx 5.33\text{ hops}$):**
-  $$T_{mesh} = 5.33 \times (1 + 1) + 5 = 10.66 + 5 = \mathbf{15.66\text{ clock cycles} = 7.83\text{ ns}}$$
-- **Folded 2D Torus ($H_{avg} = \frac{1}{2} \times 8 = 4.0\text{ hops}$):**
-  $$T_{torus} = 4.0 \times (1 + 1) + 5 = 8.0 + 5 = \mathbf{13.0\text{ clock cycles} = 6.50\text{ ns}}$$
+- **2D Mesh ($H_{avg} = \frac{2}{3} \times 8 \approx 5.33\text{ hops}$):** $T_{mesh} = 5.33 \times (1 + 1) + 5 = 10.66 + 5 = \mathbf{15.66\text{ clock cycles} = 7.83\text{ ns}}$
+- **Folded 2D Torus ($H_{avg} = \frac{1}{2} \times 8 = 4.0\text{ hops}$):** $T_{torus} = 4.0 \times (1 + 1) + 5 = 8.0 + 5 = \mathbf{13.0\text{ clock cycles} = 6.50\text{ ns}}$
 
 ### Conclusion:
 The Folded Torus achieves **double the cross-chip bisection bandwidth** ($1.024\text{ TB/s}$ vs $0.512\text{ TB/s}$) and cuts average memory latency by **$17\%$**, with zero long-wire penalty due to folding!

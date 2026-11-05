@@ -38,11 +38,14 @@ If intermediate routers are powered off without intelligent bypass mechanisms, t
 ### 6.1.2 Physical Power Breakdown in Nanoscale NoC Routers
 
 Total power dissipation in an on-chip interconnection network is decomposed into two primary components:
+
 $$P_{total} = P_{dynamic} + P_{leakage}$$
 
 #### 1. Dynamic Power ($P_{dynamic}$)
 Dynamic power is consumed by charging and discharging physical capacitances during signal transitions, as well as transient short-circuit currents during CMOS switching:
+
 $$P_{dynamic} = \alpha \cdot C_{eff} \cdot V_{dd}^2 \cdot f_{clk}$$
+
 where:
 - $\alpha$: Average **switching activity factor** (fraction of clock cycles with signal transitions).
 - $C_{eff}$: Total effective switching capacitance of the router buffers (SRAM/latches), crossbar multiplexer trees, pipeline registers, and inter-router metal links.
@@ -52,12 +55,16 @@ where:
 Because dynamic energy per flit scales quadratically with voltage ($E_{flit} \propto V_{dd}^2$) and dynamic power scales cubically when frequency tracks voltage ($P_{dynamic} \propto V_{dd}^3$), reducing $V_{dd}$ delivers massive dynamic energy savings.
 
 #### 2. Static Leakage Power ($P_{leakage}$)
+
 In sub-28nm geometries, static leakage power rivals or exceeds dynamic power during typical workloads. Leakage comprises three primary physical mechanisms:
-1. **Sub-Threshold Leakage ($I_{sub}$)**: Drain-to-source current flowing when the transistor is nominally OFF ($V_{gs} < V_{th}$):
-   $$I_{sub} = \mu_0 C_{ox} \frac{W}{L} (m - 1) V_T^2 \exp\left(\frac{V_{gs} - V_{th}}{m V_T}\right) \left(1 - \exp\left(-\frac{V_{ds}}{V_T}\right)\right)$$
-   where $V_T = \frac{k_B T}{q}$ is the thermal voltage. Sub-threshold leakage scales **exponentially with temperature ($T$)**, creating positive feedback: higher power increases temperature, which surges leakage, risking **thermal runaway**.
-2. **Gate Oxide Tunneling ($I_{gate}$)**: Quantum mechanical tunneling of electrons through thin dielectric gate oxides.
-3. **Reverse-Biased Junction Band-to-Band Tunneling ($I_{junc}$)**.
+
+- **Sub-Threshold Leakage ($I_{sub}$)**: Drain-to-source current flowing when the transistor is nominally OFF ($V_{gs} < V_{th}$):
+
+$$I_{sub} = \mu_0 C_{ox} \frac{W}{L} (m - 1) V_T^2 \exp\left(\frac{V_{gs} - V_{th}}{m V_T}\right) \left(1 - \exp\left(-\frac{V_{ds}}{V_T}\right)\right)$$
+
+  where $V_T = \frac{k_B T}{q}$ is the thermal voltage. Sub-threshold leakage scales **exponentially with temperature ($T$)**, creating positive feedback: higher power increases temperature, which surges leakage, risking **thermal runaway**.
+- **Gate Oxide Tunneling ($I_{gate}$)**: Quantum mechanical tunneling of electrons through thin dielectric gate oxides.
+- **Reverse-Biased Junction Band-to-Band Tunneling ($I_{junc}$)**.
 
 ---
 
@@ -126,9 +133,11 @@ Rather than power-gating the entire router as a monolithic block, Matsutani et a
 ### 6.3.3 The Breakeven Idle Time Formulation
 
 Power gating incurs energy overhead: charging and discharging the virtual power rail capacitance ($C_{virtual}$) through sleep transistors during power transitions consumes energy:
+
 $$E_{overhead} = E_{sleep} + E_{wakeup} \approx C_{virtual} \cdot V_{dd}^2$$
 
 If a router wakes up too soon after going to sleep, the energy saved during the brief sleep state will be less than the overhead expended to wake it up! The minimum inactive duration required to achieve net energy savings is the **Breakeven Idle Time ($\tau_{breakeven}$)**:
+
 $$\tau_{breakeven} = \frac{E_{overhead}}{P_{leak\_active}} = \frac{C_{virtual} \cdot V_{dd}^2}{V_{dd} \cdot I_{leak\_active}} = \frac{C_{virtual} \cdot V_{dd}}{I_{leak\_active}}$$
 
 As demonstrated in our accompanying simulator, in 45nm/28nm technologies, $\tau_{breakeven}$ is typically **between 2 and 6 clock cycles**. Because packet inter-arrival times during idle phases span dozens of cycles, run-time power gating delivers massive net energy savings.
@@ -147,7 +156,9 @@ To eliminate this penalty, Matsutani et al. deployed **Lookahead Early Wake-Up**
 ## 6.4 Low-Power Encoding on Physical Links (LPCR Case Study)
 
 In large manycore processors, inter-router physical links span several millimeters across the die. These global metal traces exhibit substantial parasitic ground capacitance ($C_{ground}$) and inter-wire coupling capacitance ($C_{coupling}$):
+
 $$C_{link} \approx C_{ground} + 2 \cdot C_{coupling}$$
+
 In nanoscale interconnects, adjacent wire spacing is so dense that **coupling capacitance accounts for up to 75% of total link capacitance**.
 
 ```mermaid
@@ -200,25 +211,16 @@ Under low injection rates ($\le 0.15$ flits/node/cycle), bufferless deflection r
 
 ## 6.6 Quantitative Comparative Evaluation Matrix
 
-Table~\ref{tab:ch6_power} evaluates the trade-offs of low-power interconnect methodologies across an $8 \times 8$ mesh under bursty multi-threaded workloads:
+The following table evaluates the trade-offs of low-power interconnect methodologies across an $8 \times 8$ mesh under bursty multi-threaded workloads:
 
-\begin{table}[htbp]
-\centering
-\caption{Quantitative Evaluation of Low-Power Interconnect Architecture Paradigms}
-\label{tab:ch6_power}
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Power Optimization Architecture} & \textbf{Dynamic Power} & \textbf{Leakage Power} & \textbf{Silicon Area} & \textbf{Latency Overhead} \\
-\midrule
-Baseline (Fixed 0.9V/1.2GHz, No PG) & Baseline & Baseline & Baseline & 0 cycles \\
-Distributed DVFS (LAURA-NoC, TCAS-II) & -33\% to -45\% & -20\% & +4\% (VFI logic) & 0--1 cycle \\
-Ultrafine Power Gating (TCAD 2011) & Baseline & -70\% to -95\% & +8\% (PS/ISO) & 0 (Lookahead) \\
-Full Co-Design (DVFS + Ultrafine PG) & -40\% & -85\% & +12\% & 1 cycle \\
-Link Code Reordering (LPCR, TCAD 2025) & -25\% (Links) & Baseline & +1.5\% (Codec) & 0 cycles \\
-Bufferless Deflection (CHIPPER) & +20\% (Links) & -75\% & -60\% (No FIFO) & +2--6 hops \\
-\bottomrule
-\end{tabular}
-\end{table}
+| Power Optimization Architecture | Dynamic Power | Leakage Power | Silicon Area | Latency Overhead |
+| :--- | :---: | :---: | :---: | :---: |
+| **Baseline (Fixed 0.9V/1.2GHz, No PG)** | Baseline | Baseline | Baseline | 0 cycles |
+| **Distributed DVFS (LAURA-NoC, TCAS-II)** | -33% to -45% | -20% | +4% (VFI logic) | 0–1 cycle |
+| **Ultrafine Power Gating (TCAD 2011)** | Baseline | -70% to -95% | +8% (PS/ISO) | 0 (Lookahead) |
+| **Full Co-Design (DVFS + Ultrafine PG)** | -40% | -85% | +12% | 1 cycle |
+| **Link Code Reordering (LPCR, TCAD 2025)** | -25% (Links) | Baseline | +1.5% (Codec) | 0 cycles |
+| **Bufferless Deflection (CHIPPER)** | +20% (Links) | -75% | -60% (No FIFO) | +2–6 hops |
 
 ---
 

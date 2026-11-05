@@ -96,12 +96,16 @@ Approximates future temperature as a regularized linear combination of performan
 $$\hat{T}_i(t + \Delta t) = \mathbf{w}^T \mathbf{x}_i(t) + b$$
 
 - **Loss Function:**
-  $$\mathcal{L}(\mathbf{w}) = \frac{1}{M} \sum_{k=1}^M \big( y_k - \mathbf{w}^T \mathbf{x}_k \big)^2 + \alpha \|\mathbf{w}\|_2^2$$
+
+    $$\mathcal{L}(\mathbf{w}) = \frac{1}{M} \sum_{k=1}^M \big( y_k - \mathbf{w}^T \mathbf{x}_k \big)^2 + \alpha \|\mathbf{w}\|_2^2$$
+
 - **Hardware Cost:** Only $d$ multiply-accumulate (MAC) operations. In our 7nm synthesis, this occupies **less than $0.02\text{ mm}^2$** of silicon area and computes in **$<50\text{ clock cycles}$**!
 
 ### 2. Multi-Layer Perceptron (ANN)
 For non-linear thermal diffusion effects, a 2-layer compact MLP (implemented in `src/ann_predictor.py`):
+
 $$\mathbf{h} = \text{ReLU}\big( \mathbf{W}_1 \mathbf{x}_i + \mathbf{b}_1 \big)$$
+
 $$\hat{T}_i(t + \Delta t) = \mathbf{W}_2 \mathbf{h} + b_2$$
 
 - Uses 16 hidden neurons with 8-bit quantized integer weights, achieving high non-linear expressiveness with minimal power.
@@ -398,7 +402,9 @@ if (document.readyState === "loading") {
 > 2. If the critical threshold is $T_{crit} = 85.0^\circ\text{C}$, does the proactive governor trigger pre-emptive mitigation?
 
 ### Step 1: Compute Predicted Temperature
+
 $$\hat{T}_3(t + 10\text{ ms}) = 5.2 + (0.85 \times 74.0) + (4.2 \times 2.1) + (12.0 \times 0.45) + (0.12 \times 68.0)$$
+
 $$\hat{T}_3(t + 10\text{ ms}) = 5.2 + 62.90 + 8.82 + 5.40 + 8.16 = \mathbf{90.48^\circ\text{C}}$$
 
 ### Step 2: Governor Evaluation

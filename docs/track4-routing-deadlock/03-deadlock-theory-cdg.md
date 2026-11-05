@@ -24,6 +24,7 @@ Let an interconnection network be represented as a directed graph $I = G(N, C)$,
 - $C$ is the set of unidirectional communication channels (physical links or virtual channels).
 
 A **Routing Function** $R: C \times N \rightarrow \mathcal{P}(C)$ maps the currently held channel $c_{curr}$ and destination node $d$ to a set of candidate next channels:
+
 $$\{c_{next}\} = R(c_{curr}, d)$$
 
 ### The Waiting State and Deadlock Configuration
@@ -46,8 +47,7 @@ Because every packet in $P_{deadlock}$ is waiting for a buffer that cannot be fr
 
 To analyze buffer dependencies independently of traffic, we construct the **Channel Dependency Graph (CDG)**, denoted $D = (C, E)$:
 - **Vertices ($V = C$):** Every communication channel $c_i \in C$ in the network is a vertex in $D$.
-- **Directed Edges ($(c_i, c_j) \in E$):** A directed edge from vertex $c_i$ to vertex $c_j$ exists if and only if a packet can transition directly from channel $c_i$ to channel $c_j$ under routing function $R$:
-  $$(c_i, c_j) \in E \iff \exists d \in N \text{ such that } c_j \in R(c_i, d)$$
+- **Directed Edges ($(c_i, c_j) \in E$):** A directed edge from vertex $c_i$ to vertex $c_j$ exists if and only if a packet can transition directly from channel $c_i$ to channel $c_j$ under routing function $R$: $(c_i, c_j) \in E \iff \exists d \in N \text{ such that } c_j \in R(c_i, d)$.
 
 ```mermaid
 graph LR
@@ -72,13 +72,16 @@ In their seminal 1987 paper, William J. Dally and Charles L. Seitz formulated th
 > A deterministic routing algorithm $R$ for an interconnection network is **deadlock-free if and only if** its Channel Dependency Graph $D$ contains **no directed cycles**.
 
 ### Mathematical Proof via Topological Ordering:
+
 1. **Sufficiency ($\Leftarrow$):**  
-   Suppose the CDG $D$ contains no directed cycles (it is a Directed Acyclic Graph, or DAG).  
-   Every finite DAG possesses a **topological ordering**. We can assign a strictly increasing integer rank to each channel:
-   $$\text{rank}: C \rightarrow \mathbb{N} \quad \text{such that } (c_i, c_j) \in E \implies \text{rank}(c_i) < \text{rank}(c_j)$$
-   Suppose a circular deadlock exists among channels $c_1 \rightarrow c_2 \dots \rightarrow c_k \rightarrow c_1$.  
-   Then by definition:
-   $$\text{rank}(c_1) < \text{rank}(c_2) < \dots < \text{rank}(c_k) < \text{rank}(c_1) \implies \text{rank}(c_1) < \text{rank}(c_1)$$
+   Suppose the CDG $D$ contains no directed cycles (it is a Directed Acyclic Graph, or DAG). Every finite DAG possesses a **topological ordering**. We can assign a strictly increasing integer rank to each channel:
+
+$$\text{rank}: C \rightarrow \mathbb{N} \quad \text{such that } (c_i, c_j) \in E \implies \text{rank}(c_i) < \text{rank}(c_j)$$
+
+   Suppose a circular deadlock exists among channels $c_1 \rightarrow c_2 \dots \rightarrow c_k \rightarrow c_1$. Then by definition:
+
+$$\text{rank}(c_1) < \text{rank}(c_2) < \dots < \text{rank}(c_k) < \text{rank}(c_1) \implies \text{rank}(c_1) < \text{rank}(c_1)$$
+
    This is a mathematical contradiction! Therefore, no circular waiting chain can form.
 2. **Necessity ($\Rightarrow$):**  
    If $D$ contains a directed cycle, one can construct a valid traffic sequence where $k$ packets simultaneously occupy the channels in the cycle, producing an active deadlock.
@@ -98,7 +101,9 @@ In 1993, Spanish computer scientist **José Duato** published a breakthrough the
 
 > **Duato's Theorem (1993, 1997):**  
 > An adaptive routing function $R$ is **deadlock-free** if the set of virtual channels $C$ can be partitioned into two subsets:
+>
 > $$C = C_1 \cup C_0$$
+>
 > 1. An **Adaptive Channel Subnetwork ($C_1$):** Packets in $C_1$ can route fully adaptively across any legal path. Directed cycles **ARE PERMITTED** in $C_1$'s dependency graph!
 > 2. An **Escape Channel Subnetwork ($C_0$):** Guaranteed to have an **acyclic** Channel Dependency Graph (e.g., using deterministic XY DOR).
 > 
@@ -427,7 +432,9 @@ if (document.readyState === "loading") {
 ### Verification of Duato's 3 Conditions:
 
 1. **Subnetwork Partitioning:**
-   $$C = C_1 \cup C_0, \quad \text{where } C_1 = \{VC_1, VC_2\} \text{ and } C_0 = \{VC_0\}$$
+
+    $$C = C_1 \cup C_0, \quad \text{where } C_1 = \{VC_1, VC_2\} \text{ and } C_0 = \{VC_0\}$$
+
    - $C_1$ allows cycles (adaptive plane).
    - $C_0$ uses dateline splitting, which splits the circular ring into a monotonically ranked linear chain ($VC_0A < VC_0B$).
    - Therefore, the Channel Dependency Graph of $C_0$ is **strictly acyclic**! (Condition 1 Satisfied ✔)

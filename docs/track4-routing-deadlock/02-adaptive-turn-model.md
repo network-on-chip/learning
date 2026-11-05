@@ -443,6 +443,7 @@ if (document.readyState === "loading") {
   - The destination is East ($\Delta x > 0$) and South ($\Delta y > 0$).
   - Neither forbidden turn ($S \to W$ or $N \to W$) is ever needed!
   - The packet can take any combination of 3 East hops and 3 South hops in ANY arbitrary order:
+
     $$\mathbf{\text{Legal Paths (WF)} = \binom{\Delta x + \Delta y}{\Delta x} = \binom{3 + 3}{3} = \frac{6 \times 5 \times 4}{3 \times 2 \times 1} = \mathbf{20\text{ distinct paths}}!}$$
 
 ### Step 2: Reverse Flow from $(3, 3)$ to $(0, 0)$

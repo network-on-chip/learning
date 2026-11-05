@@ -414,14 +414,18 @@ if (document.readyState === "loading") {
 
 ### Step 1: Canonical 5-Stage Router
 The Head Flit requires 5 cycles inside each router plus 1 cycle for wire traversal ($t_{hop} = 5 + 1 = 6\text{ cycles/hop}$):
+
 $$\text{Head Flit Arrival Time at Destination: } T_{head} = H \times (t_r + t_{link}) = 5 \times (5 + 1) = \mathbf{30\text{ clock cycles}}$$
 
 Because the 3 subsequent Body flits follow in a pipelined stream (1 flit per cycle):
+
 $$T_{total, Canonical} = T_{head} + (L - 1) = 30 + 3 = \mathbf{33\text{ clock cycles} = 16.5\text{ ns}}$$
 
 ### Step 2: 1-Stage Speculative Bypass Router
 Each hop takes only 1 cycle for router crossbar traversal plus 1 cycle for wire traversal ($t_{hop} = 1 + 1 = 2\text{ cycles/hop}$):
+
 $$T_{head, Bypass} = H \times (t_r + t_{link}) = 5 \times (1 + 1) = \mathbf{10\text{ clock cycles}}$$
+
 $$T_{total, Bypass} = 10 + (L - 1) = 10 + 3 = \mathbf{13\text{ clock cycles} = 6.5\text{ ns}}$$
 
 ### Conclusion:

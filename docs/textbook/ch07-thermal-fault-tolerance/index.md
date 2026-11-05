@@ -46,15 +46,21 @@ In an on-chip network, routers and high-speed serial links contribute between **
 ### 7.1.1 The Physical Consequences of Thermal Hotspots
 
 1. **Exponential Leakage Runaway**: Sub-threshold leakage current exhibits an exponential dependence on absolute temperature governed by the Arrhenius relationship:
-   $$I_{\text{leak}}(T) \propto T^2 \exp\left(-\frac{q V_{th}}{m k_B T}\right)$$
+
+    $$I_{\text{leak}}(T) \propto T^2 \exp\left(-\frac{q V_{th}}{m k_B T}\right)$$
+
    As temperature climbs, threshold voltage $V_{th}$ drops while carrier thermal energy increases. Left unmitigated, a localized hotspot triggers positive feedback: higher heat increases leakage power, which generates more heat, eventually culminating in catastrophic **thermal runaway**.
 
 2. **Carrier Mobility Degradation**: At elevated temperatures, acoustic phonon scattering intensifies, degrading electron and hole mobility according to:
-   $$\mu(T) = \mu(T_0) \left(\frac{T}{T_0}\right)^{-1.5}$$
+
+    $$\mu(T) = \mu(T_0) \left(\frac{T}{T_0}\right)^{-1.5}$$
+
    Lower carrier mobility reduces transistor drive current ($I_{on}$), increasing router stage gate delays, inducing setup timing violations, and lowering maximum operating frequencies ($f_{max}$).
 
 3. **Accelerated Electromigration and Mechanical Stress**: Spatial thermal gradients across adjacent router tiles induce significant thermo-mechanical shear stress due to mismatched coefficients of thermal expansion (CTE) between silicon, copper interconnects, and low-$\kappa$ inter-metal dielectrics (IMD). Furthermore, according to **Black's Equation**, the Mean Time to Failure ($MTTF$) of on-chip copper wires drops exponentially with temperature:
-   $$MTTF = \frac{A}{J^n} \exp\left(\frac{E_a}{k_B T}\right)$$
+
+    $$MTTF = \frac{A}{J^n} \exp\left(\frac{E_a}{k_B T}\right)$$
+
    where $J$ is current density, $E_a \approx 0.9\text{ eV}$ is the activation energy for copper grain-boundary diffusion, and $k_B$ is Boltzmann's constant. An increase of just $15^\circ\text{C}$ in hotspot temperature cuts interconnect lifetime by more than **$50\%$**.
 
 ---
@@ -66,7 +72,9 @@ Accurate thermal management requires dynamic simulation models capable of evalua
 ### 7.2.1 Duality Between Heat Conduction and Electricity
 
 Heat transfer through a solid silicon substrate and packaging ladder is governed by Fourier's law of thermal conduction:
+
 $$\mathbf{q} = -k_{\text{th}} \nabla T$$
+
 where $\mathbf{q}$ is heat flux density ($\text{W/m}^2$), $k_{\text{th}}$ is thermal conductivity ($\text{W}/(\text{m}\cdot\text{K})$), and $\nabla T$ is the spatial temperature gradient. By discretizing the chip die and package into volumetric blocks, thermal conduction maps directly onto electrical circuit theory:
 
 | Electrical Domain Variable | Symbol & Unit | Thermal Domain Analog | Symbol & Unit |
@@ -79,6 +87,7 @@ where $\mathbf{q}$ is heat flux density ($\text{W/m}^2$), $k_{\text{th}}$ is the
 | Kirchhoff's Current Law (KCL) | $\sum I_k = C \frac{dV}{dt}$ | First Law of Thermodynamics | $\sum P_k = C_{\text{th}} \frac{dT}{dt}$ |
 
 For a block of silicon with length $L$, cross-sectional area $A$, mass density $\rho$, and specific heat capacity $c_p$, its lumped thermal resistance and capacitance are:
+
 $$R_{\text{th}} = \frac{L}{k_{\text{th}} A}, \qquad C_{\text{th}} = \rho \cdot c_p \cdot (A \cdot L)$$
 
 ### 7.2.2 State-Space Dynamic Thermal Formulation
@@ -89,17 +98,23 @@ Consider an $N \times N$ mesh of router tiles. Each tile $i$ possesses a thermal
 3. **Lumped Thermal Capacitance ($C_{\text{th},i}$)**: Representing thermal inertia.
 
 Applying nodal conservation of energy yields the continuous differential state equation:
+
 $$C_{\text{th},i} \frac{d T_i(t)}{dt} + \frac{T_i(t) - T_{\text{amb}}}{R_{v,i}} + \sum_{j \in \mathcal{N}(i)} \frac{T_i(t) - T_j(t)}{R_{L,ij}} = P_i(t)$$
 
 Defining the state vector of temperature rises $\mathbf{x}(t) = \mathbf{T}(t) - T_{\text{amb}} \mathbf{1}$ and the power input vector $\mathbf{u}(t) = \mathbf{P}(t)$, the multi-tile system is represented in standard linear state-space form:
+
 $$\frac{d\mathbf{x}(t)}{dt} = \mathbf{A}_c \mathbf{x}(t) + \mathbf{B}_c \mathbf{u}(t)$$
 
 where the continuous conductance matrix $\mathbf{A}_c \in \mathbb{R}^{M \times M}$ has entries:
+
 $$(\mathbf{A}_c)_{i,i} = -\frac{1}{C_{\text{th},i}} \left(\frac{1}{R_{v,i}} + \sum_{j \in \mathcal{N}(i)} \frac{1}{R_{L,ij}}\right), \qquad (\mathbf{A}_c)_{i,j} = \frac{1}{C_{\text{th},i} R_{L,ij}} \quad (j \in \mathcal{N}(i))$$
+
 and $\mathbf{B}_c = \text{diag}(1/C_{\text{th},1}, \dots, 1/C_{\text{th},M})$.
 
 Discretizing over sample interval $\Delta t$ via forward Euler yields:
+
 $$\mathbf{x}_{k+1} = \mathbf{A}_d \mathbf{x}_k + \mathbf{B}_d \mathbf{u}_k + \mathbf{w}_k$$
+
 with $\mathbf{A}_d = \mathbf{I} + \mathbf{A}_c \Delta t$ and $\mathbf{B}_d = \mathbf{B}_c \Delta t$, where $\mathbf{w}_k$ models process modeling inaccuracies and workload disturbances.
 
 ---
@@ -137,9 +152,11 @@ Under such heavy-tailed disturbances, standard Kalman Filters (which assume pure
 ### 7.3.2 Gaussian-Sum Filtering (GSF) and Robust Huber Reconstruction
 
 To maintain 99%+ reconstruction accuracy in the presence of non-Gaussian noise, Fu et al. developed an on-chip **Gaussian-Sum Filter (GSF)** architecture. The non-Gaussian measurement noise is modeled as a finite Gaussian Mixture Model (GMM):
+
 $$p(\mathbf{v}_k) = \sum_{m=1}^M \alpha_{k,m} \mathcal{N}(\mathbf{v}_k; \boldsymbol{\mu}_{k,m}, \mathbf{R}_{k,m}), \qquad \sum_{m=1}^M \alpha_{k,m} = 1$$
 
 The full-chip temperature state posterior distribution is tracked as a weighted sum of $M$ conditional Gaussian estimators:
+
 $$p(\mathbf{x}_k \mid \mathbf{z}_{1:k}) = \sum_{m=1}^M \omega_{k,m} \mathcal{N}(\mathbf{x}_k; \hat{\mathbf{x}}_{k,m}, \mathbf{P}_{k,m})$$
 
 ![Figure 7.1: Architecture of the proposed Gaussian-Sum filter for on-chip 3D-NoC thermal reconstruction. [Reproduced from: Y. Fu et al., "Thermal Sensor Placement and Thermal Reconstruction Under Gaussian and Non-Gaussian Sensor Noises for 3-D NoC", IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, Vol. 38, No. 11, pp. 2110-2123, Nov. 2019, DOI: 10.1109/TCAD.2018.2878178. © 2019 IEEE]](figures/fu_fig01_gaussian_sum_filter.png)
@@ -356,15 +373,22 @@ A multi-core tile fabricated in a 7nm FinFET process has a footprint of $1.2\tex
 3. Compare $\tau_{\text{th}}$ with the clock period of a $2.5\text{ GHz}$ on-chip router ($T_{\text{clk}} = 0.4\text{ ns}$). How many clock cycles does thermal inertia represent?
 
 #### Solution:
+
 1. The lumped thermal time constant is:
-   $$\tau_{\text{th}} = R_v \cdot C_{\text{th}} = (15.0\text{ K/W}) \times (3.6 \times 10^{-3}\text{ J/K}) = 0.054\text{ s} = 54.0\text{ ms}$$
+
+    $$\tau_{\text{th}} = R_v \cdot C_{\text{th}} = (15.0\text{ K/W}) \times (3.6 \times 10^{-3}\text{ J/K}) = 0.054\text{ s} = 54.0\text{ ms}$$
+
 2. By definition of a first-order exponential step response:
-   $$\Delta T(t) = \Delta T_{\text{steady}} \left(1 - e^{-t / \tau_{\text{th}}}\right)$$
-   At $t = \tau_{\text{th}}$, the temperature reaches $1 - e^{-1} \approx 63.2\%$ of the steady-state rise. Therefore, exactly **$54.0\text{ ms}$** elapses.
-3. At $f_{\text{clk}} = 2.5\text{ GHz}$, the clock cycle time is $T_{\text{clk}} = 1 / (2.5 \times 10^9) = 0.4\text{ ns}$.
-   The number of clock cycles spanned by the thermal time constant is:
-   $$N_{\text{cycles}} = \frac{54.0 \times 10^{-3}\text{ s}}{0.4 \times 10^{-9}\text{ s/cycle}} = 135,000,000\text{ cycles}$$
-   This dramatic gap of $1.35 \times 10^8$ clock cycles demonstrates that thermal inertia is vastly slower than flit-by-flit switching, proving why reactive thermal management lags behind dynamic packet bursts.
+
+    $$\Delta T(t) = \Delta T_{\text{steady}} \left(1 - e^{-t / \tau_{\text{th}}}\right)$$
+
+    At $t = \tau_{\text{th}}$, the temperature reaches $1 - e^{-1} \approx 63.2\%$ of the steady-state rise. Therefore, exactly **$54.0\text{ ms}$** elapses.
+
+3. At $f_{\text{clk}} = 2.5\text{ GHz}$, the clock cycle time is $T_{\text{clk}} = 1 / (2.5 \times 10^9) = 0.4\text{ ns}$. The number of clock cycles spanned by the thermal time constant is:
+
+    $$N_{\text{cycles}} = \frac{54.0 \times 10^{-3}\text{ s}}{0.4 \times 10^{-9}\text{ s/cycle}} = 135,000,000\text{ cycles}$$
+
+    This dramatic gap of $1.35 \times 10^8$ clock cycles demonstrates that thermal inertia is vastly slower than flit-by-flit switching, proving why reactive thermal management lags behind dynamic packet bursts.
 
 ---
 
@@ -374,12 +398,21 @@ An on-chip interconnect link operates at a steady-state temperature of $T_1 = 60
 2. By what percentage is the interconnect's expected operating life reduced?
 
 #### Solution:
+
 1. According to Black's Equation:
-   $$\frac{MTTF(T_2)}{MTTF(T_1)} = \exp\left[\frac{E_a}{k_B} \left(\frac{1}{T_2} - \frac{1}{T_1}\right)\right]$$
-   Compute the reciprocal temperature difference:
-   $$\frac{1}{T_2} - \frac{1}{T_1} = \frac{1}{358.15} - \frac{1}{333.15} = 0.0027921 - 0.0030016 = -2.095 \times 10^{-4}\text{ K}^{-1}$$
-   Compute the exponent:
-   $$\frac{E_a}{k_B} \left(\frac{1}{T_2} - \frac{1}{T_1}\right) = \frac{1.442 \times 10^{-19}}{1.3806 \times 10^{-23}} \times (-2.095 \times 10^{-4}) = 10444.7 \times (-2.095 \times 10^{-4}) = -2.188$$
-   Therefore:
-   $$\frac{MTTF(T_2)}{MTTF(T_1)} = e^{-2.188} \approx 0.112$$
+
+    $$\frac{MTTF(T_2)}{MTTF(T_1)} = \exp\left[\frac{E_a}{k_B} \left(\frac{1}{T_2} - \frac{1}{T_1}\right)\right]$$
+
+    Compute the reciprocal temperature difference:
+
+    $$\frac{1}{T_2} - \frac{1}{T_1} = \frac{1}{358.15} - \frac{1}{333.15} = 0.0027921 - 0.0030016 = -2.095 \times 10^{-4}\text{ K}^{-1}$$
+
+    Compute the exponent:
+
+    $$\frac{E_a}{k_B} \left(\frac{1}{T_2} - \frac{1}{T_1}\right) = \frac{1.442 \times 10^{-19}}{1.3806 \times 10^{-23}} \times (-2.095 \times 10^{-4}) = 10444.7 \times (-2.095 \times 10^{-4}) = -2.188$$
+
+    Therefore:
+
+    $$\frac{MTTF(T_2)}{MTTF(T_1)} = e^{-2.188} \approx 0.112$$
+
 2. The interconnect lifetime drops to just **$11.2\%$** of its baseline lifetime—representing a catastrophic **$88.8\%$ reduction in reliability** due to a $25^\circ\text{C}$ hotspot!

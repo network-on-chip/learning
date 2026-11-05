@@ -39,8 +39,7 @@ graph LR
    - If the flit is a Head flit, the router prepares to initiate routing and channel allocation.
 2. **Route Computation (RC)**:
    - Evaluates the routing function $R: (C_{curr}, C_{dest}) \to P_{out}$ to determine the set of permissible output physical ports (e.g., North, South, East, West, Local).
-   - In deterministic Dimension-Order Routing (DOR), RC is implemented with simple combinational comparators:
-     $$\Delta X = X_{dest} - X_{curr}, \quad \Delta Y = Y_{dest} - Y_{curr}$$
+   - In deterministic Dimension-Order Routing (DOR), RC is implemented with simple combinational comparators: $\Delta X = X_{dest} - X_{curr}, \quad \Delta Y = Y_{dest} - Y_{curr}$.
    - *Optimization*: In modern pipelines, RC is computed **one hop in advance** via **Lookahead Routing**, entirely removing RC from the critical pipeline path of intermediate routers.
 3. **Virtual Channel Allocation (VA)**:
    - The Head flit arbitrates for a free downstream Virtual Channel at the designated output port.
@@ -83,10 +82,10 @@ Because per-hop pipeline latency compounds linearly with network diameter ($T_{n
 
 ### 3.2.1 Lookahead Routing
 In standard routing, the Head flit computes its outgoing port upon arrival. Under **Lookahead Routing**:
+
 - Router $N$ computes the output port for Router $N+1$.
 - The computed direction is encoded directly into the Head flit's header before link traversal.
-- When the flit arrives at Router $N+1$, the output direction is immediately available, allowing Virtual Channel Allocation to begin on cycle 1:
-  $$\text{Savings} = 1\text{ cycle per intermediate hop}$$
+- When the flit arrives at Router $N+1$, the output direction is immediately available, allowing Virtual Channel Allocation to begin on cycle 1 ($\text{Savings} = 1\text{ cycle per intermediate hop}$).
 
 ### 3.2.2 Speculative Switch Allocation
 Under low-to-medium network load, virtual channel contention is rare. **Speculative Switch Allocation** exploits this by executing Switch Allocation (SA) in parallel with Virtual Channel Allocation (VA):
@@ -132,10 +131,8 @@ In 2013, Krishna et al. introduced **SMART** (Single-Cycle Multi-hop Asynchronou
 *Figure 3.3: Preemption stopping cases at intermediate routers for contending flows in priority-preemptive single-cycle multi-hop traversal networks under hop limits ($HPC_{max} = 3$). [Reproduced from: IEEE Transactions on Very Large Scale Integration (VLSI) Systems, 2023, DOI: 10.1109/TVLSI.2023.3298101. © 2023 IEEE]*
 
 As illustrated in Figure 3.3, single-cycle traversal is physically bounded by:
-1. **Clock Period Timing Budget ($HPC_{max}$)**: Wire propagation delay and multiplexer gate delays accumulate along the path:
-   $$t_{hop} = t_{crossbar\_mux} + t_{wire\_propagation} + t_{repeater}$$
-   $$\text{Maximum Traversable Hops per Cycle: } HPC_{max} = \left\lfloor \frac{T_{clk} - t_{setup}}{t_{hop}} \right\rfloor$$
-   At 1.0 GHz ($T_{clk} = 1.0\text{ ns}$), $HPC_{max}$ is typically 3 to 5 hops.
+
+1. **Clock Period Timing Budget ($HPC_{max}$)**: Wire propagation delay and multiplexer gate delays accumulate along the path, with $t_{hop} = t_{crossbar\_mux} + t_{wire\_propagation} + t_{repeater}$. The maximum traversable hops per cycle is $HPC_{max} = \left\lfloor \frac{T_{clk} - t_{setup}}{t_{hop}} \right\rfloor$. At 1.0 GHz ($T_{clk} = 1.0\text{ ns}$), $HPC_{max}$ is typically 3 to 5 hops.
 2. **Dynamic Flow Contention & Preemption**: If a local flit at an intermediate router requests an output port currently being cut through by a distant bypass packet, priority-preemptive arbitration dictates which flow stops and buffers, and which flow continues traversing.
 
 ---
@@ -190,8 +187,10 @@ $$\text{Priority Matrix: } M[i][j] = \begin{cases}
 - **Anti-Symmetry**: $M[i][j] = \overline{M[j][i]}$ for all $i \ne j$.
 - **Diagonal Zero**: $M[i][i] = 0$ for all $i$.
 - **Combinational Grant Generation**: Client $i$ is granted if it asserts request $R_i$ and has priority over all other active requesters:
-  $$G_i = R_i \cdot \prod_{j \ne i} (\overline{R_j} + M[i][j])$$
-  This logic evaluates in **exactly two gate levels** (an inverter/OR array followed by an $N$-input AND gate), making it exceptionally fast.
+
+    $$G_i = R_i \cdot \prod_{j \ne i} (\overline{R_j} + M[i][j])$$
+
+    This logic evaluates in **exactly two gate levels** (an inverter/OR array followed by an $N$-input AND gate), making it exceptionally fast.
 
 #### Single-Cycle LRU State Update:
 When client $k$ wins the grant ($G_k = 1$), it becomes the **Least Recently Used (LRU)** client:
@@ -232,14 +231,15 @@ In each iteration:
    - Each unmatched input arbitrates among the grants it received using an accept pointer $a_i$.
    - The input accepts the winning grant, establishing a matched input-output pair.
 4. **Pointer Update (Crucial Rule)**:
-   - Output grant pointers $g_j$ and input accept pointers $a_i$ are updated **if and only if** the match is accepted in the **first iteration**:
-     $$g_j = (i + 1) \pmod N, \quad a_i = (j + 1) \pmod N$$
+   - Output grant pointers $g_j$ and input accept pointers $a_i$ are updated **if and only if** the match is accepted in the **first iteration**: $g_j = (i + 1) \pmod N, \quad a_i = (j + 1) \pmod N$.
    - Updating pointers only on the first iteration prevents the arbiters from synchronizing under high load, de-correlating request patterns and maintaining maximum matching entropy.
 
 #### Convergence & Throughput Theorems:
 - **Theorem 1 (McKeown 1999)**: For an $N \times N$ crossbar switch, iSLIP converges to a maximal matching in at most:
-  $$\text{Iterations} \le \min(N, \log_2 N)$$
-  In practice, **2 iterations** achieve over **94% crossbar efficiency**, and **4 iterations** achieve **100% maximal matching** even at 100% offered load.
+
+    $$\text{Iterations} \le \min(N, \log_2 N)$$
+
+    In practice, **2 iterations** achieve over **94% crossbar efficiency**, and **4 iterations** achieve **100% maximal matching** even at 100% offered load.
 - **Theorem 2 (100% Throughput Freedom from Starvation)**: Under uniform i.i.d. traffic, iSLIP achieves **100% throughput** without speedup, and no connection is starved.
 
 ---
@@ -259,11 +259,10 @@ Input 3 Data ----[     ]
 
 ### 3.6.1 Area and Capacitance Scaling
 For a router with $P$ ports and data width $W$ bits:
+
 - **Total Crossbar Crosspoints**: $P^2 \times W$ transmission gates or tri-state drivers.
 - **Wire Track Area**: $2 \cdot P \cdot W \cdot \text{pitch}_{metal}$.
-- **Dynamic Switching Power**:
-  $$P_{xbar} = \alpha \cdot C_{xbar\_wire} \cdot V_{dd}^2 \cdot f_{clk}$$
-  As port count $P$ increases beyond 8 (e.g. in high-radix Dragonfly routers with $P = 16\text{–}32$), crossbar wire capacitance skyrockets. High-radix designs replace monolithic crossbars with **hierarchical sub-crossbars** or **matrix slicing**.
+- **Dynamic Switching Power**: $P_{xbar} = \alpha \cdot C_{xbar\_wire} \cdot V_{dd}^2 \cdot f_{clk}$. As port count $P$ increases beyond 8 (e.g. in high-radix Dragonfly routers with $P = 16\text{–}32$), crossbar wire capacitance skyrockets. High-radix designs replace monolithic crossbars with **hierarchical sub-crossbars** or **matrix slicing**.
 
 ---
 

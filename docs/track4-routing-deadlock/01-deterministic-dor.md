@@ -16,6 +16,7 @@ In this lesson, we examine the algorithmic mechanics of DOR, synthesize single-c
 ## 1. Algorithmic Logic: XY vs. YX Routing
 
 In a 2D mesh topology, every router is identified by its integer 2D Cartesian coordinates:
+
 $$\text{Current Router: } (x_c, y_c), \quad \text{Destination Node: } (x_d, y_d)$$
 
 ### The XY Routing Rule
@@ -58,6 +59,7 @@ Both XY and YX are strictly minimal (shortest-path) algorithms: every hop reduce
 ## 2. Lookahead Route Computation (L-RC)
 
 In a naive 5-stage router pipeline, Route Computation (RC) occurs at the current router *after* the header flit arrives:
+
 $$\text{Arrive} \longrightarrow [\mathbf{RC}] \longrightarrow [\text{VCA}] \longrightarrow [\text{SA}] \longrightarrow [\text{ST}] \longrightarrow \text{Link}$$
 
 This adds a full clock cycle (or sub-cycle combinational delay) to the critical path!
@@ -157,6 +159,7 @@ X-to-Y Turns:                       Y-to-X Turns:
 ```
 
 A routing deadlock in a wormhole network requires a **closed circular loop of channel dependencies**:
+
 $$\text{Channel } C_1 \rightarrow C_2 \rightarrow C_3 \rightarrow C_4 \rightarrow C_1$$
 
 In a 2D mesh, every closed cycle must consist of at least one turn from each quadrant, forming either:

@@ -60,8 +60,7 @@ Let $I = (V, C)$ denote an interconnection network, where $V$ is the set of proc
 
 The **Channel Dependency Graph (CDG)** $D = (C, E_{CDG})$ is a directed graph where:
 - The vertex set is the set of communication channels $C$.
-- A directed edge $(c_i, c_j) \in E_{CDG}$ exists if and only if a packet can transition directly from channel $c_i$ to channel $c_j$ under routing function $R$:
-  $$\exists v \in V \quad \text{such that} \quad c_j \in R(c_i, v)$$
+- A directed edge $(c_i, c_j) \in E_{CDG}$ exists if and only if a packet can transition directly from channel $c_i$ to channel $c_j$ under routing function $R$: $\exists v \in V \text{ such that } c_j \in R(c_i, v)$.
 
 ```mermaid
 graph LR
@@ -88,9 +87,7 @@ graph LR
 
 #### Proof
 1. **Sufficiency ($\Leftarrow$)**:  
-   Assume $D$ has no directed cycles. Because $D$ is a finite directed acyclic graph (DAG), there exists at least one channel $c_{sink} \in C$ with zero out-degree (no channels depend on it; it delivers directly to local memory). A packet occupying $c_{sink}$ can never be blocked by another packet in the network and will be consumed in finite time. By topological sorting of the DAG, every channel $c_i$ can be assigned an integer rank $\text{rank}(c_i)$ such that:
-   $$(c_i, c_j) \in E_{CDG} \implies \text{rank}(c_i) < \text{rank}(c_j)$$
-   By induction on channel rank, flits on channels of rank $K$ are guaranteed to advance once all channels of rank $> K$ clear. Therefore, no packet can be blocked indefinitely, and the network is deadlock-free.
+   Assume $D$ has no directed cycles. Because $D$ is a finite directed acyclic graph (DAG), there exists at least one channel $c_{sink} \in C$ with zero out-degree (no channels depend on it; it delivers directly to local memory). A packet occupying $c_{sink}$ can never be blocked by another packet in the network and will be consumed in finite time. By topological sorting of the DAG, every channel $c_i$ can be assigned an integer rank $\text{rank}(c_i)$ such that: $(c_i, c_j) \in E_{CDG} \implies \text{rank}(c_i) < \text{rank}(c_j)$. By induction on channel rank, flits on channels of rank $K$ are guaranteed to advance once all channels of rank $> K$ clear. Therefore, no packet can be blocked indefinitely, and the network is deadlock-free.
 2. **Necessity ($\Rightarrow$)**:  
    Assume $D$ contains a directed cycle $c_0 \to c_1 \to \dots \to c_{M-1} \to c_0$. One can construct a configuration of $M$ packets $P_0, P_1, \dots, P_{M-1}$ such that packet $P_i$ occupies channel $c_i$ and requests channel $c_{(i+1) \bmod M}$. If all channels have finite buffer capacity and are full, no packet can advance because each packet is waiting on a channel held by another packet in the cycle. The network is permanently deadlocked. $\blacksquare$
 
@@ -113,6 +110,7 @@ Christopher J. Glass and Lionel M. Ni (*Journal of the ACM*, 1994) introduced th
 ### 5.3.1 The 8 Turns of a 2D Mesh
 
 In a 2D Mesh, a packet can travel in 4 directions: East, West, North, South. A change of direction constitutes a **turn**. There are exactly $4 \times 2 = 8$ possible 90-degree turns:
+
 $$\{E \to N, \quad E \to S, \quad W \to N, \quad W \to S, \quad N \to E, \quad N \to W, \quad S \to E, \quad S \to W\}$$
 
 These 8 turns can form two types of simple cycles in the physical mesh:

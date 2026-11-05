@@ -307,11 +307,15 @@ if (document.readyState === "loading") {
 > between the **Standard 2D Mesh (64 routers)** and the **Concentrated Mesh (16 routers)**.
 
 ### Step 1: Standard 2D Mesh Calculation (64 Routers)
+
 $$A_{total, Mesh} = 64 \times 0.045\text{ mm}^2 = \mathbf{2.88\text{ mm}^2}$$
+
 $$P_{static, Mesh} = 64 \times 32\text{ mW} = \mathbf{2,048\text{ mW} = 2.048\text{ Watts}}$$
 
 ### Step 2: Concentrated Mesh Calculation (16 Routers)
+
 $$A_{total, cMesh} = 16 \times 0.082\text{ mm}^2 = \mathbf{1.312\text{ mm}^2} \quad (\mathbf{54.4\%\text{ Silicon Area Reduction!}})$$
+
 $$P_{static, cMesh} = 16 \times 56\text{ mW} = \mathbf{896\text{ mW} = 0.896\text{ Watts}} \quad (\mathbf{56.2\%\text{ Power Reduction!}})$$
 
 ### Conclusion:

@@ -53,11 +53,17 @@ A Through-Silicon Via is a microscopic copper plug etched vertically through the
 
 ### 8.2.1 Lumped Electrical Model
 As characterized by **I. Loi et al. (IEEE TCAD 2011)** and depicted in Figures 8.1 and 8.2, each TSV is modeled as a lumped $\pi$-network containing:
+
 1. **Ohmic Resistance ($R_{\text{tsv}}$)**: Due to the high electrical conductivity of electroplated copper:
-   $$R_{\text{tsv}} = \rho_{\text{Cu}} \frac{h_{\text{tsv}}}{\pi (d_{\text{tsv}} / 2)^2}$$
-   For a typical TSV with height $h_{\text{tsv}} = 30\ \mu\text{m}$ and diameter $d_{\text{tsv}} = 4\ \mu\text{m}$, $R_{\text{tsv}} \approx 30\text{ to }50\text{ m}\Omega$—orders of magnitude lower than millimeter-long planar metal traces.
+
+    $$R_{\text{tsv}} = \rho_{\text{Cu}} \frac{h_{\text{tsv}}}{\pi (d_{\text{tsv}} / 2)^2}$$
+
+    For a typical TSV with height $h_{\text{tsv}} = 30\ \mu\text{m}$ and diameter $d_{\text{tsv}} = 4\ \mu\text{m}$, $R_{\text{tsv}} \approx 30\text{ to }50\text{ m}\Omega$—orders of magnitude lower than millimeter-long planar metal traces.
+
 2. **Insulator Oxide Capacitance ($C_{\text{ox}}$)**: Formed between the cylindrical copper core and the substrate across the thin $\text{SiO}_2$ liner ($t_{\text{ox}} \approx 100\text{ to }200\text{ nm}$):
-   $$C_{\text{ox}} = \frac{2 \pi \epsilon_{\text{ox}} \epsilon_0 h_{\text{tsv}}}{\ln\left(\frac{r_{\text{tsv}} + t_{\text{ox}}}{r_{\text{tsv}}}\right)} \approx 20\text{ to }50\text{ fF}$$
+
+    $$C_{\text{ox}} = \frac{2 \pi \epsilon_{\text{ox}} \epsilon_0 h_{\text{tsv}}}{\ln\left(\frac{r_{\text{tsv}} + t_{\text{ox}}}{r_{\text{tsv}}}\right)} \approx 20\text{ to }50\text{ fF}$$
+
 3. **Substrate Conductance and Inter-TSV Coupling ($C_{\text{sub}}, G_{\text{sub}}$)**: High-frequency signals couple through the lossy silicon substrate to neighboring TSVs, requiring ground shielding vias or differential signaling to suppress inter-wire crosstalk.
 
 ### 8.2.2 The Keep-Out Zone (KOZ)
@@ -77,7 +83,9 @@ In a planar 2D mesh, routers have 5 ports: North, South, East, West, and Local. 
 
 ### 8.3.1 The Silicon Area Penalty of Full 7-Port Crossbars
 As shown in Figure 8.3, expanding a router crossbar from 5 to 7 ports increases internal crossbar multiplexer complexity quadratically:
+
 $$\text{Crosspoints} = P^2 = 7^2 = 49 \quad \text{vs.} \quad 5^2 = 25 \quad (+96\% \text{ area})$$
+
 Moreover, 7 input buffers demand significant silicon real estate and static leakage.
 
 ### 8.3.2 Shared Vertical Links & Vertical Arbitration Contention
@@ -272,21 +280,36 @@ Compare the propagation delay of a vertical TSV link versus a planar intermediat
 4. Determine the speedup of the vertical TSV link over the planar wire.
 
 #### Solution:
+
 1. **TSV Resistance & Capacitance**:
-   $$A_{\text{tsv}} = \pi \left(\frac{d_{\text{tsv}}}{2}\right)^2 = \pi \times (2 \times 10^{-6})^2 = 1.2566 \times 10^{-11}\text{ m}^2$$
-   $$R_{\text{tsv}} = (1.7 \times 10^{-8}\ \Omega\cdot\text{m}) \times \frac{40 \times 10^{-6}\text{ m}}{1.2566 \times 10^{-11}\text{ m}^2} = 0.0541\ \Omega = 54.1\text{ m}\Omega$$
-   $$C_{\text{tsv}} = \frac{2 \pi \epsilon_r \epsilon_0 h_{\text{tsv}}}{\ln\left(\frac{r + t_{\text{ox}}}{r}\right)} = \frac{2 \pi \times 3.9 \times (8.854 \times 10^{-12}) \times (40 \times 10^{-6})}{\ln\left(\frac{2.15}{2.00}\right)} = \frac{8.683 \times 10^{-15}}{0.07232} = 120.1\text{ fF}$$
+
+    $$A_{\text{tsv}} = \pi \left(\frac{d_{\text{tsv}}}{2}\right)^2 = \pi \times (2 \times 10^{-6})^2 = 1.2566 \times 10^{-11}\text{ m}^2$$
+
+    $$R_{\text{tsv}} = (1.7 \times 10^{-8}\ \Omega\cdot\text{m}) \times \frac{40 \times 10^{-6}\text{ m}}{1.2566 \times 10^{-11}\text{ m}^2} = 0.0541\ \Omega = 54.1\text{ m}\Omega$$
+
+    $$C_{\text{tsv}} = \frac{2 \pi \epsilon_r \epsilon_0 h_{\text{tsv}}}{\ln\left(\frac{r + t_{\text{ox}}}{r}\right)} = \frac{2 \pi \times 3.9 \times (8.854 \times 10^{-12}) \times (40 \times 10^{-6})}{\ln\left(\frac{2.15}{2.00}\right)} = \frac{8.683 \times 10^{-15}}{0.07232} = 120.1\text{ fF}$$
+
 2. **TSV Elmore Delay**:
-   $$\tau_{\text{tsv}} = R_d C_{\text{tsv}} + \frac{R_{\text{tsv}} C_{\text{tsv}}}{2} \approx (400\ \Omega) \times (120.1 \times 10^{-15}\text{ F}) = 48.04\text{ ps}$$
-   (The $R_{\text{tsv}} C_{\text{tsv}} / 2$ term is $54.1 \times 10^{-3} \times 120.1 \times 10^{-15} / 2 = 3.25 \times 10^{-15}\text{ s} = 0.003\text{ ps}$, which is completely negligible).
+
+    $$\tau_{\text{tsv}} = R_d C_{\text{tsv}} + \frac{R_{\text{tsv}} C_{\text{tsv}}}{2} \approx (400\ \Omega) \times (120.1 \times 10^{-15}\text{ F}) = 48.04\text{ ps}$$
+
+    (The $R_{\text{tsv}} C_{\text{tsv}} / 2$ term is $54.1 \times 10^{-3} \times 120.1 \times 10^{-15} / 2 = 3.25 \times 10^{-15}\text{ s} = 0.003\text{ ps}$, which is completely negligible).
+
 3. **Planar Wire Elmore Delay**:
-   $$R_{\text{wire}} = 80\ \Omega/\text{mm} \times 1.5\text{ mm} = 120\ \Omega$$
-   $$C_{\text{wire}} = 180\text{ fF/mm} \times 1.5\text{ mm} = 270\text{ fF}$$
-   $$\tau_{\text{planar}} = R_d C_{\text{wire}} + \frac{R_{\text{wire}} C_{\text{wire}}}{2} = (400 \times 270 \times 10^{-15}) + \left(\frac{120 \times 270 \times 10^{-15}}{2}\right)$$
-   $$\tau_{\text{planar}} = 108.0\text{ ps} + 16.2\text{ ps} = 124.2\text{ ps}$$
+
+    $$R_{\text{wire}} = 80\ \Omega/\text{mm} \times 1.5\text{ mm} = 120\ \Omega$$
+
+    $$C_{\text{wire}} = 180\text{ fF/mm} \times 1.5\text{ mm} = 270\text{ fF}$$
+
+    $$\tau_{\text{planar}} = R_d C_{\text{wire}} + \frac{R_{\text{wire}} C_{\text{wire}}}{2} = (400 \times 270 \times 10^{-15}) + \left(\frac{120 \times 270 \times 10^{-15}}{2}\right)$$
+
+    $$\tau_{\text{planar}} = 108.0\text{ ps} + 16.2\text{ ps} = 124.2\text{ ps}$$
+
 4. **Speedup**:
-   $$\text{Speedup} = \frac{\tau_{\text{planar}}}{\tau_{\text{tsv}}} = \frac{124.2\text{ ps}}{48.04\text{ ps}} \approx 2.59\times$$
-   The vertical TSV transmits data **$2.59\times$ faster** than the planar wire, while consuming less than half the capacitive dynamic switching energy ($120\text{ fF}$ vs. $270\text{ fF}$).
+
+    $$\text{Speedup} = \frac{\tau_{\text{planar}}}{\tau_{\text{tsv}}} = \frac{124.2\text{ ps}}{48.04\text{ ps}} \approx 2.59\times$$
+
+    The vertical TSV transmits data **$2.59\times$ faster** than the planar wire, while consuming less than half the capacitive dynamic switching energy ($120\text{ fF}$ vs. $270\text{ fF}$).
 
 ---
 
@@ -297,17 +320,30 @@ A 3-tier 3D-IC stack dissipates power uniformly across each layer: $P_0 = P_1 = 
 3. What is the temperature differential between the top tier and bottom tier?
 
 #### Solution:
+
 1. **Derivation**:
-   - The total heat from all three tiers must pass through the heat sink:
-     $$T_0 = T_{\text{amb}} + R_{\text{hs}} \cdot (P_0 + P_1 + P_2) = T_{\text{amb}} + R_{\text{hs}} \cdot P_{\text{total}}$$
-   - The heat from Tier 1 and Tier 2 conducts down through the lower bonding interface into Tier 0:
-     $$T_1 = T_0 + R_{\text{inter}} \cdot (P_1 + P_2)$$
-   - The heat from Tier 2 conducts down through the upper bonding interface into Tier 1:
-     $$T_2 = T_1 + R_{\text{inter}} \cdot P_2$$
+    - The total heat from all three tiers must pass through the heat sink:
+
+        $$T_0 = T_{\text{amb}} + R_{\text{hs}} \cdot (P_0 + P_1 + P_2) = T_{\text{amb}} + R_{\text{hs}} \cdot P_{\text{total}}$$
+
+    - The heat from Tier 1 and Tier 2 conducts down through the lower bonding interface into Tier 0:
+
+        $$T_1 = T_0 + R_{\text{inter}} \cdot (P_1 + P_2)$$
+
+    - The heat from Tier 2 conducts down through the upper bonding interface into Tier 1:
+
+        $$T_2 = T_1 + R_{\text{inter}} \cdot P_2$$
+
 2. **Numerical Computation**:
-   $$T_0 = 40.0^\circ\text{C} + (0.40\text{ K/W}) \times (75.0\text{ W}) = 40.0 + 30.0 = 70.0^\circ\text{C}$$
-   $$T_1 = 70.0^\circ\text{C} + (0.35\text{ K/W}) \times (25.0 + 25.0\text{ W}) = 70.0 + (0.35 \times 50.0) = 70.0 + 17.5 = 87.5^\circ\text{C}$$
-   $$T_2 = 87.5^\circ\text{C} + (0.35\text{ K/W}) \times (25.0\text{ W}) = 87.5 + 8.75 = 96.25^\circ\text{C}$$
+
+    $$T_0 = 40.0^\circ\text{C} + (0.40\text{ K/W}) \times (75.0\text{ W}) = 40.0 + 30.0 = 70.0^\circ\text{C}$$
+
+    $$T_1 = 70.0^\circ\text{C} + (0.35\text{ K/W}) \times (25.0 + 25.0\text{ W}) = 70.0 + (0.35 \times 50.0) = 70.0 + 17.5 = 87.5^\circ\text{C}$$
+
+    $$T_2 = 87.5^\circ\text{C} + (0.35\text{ K/W}) \times (25.0\text{ W}) = 87.5 + 8.75 = 96.25^\circ\text{C}$$
+
 3. **Thermal Stacking Differential**:
-   $$\Delta T = T_2 - T_0 = 96.25^\circ\text{C} - 70.0^\circ\text{C} = 26.25^\circ\text{C}$$
-   The top tier operates **$26.25^\circ\text{C}$ hotter** than the bottom tier due entirely to vertical thermal resistance accumulation.
+
+    $$\Delta T = T_2 - T_0 = 96.25^\circ\text{C} - 70.0^\circ\text{C} = 26.25^\circ\text{C}$$
+
+    The top tier operates **$26.25^\circ\text{C}$ hotter** than the bottom tier due entirely to vertical thermal resistance accumulation.

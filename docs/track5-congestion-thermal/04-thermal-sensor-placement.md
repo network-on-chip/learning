@@ -25,16 +25,21 @@ This lesson is grounded directly in our lab's verified research implementation:
 ## 2. Mathematical Formulation of the Reconstruction Problem
 
 Let a multi-core SoC consist of $N$ discrete thermal tiles:
+
 $$\mathbf{T} = [T_1, T_2, \dots, T_N]^T \in \mathbb{R}^N$$
 
 We place $K$ physical sensors at selected tile indices $\mathcal{S} = \{s_1, s_2, \dots, s_K\} \subset \{1, \dots, N\}$.
 
 The vector of noisy sensor measurements $\mathbf{y} \in \mathbb{R}^K$ is modeled as:
+
 $$\mathbf{y = H T + v}$$
 
 Where:
+
 - $\mathbf{H} \in \{0, 1\}^{K \times N}$ is the **Sparse Sensor Selection Matrix**:
-  $$H_{i, j} = \begin{cases} 1, & \text{if sensor } i \text{ is placed on tile } j \\ 0, & \text{otherwise} \end{cases}$$
+
+$$H_{i, j} = \begin{cases} 1, & \text{if sensor } i \text{ is placed on tile } j \\ 0, & \text{otherwise} \end{cases}$$
+
 - $\mathbf{v} \in \mathbb{R}^K$ is the measurement noise vector.
 
 ```mermaid
@@ -58,6 +63,7 @@ Our objective is two-fold:
 ## 3. Gaussian vs. Non-Gaussian Sensor Noise
 
 Early academic papers assumed sensor noise was ideal, zero-mean **Gaussian white noise**:
+
 $$\mathbf{v} \sim \mathcal{N}(\mathbf{0}, \sigma^2 \mathbf{I})$$
 
 Under pure Gaussian noise, the optimal linear unbiased estimator is the classical **Ordinary Least Squares (OLS)** or Bayesian Minimum Mean Square Error (MMSE) estimator:
@@ -85,6 +91,7 @@ Noise Distribution Comparison:
 
 ### Why Ordinary Least Squares Fails Catastrophically:
 Ordinary Least Squares minimizes the **squared residual**:
+
 $$\min_{\mathbf{T}} \sum_{i=1}^K (y_i - T_{s_i})^2$$
 
 Because residuals are **squared**, a single $+15^\circ\text{C}$ sensor glitch exerts a penalty of $(15)^2 = \mathbf{225}$! The quadratic loss function panics, pulling the entire reconstructed surface upward. This creates **phantom hotspots**, triggering false clock throttling and tanking chip performance!
@@ -99,6 +106,7 @@ Where should the $K$ sensors be physically located on the die?
 In our lab module [`src/placement.py`](https://github.com/network-on-chip/thermal-sensor-placement-and-thermal-reconstruction-under-gaussian-and-non-gaussian-sensor/blob/main/src/placement.py), optimal sensor placement is formulated as maximizing the determinant of the **Fisher Information Matrix (FIM)**:
 
 $$\mathbf{M_{FIM} = H^T \Sigma_v^{-1} H + \Sigma_T^{-1}}$$
+
 $$\mathbf{\mathcal{S}^* = \arg\max_{\mathcal{S}} \log \det\big( M_{FIM}(\mathcal{S}) \big)}$$
 
 - **Physical Intuition:** Maximizing the FIM determinant minimizes the volume of the estimation error covariance ellipsoid.
@@ -434,6 +442,7 @@ if (document.readyState === "loading") {
 > - **Strategy 2 (Spread / D-Optimal):** Place sensors at tiles 1 and 4: $\mathbf{H}_2 = \begin{bmatrix} 1 & 0 & 0 & 0 \\ 0 & 0 & 0 & 1 \end{bmatrix}$.
 > 
 > Assuming a spatial temperature correlation prior covariance matrix:
+>
 > $$\mathbf{\Sigma}_T = \begin{bmatrix} 4 & 2 & 1 & 0.5 \\ 2 & 4 & 2 & 1 \\ 1 & 2 & 4 & 2 \\ 0.5 & 1 & 2 & 4 \end{bmatrix}$$
 > 
 > Calculate which strategy provides the lower estimation error variance on the unobserved tiles.

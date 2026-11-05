@@ -55,6 +55,7 @@ graph TD
 > **"A packet may make zero or more UP transitions, followed by zero or more DOWN transitions ($U^* D^*$). A packet is STRICTLY FORBIDDEN from ever making an UP transition after having made a DOWN transition!"**
 
 $$\text{Legal Traversal Pattern: } \mathbf{Up \rightarrow Up \dots \rightarrow Down \rightarrow Down}$$
+
 $$\mathbf{\text{Forbidden Traversal: } Down \rightarrow Up \quad (\text{Strictly Prohibited!})}$$
 
 ### Proof of Deadlock Freedom:
@@ -153,6 +154,7 @@ Hardware VNET Hierarchy:
 ```
 
 ### The Invariant for Protocol Deadlock Freedom:
+
 $$\mathbf{\text{Dependency Rule: } \text{VNET}_i \text{ can ONLY depend on } \text{VNET}_j \text{ where } j > i}$$
 
 - A message in $\text{VNET}_0$ (Request) can trigger a message in $\text{VNET}_1$ (Probe) or $\text{VNET}_2$ (Data).
@@ -357,8 +359,11 @@ Because a Request can trigger an Invalidation, which triggers a Response ($0 \ri
 
 ### Step 2: Buffer Storage per Router
 Each router has $5\text{ input ports}$ (North, South, East, West, Local Core):
+
 $$\text{Buffers per Port} = 3\text{ VNETs} \times 4\text{ flits/VNET} = \mathbf{12\text{ flits per port}}$$
+
 $$\text{Total Flits per Router} = 5\text{ ports} \times 12\text{ flits} = \mathbf{60\text{ flits}}$$
+
 $$\text{Total Buffer Memory} = 60\text{ flits} \times 16\text{ Bytes/flit} = \mathbf{960\text{ Bytes} \approx 0.94\text{ KB per router}}$$
 
 ### Takeaway:

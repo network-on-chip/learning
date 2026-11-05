@@ -29,8 +29,7 @@ In a traditional $k \times k$ 2D Mesh with $N = k^2$ nodes:
 When $N = 1024$ cores ($32 \times 32$ mesh):
 - Maximum diameter $D = 62\text{ hops}$.
 - Average hops $H_{avg} \approx 21.3\text{ hops}$.
-- Assuming a 2-cycle router pipeline and 1-cycle wire delay, average zero-load latency is:
-  $$T_0 \approx 21.3 \times (2 + 1) = \mathbf{64\text{ clock cycles}}!$$
+- Assuming a 2-cycle router pipeline and 1-cycle wire delay, average zero-load latency is $T_0 \approx 21.3 \times (2 + 1) = \mathbf{64\text{ clock cycles}}!$
 
 Under medium load, queuing stalls multiply this figure by $3\times\text{–}5\times$, leading to hundreds of cycles of memory stalls!
 
@@ -139,15 +138,24 @@ A canonical Dragonfly is defined by four integer parameters:
 ### System Capacity Equations
 
 - **Total global channels leaving a group:**
-  $$\text{Global Channels per Group} = a \cdot h$$
+
+    $$\text{Global Channels per Group} = a \cdot h$$
+
 - In a balanced Dragonfly, each group has exactly one direct global channel to every other group:
-  $$g = a \cdot h + 1$$
+
+    $$g = a \cdot h + 1$$
+
 - **Total Routers in System:**
-  $$N_r = a \cdot g = a(a \cdot h + 1)$$
+
+    $$N_r = a \cdot g = a(a \cdot h + 1)$$
+
 - **Total Compute Nodes in System:**
-  $$\mathbf{N = p \cdot a \cdot g = p \cdot a (a \cdot h + 1)}$$
+
+    $$\mathbf{N = p \cdot a \cdot g = p \cdot a (a \cdot h + 1)}$$
+
 - **Total Router Radix:**
-  $$\mathbf{k_r = p + (a - 1) + h}$$
+
+    $$\mathbf{k_r = p + (a - 1) + h}$$
 
 ### Network Diameter
 The maximum diameter of a balanced Dragonfly is only **$3\text{ hops}$**!
@@ -188,6 +196,7 @@ To get the best of both worlds, John Dally proposed **UGAL (Universal Globally-A
 For each packet, the source router estimates queue congestion along both the **Minimal path (MIN)** and the **Non-minimal path (VAL)**:
 
 $$\text{Decision Rule: If } \mathbf{q_{MIN} \le 2 \cdot q_{VAL} + \Delta} \implies \text{Route Minimal (MIN)}$$
+
 $$\text{Else } \implies \text{Route Non-Minimal via Random Intermediate (VAL)}$$
 
 Where:
@@ -427,18 +436,25 @@ Google connects thousands of Tensor Processing Units using a **reconfigurable 3D
 
 ### Step 1: Calculate Global Links per Router ($h$)
 The total router radix formula is:
+
 $$k_r = p + (a - 1) + h$$
+
 $$40 = 8 + (24 - 1) + h$$
+
 $$40 = 8 + 23 + h = 31 + h$$
+
 $$\mathbf{h = 40 - 31 = 9\text{ global channels per router}}$$
 
 ### Step 2: Calculate Maximum Balanced Groups ($g$)
 In a balanced Dragonfly, the total number of global links leaving each group is $a \cdot h$.  
 To provide exactly 1 global link from this group to every other group:
+
 $$g = a \cdot h + 1 = 24 \times 9 + 1 = 216 + 1 = \mathbf{217\text{ groups}}$$
 
 ### Step 3: Compute Total Endpoints ($N$)
+
 $$\text{Total Routers: } N_r = a \cdot g = 24 \times 217 = 5,208\text{ routers}$$
+
 $$\text{Total Compute Nodes: } N = p \cdot N_r = 8 \times 5,208 = \mathbf{41,664\text{ compute nodes}}$$
 
 ### Step 4: Network Diameter ($D$)
@@ -452,6 +468,7 @@ Even across **$41,664$ compute nodes**, any packet reaches its destination in at
 In a high-radix Dragonfly, adaptive routing requires comparing real-time queue congestion between the direct minimal route ($q_{MIN}$) and a randomized non-minimal Valiant detour ($q_{VAL}$).
 
 Because non-minimal routing traverses **two global optical/copper channels** instead of one, the router must enforce the canonical **UGAL threshold**:
+
 $$\text{Select Non-Minimal Path IF: } q_{MIN} > 2 \cdot q_{VAL} + \text{BIAS}$$
 
 Furthermore, to prevent protocol deadlocks between minimal and non-minimal packets, the router dynamically steers non-minimal packets to an escape Virtual Channel (`VC1`).

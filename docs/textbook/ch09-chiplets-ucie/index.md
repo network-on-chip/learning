@@ -23,8 +23,7 @@ For over four decades, Moore's Law advanced by packing ever-more transistors ont
    - Just like a smartphone camera has a fixed rectangular viewfinder, the photolithography machine has a physical lens window called the **optical reticle limit** (typically $26\text{ mm} \times 33\text{ mm} \approx 858\text{ mm}^2$).
    - Modern artificial intelligence processors (like NVIDIA Blackwell or AMD Instinct) require over $1000\text{--}1500\text{ mm}^2$ of silicon—larger than the machine's lens can print in a single shot!
 2. **Defect Density & Exponential Yield Collapse**:
-   - Manufacturing yield $Y$ (the percentage of functional chips on a wafer) decays exponentially with chip area $A$ under the Murphy and Seeds models:
-     $$Y = \left( \frac{1 - e^{-A \cdot D_0}}{A \cdot D_0} \right)^2 \quad \text{or} \quad Y = e^{-\sqrt{A \cdot D_0}}$$
+   - Manufacturing yield $Y$ (the percentage of functional chips on a wafer) decays exponentially with chip area $A$ under the Murphy and Seeds models: $Y = \left( \frac{1 - e^{-A \cdot D_0}}{A \cdot D_0} \right)^2 \quad \text{or} \quad Y = e^{-\sqrt{A \cdot D_0}}$.
    - Here, $A$ is the chip area ($\text{cm}^2$) and $D_0$ is the defect density (random dust specks per $\text{cm}^2$).
    - A massive $800\text{ mm}^2$ die ($A = 8.0\text{ cm}^2$) has a yield below $25\%$. Cutting it into four $200\text{ mm}^2$ chiplets ($A = 2.0\text{ cm}^2$) lifts individual yield above $82\%$, cutting total manufacturing costs by more than half!
 3. **The LEGO Principle (Process Node Specialization)**:
@@ -122,6 +121,7 @@ In passive interposers, the carrier wafer contains only copper wiring traces. In
 
 ### 9.4.1 How Long Does It Take to Cross the Chiplet Boundary?
 When a packet leaves Chiplet A and enters Chiplet B, it experiences multiple delays:
+
 $$t_{\text{D2D}} = t_{\text{CDC}} + t_{\text{adapter}} + t_{\text{PHY\_tx}} + t_{\text{flight}} + t_{\text{PHY\_rx}} + t_{\text{deskew}} + t_{\text{CDC}}$$
 
 In simple terms:
@@ -132,6 +132,7 @@ In simple terms:
 Imagine you are playing catch with a friend across a field. If you throw a baseball, you must wait for your friend to throw a ball back before you can throw again. If you only own 1 baseball, you spend most of your time standing around waiting!
 
 To keep throwing continuously at full speed, you need a basket of balls. How many balls do you need? Exactly enough to fill the round-trip flight time! This is **Little's Law** applied to flow control:
+
 $$B_{\text{min}} \ge \lceil \text{RTT}_{\text{credit}} \cdot f_{\text{clk}} \rceil$$
 
 If a round-trip credit token takes $8.5\text{ ns}$ to return at a $2.0\text{ GHz}$ clock ($0.5\text{ ns per cycle}$), the transmitter must have at least $\lceil 8.5 / 0.5 \rceil = 17\text{ flits}$ of buffer space. If the buffer is smaller than 17 flits, the transmitter runs out of tokens and sits completely idle, wasting valuable wire bandwidth.

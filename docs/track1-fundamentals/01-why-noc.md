@@ -68,13 +68,13 @@ Nanoscale Wire (<7nm):       [|TaN|::: High-Resistivity Grain Boundaries :::|TaN
 ```
 
 ### C. The Serialization Bottleneck
+
 A shared bus is a **single shared medium**. At any given clock cycle, the centralized bus arbiter can grant bus access to **exactly one master**.
-- **Fixed Aggregate Bandwidth**:
-  $$BW_{agg} = W \times f_{bus}$$
-  where $W$ is the bus width (e.g., 64 or 128 bits) and $f_{bus}$ is the bus clock frequency.
-- **Collapsing Per-Core Bandwidth**:
-  When $N$ active cores contend for the bus, the average bandwidth available to each core collapses asymptotically to zero:
-  $$BW_{core} = \frac{W \times f_{bus}}{N} \propto \frac{1}{N}$$
+
+- **Fixed Aggregate Bandwidth**: $BW_{agg} = W \times f_{bus}$, where $W$ is the bus width (e.g., 64 or 128 bits) and $f_{bus}$ is the bus clock frequency.
+- **Collapsing Per-Core Bandwidth**: When $N$ active cores contend for the bus, the average bandwidth available to each core collapses asymptotically to zero:
+
+$$BW_{core} = \frac{W \times f_{bus}}{N} \propto \frac{1}{N}$$
 
 For a 64-core CMP, each core would receive only $\approx 1.5\%$ of the bus bandwidth, leaving high-performance superscalar pipelines starved of cache lines.
 
@@ -166,9 +166,13 @@ graph TD
 1. **Short, Predictable Point-to-Point Links**: Routers communicate strictly with their immediate spatial neighbors (North, South, East, West, Local). Wire length is strictly bounded to the tile pitch ($\approx 1\text{–}2\text{ mm}$), completely eliminating multi-die global RC delays.
 2. **Concurrent Multi-Hop Communication**: Unrelated communication streams traverse independent links simultaneously. While Core 0 writes to Core 1, Core 14 can transfer a block to Core 15 without contention.
 3. **Linear Aggregate Bandwidth Scaling**: Aggregate network bandwidth scales linearly with the number of nodes:
-   $$BW_{agg} \approx \frac{2 \sqrt{N} \cdot W \cdot f}{\text{traffic factor}} = O(N)$$
+
+    $$BW_{agg} \approx \frac{2 \sqrt{N} \cdot W \cdot f}{\text{traffic factor}} = O(N)$$
+
 4. **Modular Tile Reusability (LEGO Principle)**: Architects design a single standard tile comprising:
-   $$\text{Tile} = \text{Compute Core} + \text{L1/L2 Cache} + \text{Network Interface (NI)} + \text{Router}$$
+
+    $$\text{Tile} = \text{Compute Core} + \text{L1/L2 Cache} + \text{Network Interface (NI)} + \text{Router}$$
+
    This tile is synthesized, timed, and verified once, then stepped across the silicon reticle in a regular 2D grid.
 
 ---
@@ -441,24 +445,36 @@ Published in IEEE TVLSI 2026 by Taylor et al. (University of Washington / Cornel
 > Compare the bus propagation delay against a 2D mesh NoC tile-to-tile link ($L_{link} = 15 / \sqrt{32} \approx 2.65\text{ mm}$) with a single receiver tap ($C_{load} = 15\text{ fF}$).
 
 ### Step 1: Compute Shared Bus Delay
+
 $$\text{Total Wire Resistance: } R_{wire} = 80\ \Omega/\text{mm} \times 15\text{ mm} = 1,200\ \Omega$$
+
 $$\text{Total Wire Capacitance: } C_{wire} = 0.18\text{ pF/mm} \times 15\text{ mm} = 2.70\text{ pF}$$
+
 $$\text{Total Tap Capacitance: } C_{taps} = 32 \times 0.015\text{ pF} = 0.48\text{ pF}$$
+
 $$\text{Total Capacitance: } C_{total} = 2.70\text{ pF} + 0.48\text{ pF} = 3.18\text{ pF}$$
 
 Using the distributed Elmore delay approximation:
+
 $$\tau_{bus} \approx R_d \cdot C_{total} + 0.38 \cdot R_{wire} \cdot C_{wire} + \frac{1}{2} R_{wire} \cdot C_{taps}$$
+
 $$\tau_{bus} \approx 450\ \Omega \cdot 3.18\text{ pF} + 0.38 \cdot 1200\ \Omega \cdot 2.70\text{ pF} + 0.5 \cdot 1200\ \Omega \cdot 0.48\text{ pF}$$
+
 $$\tau_{bus} \approx 1.431\text{ ns} + 1.231\text{ ns} + 0.288\text{ ns} = \mathbf{2.95\text{ ns}}$$
 
 $$\text{Maximum Bus Clock: } f_{bus} \approx \frac{1}{2 \cdot \tau_{bus}} = \frac{1}{5.90\text{ ns}} \approx \mathbf{169.5\text{ MHz}}$$
 
 ### Step 2: Compute NoC Local Link Delay
 For a direct point-to-point NoC link of length $L_{link} = 2.65\text{ mm}$:
+
 $$R_{link} = 80\ \Omega/\text{mm} \times 2.65\text{ mm} = 212\ \Omega$$
+
 $$C_{link} = 0.18\text{ pF/mm} \times 2.65\text{ mm} = 0.477\text{ pF}$$
+
 $$\tau_{noc} \approx R_d \cdot (C_{link} + C_{load}) + 0.38 \cdot R_{link} \cdot C_{link}$$
+
 $$\tau_{noc} \approx 450\ \Omega \cdot (0.477\text{ pF} + 0.015\text{ pF}) + 0.38 \cdot 212\ \Omega \cdot 0.477\text{ pF}$$
+
 $$\tau_{noc} \approx 0.221\text{ ns} + 0.038\text{ ns} = \mathbf{0.259\text{ ns}}$$
 
 $$\text{Maximum NoC Link Clock: } f_{noc} \approx \frac{1}{2 \cdot \tau_{noc}} \approx \frac{1}{0.518\text{ ns}} \approx \mathbf{1.93\text{ GHz}}$$

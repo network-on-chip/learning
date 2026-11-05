@@ -125,7 +125,7 @@ graph TD
 2. **Shoreline Bandwidth Density:**
    Because chiplet signals exit the die along its perimeter (shoreline), shoreline density is measured in $\text{Gbps per mm}$ of die edge:
 
-   $$\text{Bandwidth Density} = \frac{N_{lanes} \times \text{Data Rate}}{\text{Module Width}} \ge 1300 \ \text{Gbps/mm} \ (1.3 \ \text{Tbps/mm})$$
+    $$\text{Bandwidth Density} = \frac{N_{lanes} \times \text{Data Rate}}{\text{Module Width}} \ge 1300 \ \text{Gbps/mm} \ (1.3 \ \text{Tbps/mm})$$
 
    This is over **$25\times$ denser** than standard off-package PCIe Gen 5 signaling!
 

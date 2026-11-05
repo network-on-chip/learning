@@ -390,19 +390,24 @@ if (document.readyState === "loading") {
 
 ### Step 1: Verify Clock Period Timing Feasibility for SMART
 The electrical propagation delay across $H_{max} = 4\text{ hops}$ is:
+
 $$t_{SMART} = H_{max} \times (t_{bypass} + t_{link}) = 4 \times (65\text{ ps} + 75\text{ ps}) = 4 \times 140\text{ ps} = \mathbf{560\text{ ps}}$$
 
 Adding flip-flop setup and clock-to-Q overhead ($t_{setup} + t_{cq} \approx 60\text{ ps}$):
+
 $$t_{total\_path} = 560\text{ ps} + 60\text{ ps} = \mathbf{620\text{ ps}} < T_{clk} = 667\text{ ps}$$
 
 **Timing is verified!** 4 complete hops can be traversed in a single $1.5\text{ GHz}$ clock cycle without timing violations.
 
 ### Step 2: Compare Average Latency
 For a 5.33-hop traversal:
+
 $$\text{1-Stage Bypass Router: } T_{bypass} = 5.33\text{ hops} \times 2\text{ cycles/hop} \approx \mathbf{10.66\text{ clock cycles} = 7.11\text{ ns}}$$
 
 For SMART ($H_{max} = 4$):
+
 $$\text{Number of SMART Cycles: } \lceil 5.33 / 4 \rceil = 2\text{ clock cycles}$$
+
 $$T_{SMART} = 2\text{ clock cycles} = \mathbf{1.33\text{ ns}}$$
 
 ### Conclusion:

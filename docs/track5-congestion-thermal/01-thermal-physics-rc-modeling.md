@@ -13,6 +13,7 @@ In this lesson, we establish the physical equations of silicon heat conduction, 
 ## 1. The Physics of Silicon Heat Conduction
 
 Heat flow in a semiconductor substrate is governed by **Fourier's Law of Thermal Conduction**:
+
 $$\mathbf{q = -k \nabla T}$$
 
 Where:
@@ -102,6 +103,7 @@ Where:
 - $\mathbf{G_{th}} = \mathbf{R_{th}}^{-1}$ is the symmetric thermal conductance matrix capturing both lateral heat spreading to neighboring tiles and vertical dissipation to the heat sink.
 
 In discrete time with sampling interval $\Delta t$:
+
 $$\mathbf{T}[k+1] = \mathbf{A} \mathbf{T}[k] + \mathbf{B} \mathbf{P}[k]$$
 
 Where $\mathbf{A} = \exp(-\mathbf{C_{th}}^{-1} \mathbf{G_{th}} \Delta t)$ and $\mathbf{B} = (\mathbf{I} - \mathbf{A}) \mathbf{G_{th}}^{-1}$.
@@ -116,16 +118,15 @@ The fundamental problem is the **astronomical mismatch between electrical and th
 
 ### 1. The Electrical Clock Cycle ($\tau_{clk}$)
 A modern on-chip processor running at $2.0\text{–}3.0\text{ GHz}$ completes instructions and transfers flits every **sub-nanosecond**:
+
 $$\tau_{clk} = \frac{1}{2.0\text{ GHz}} = \mathbf{0.5 \times 10^{-9}\text{ seconds (0.5 ns)}}$$
 
 ### 2. The Thermal Time Constant ($\tau_{th}$)
 Silicon and copper have large physical masses and heat capacities. The thermal time constant of a silicon die is given by:
+
 $$\tau_{th} = R_{th} \cdot C_{th} \approx \mathbf{5\text{ to } 15\text{ milliseconds (ms)}}$$
 
-```
-Timescale Ratio:
-  Ratio = \frac{\tau_{th}}{\tau_{clk}} = \frac{10 \times 10^{-3}\text{ s}}{0.5 \times 10^{-9}\text{ s}} = \mathbf{2 \times 10^7\text{ clock cycles}}!
-```
+$$\text{Timescale Ratio} = \frac{\tau_{th}}{\tau_{clk}} = \frac{10 \times 10^{-3}\text{ s}}{0.5 \times 10^{-9}\text{ s}} = \mathbf{2 \times 10^7\text{ clock cycles}}!$$
 
 ```
 Timescale Disparity Hazard:
@@ -148,7 +149,9 @@ When localized power density creates a hotspot ($T > 90^\circ\text{C}$), the chi
 
 ### 1. Subthreshold Leakage Power Explosion
 Subthreshold leakage current ($I_{leak}$) increases **exponentially** with temperature:
+
 $$I_{leak} \propto T^2 \exp\left( \frac{V_{GS} - V_{th}}{m \, k_B T / q} \right)$$
+
 At $85^\circ\text{C}$, leakage power accounts for over **$40\%$ of total chip power**! If heat is not removed, higher temperature causes higher leakage, which causes even higher heat—leading to **thermal runaway**!
 
 ### 2. Accelerated Silicon Failure (Black's Equation)
@@ -463,19 +466,27 @@ if (document.readyState === "loading") {
 
 ### Step 1: Compute Nominal Junction Temperature
 Using the thermal Ohm's law:
+
 $$\Delta T = P \cdot R_{th}$$
+
 $$T_{j, nom} = T_{amb} + P_{nom} \cdot R_{th} = 45^\circ\text{C} + (40\text{ W} \times 0.80\text{ K/W}) = 45^\circ\text{C} + 32^\circ\text{C} = \mathbf{77.0^\circ\text{C} \quad (350.15\text{ K})}$$
 
 ### Step 2: Compute Burst Junction Temperature
+
 $$T_{j, burst} = T_{amb} + P_{burst} \cdot R_{th} = 45^\circ\text{C} + (75\text{ W} \times 0.80\text{ K/W}) = 45^\circ\text{C} + 60^\circ\text{C} = \mathbf{105.0^\circ\text{C} \quad (378.15\text{ K})}$$
 
 ### Step 3: Compute MTTF Reduction via Black's Law
+
 $$\frac{\text{MTTF}_{burst}}{\text{MTTF}_{nom}} = \exp\left( \frac{E_a}{k_B} \left( \frac{1}{T_{burst}} - \frac{1}{T_{nom}} \right) \right)$$
 
 Where $k_B = 8.617 \times 10^{-5}\text{ eV/K}$:
+
 $$\frac{E_a}{k_B} = \frac{0.80}{8.617 \times 10^{-5}} \approx 9,284\text{ K}$$
+
 $$\Delta(1/T) = \frac{1}{378.15} - \frac{1}{350.15} = 0.002644 - 0.002856 = -0.000212\text{ K}^{-1}$$
+
 $$\text{Exponent} = 9,284 \times (-0.000212) = -1.968$$
+
 $$\mathbf{\frac{\text{MTTF}_{burst}}{\text{MTTF}_{nom}} = \exp(-1.968) \approx \mathbf{0.1397 \approx 14\%}}$$
 
 ### Takeaway:

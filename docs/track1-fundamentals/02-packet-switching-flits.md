@@ -156,6 +156,7 @@ Time --->
 ```
 
 #### Analytical Latency Model (Zero Load):
+
 $$T_{VCT} = H \cdot t_r + \frac{L}{W}$$
 
 Under zero contention, VCT cuts latency drastically: the packet length $L/W$ is incurred **only once** as a pipeline filling delay, while each hop adds only router processing delay $t_r$!
@@ -194,6 +195,7 @@ Router 2:                       [Head] (BLOCKED by contention)
 ```
 
 #### Zero-Load Latency:
+
 $$T_{WH} = H \cdot t_r + \frac{L}{W}$$
 
 Identical to Virtual Cut-Through under zero load!
@@ -560,19 +562,25 @@ This phenomenon can cause network throughput to collapse to a fraction of peak c
 > 2. Wormhole Switching (WH)
 
 ### Step 1: Compute Packet Length in Flits
+
 $$\text{Payload Flits} = \frac{512\text{ bits}}{128\text{ bits/flit}} = 4\text{ flits}$$
+
 $$\text{With Header Flit: } L = 1\text{ (Head)} + 4\text{ (Payload)} = 5\text{ flits}$$
+
 $$\text{Serialization Time: } \frac{L}{W} = 5\text{ clock cycles} = 2.5\text{ ns}$$
 
 ### Step 2: Store-and-Forward (SAF) Calculations
 Each hop must receive and buffer the entire 5-flit packet before forwarding:
+
 $$T_{hop, SAF} = t_r + \frac{L}{W} = 2\text{ cycles} + 5\text{ cycles} = 7\text{ cycles/hop}$$
+
 $$\text{Total Latency: } T_{SAF} = H \times T_{hop, SAF} = 6 \times 7\text{ cycles} = \mathbf{42\text{ clock cycles} = 21.0\text{ ns}}$$
 
 $$\text{Minimum Buffer Storage per Port: } B_{SAF} = L = 5\text{ flits} \times 128\text{ bits} = \mathbf{640\text{ bits (80 Bytes)}}$$
 
 ### Step 3: Wormhole Switching (WH) Calculations
 The Head flit cuts through routers pipelined, incurring serialization delay only once:
+
 $$T_{WH} = H \cdot t_r + \frac{L}{W} = (6 \times 2\text{ cycles}) + 5\text{ cycles} = \mathbf{17\text{ clock cycles} = 8.5\text{ ns}}$$
 
 $$\text{Minimum Buffer Storage per Port: } B_{WH} = 2\text{ flits} \times 128\text{ bits} = \mathbf{256\text{ bits (32 Bytes)}}$$

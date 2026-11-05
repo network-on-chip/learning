@@ -47,7 +47,9 @@ Silicon nanophotonics allows engineers to build microscopic "fiber optic cables"
 > This lets us do **Wavelength Division Multiplexing (WDM)**: we can send 16 different colors of light through a single microscopic waveguide at the same time, multiplying bandwidth by $16\times$!
 
 The resonant condition is governed by:
+
 $$m \lambda_{\text{res}} = 2 \pi R \cdot n_{\text{eff}}$$
+
 where $m$ is an integer (the mode number), $R$ is the ring radius, and $n_{\text{eff}}$ is the effective refractive index.
 
 ### 10.2.2 Switching Elements: Crossing (CSE) vs. Parallel (PSE)
@@ -66,6 +68,7 @@ How do we switch light between waveguides? As shown by **W.-Y. Kao et al. (IEEE 
 
 ### 10.3.1 Where Does the Light Go? (Optical Loss Budget)
 As light travels from the laser to the photodetector, it loses a fraction of its power at every step:
+
 $$L_{\text{path}}(\text{dB}) = L_{\text{prop}} + L_{\text{bend}} + L_{\text{cross}} + L_{\text{thru}} + L_{\text{drop}} + L_{\text{mod}}$$
 
 - **Waveguide Length**: Light dims as it travels ($0.25\text{ dB/cm}$).

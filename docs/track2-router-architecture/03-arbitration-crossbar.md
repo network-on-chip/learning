@@ -548,10 +548,13 @@ endmodule
 
 ### Step 1: Compute SA Critical Path Delay
 The Switch Allocation stage must complete input arbitration, signal routing, and output arbitration:
+
 $$t_{SA} = t_{cq} + t_{in\_arb} + t_{wire} + t_{out\_arb} + t_{setup}$$
+
 $$t_{SA} = 30\text{ ps} + 140\text{ ps} + 45\text{ ps} + 160\text{ ps} + 25\text{ ps} = \mathbf{400\text{ ps}}$$
 
 ### Step 2: Compute Maximum Clock Frequency
+
 $$f_{max} = \frac{1}{t_{SA}} = \frac{1}{400 \times 10^{-12}\text{ s}} = \frac{1}{0.400\text{ ns}} = \mathbf{2.50\text{ GHz}}$$
 
 The router can comfortably sustain a **2.50 GHz clock frequency**, switching over $1.6\text{ Terabits/second}$ across its 5 physical ports!

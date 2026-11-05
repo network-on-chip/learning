@@ -43,37 +43,54 @@ To evaluate any candidate topology objectively, we formalize the fundamental gra
 
 #### 1. Router Radix (Degree $k$)
 The degree of a node $u \in V$, denoted as $\text{deg}(u)$, is the number of physical links incident upon it:
+
 $$\text{deg}(u) = \text{deg}_{in}(u) + \text{deg}_{out}(u)$$
+
 In a symmetric, regular network where every node has degree $k$, the router radix is $k$. A router connected to 4 neighbors plus 1 local compute interface has a physical radix of $5$. Because the internal crossbar switch area and power scale quadratically with radix ($O(k^2)$), low-radix topologies minimize router microarchitectural area, whereas high-radix topologies require larger switches but slash network hop count.
 
 #### 2. Network Diameter ($D$)
 The diameter is the maximum shortest-path distance between any pair of nodes in the network:
+
 $$D = \max_{u, v \in V} d(u, v)$$
+
 where $d(u, v)$ is the minimum number of channel hops required to travel from source node $u$ to destination node $v$. Diameter represents the worst-case zero-load communication distance.
 
 #### 3. Average Hop Distance ($\bar{h}$)
 The expected hop count between randomly chosen source-destination pairs under a given spatial traffic distribution $p(u, v)$:
+
 $$\bar{h} = \sum_{u \in V} \sum_{v \in V, v \ne u} p(u, v) \cdot d(u, v)$$
+
 Under **Uniform Random (UR)** traffic, every node communicates with every other node with equal probability $p(u, v) = \frac{1}{N(N-1)}$, reducing the metric to:
+
 $$\bar{h}_{UR} = \frac{1}{N(N-1)} \sum_{u \ne v} d(u, v)$$
 
 #### 4. Bisection Bandwidth ($B_C$)
 The bisection bandwidth is the minimum bandwidth cut across the network that partitions the node set $V$ into two equal subsets $V_1$ and $V_2$ ($|V_1| = |V_2| = N/2$):
+
 $$B_C = \min_{V_1, V_2} \sum_{u \in V_1, v \in V_2, (u, v) \in E} C(u, v)$$
+
 where $C(u, v)$ is the channel bandwidth (in bits/sec or flits/cycle) of edge $(u, v)$. In symmetric topologies with uniform channel width $W$ bits and clock frequency $f_{clk}$, bisection bandwidth is expressed as the count of channels crossing the bisection cut $N_C$:
+
 $$B_C = N_C \cdot W \cdot f_{clk}$$
+
 Bisection bandwidth dictates the system's global throughput under adversarial or stress traffic patterns (e.g., bit-complement, matrix transpose).
 
 #### 5. Maximum Channel Load ($\gamma_{max}$) and Saturation Throughput ($\Theta_{sat}$)
 Let $\gamma_e$ denote the expected traffic volume traversing physical channel $e \in E$ when each node injects 1 flit per cycle. The **maximum channel load** $\gamma_{max}$ is defined as:
+
 $$\gamma_{max} = \max_{e \in E} \gamma_e$$
+
 Because a physical channel can carry at most 1 flit per cycle, the maximum achievable injection rate per node before network saturation (the **ideal saturation throughput** $\Theta_{sat}$) is strictly bounded by:
+
 $$\Theta_{sat} \le \frac{1}{\gamma_{max}} \le \frac{2 B_C}{N} \quad \text{[flits/node/cycle]}$$
+
 Under uniform random traffic across a bisection cut dividing the network in half, exactly half of the packets injected by $V_1$ are destined for $V_2$, requiring $\frac{N}{2} \times \frac{1}{2} = \frac{N}{4}$ flits/cycle to cross the cut in each direction. Hence, the aggregate cut demand is $\frac{N}{2}$, leading directly to the bound $\Theta_{sat} \le \frac{2 B_C}{N}$.
 
 #### 6. Zero-Load Latency ($T_0$)
 The average latency experienced by a packet of length $L$ flits traversing the network under zero contention:
+
 $$T_0 = (\bar{h} + 1) \cdot t_{router} + \bar{h} \cdot t_{wire} + \left( \frac{L - 1}{\text{Rate}} \right)$$
+
 where $t_{router}$ is the router pipeline latency (cycles/hop), $t_{wire}$ is the link flight time (cycles/hop), and $\frac{L - 1}{\text{Rate}}$ is the packet serialization latency across the channel.
 
 ---
@@ -110,15 +127,11 @@ graph TD
 ### 4.2.1 2D Mesh Topologies
 
 In a $k \times k$ 2D Mesh ($N = k^2$ nodes):
+
 - **Router Radix**: Interior routers have degree 5 (North, South, East, West, Local); edge routers have degree 4; corner routers have degree 3.
-- **Diameter**: The worst-case traversal is between opposing corners $(0, 0)$ and $(k-1, k-1)$:
-  $$D_{Mesh} = 2(k - 1)$$
-- **Average Hop Distance**: Evaluating $\bar{h} = \frac{1}{k^4 - k^2} \sum_{x_1, y_1} \sum_{x_2, y_2} (|x_1 - x_2| + |y_1 - y_2|)$:
-  $$\bar{h}_{Mesh} = \frac{2}{3} k \cdot \left(1 - \frac{1}{k^2}\right) \approx \frac{2}{3} k$$
-- **Bisection Bandwidth**: Bisecting the mesh along its central line cuts exactly $k$ bidirectional links (or $2k$ directional channels):
-  $$B_{C, Mesh} = 2k \cdot W$$
-  Consequently, ideal throughput per node scales inversely with grid dimension:
-  $$\Theta_{Mesh} \le \frac{2(2k \cdot W)}{k^2} = \frac{4 W}{k}$$
+- **Diameter**: The worst-case traversal is between opposing corners $(0, 0)$ and $(k-1, k-1)$: $D_{Mesh} = 2(k - 1)$.
+- **Average Hop Distance**: Evaluating $\bar{h} = \frac{1}{k^4 - k^2} \sum_{x_1, y_1} \sum_{x_2, y_2} (|x_1 - x_2| + |y_1 - y_2|)$, we obtain $\bar{h}_{Mesh} = \frac{2}{3} k \cdot \left(1 - \frac{1}{k^2}\right) \approx \frac{2}{3} k$.
+- **Bisection Bandwidth**: Bisecting the mesh along its central line cuts exactly $k$ bidirectional links (or $2k$ directional channels): $B_{C, Mesh} = 2k \cdot W$. Consequently, ideal throughput per node scales inversely with grid dimension: $\Theta_{Mesh} \le \frac{2(2k \cdot W)}{k^2} = \frac{4 W}{k}$.
 
 #### The Boundary Bottleneck of 2D Mesh
 Because edge and corner routers have fewer physical neighbors than interior routers, packets directed across the network converge disproportionately on the center routers. Under uniform traffic, the central channels exhibit a maximum channel load of $\gamma_{max} \approx \frac{k}{4}$ flits/cycle, causing the center of a large 2D mesh to saturate prematurely while the peripheral channels operate well below capacity.
@@ -126,25 +139,28 @@ Because edge and corner routers have fewer physical neighbors than interior rout
 ### 4.2.2 2D Torus & The Folded Torus
 
 A $k \times k$ **2D Torus** ($k$-ary 2-cube) adds periodic wrap-around links connecting node $(x, 0)$ to $(x, k-1)$ and node $(0, y)$ to $(k-1, y)$.
+
 - **Symmetry**: Every node is completely identical, eliminating edge effects and distributing channel loads uniformly.
-- **Diameter**:
-  $$D_{Torus} = 2 \cdot \left\lfloor \frac{k}{2} \right\rfloor$$
-  For an $8 \times 8$ network, the diameter drops from $14$ in a Mesh to $8$ in a Torus.
-- **Average Hop Distance**:
-  $$\bar{h}_{Torus} \approx \frac{k}{2} \quad (\text{slashed by 25\% compared to Mesh})$$
-- **Bisection Bandwidth**: Bisecting a torus cuts through two sets of wrap-around rings, cutting $2k$ bidirectional links ($4k$ directional channels):
-  $$B_{C, Torus} = 4k \cdot W \quad (\text{exactly } 2\times \text{ the Mesh bisection bandwidth})$$
+- **Diameter**: $D_{Torus} = 2 \cdot \left\lfloor \frac{k}{2} \right\rfloor$. For an $8 \times 8$ network, the diameter drops from $14$ in a Mesh to $8$ in a Torus.
+- **Average Hop Distance**: $\bar{h}_{Torus} \approx \frac{k}{2}$ (slashed by 25% compared to Mesh).
+- **Bisection Bandwidth**: Bisecting a torus cuts through two sets of wrap-around rings, cutting $2k$ bidirectional links ($4k$ directional channels): $B_{C, Torus} = 4k \cdot W$ (exactly $2\times$ the Mesh bisection bandwidth).
 
 #### The Long Wrap-Around Wire Crisis in Standard Torus
 In a naive planar layout of a $k \times k$ torus, the wrap-around wire connecting the extreme edges must span the entire width of the chip:
+
 $$L_{wrap} = (k - 1) \cdot L_0$$
+
 where $L_0$ is the tile-to-tile pitch. As demonstrated in Chapter 1's Elmore delay formulations, wire resistance and capacitance grow with length. At $k = 8$, a wrap-around link spanning 7 tiles suffers over **$49\times$ higher Elmore delay** than an adjacent tile link unless heavily pipelined with multiple register stages. This introduces severe link latency asymmetry into the network.
 
 #### The Folded Torus Solution
 The **Folded Torus** topology overcomes this physical wire crisis through an interleaved spatial node permutation. By interleaving even and odd physical tiles along each dimension:
+
 $$\text{Physical Order}: 0, \quad 2, \quad 4, \quad \dots, \quad k-2, \quad k-1, \quad \dots, \quad 3, \quad 1$$
+
 every link in the network—including all wrap-around paths—has an identical physical length:
+
 $$L_{link, Folded} = 2 \cdot L_0$$
+
 By trading a uniform link length of $2 L_0$ for the elimination of catastrophic $(k-1) L_0$ global wires, the Folded Torus maintains full clock frequency while preserving the topological diameter and bisection bandwidth advantages of the torus.
 
 ---
@@ -187,14 +203,16 @@ A 3-stage Clos network, denoted $C(n, m, r)$, consists of:
 - **Third Stage**: $r$ output switches, each of size $m \times n$.
 
 The fundamental properties derived by Charles Clos (1953) govern non-blocking behavior:
-1. **Strictly Non-Blocking (SNB)**:
-   A network is strictly non-blocking if any idle input can connect to any idle output without rearranging existing connections.
-   $$\text{Clos SNB Condition}: \quad m \ge 2n - 1$$
-   *Proof Sketch*: In the worst case, an incoming request arrives at an input switch where the other $n-1$ inputs are already connected to $n-1$ distinct middle switches. Similarly, the destination output switch has $n-1$ active connections from $n-1$ other middle switches. In the worst-case disjoint scenario, these two sets of middle switches do not overlap, consuming $(n-1) + (n-1) = 2n - 2$ switches. Thus, to guarantee that at least one free middle switch exists to establish the new connection without conflict, we require $m \ge (2n - 2) + 1 = 2n - 1$.
 
-2. **Rearrangeably Non-Blocking (RNB)**:
-   A network is rearrangeably non-blocking if any idle input can always be connected to any idle output, provided existing connections can be rerouted. By the **Slepian-Duguid Theorem**, a Clos network is rearrangeable if and only if:
-   $$\text{Clos RNB Condition}: \quad m \ge n$$
+- **Strictly Non-Blocking (SNB)**: A network is strictly non-blocking if any idle input can connect to any idle output without rearranging existing connections:
+
+$$m \ge 2n - 1$$
+
+  *Proof Sketch*: In the worst case, an incoming request arrives at an input switch where the other $n-1$ inputs are already connected to $n-1$ distinct middle switches. Similarly, the destination output switch has $n-1$ active connections from $n-1$ other middle switches. In the worst-case disjoint scenario, these two sets of middle switches do not overlap, consuming $(n-1) + (n-1) = 2n - 2$ switches. Thus, to guarantee that at least one free middle switch exists to establish the new connection without conflict, we require $m \ge (2n - 2) + 1 = 2n - 1$.
+
+- **Rearrangeably Non-Blocking (RNB)**: A network is rearrangeably non-blocking if any idle input can always be connected to any idle output, provided existing connections can be rerouted. By the **Slepian-Duguid Theorem**, a Clos network is rearrangeable if and only if:
+
+$$m \ge n$$
 
 ### 4.3.2 Fat-Tree Topologies (Spine-Leaf)
 
@@ -233,8 +251,7 @@ graph LR
 
 Proposed by John Kim et al. (ISCA 2007), the **Flattened Butterfly** projects a multi-stage butterfly network into a direct topology by combining the switches in each row into a single high-radix router.
 - In a $k \times k$ Flattened Butterfly, each router connects directly to every other router in the same row and the same column.
-- **Diameter**:
-  $$D_{FBfly} = 2 \quad (\text{any node is at most 2 hops away})$$
+- **Diameter**: $D_{FBfly} = 2$ (any node is at most 2 hops away).
 - **Routing**: Minimal routing requires at most 1 hop along dimension $X$ and 1 hop along dimension $Y$.
 - **Tradeoff**: While hop latency drops to just 2 router crossings, router radix explodes to $k_{radix} = 2(k - 1) + p$, where $p$ is the concentration factor. For $k = 8$, router radix exceeds 18 ports.
 
@@ -294,15 +311,10 @@ A fundamental misconception in early NoC literature was that full crossbars are 
 ### 4.6.1 The Passas-Katevenis Crossbar Scalability Theorem
 
 Passas et al. fabricated and modeled a **radix-128 crossbar** in 90nm CMOS operating at 750 MHz:
-1. **Silicon Area Overhead**:
-   The crossbar datapath occupied only $6.6\text{ mm}^2$ (with 90% standard-cell utilization), while the control path occupied $7\text{ mm}^2$. In a $150\text{ mm}^2$ die containing 128 $1\text{ mm}^2$ processor tiles, the crossbar occupied **only 11% of the total die area**, including all global link repeaters and pipeline flip-flops.
-2. **Wire Pitch vs. Gate Area**:
-   Because modern CMOS technologies provide 8 to 12 metal layers, all $N$ data tracks of the crossbar fit directly **over the standard cells** on intermediate metal layers (M4–M7), without expanding the silicon cell footprint. Crossbar area actually grows as:
-   $$\text{Area}_{crossbar} \approx O(N^2 \cdot W)$$
-   where $W$ is the wire pitch, while crossbar propagation delay scales as:
-   $$\text{Delay}_{crossbar} \approx O(\sqrt{N \cdot W})$$
-3. **Performance Trade-Off vs. 2D Mesh**:
-   Under local or benign traffic, a 2D mesh is superior because adjacent tiles communicate in 1 or 2 hops with zero global wire energy. However, under **global, stressed, or adversarial traffic patterns**, the radix-128 crossbar outperformed the 2D mesh by up to $3\times$ in throughput and $2.5\times$ in latency, because it completely eliminates multi-hop queueing contention and router buffer stalls.
+
+- **Silicon Area Overhead**: The crossbar datapath occupied only $6.6\text{ mm}^2$ (with 90% standard-cell utilization), while the control path occupied $7\text{ mm}^2$. In a $150\text{ mm}^2$ die containing 128 $1\text{ mm}^2$ processor tiles, the crossbar occupied **only 11% of the total die area**, including all global link repeaters and pipeline flip-flops.
+- **Wire Pitch vs. Gate Area**: Because modern CMOS technologies provide 8 to 12 metal layers, all $N$ data tracks of the crossbar fit directly **over the standard cells** on intermediate metal layers (M4–M7), without expanding the silicon cell footprint. Crossbar area grows as $\text{Area}_{crossbar} \approx O(N^2 \cdot W)$ (where $W$ is the wire pitch), while crossbar propagation delay scales as $\text{Delay}_{crossbar} \approx O(\sqrt{N \cdot W})$.
+- **Performance Trade-Off vs. 2D Mesh**: Under local or benign traffic, a 2D mesh is superior because adjacent tiles communicate in 1 or 2 hops with zero global wire energy. However, under **global, stressed, or adversarial traffic patterns**, the radix-128 crossbar outperformed the 2D mesh by up to $3\times$ in throughput and $2.5\times$ in latency, because it completely eliminates multi-hop queueing contention and router buffer stalls.
 
 ---
 
