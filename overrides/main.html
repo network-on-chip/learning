@@ -62,18 +62,21 @@
       }
 
       // Intercept attachShadow at the earliest stage before bundle.min.js initializes
-      const origAttach = Element.prototype.attachShadow;
-      Element.prototype.attachShadow = function (init) {
-        const shadow = origAttach.call(this, { mode: 'open' });
-        
-        // Apply styling whenever DOM tree inside shadow root changes
-        const observer = new MutationObserver(() => injectStyle(shadow));
-        observer.observe(shadow, { childList: true, subtree: true });
-        
-        // Initial application pass
-        setTimeout(() => injectStyle(shadow), 0);
-        return shadow;
-      };
+      if (!window.__noc_attachShadow_intercepted) {
+        window.__noc_attachShadow_intercepted = true;
+        const origAttach = Element.prototype.attachShadow;
+        Element.prototype.attachShadow = function (init) {
+          const shadow = origAttach.call(this, { mode: 'open' });
+          
+          // Apply styling whenever DOM tree inside shadow root changes
+          const observer = new MutationObserver(() => injectStyle(shadow));
+          observer.observe(shadow, { childList: true, subtree: true });
+          
+          // Initial application pass
+          setTimeout(() => injectStyle(shadow), 0);
+          return shadow;
+        };
+      }
     })();
   </script>
 {% endblock %}
