@@ -538,6 +538,54 @@ const QUESTIONS_BANK = [
     ],
     "answer": 0,
     "explanation": "Protocol deadlock occurs when cores cannot process incoming requests because outgoing response buffers are blocked. PCMT grants preemptive priority to coherence response messages, draining dependent flows and slashing router input buffer area by up to 63% without rigid virtual network walls."
+  },
+  {
+    "id": "q28",
+    "module": "Track 5: Thermal & Low-Power (Book Ch 6)",
+    "tier": "Tier 1: Fundamental",
+    "tier_level": 1,
+    "base_points": 100,
+    "question": "What is the physical significance of the 'breakeven idle time' (tau_breakeven) when evaluating runtime power gating for an on-chip router component?",
+    "options": [
+      "It is the minimum duration the component must remain powered down so that saved sub-threshold leakage energy exceeds the dynamic energy overhead of sleep-transistor charging and wakeup.",
+      "It is the time required for a copper interconnect to melt due to thermal runaway.",
+      "It is the clock cycle latency needed for a router to route 1,000 packets.",
+      "It is the time interval between two periodic system resets."
+    ],
+    "answer": 0,
+    "explanation": "Power gating incurs dynamic energy overhead to charge and discharge sleep transistor gates (E_overhead = E_sleep + E_wake). The breakeven time tau_breakeven = E_overhead / P_leakage represents the threshold beyond which power gating yields a net positive energy reduction."
+  },
+  {
+    "id": "q29",
+    "module": "Track 5: Thermal & Low-Power (Book Ch 6)",
+    "tier": "Tier 2: Core Engineering",
+    "tier_level": 2,
+    "base_points": 200,
+    "question": "In ultrafine-grained runtime power gating (Matsutani et al., IEEE TCAD 2011), how does 'Lookahead Early Wakeup' prevent latency degradation caused by router wake-up delays?",
+    "options": [
+      "When an upstream router prepares to forward a flit, it transmits an early 1-bit wake-up strobe to the downstream neighbor 1 or 2 cycles in advance, completing sleep-transistor wake-up before the flit arrives.",
+      "It doubles the operating voltage of upstream buffers to force packets through sleeping switches.",
+      "It eliminates crossbar switches by replacing them with permanent analog pass gates.",
+      "It routes all flits exclusively along chip perimeters where routers never sleep."
+    ],
+    "answer": 0,
+    "explanation": "Because restoring virtual VDD through PMOS header sleep switches requires 1 to 2 clock cycles, waiting for flit arrival incurs stalls. Lookahead Early Wakeup sends an activation pulse concurrently with upstream switch allocation, hiding the wake-up latency completely."
+  },
+  {
+    "id": "q30",
+    "module": "Track 5: Thermal & Low-Power (Book Ch 6)",
+    "tier": "Tier 3: Silicon Mastery",
+    "tier_level": 3,
+    "base_points": 300,
+    "question": "How does Low-Power Code Reordering (LPCR, Adelkhani et al., IEEE TCAD 2025) exploit information theory to minimize dynamic switching power in high-speed serial on-chip links?",
+    "options": [
+      "By mapping high-probability consecutive symbol pairs to minimum-Hamming-distance codewords via a maximum-weight matching graph optimization, drastically reducing bit transition activity.",
+      "By inverting every single bit in every packet regardless of data distribution.",
+      "By compressing all data flits into 1-bit pulses using run-length encoding.",
+      "By reducing the clock frequency to 1 Hz whenever non-zero data is detected."
+    ],
+    "answer": 0,
+    "explanation": "LPCR constructs an empirical transition probability matrix across serial link words. By transforming the codeword assignment into a maximum-weight matching problem on a complete bipartite graph, it assigns minimum Hamming-distance transitions to the highest-probability consecutive symbol pairs, reducing dynamic link switching power by up to 28% without latency overhead."
   }
 ];
 

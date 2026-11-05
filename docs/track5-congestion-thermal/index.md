@@ -11,6 +11,12 @@
     <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: rgba(16, 185, 129, 0.2);">🔬 4 Interactive Simulators &amp; Visualizers</span>
     <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">💻 4 Synthesizable Verilog RTL Modules</span>
     <span class="noc-track-badge" style="background: rgba(147, 51, 234, 0.1); color: #9333ea; border-color: rgba(147, 51, 234, 0.2);">🔥 Grounded in Verified Open-Source Lab Projects</span>
+</div>
+
+<div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
+  <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Official Companion Textbook Chapters Available</div>
+  <div style="color: #334155; font-size: 0.95rem;">
+    For comprehensive mathematical treatment of sub-threshold leakage, Arrhenius thermal scaling, ultrafine-grained power gating, and distributed DVFS (LAURA, TCAS-II 2013; LPCR, TCAD 2025), read <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch06-low-power-dark-silicon/index.md" target="_blank" rel="noopener">Chapter 6: Low-Power Architectures &amp; Dark Silicon Dynamics</a></strong>. For compact RC duality, sensor estimation, and fault-tolerant routing, see <strong>Chapter 7: Thermal Modeling, Hotspots &amp; Fault-Tolerant Resilience</strong>.
   </div>
 </div>
 
