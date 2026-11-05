@@ -133,4 +133,4 @@ Upon completing Track 2, you will be able to:
 4. **Evaluate Separable Switch Allocators** (Input-First vs Output-First) and calculate bipartite matching efficiency under synthetic and real-world traffic patterns.
 5. **Architect single-cycle speculative bypass routers** (SMART and lookahead routing) to compress per-hop traversal penalties from 5 clock cycles down to 1 clock cycle.
 
-Ready to begin? Start with **[Lesson 2.1: Canonical Router Pipeline](01-pipeline-stages/)**.
+Ready to begin? Start with **[Lesson 2.1: Canonical Router Pipeline](01-pipeline-stages.md)**.

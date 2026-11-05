@@ -342,4 +342,4 @@ graph LR
 ```
 
 ### Ready to Start?
-Begin your journey with [Track 1: Interconnect Fundamentals](track1-fundamentals/) or try out the [Interactive Simulator](interactive/visualizer/)!
+Begin your journey with [Track 1: Interconnect Fundamentals](track1-fundamentals/index.md) or try out the [Interactive Simulator](interactive/visualizer.md)!

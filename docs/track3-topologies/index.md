@@ -122,4 +122,4 @@ Upon completing Track 3, you will be able to:
 4. **Evaluate throughput limits under benchmark traffic patterns** (Uniform Random, Bit-Complement, Transpose, Tornado) and identify the bottleneck bisection channels.
 5. **Architect High-Radix topologies** (Flattened Butterfly and Dragonfly) to compress network diameter down to 2–3 hops for exascale AI and server fabrics.
 
-Ready to begin? Start with **[Lesson 3.1: Direct Topologies (Mesh & Torus)](01-direct-topologies/)**.
+Ready to begin? Start with **[Lesson 3.1: Direct Topologies (Mesh & Torus)](01-direct-topologies.md)**.

@@ -128,4 +128,4 @@ Upon completing Track 4, you will be able to:
 5. **Architect Escape Virtual Channels** ($C = C_1 \cup C_0$) in router crossbars to enable aggressive adaptive routing without deadlock risk.
 6. **Differentiate routing-level deadlock from cache coherence protocol-level deadlock**, and design multi-tier Virtual Networks (VNETs) to eliminate Request-Response dependency cycles.
 
-Ready to begin? Start with **[Lesson 4.1: Deterministic Dimension-Order Routing (DOR)](01-deterministic-dor/)**.
+Ready to begin? Start with **[Lesson 4.1: Deterministic Dimension-Order Routing (DOR)](01-deterministic-dor.md)**.

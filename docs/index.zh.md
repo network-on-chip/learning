@@ -317,5 +317,5 @@ graph LR
 ```
 
 ### 准备好开始了吗？
-立即开启你的第一步：[第一模块：片上网络基础](track1-fundamentals/)，或者前往体验 [交互式二维路由仿真器](interactive/visualizer/)！
+立即开启你的第一步：[第一模块：片上网络基础](track1-fundamentals/index.md)，或者前往体验 [交互式二维路由仿真器](interactive/visualizer.md)！
 

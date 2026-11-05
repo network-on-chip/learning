@@ -123,4 +123,4 @@ Upon completing Track 5, you will be able to:
 5. **Optimize thermal sensor placement** via Fisher Information maximization to achieve minimal reconstruction error with a minimal sensor budget ($K \ll N$).
 6. **Apply robust M-estimation and Kalman filtering** to filter out non-Gaussian EMI sensor noise and process variation drift.
 
-Ready to begin? Start with **[Lesson 5.1: Thermal Physics & Compact RC Modeling](01-thermal-physics-rc-modeling/)**.
+Ready to begin? Start with **[Lesson 5.1: Thermal Physics & Compact RC Modeling](01-thermal-physics-rc-modeling.md)**.
