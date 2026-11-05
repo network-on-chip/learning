@@ -551,63 +551,253 @@ The Folded Torus achieves **double the cross-chip bisection bandwidth** ($1.024\
 
 ---
 
-## 7. 🎯 Knowledge Check: Lesson 3.1
+---
 
-<div class="noc-sim-container" id="quiz31" style="margin-top:1rem;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
-    📝 Concept Check: Direct Topologies
+## 7. 💻 Synthesizable Hardware: Folded Torus Coordinate & Link Mapper
+
+In a physical silicon layout of a Folded Torus, routers must map logical 2D torus indices $(x, y)$ into interleaved physical tile locations on the die ($P(i) = 2i$ if $i < K/2$ else $2(K - 1 - i) + 1$) and compute output directions along the shortest wrap-around path.
+
+The Verilog module below, `folded_torus_node_map.v`, provides a fully synthesizable coordinate mapper, Manhattan link direction generator, and physical wire pitch diagnostic unit:
+
+```verilog
+//=============================================================================
+// Module: folded_torus_node_map
+// Description: Synthesizable Folded Torus Physical Coordinate Mapper & Routing
+//              Direction Generator for k-ary 2-cube networks.
+//              Solves long wrap-around wire constraints by interleaving nodes:
+//              P(i) = 2*i                if i < K/2
+//              P(i) = 2*(K - 1 - i) + 1  if i >= K/2
+//              Guarantees all physical inter-router links are <= 2 tile pitches.
+//=============================================================================
+
+module folded_torus_node_map #(
+    parameter integer K        = 8, // Radix per dimension (8x8 = 64 nodes)
+    parameter integer COORD_W  = 3, // log2(K) = 3 bits
+    parameter integer DATA_W   = 64 // Packet payload width
+)(
+    input  wire                 clk,
+    input  wire                 rst_n,
+
+    // Current Router Configuration
+    input  wire [COORD_W-1:0]   src_x,
+    input  wire [COORD_W-1:0]   src_y,
+
+    // Incoming Packet Header
+    input  wire                 pkt_valid,
+    input  wire [COORD_W-1:0]   dest_x,
+    input  wire [COORD_W-1:0]   dest_y,
+    input  wire [DATA_W-1:0]    pkt_data,
+
+    // Computed Physical Coordinates & Wire Span Diagnostics
+    output reg  [COORD_W-1:0]   phys_src_x,
+    output reg  [COORD_W-1:0]   phys_src_y,
+    output reg  [COORD_W-1:0]   phys_dest_x,
+    output reg  [COORD_W-1:0]   phys_dest_y,
+    output reg  [1:0]           max_wire_pitch, // Max wire span (strictly <= 2 pitches)
+
+    // Decoded Output Direction (1-hot: [4]=LOCAL, [3]=NORTH, [2]=SOUTH, [1]=EAST, [0]=WEST)
+    output reg  [4:0]           route_dir_1hot,
+    output reg                  route_valid
+);
+
+    // Folded Physical Coordinate Mapping Function
+    function automatic [COORD_W-1:0] fold_map;
+        input [COORD_W-1:0] logical_coord;
+        begin
+            if (logical_coord < (K / 2)) begin
+                fold_map = logical_coord << 1; // Even positions: 0, 2, 4, ...
+            end else begin
+                fold_map = (((K - 1) - logical_coord) << 1) + 1'b1; // Odd positions: ..., 5, 3, 1
+            end
+        end
+    endfunction
+
+    // Shortest Torus Direction Decoders
+    wire [COORD_W-1:0] diff_x_fwd = (dest_x >= src_x) ? (dest_x - src_x) : (K + dest_x - src_x);
+    wire [COORD_W-1:0] diff_x_rev = (src_x >= dest_x) ? (src_x - dest_x) : (K + src_x - dest_x);
+    wire [COORD_W-1:0] diff_y_fwd = (dest_y >= src_y) ? (dest_y - src_y) : (K + dest_y - src_y);
+    wire [COORD_W-1:0] diff_y_rev = (src_y >= dest_y) ? (src_y - dest_y) : (K + src_y - dest_y);
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            phys_src_x     <= {COORD_W{1'b0}};
+            phys_src_y     <= {COORD_W{1'b0}};
+            phys_dest_x    <= {COORD_W{1'b0}};
+            phys_dest_y    <= {COORD_W{1'b0}};
+            max_wire_pitch <= 2'd0;
+            route_dir_1hot <= 5'b00000;
+            route_valid    <= 1'b0;
+        end else begin
+            route_valid <= pkt_valid;
+            if (pkt_valid) begin
+                // Compute interleaved physical coordinates
+                phys_src_x  <= fold_map(src_x);
+                phys_src_y  <= fold_map(src_y);
+                phys_dest_x <= fold_map(dest_x);
+                phys_dest_y <= fold_map(dest_y);
+
+                // Physical wire span is mathematically bounded to <= 2 tile pitches
+                max_wire_pitch <= 2'd2;
+
+                // Dimension-Order (DOR) Torus Routing: Resolve X first, then Y
+                if (dest_x == src_x && dest_y == src_y) begin
+                    route_dir_1hot <= 5'b10000; // LOCAL Core Ejection
+                end else if (dest_x != src_x) begin
+                    if (diff_x_fwd <= diff_x_rev) begin
+                        route_dir_1hot <= 5'b00010; // EAST (Logical +X)
+                    end else begin
+                        route_dir_1hot <= 5'b00001; // WEST (Logical -X)
+                    end
+                end else begin
+                    if (diff_y_fwd <= diff_y_rev) begin
+                        route_dir_1hot <= 5'b00100; // SOUTH (Logical +Y)
+                    end else begin
+                        route_dir_1hot <= 5'b01000; // NORTH (Logical -Y)
+                    end
+                end
+            end else begin
+                route_dir_1hot <= 5'b00000;
+            end
+        end
+    end
+
+endmodule
+```
+
+---
+
+## 8. 🕹️ Interactive Lab & Arcade Arena
+
+Put your topological intuition to the test with hands-on silicon design challenges:
+
+<div class="noc-tracks-grid" style="margin-top:1rem;">
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(37,99,235,0.15); color:#2563eb;">Arcade Mission</span>
+      <div class="noc-track-title">🌐 Topology Titans: Ring to Torus</div>
+      <div class="noc-track-desc">
+        Take a 16-node ring with diameter 8 hops and wire periodic shortcuts and wrap-around links to cut diameter to &le; 4 hops while keeping node radix bounded to 4 ports.
+      </div>
+    </div>
+    <a href="../interactive/topology/" class="noc-track-link">Play Topology Titans →</a>
   </div>
 
-  <div id="q31_block">
-    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
-      <b>Question:</b> What physical VLSI problem does the "Folded Torus" architecture solve compared to a naive 2D Torus layout?
-    </p>
-
-    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q31_options">
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz31(0)">
-        A. It eliminates crossbar multiplexers from the router.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz31(1)">
-        B. It interleaves physical node positions so that all wrap-around links are at most 2 tile widths long, eliminating long global wires that would otherwise degrade clock frequency.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz31(2)">
-        C. It converts 2D silicon into a 3D ball of wires.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz31(3)">
-        D. It reduces node degree from 4 down to 1.
-      </button>
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(16,185,129,0.15); color:#059669;">Silicon Visualizer</span>
+      <div class="noc-track-title">🧭 Interactive NoC Visualizer</div>
+      <div class="noc-track-desc">
+        Observe flit-by-flit traffic flows across 2D Mesh and Torus networks under synthetic loads, monitoring bisection link saturation in real time.
+      </div>
     </div>
+    <a href="../interactive/visualizer/" class="noc-track-link">Launch Visualizer →</a>
+  </div>
+</div>
 
-    <div id="q31_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+---
+
+## 9. 🎯 Comprehensive Self-Assessment Quiz
+
+Test your understanding of direct network metrics, layout folding, and bisection bandwidth:
+
+<div class="noc-sim-container" id="quiz31_container" style="margin-top:1rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--tcl-border); padding-bottom:0.5rem;">
+    <span style="font-weight:700; font-size:1.05rem; color:var(--tcl-heading);">📝 Lesson 3.1 Self-Check</span>
+    <span id="quiz31_score" style="font-weight:700; font-size:0.9rem; color:#2563eb;">Score: 0 / 3</span>
+  </div>
+
+  <!-- Question 1 -->
+  <div class="quiz-item" style="margin-bottom:1.5rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q1:</b> What physical VLSI problem does the <strong>Folded Torus</strong> architecture eliminate compared to a naive 2D Torus layout?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q31_1_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ31(1, 0)">A. It eliminates crossbar multiplexers from interior routers.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ31(1, 1)">B. It interleaves physical node positions so that all wrap-around links are at most 2 tile widths long, eliminating long global wires that degrade clock frequency.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ31(1, 2)">C. It converts 2D silicon into 3D through-silicon vias (TSVs).</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ31(1, 3)">D. It reduces router node degree from 4 down to 1.</button>
+    </div>
+    <div id="q31_1_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 2 -->
+  <div class="quiz-item" style="margin-bottom:1.5rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q2:</b> For an $8 \times 8$ network ($N = 64$ nodes, channel width $w$), how does the Bisection Bandwidth ($B_b$) of a 2D Torus compare to a 2D Mesh?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q31_2_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ31(2, 0)">A. It is identical ($16 \cdot w$), because both networks have 64 nodes.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ31(2, 1)">B. It is exactly double ($32 \cdot w$ vs $16 \cdot w$), because the vertical bisection cut severs both standard mesh links and wrap-around links in both directions.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ31(2, 2)">C. It is $4\times$ higher ($64 \cdot w$), because torus routers have 8 network ports.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ31(2, 3)">D. It is lower, because wrap-around channels steal bandwidth from local cores.</button>
+    </div>
+    <div id="q31_2_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div class="quiz-item" style="margin-bottom:1rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q3:</b> Why does a 2D Torus achieve a lower average hop distance ($H_{avg} = \frac{1}{2} k$) than a 2D Mesh ($H_{avg} = \frac{2}{3} k$)?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q31_3_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ31(3, 0)">A. Because Torus routers operate at double clock frequency.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ31(3, 1)">B. Because wrap-around links make the network completely symmetric, capping the maximum distance in any dimension to $\lfloor k/2 \rfloor$ hops instead of $k-1$ hops.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ31(3, 2)">C. Because flits skip intermediate routers asynchronously without buffering.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ31(3, 3)">D. Because Torus topologies only route packets between adjacent tiles.</button>
+    </div>
+    <div id="q31_3_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
   </div>
 </div>
 
 <script>
-function checkQuiz31(idx) {
-  const fb = document.getElementById("q31_feedback");
-  fb.style.display = "block";
-  const opts = document.getElementById("q31_options").children;
+let q31Score = 0;
+const answeredQ31 = {1: false, 2: false, 3: false};
+
+function answerQ31(qNum, selected) {
+  if (answeredQ31[qNum]) return;
+  answeredQ31[qNum] = true;
+
+  const correctAnswers = {1: 1, 2: 1, 3: 1};
+  const isCorrect = (selected === correctAnswers[qNum]);
+  const fb = document.getElementById("q31_" + qNum + "_feedback");
+  const opts = document.getElementById("q31_" + qNum + "_options").children;
+
   for (let i = 0; i < opts.length; i++) {
-    opts[i].onclick = null;
     opts[i].style.cursor = "default";
+    opts[i].onclick = null;
   }
 
-  if (idx === 1) {
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(34,197,94,0.1)";
-    fb.style.border = "1px solid rgba(34,197,94,0.3)";
+  if (isCorrect) {
+    q31Score++;
+    opts[selected].style.background = "rgba(34, 197, 94, 0.15)";
+    opts[selected].style.borderColor = "#22c55e";
+    fb.style.display = "block";
+    fb.style.background = "rgba(34, 197, 94, 0.1)";
+    fb.style.border = "1px solid rgba(34, 197, 94, 0.3)";
     fb.style.color = "#166534";
-    fb.innerHTML = "<strong>✓ Correct!</strong> Naive torus wrap-around wires span across the entire chip ((k-1) tile widths). The Folded Torus interleaves nodes (0, 2, 4, ... 5, 3, 1), ensuring that every physical wire is at most 2 tile widths long.";
+    fb.innerHTML = "<strong>✓ Correct!</strong> " + getQ31Explanation(qNum, true);
   } else {
-    opts[idx].style.background = "rgba(239,68,68,0.15)";
-    opts[idx].style.borderColor = "#ef4444";
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(239,68,68,0.1)";
-    fb.style.border = "1px solid rgba(239,68,68,0.3)";
+    opts[selected].style.background = "rgba(239, 68, 68, 0.15)";
+    opts[selected].style.borderColor = "#ef4444";
+    opts[correctAnswers[qNum]].style.background = "rgba(34, 197, 94, 0.15)";
+    opts[correctAnswers[qNum]].style.borderColor = "#22c55e";
+    fb.style.display = "block";
+    fb.style.background = "rgba(239, 68, 68, 0.1)";
+    fb.style.border = "1px solid rgba(239, 68, 68, 0.3)";
     fb.style.color = "#991b1b";
-    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. Folding the torus equalizes all link lengths to at most 2 tile pitches, eliminating long RC wire delay bottlenecks.";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> " + getQ31Explanation(qNum, false);
+  }
+
+  document.getElementById("quiz31_score").textContent = "Score: " + q31Score + " / 3";
+}
+
+function getQ31Explanation(qNum, wasCorrect) {
+  if (qNum === 1) {
+    return "Naive torus wrap-around wires span (k-1) tile widths across the chip. Folding interleaves even and odd nodes, guaranteeing that all physical wires are at most 2 tile pitches long.";
+  } else if (qNum === 2) {
+    return "Bisecting a 2D mesh cuts k bidirectional links (2k unidirectional channels = 16 links for k=8). In a 2D torus, wrap-around channels also cross the cut, slicing 4k channels (32 links), exactly doubling bisection bandwidth.";
+  } else {
+    return "In a 1D ring of k nodes, wrap-arounds cap shortest-path distance to k/2 hops (average k/4). In a 2D torus, independent dimensions yield H_avg = 2 * (k/4) = k/2 hops, compared to (2/3)k in a mesh.";
   }
 }
 </script>
@@ -618,9 +808,11 @@ function checkQuiz31(idx) {
 
 In this lesson, we established:
 - Mathematical derivations of **Node Degree, Diameter, Average Hops, and Bisection Bandwidth** for $k$-ary 2-cube networks.
-- Why the **2D Mesh** is standard for simple physical layout, and why the **2D Torus** delivers $2\times$ bisection bandwidth.
-- How the **Folded Torus** layout eliminates long wrap-around wire delays.
+- Why the **2D Mesh** is favored for simple planar tiling, and why the **2D Torus** delivers $2\times$ bisection bandwidth.
+- How the **Folded Torus** layout equalizes all link lengths to at most 2 tile pitches, eliminating long-wire RC latency degradation.
+- Synthesizable Verilog implementation of the `folded_torus_node_map.v` module.
 
 In the next lesson, we examine **Indirect Networks (Fat-Trees)** and **Concentrated Meshes (cMesh)**.
 
 👉 **Proceed to [Lesson 3.2: Indirect & Concentrated Networks](02-indirect-hierarchical.md)**
+

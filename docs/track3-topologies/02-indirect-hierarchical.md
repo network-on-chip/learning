@@ -319,63 +319,270 @@ Even though an individual 8-port cMesh router is larger than a 5-port mesh route
 
 ---
 
-## 7. 🎯 Knowledge Check: Lesson 3.2
+## 7. 💻 Synthesizable Hardware: 4:1 cMesh Concentrator & Ejection Unit
 
-<div class="noc-sim-container" id="quiz32" style="margin-top:1rem;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
-    📝 Concept Check: Indirect &amp; Concentrated Networks
+In a Concentrated Mesh (cMesh), four processing elements (cores, L2 cache slices, or memory controllers) share a single high-radix router switch. The network interface requires a **Concentrator / Ejection Switch** that:
+1. Multiplexes packet injection requests from 4 cores into the router's local injection port using a fair round-robin arbiter with ready/valid flow control.
+2. Demultiplexes incoming ejection flits to the targeted compute core using a 2-bit local sub-node identifier (`target_subnode = flit[1:0]`).
+
+The synthesizable Verilog implementation below, `cmesh_concentrator.v`, realizes this architecture with zero-cycle combinatorial ejection routing and single-cycle round-robin injection arbitration:
+
+```verilog
+//=============================================================================
+// Module: cmesh_concentrator
+// Description: Synthesizable 4:1 Concentration & Ejection Switch for
+//              Concentrated Mesh (cMesh) router interfaces.
+//              - Multiplexes 4 local compute cores into 1 router injection FIFO
+//                using fair round-robin arbitration with backpressure.
+//              - Demultiplexes incoming router ejection flits to the target core
+//                using the destination sub-node ID: dest_subnode[1:0].
+//=============================================================================
+
+module cmesh_concentrator #(
+    parameter integer FLIT_WIDTH = 64,
+    parameter integer SUBNODE_W  = 2   // 4 cores per router tile (2 bits)
+)(
+    input  wire                    clk,
+    input  wire                    rst_n,
+
+    // Core Injections (Cores 0..3 -> Router)
+    input  wire [3:0]              core_inj_valid,
+    input  wire [4*FLIT_WIDTH-1:0] core_inj_flit,
+    output reg  [3:0]              core_inj_ready,
+
+    // Concentrated Injection to Router
+    output reg                     router_inj_valid,
+    output reg  [FLIT_WIDTH-1:0]   router_inj_flit,
+    input  wire                    router_inj_ready,
+
+    // Ejection from Router -> Cores 0..3
+    input  wire                    router_ej_valid,
+    input  wire [FLIT_WIDTH-1:0]   router_ej_flit,
+    output wire                    router_ej_ready,
+
+    // Core Ejections (Router -> Cores 0..3)
+    output reg  [3:0]              core_ej_valid,
+    output wire [4*FLIT_WIDTH-1:0] core_ej_flit,
+    input  wire [3:0]              core_ej_ready
+);
+
+    // Unpack Core Injection Flits
+    wire [FLIT_WIDTH-1:0] flits_in [0:3];
+    assign flits_in[0] = core_inj_flit[0*FLIT_WIDTH +: FLIT_WIDTH];
+    assign flits_in[1] = core_inj_flit[1*FLIT_WIDTH +: FLIT_WIDTH];
+    assign flits_in[2] = core_inj_flit[2*FLIT_WIDTH +: FLIT_WIDTH];
+    assign flits_in[3] = core_inj_flit[3*FLIT_WIDTH +: FLIT_WIDTH];
+
+    // Round-Robin Arbiter for 4:1 Injection
+    reg [1:0] rr_ptr;
+    reg [1:0] grant_idx;
+    reg       grant_valid;
+
+    always @(*) begin
+        grant_valid = 1'b0;
+        grant_idx   = 2'd0;
+        case (rr_ptr)
+            2'd0: begin
+                if (core_inj_valid[0])      begin grant_idx = 2'd0; grant_valid = 1'b1; end
+                else if (core_inj_valid[1]) begin grant_idx = 2'd1; grant_valid = 1'b1; end
+                else if (core_inj_valid[2]) begin grant_idx = 2'd2; grant_valid = 1'b1; end
+                else if (core_inj_valid[3]) begin grant_idx = 2'd3; grant_valid = 1'b1; end
+            end
+            2'd1: begin
+                if (core_inj_valid[1])      begin grant_idx = 2'd1; grant_valid = 1'b1; end
+                else if (core_inj_valid[2]) begin grant_idx = 2'd2; grant_valid = 1'b1; end
+                else if (core_inj_valid[3]) begin grant_idx = 2'd3; grant_valid = 1'b1; end
+                else if (core_inj_valid[0]) begin grant_idx = 2'd0; grant_valid = 1'b1; end
+            end
+            2'd2: begin
+                if (core_inj_valid[2])      begin grant_idx = 2'd2; grant_valid = 1'b1; end
+                else if (core_inj_valid[3]) begin grant_idx = 2'd3; grant_valid = 1'b1; end
+                else if (core_inj_valid[0]) begin grant_idx = 2'd0; grant_valid = 1'b1; end
+                else if (core_inj_valid[1]) begin grant_idx = 2'd1; grant_valid = 1'b1; end
+            end
+            2'd3: begin
+                if (core_inj_valid[3])      begin grant_idx = 2'd3; grant_valid = 1'b1; end
+                else if (core_inj_valid[0]) begin grant_idx = 2'd0; grant_valid = 1'b1; end
+                else if (core_inj_valid[1]) begin grant_idx = 2'd1; grant_valid = 1'b1; end
+                else if (core_inj_valid[2]) begin grant_idx = 2'd2; grant_valid = 1'b1; end
+            end
+        endcase
+    end
+
+    // Injection Datapath & Handshake
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            rr_ptr           <= 2'd0;
+            router_inj_valid <= 1'b0;
+            router_inj_flit  <= {FLIT_WIDTH{1'b0}};
+            core_inj_ready   <= 4'b0000;
+        end else begin
+            core_inj_ready <= 4'b0000;
+            if (grant_valid && router_inj_ready) begin
+                router_inj_valid          <= 1'b1;
+                router_inj_flit           <= flits_in[grant_idx];
+                core_inj_ready[grant_idx] <= 1'b1;
+                rr_ptr                    <= grant_idx + 1'b1;
+            end else if (!router_inj_ready) begin
+                // Hold valid if downstream stalled
+                router_inj_valid <= router_inj_valid;
+            end else begin
+                router_inj_valid <= 1'b0;
+            end
+        end
+    end
+
+    // 1:4 Ejection Demultiplexing via Sub-node Index (flit bits [1:0])
+    wire [1:0] target_subnode = router_ej_flit[1:0];
+
+    always @(*) begin
+        core_ej_valid = 4'b0000;
+        if (router_ej_valid) begin
+            core_ej_valid[target_subnode] = 1'b1;
+        end
+    end
+
+    // Broadcast ejection payload to all 4 cores; valid qualifiers govern acceptance
+    assign core_ej_flit = {4{router_ej_flit}};
+    assign router_ej_ready = core_ej_ready[target_subnode];
+
+endmodule
+```
+
+---
+
+## 8. 🕹️ Interactive Lab & Arcade Arena
+
+Explore multi-stage and hierarchical networks in interactive simulations:
+
+<div class="noc-tracks-grid" style="margin-top:1rem;">
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(37,99,235,0.15); color:#2563eb;">Arcade Mission</span>
+      <div class="noc-track-title">🌐 Topology Titans: Fat-Tree Clos</div>
+      <div class="noc-track-desc">
+        Construct a 2-tier Fat-Tree interconnect for 16 compute nodes, balancing spine switch radix against leaf aggregation bandwidth.
+      </div>
+    </div>
+    <a href="../interactive/topology/" class="noc-track-link">Play Topology Titans →</a>
   </div>
 
-  <div id="q32_block">
-    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
-      <b>Question:</b> Why does a 4×4 Concentrated Mesh (cMesh) achieve lower zero-load latency for a 64-core chip than a standard 8×8 2D Mesh?
-    </p>
-
-    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q32_options">
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz32(0)">
-        A. Because cMesh replaces packet routers with wireless RF antennas.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz32(1)">
-        B. By clustering 4 compute cores around each router, total routers decrease from 64 to 16, cutting network diameter from 14 hops to just 6 hops and halving average hop traversal stages.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz32(2)">
-        C. Because cMesh routers operate at 100 GHz.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz32(3)">
-        D. Because cMesh only allows communication between adjacent cores.
-      </button>
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(234,88,12,0.15); color:#ea580c;">System Architect</span>
+      <div class="noc-track-title">🏗️ Chiplet Tycoon: Packaging Hub</div>
+      <div class="noc-track-desc">
+        Architect multi-die chiplet interconnects using concentrated switches and silicon interposers to maximize multi-core yield.
+      </div>
     </div>
+    <a href="../interactive/chiplet/" class="noc-track-link">Launch Chiplet Tycoon →</a>
+  </div>
+</div>
 
-    <div id="q32_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+---
+
+## 9. 🎯 Comprehensive Self-Assessment Quiz
+
+Test your mastery of indirect topologies, concentration ratios, and Fat-Tree scaling:
+
+<div class="noc-sim-container" id="quiz32_container" style="margin-top:1rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--tcl-border); padding-bottom:0.5rem;">
+    <span style="font-weight:700; font-size:1.05rem; color:var(--tcl-heading);">📝 Lesson 3.2 Self-Check</span>
+    <span id="quiz32_score" style="font-weight:700; font-size:0.9rem; color:#2563eb;">Score: 0 / 3</span>
+  </div>
+
+  <!-- Question 1 -->
+  <div class="quiz-item" style="margin-bottom:1.5rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q1:</b> Why does a 4×4 Concentrated Mesh (cMesh) achieve lower zero-load latency for a 64-core chip than a standard 8×8 2D Mesh?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q32_1_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ32(1, 0)">A. Because cMesh replaces packet routers with wireless RF antennas.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ32(1, 1)">B. By clustering 4 compute cores around each router, total routers decrease from 64 to 16, cutting network diameter from 14 hops to just 6 hops and halving average hop traversal stages.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ32(1, 2)">C. Because cMesh routers operate at 100 GHz.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ32(1, 3)">D. Because cMesh only allows communication between adjacent cores.</button>
+    </div>
+    <div id="q32_1_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 2 -->
+  <div class="quiz-item" style="margin-bottom:1.5rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q2:</b> In an indirect <strong>Fat-Tree</strong> network, why does link capacity or channel count increase as traffic moves upward toward the root?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q32_2_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ32(2, 0)">A. To compensate for voltage drop across long cables.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ32(2, 1)">B. To maintain constant bisection bandwidth and prevent bandwidth bottlenecks as traffic from all lower leaves aggregates toward the root.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ32(2, 2)">C. To reduce the clock frequency of the root switches.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ32(2, 3)">D. Because higher-layer switches have fewer input ports.</button>
+    </div>
+    <div id="q32_2_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div class="quiz-item" style="margin-bottom:1rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q3:</b> What is the primary engineering trade-off of high node concentration ($C = 4$ or $C = 8$)?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q32_3_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ32(3, 0)">A. It increases local injection contention and router crossbar radix in exchange for drastically fewer total routers, lower area/power, and fewer network hops.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ32(3, 1)">B. It doubles the number of long global wires across the chip.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ32(3, 2)">C. It forces all packets to use store-and-forward routing.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ32(3, 3)">D. It makes deadlock avoidance mathematically impossible.</button>
+    </div>
+    <div id="q32_3_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
   </div>
 </div>
 
 <script>
-function checkQuiz32(idx) {
-  const fb = document.getElementById("q32_feedback");
-  fb.style.display = "block";
-  const opts = document.getElementById("q32_options").children;
+let q32Score = 0;
+const answeredQ32 = {1: false, 2: false, 3: false};
+
+function answerQ32(qNum, selected) {
+  if (answeredQ32[qNum]) return;
+  answeredQ32[qNum] = true;
+
+  const correctAnswers = {1: 1, 2: 1, 3: 0};
+  const isCorrect = (selected === correctAnswers[qNum]);
+  const fb = document.getElementById("q32_" + qNum + "_feedback");
+  const opts = document.getElementById("q32_" + qNum + "_options").children;
+
   for (let i = 0; i < opts.length; i++) {
-    opts[i].onclick = null;
     opts[i].style.cursor = "default";
+    opts[i].onclick = null;
   }
 
-  if (idx === 1) {
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(34,197,94,0.1)";
-    fb.style.border = "1px solid rgba(34,197,94,0.3)";
+  if (isCorrect) {
+    q32Score++;
+    opts[selected].style.background = "rgba(34, 197, 94, 0.15)";
+    opts[selected].style.borderColor = "#22c55e";
+    fb.style.display = "block";
+    fb.style.background = "rgba(34, 197, 94, 0.1)";
+    fb.style.border = "1px solid rgba(34, 197, 94, 0.3)";
     fb.style.color = "#166534";
-    fb.innerHTML = "<strong>✓ Correct!</strong> Concentrating 4 tiles per router reduces the grid to 4×4. Diameter drops from 14 to 6 hops, and average hop count drops from 5.33 to 2.67 hops, significantly cutting per-hop pipeline delays.";
+    fb.innerHTML = "<strong>✓ Correct!</strong> " + getQ32Explanation(qNum, true);
   } else {
-    opts[idx].style.background = "rgba(239,68,68,0.15)";
-    opts[idx].style.borderColor = "#ef4444";
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(239,68,68,0.1)";
-    fb.style.border = "1px solid rgba(239,68,68,0.3)";
+    opts[selected].style.background = "rgba(239, 68, 68, 0.15)";
+    opts[selected].style.borderColor = "#ef4444";
+    opts[correctAnswers[qNum]].style.background = "rgba(34, 197, 94, 0.15)";
+    opts[correctAnswers[qNum]].style.borderColor = "#22c55e";
+    fb.style.display = "block";
+    fb.style.background = "rgba(239, 68, 68, 0.1)";
+    fb.style.border = "1px solid rgba(239, 68, 68, 0.3)";
     fb.style.color = "#991b1b";
-    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. Concentration reduces router count by 75% and slashes network diameter in half.";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> " + getQ32Explanation(qNum, false);
+  }
+
+  document.getElementById("quiz32_score").textContent = "Score: " + q32Score + " / 3";
+}
+
+function getQ32Explanation(qNum, wasCorrect) {
+  if (qNum === 1) {
+    return "Concentrating 4 cores per router reduces the grid to 4×4. Total routers drop from 64 to 16, cutting network diameter from 14 to 6 hops and slashing zero-load latency by over 30%.";
+  } else if (qNum === 2) {
+    return "In a traditional tree, the root channel is a severe bottleneck. A Fat-Tree widens links toward the root, ensuring constant bisection bandwidth (N/2 * w) at every level of the hierarchy.";
+  } else {
+    return "Concentration groups multiple cores onto one router, introducing local arbitration for the injection port. However, it saves immense area and power by eliminating 75% of network routers and their buffer FIFOs.";
   }
 }
 </script>
@@ -388,7 +595,9 @@ In this lesson, we established:
 - The distinction between **Direct** and **Indirect** topologies.
 - Why **Fat-Trees** maintain constant bisection bandwidth in high-throughput clusters.
 - How **Concentrated Mesh (cMesh)** delivers lower latency, $75\%$ fewer routers, and $>50\%$ lower silicon area and static leakage power.
+- Synthesizable Verilog implementation of the `cmesh_concentrator.v` unit.
 
 In the next lesson, we explore formal performance benchmarking: **Interconnect Metrics and Benchmark Traffic Patterns**.
 
 👉 **Proceed to [Lesson 3.3: Interconnect Metrics & Traffic Patterns](03-metrics-traffic-patterns.md)**
+

@@ -77,7 +77,7 @@ Explore our structured learning pathways designed for undergraduate and graduate
         Direct (Mesh, Torus, Folded Torus), Indirect (Clos, Fat-Tree, cMesh), and High-Radix (Dragonfly, Flattened Butterfly). Mathematical derivations of $T_0$, $\Theta_{sat}$, bisection bandwidth, and UGAL adaptive routing.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Interactive Simulators &amp; High-Radix Analyzer
+        ⚡ 4 Synthesizable Verilog RTLs • 4 Interactive Simulators &amp; High-Radix Analyzer
       </div>
     </div>
     <a href="track3-topologies/" class="noc-track-link">Explore Track 3 →</a>

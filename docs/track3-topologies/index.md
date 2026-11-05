@@ -8,9 +8,9 @@
   </p>
   <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
     <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">⏱️ 4 In-Depth Lessons</span>
-    <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: rgba(16, 185, 129, 0.2);">🔬 4 Interactive Calculators &amp; Simulators</span>
-    <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">📐 Rigorous Mathematical Derivations</span>
-    <span class="noc-track-badge" style="background: rgba(147, 51, 234, 0.1); color: #9333ea; border-color: rgba(147, 51, 234, 0.2);">🎯 Self-Assessment Quizzes</span>
+    <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: rgba(16, 185, 129, 0.2);">💻 4 Synthesizable Verilog RTL Modules</span>
+    <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">🔬 4 Interactive Calculators &amp; Simulators</span>
+    <span class="noc-track-badge" style="background: rgba(147, 51, 234, 0.1); color: #9333ea; border-color: rgba(147, 51, 234, 0.2);">🎯 3-Question Self-Assessment Quizzes</span>
   </div>
 </div>
 
@@ -61,10 +61,10 @@ graph TD
         Mathematical foundations of planar networks. Derive node degree, diameter, average hop count ($H_{avg} = \frac{2}{3}\sqrt{N}$), and bisection bandwidth ($B_b = 2\sqrt{N} \cdot w$). Solve the long wrap-around wire crisis using the Folded Torus layout.
       </div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Interactive Mesh vs. Torus Topology Explorer &amp; Shortest-Path Visualizer, Self-Check Quiz.
+        ⚡ <strong>Features:</strong> Synthesizable <code>folded_torus_node_map.v</code>, Interactive Mesh vs. Torus Topology Explorer &amp; Shortest-Path Visualizer, 3-Question Self-Check Quiz, 🌐 <em>Topology Titans</em> Arcade Mission.
       </div>
     </div>
-    <a href="01-direct-topologies/" class="noc-track-link">Launch Lesson 3.1 →</a>
+    <a href="01-direct-topologies.md" class="noc-track-link">Launch Lesson 3.1 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -75,10 +75,10 @@ graph TD
         Separate switching elements from compute nodes. Explore Multistage Interconnection Networks (MINs), Clos networks, and Balfour &amp; Dally's Concentrated Mesh (cMesh), reducing router count by 75% and halving network diameter.
       </div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Interactive 64-Core Mesh vs. cMesh Area &amp; Latency Calculator, Self-Check Quiz.
+        ⚡ <strong>Features:</strong> Synthesizable <code>cmesh_concentrator.v</code>, Interactive 64-Core Mesh vs. cMesh Area &amp; Latency Calculator, 3-Question Self-Check Quiz, 🏗️ <em>Chiplet Tycoon</em> Lab.
       </div>
     </div>
-    <a href="02-indirect-hierarchical/" class="noc-track-link">Launch Lesson 3.2 →</a>
+    <a href="02-indirect-hierarchical.md" class="noc-track-link">Launch Lesson 3.2 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -89,10 +89,10 @@ graph TD
         Formal mathematical modeling of Zero-Load Latency ($T_0$), Saturation Throughput ($\Theta_{sat}$), and Bisection Channel Load ($\gamma_{max}$). Benchmark networks under Uniform Random, Bit-Complement, Transpose, Tornado, and Rentian traffic locality.
       </div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Interactive Synthetic Traffic &amp; Bisection Stress Visualizer, Bit-Complement proof, Self-Check Quiz.
+        ⚡ <strong>Features:</strong> Synthesizable <code>traffic_pattern_generator.v</code>, Interactive Synthetic Traffic &amp; Bisection Stress Visualizer, Bit-Complement mathematical proof, 3-Question Self-Check Quiz, 🛡️ <em>Hotspot Hero</em> Arcade.
       </div>
     </div>
-    <a href="03-metrics-traffic-patterns/" class="noc-track-link">Launch Lesson 3.3 →</a>
+    <a href="03-metrics-traffic-patterns.md" class="noc-track-link">Launch Lesson 3.3 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -103,10 +103,10 @@ graph TD
         The high-radix revolution (Kim, Dally et al.). Trading crossbar radix for ultra-low diameter ($D \le 3$). Explore the Flattened Butterfly, Dragonfly hierarchical groups, Cray Slingshot, and NVIDIA NVLink NVSwitch architectures.
       </div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Interactive High-Radix vs. Low-Radix Trade-off Explorer, Slingshot case study, Self-Check Quiz.
+        ⚡ <strong>Features:</strong> Synthesizable <code>dragonfly_ugal_arbiter.v</code>, Interactive High-Radix vs. Low-Radix Trade-off Explorer, Slingshot case study, 3-Question Self-Check Quiz, ⚔️ <em>Arbiter Arena</em>.
       </div>
     </div>
-    <a href="04-high-radix-topologies/" class="noc-track-link">Launch Lesson 3.4 →</a>
+    <a href="04-high-radix-topologies.md" class="noc-track-link">Launch Lesson 3.4 →</a>
   </div>
 </div>
 
@@ -119,7 +119,8 @@ Upon completing Track 3, you will be able to:
 1. **Calculate network metrics rigorously** for any $k$-ary $n$-cube topology: node degree, diameter, bisection bandwidth, and average hop distance.
 2. **Apply the Folded Torus layout** to eliminate global wrap-around wires, equalizing all inter-router link lengths on a planar die.
 3. **Dimension Concentrated Meshes (cMesh)** to balance router radix complexity against network hop count and wire density.
-4. **Evaluate throughput limits under benchmark traffic patterns** (Uniform Random, Bit-Complement, Transpose, Tornado) and identify the bottleneck bisection channels.
+4. **Evaluate throughput limits under benchmark traffic patterns** (Uniform Random, Bit-Complement, Transpose, Tornado) and identify bottleneck bisection channels.
 5. **Architect High-Radix topologies** (Flattened Butterfly and Dragonfly) to compress network diameter down to 2–3 hops for exascale AI and server fabrics.
 
 Ready to begin? Start with **[Lesson 3.1: Direct Topologies (Mesh & Torus)](01-direct-topologies.md)**.
+

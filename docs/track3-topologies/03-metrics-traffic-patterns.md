@@ -439,63 +439,275 @@ Under Bit-Complement traffic, bisection bottleneck links choke the entire networ
 
 ---
 
-## 6. 🎯 Knowledge Check: Lesson 3.3
+## 6. 💻 Synthesizable Hardware: Synthetic Traffic Pattern Generator
 
-<div class="noc-sim-container" id="quiz33" style="margin-top:1rem;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
-    📝 Concept Check: Interconnect Metrics &amp; Traffic Patterns
+To benchmark on-chip networks in hardware emulation and FPGA rapid prototyping, designers implement **On-Chip Traffic Generators & Latency Profilers**.
+
+The module below, `traffic_pattern_generator.v`, provides:
+1. **Four runtime-selectable traffic modes**: Uniform Random (via 16-bit Galois LFSR), Bit-Complement, Transpose, and Tornado.
+2. **Fractional injection rate throttling**: Allows sweeping injection loads from $\lambda = 0.01$ to $1.0\text{ flits/cycle}$.
+3. **Cycle timestamp insertion & bisection link crossing counters**: Enables real-time verification of the Bit-Complement 100% bisection stress phenomenon!
+
+```verilog
+//=============================================================================
+// Module: traffic_pattern_generator
+// Description: Synthesizable On-Chip Benchmark Traffic Pattern Generator &
+//              Latency Profiling Engine for NoC Routers.
+//              Supports 4 selectable traffic patterns:
+//                2'b00: Uniform Random (via 16-bit Galois LFSR)
+//                2'b01: Bit-Complement (x_d = K-1-x_s, y_d = K-1-y_s)
+//                2'b10: Transpose      (x_d = y_s,     y_d = x_s)
+//                2'b11: Tornado        (x_d = (x_s + K/2 - 1)%K, y_d = y_s)
+//              Includes injection rate regulation (rate_limiter), cycle timestamp
+//              tagging, and bisection link crossing counters.
+//=============================================================================
+
+module traffic_pattern_generator #(
+    parameter integer K          = 8,   // Mesh dimension size (8x8 = 64 nodes)
+    parameter integer COORD_W    = 3,   // log2(K)
+    parameter integer FLIT_WIDTH = 64,
+    parameter integer TIME_W     = 16   // Cycle timestamp bitwidth
+)(
+    input  wire                   clk,
+    input  wire                   rst_n,
+
+    // Node Configuration & Traffic Control
+    input  wire [COORD_W-1:0]     src_x,
+    input  wire [COORD_W-1:0]     src_y,
+    input  wire [1:0]             pattern_sel,     // 00=UR, 01=BC, 10=TP, 11=TOR
+    input  wire [9:0]             rate_fraction,   // 0..1023 (1024 = 100% injection load)
+    input  wire                   enable_gen,
+
+    // Outgoing Injected Flit Interface
+    output reg                    inj_valid,
+    output reg  [FLIT_WIDTH-1:0]  inj_flit,
+    input  wire                   inj_ready,
+
+    // Performance Monitoring Outputs
+    output reg  [31:0]            total_injected_pkts,
+    output reg  [31:0]            bisection_crossings,
+    output wire                   crosses_bisection
+);
+
+    // 16-bit Galois LFSR for Pseudorandom Destination Generation (Uniform Random)
+    reg [15:0] lfsr_reg;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            // Seed based on node coordinate to ensure independent random sequences per node
+            lfsr_reg <= {src_y, src_x, 10'b1010011001};
+        end else if (enable_gen) begin
+            lfsr_reg <= {lfsr_reg[0], lfsr_reg[15] ^ lfsr_reg[0], lfsr_reg[14],
+                         lfsr_reg[13] ^ lfsr_reg[0], lfsr_reg[12] ^ lfsr_reg[0],
+                         lfsr_reg[11:1]};
+        end
+    end
+
+    // Traffic Pattern Destination Mapping Combinational Logic
+    reg [COORD_W-1:0] target_x;
+    reg [COORD_W-1:0] target_y;
+
+    always @(*) begin
+        case (pattern_sel)
+            2'b00: begin // Uniform Random
+                target_x = lfsr_reg[COORD_W-1:0];
+                target_y = lfsr_reg[2*COORD_W-1:COORD_W];
+            end
+            2'b01: begin // Bit-Complement
+                target_x = (K - 1) - src_x;
+                target_y = (K - 1) - src_y;
+            end
+            2'b10: begin // Transpose
+                target_x = src_y;
+                target_y = src_x;
+            end
+            2'b11: begin // Tornado
+                target_x = (src_x + (K / 2) - 1'b1) % K;
+                target_y = src_y;
+            end
+        endcase
+    end
+
+    // Fractional Rate Accumulator (Leaky-Bucket Injection Throttle)
+    reg [10:0] rate_accum;
+    wire inject_trigger = rate_accum[10];
+
+    // Hardware Cycle Counter for Timestamp Tagging
+    reg [TIME_W-1:0] cycle_counter;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) cycle_counter <= {TIME_W{1'b0}};
+        else        cycle_counter <= cycle_counter + 1'b1;
+    end
+
+    // Bisection Crossing Detector: High if traffic crosses central cut line (x = K/2)
+    assign crosses_bisection = (src_x < (K / 2)) ^ (target_x < (K / 2));
+
+    // Injection Engine State Machine & Accounting
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            rate_accum          <= 11'd0;
+            inj_valid           <= 1'b0;
+            inj_flit            <= {FLIT_WIDTH{1'b0}};
+            total_injected_pkts <= 32'd0;
+            bisection_crossings <= 32'd0;
+        end else if (enable_gen) begin
+            rate_accum <= rate_accum[9:0] + {1'b0, rate_fraction};
+
+            if (inject_trigger && inj_ready) begin
+                inj_valid <= 1'b1;
+                // Header format: [63:58]=Type, [57:52]=DestX/Y, [51:46]=SrcX/Y, [31:16]=Timestamp, [15:0]=Seq
+                inj_flit  <= {2'b11, 4'b0000, target_x, target_y, src_x, src_y, cycle_counter, total_injected_pkts[15:0]};
+                total_injected_pkts <= total_injected_pkts + 1'b1;
+                if (crosses_bisection) begin
+                    bisection_crossings <= bisection_crossings + 1'b1;
+                end
+            end else if (!inj_ready) begin
+                inj_valid <= inj_valid; // Hold until downstream absorbs
+            end else begin
+                inj_valid <= 1'b0;
+            end
+        end else begin
+            inj_valid <= 1'b0;
+        end
+    end
+
+endmodule
+```
+
+---
+
+## 7. 🕹️ Interactive Lab & Arcade Arena
+
+Benchmark traffic patterns and thermal dynamics in real-time arcade simulations:
+
+<div class="noc-tracks-grid" style="margin-top:1rem;">
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">Arcade Defense</span>
+      <div class="noc-track-title">🛡️ Hotspot Hero: Thermal Defender</div>
+      <div class="noc-track-desc">
+        Observe how localized traffic bursts and Bit-Complement congestion trigger severe silicon hot spots, requiring real-time DVFS and cryo cooling.
+      </div>
+    </div>
+    <a href="../interactive/hotspot/" class="noc-track-link">Play Hotspot Hero →</a>
   </div>
 
-  <div id="q33_block">
-    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
-      <b>Question:</b> Why does a 2D Mesh saturate at a significantly lower injection rate under Bit-Complement traffic compared to Uniform Random traffic?
-    </p>
-
-    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q33_options">
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz33(0)">
-        A. Because Bit-Complement traffic disables Virtual Channels.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz33(1)">
-        B. Because 100% of packets in Bit-Complement traffic must cross the network bisection cut, doubling the channel load on the central bisection links compared to Uniform Random (where only 50% cross).
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz33(2)">
-        C. Because Bit-Complement packets are twice as large.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz33(3)">
-        D. Because Bit-Complement traffic forces all packets to route to Corner 0.
-      </button>
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(37,99,235,0.15); color:#2563eb;">Topology Lab</span>
+      <div class="noc-track-title">🌐 Topology Titans: Traffic Stress</div>
+      <div class="noc-track-desc">
+        Toggle between Uniform Random, Bit-Complement, and All-to-All communication patterns and observe network link saturation live on graph topologies.
+      </div>
     </div>
+    <a href="../interactive/topology/" class="noc-track-link">Launch Stress Lab →</a>
+  </div>
+</div>
 
-    <div id="q33_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+---
+
+## 8. 🎯 Comprehensive Self-Assessment Quiz
+
+Test your mastery of network performance bounds, channel loads, and traffic locality:
+
+<div class="noc-sim-container" id="quiz33_container" style="margin-top:1rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--tcl-border); padding-bottom:0.5rem;">
+    <span style="font-weight:700; font-size:1.05rem; color:var(--tcl-heading);">📝 Lesson 3.3 Self-Check</span>
+    <span id="quiz33_score" style="font-weight:700; font-size:0.9rem; color:#2563eb;">Score: 0 / 3</span>
+  </div>
+
+  <!-- Question 1 -->
+  <div class="quiz-item" style="margin-bottom:1.5rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q1:</b> Why does a 2D Mesh saturate at a significantly lower injection rate under <strong>Bit-Complement</strong> traffic compared to <strong>Uniform Random</strong> traffic?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q33_1_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ33(1, 0)">A. Because Bit-Complement traffic disables Virtual Channels.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ33(1, 1)">B. Because 100% of packets in Bit-Complement traffic must cross the network bisection cut ($\beta = 1.0$), doubling the channel load on central bisection links compared to Uniform Random (where only 50% cross).</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ33(1, 2)">C. Because Bit-Complement packets are twice as large.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ33(1, 3)">D. Because Bit-Complement traffic forces all packets to route to Corner 0.</button>
+    </div>
+    <div id="q33_1_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 2 -->
+  <div class="quiz-item" style="margin-bottom:1.5rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q2:</b> Under the Zero-Load Latency formula $T_0 = H_{avg} \cdot (t_r + t_{link}) + \frac{L}{w}$, which term dominates in large-scale on-chip networks ($N \ge 256$ nodes)?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q33_2_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ33(2, 0)">A. The serialization latency $L/w$, because packets grow quadratically with core count.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ33(2, 1)">B. The accumulated hop traversal delay $H_{avg} \cdot (t_r + t_{link})$, because $H_{avg} = \frac{2}{3}\sqrt{N}$ scales with grid size while serialization delay remains constant.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ33(2, 2)">C. The arbiter setup time, which increases exponentially with chip area.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ33(2, 3)">D. The clock jitter buffer delay.</button>
+    </div>
+    <div id="q33_2_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div class="quiz-item" style="margin-bottom:1rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q3:</b> According to <strong>Rent's Rule</strong> ($T = k \cdot C^p$), what does an empirical Rent exponent of $p < 0.6$ signify for multi-core SoC traffic?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q33_3_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ33(3, 0)">A. Strong communication locality, meaning compute cores predominantly access nearest-neighbor caches and cluster memory rather than distant global nodes.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ33(3, 1)">B. Perfect all-to-all broadcast traffic across the full chip.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ33(3, 2)">C. That the network routers must use circuit switching.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ33(3, 3)">D. That the network has zero dynamic power dissipation.</button>
+    </div>
+    <div id="q33_3_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
   </div>
 </div>
 
 <script>
-function checkQuiz33(idx) {
-  const fb = document.getElementById("q33_feedback");
-  fb.style.display = "block";
-  const opts = document.getElementById("q33_options").children;
+let q33Score = 0;
+const answeredQ33 = {1: false, 2: false, 3: false};
+
+function answerQ33(qNum, selected) {
+  if (answeredQ33[qNum]) return;
+  answeredQ33[qNum] = true;
+
+  const correctAnswers = {1: 1, 2: 1, 3: 0};
+  const isCorrect = (selected === correctAnswers[qNum]);
+  const fb = document.getElementById("q33_" + qNum + "_feedback");
+  const opts = document.getElementById("q33_" + qNum + "_options").children;
+
   for (let i = 0; i < opts.length; i++) {
-    opts[i].onclick = null;
     opts[i].style.cursor = "default";
+    opts[i].onclick = null;
   }
 
-  if (idx === 1) {
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(34,197,94,0.1)";
-    fb.style.border = "1px solid rgba(34,197,94,0.3)";
+  if (isCorrect) {
+    q33Score++;
+    opts[selected].style.background = "rgba(34, 197, 94, 0.15)";
+    opts[selected].style.borderColor = "#22c55e";
+    fb.style.display = "block";
+    fb.style.background = "rgba(34, 197, 94, 0.1)";
+    fb.style.border = "1px solid rgba(34, 197, 94, 0.3)";
     fb.style.color = "#166534";
-    fb.innerHTML = "<strong>✓ Correct!</strong> Under Bit-Complement, every packet's destination lies in the opposite quadrant, forcing 100% of traffic across the bisection cut. This doubles bottleneck link utilization, cutting saturation throughput in half.";
+    fb.innerHTML = "<strong>✓ Correct!</strong> " + getQ33Explanation(qNum, true);
   } else {
-    opts[idx].style.background = "rgba(239,68,68,0.15)";
-    opts[idx].style.borderColor = "#ef4444";
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(239,68,68,0.1)";
-    fb.style.border = "1px solid rgba(239,68,68,0.3)";
+    opts[selected].style.background = "rgba(239, 68, 68, 0.15)";
+    opts[selected].style.borderColor = "#ef4444";
+    opts[correctAnswers[qNum]].style.background = "rgba(34, 197, 94, 0.15)";
+    opts[correctAnswers[qNum]].style.borderColor = "#22c55e";
+    fb.style.display = "block";
+    fb.style.background = "rgba(239, 68, 68, 0.1)";
+    fb.style.border = "1px solid rgba(239, 68, 68, 0.3)";
     fb.style.color = "#991b1b";
-    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. Bit-Complement places 100% of traffic across the central bisection links.";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> " + getQ33Explanation(qNum, false);
+  }
+
+  document.getElementById("quiz33_score").textContent = "Score: " + q33Score + " / 3";
+}
+
+function getQ33Explanation(qNum, wasCorrect) {
+  if (qNum === 1) {
+    return "Under Bit-Complement, each node targets the coordinate-inverted tile on the opposite side of the chip. Thus 100% of packets cross the bisection cut, doubling bottleneck link load and halving saturation throughput.";
+  } else if (qNum === 2) {
+    return "In large meshes, average hop count H_avg = (2/3)sqrt(N) multiplies the per-hop router and wire delay. As N grows to 256 or 1024, hop latency accounts for >80% of total zero-load packet transit time.";
+  } else {
+    return "Rent's exponent p characterizes boundary traffic scaling. A low exponent (p < 0.6) reflects high spatial locality: local clusters communicate internally, requiring much less global bisection bandwidth than random traffic.";
   }
 }
 </script>
@@ -508,5 +720,7 @@ In this lesson, we established:
 - Mathematical derivations of **Zero-Load Latency ($T_0$)** and **Saturation Throughput ($\Theta_{sat} = 1/\gamma_{max}$)**.
 - Standard benchmark traffic patterns (**Uniform Random, Bit-Complement, Transpose, Tornado**).
 - Mathematical proof showing that **Bit-Complement saturates at exactly half the throughput of Uniform Random traffic**.
+- Synthesizable Verilog implementation of the `traffic_pattern_generator.v` module.
 
 👉 **Proceed to [Lesson 3.4: High-Radix Topologies: Dragonfly & Flattened Butterfly](04-high-radix-topologies.md)**
+

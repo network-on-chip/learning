@@ -440,63 +440,257 @@ Even across **$41,664$ compute nodes**, any packet reaches its destination in at
 
 ---
 
-## 8. 🎯 Knowledge Check: Lesson 3.4
+## 8. 💻 Synthesizable Hardware: Dragonfly UGAL Adaptive Routing Arbiter
 
-<div class="noc-sim-container" id="quiz34" style="margin-top:1rem;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
-    📝 Concept Check: High-Radix Networks &amp; Dragonfly
+In a high-radix Dragonfly, adaptive routing requires comparing real-time queue congestion between the direct minimal route ($q_{MIN}$) and a randomized non-minimal Valiant detour ($q_{VAL}$).
+
+Because non-minimal routing traverses **two global optical/copper channels** instead of one, the router must enforce the canonical **UGAL threshold**:
+$$\text{Select Non-Minimal Path IF: } q_{MIN} > 2 \cdot q_{VAL} + \text{BIAS}$$
+
+Furthermore, to prevent protocol deadlocks between minimal and non-minimal packets, the router dynamically steers non-minimal packets to an escape Virtual Channel (`VC1`).
+
+The synthesizable Verilog module below, `dragonfly_ugal_arbiter.v`, implements this high-radix adaptive routing engine:
+
+```verilog
+//=============================================================================
+// Module: dragonfly_ugal_arbiter
+// Description: Synthesizable UGAL (Universal Globally-Adaptive Link) Routing
+//              Arbiter for High-Radix Dragonfly Topologies.
+//              - Evaluates local intra-group vs inter-group global routing.
+//              - Measures Minimal queue depth (q_min) vs Non-Minimal intermediate
+//                group queue depth (q_val).
+//              - Evaluates the UGAL threshold:
+//                  Use Non-Minimal (Valiant) IF: q_min > (2 * q_val + BIAS)
+//              - Assigns separate Virtual Channels (VC0 for MIN, VC1 for VAL)
+//                to prevent credit and routing deadlocks!
+//=============================================================================
+
+module dragonfly_ugal_arbiter #(
+    parameter integer NUM_GROUPS   = 8,   // Total groups in Dragonfly
+    parameter integer ROUTERS_GRP  = 4,   // Routers per group
+    parameter integer GROUP_W      = 3,   // log2(NUM_GROUPS)
+    parameter integer ROUTER_W     = 2,   // log2(ROUTERS_GRP)
+    parameter integer QUEUE_W      = 6,   // Queue depth bitwidth (0..63 flits)
+    parameter integer BIAS         = 2    // Hysteresis threshold bias
+)(
+    input  wire                   clk,
+    input  wire                   rst_n,
+
+    // Current Router ID
+    input  wire [GROUP_W-1:0]     curr_group,
+    input  wire [ROUTER_W-1:0]    curr_router,
+
+    // Packet Header Request
+    input  wire                   req_valid,
+    input  wire [GROUP_W-1:0]     dest_group,
+    input  wire [ROUTER_W-1:0]    dest_router,
+
+    // Congestion Feedback from Port Queues
+    input  wire [QUEUE_W-1:0]     min_queue_depth,  // Congestion on direct global port
+    input  wire [QUEUE_W-1:0]     val_queue_depth,  // Congestion on intermediate detour port
+
+    // Decision Outputs
+    output reg                    route_valid,
+    output reg                    use_non_minimal,  // 0 = MIN, 1 = VAL (Valiant detour)
+    output reg  [GROUP_W-1:0]     intermediate_grp, // Random intermediate group for UGAL
+    output reg                    assigned_vc,      // 0 = VC0 (MIN), 1 = VC1 (VAL)
+    output reg  [ROUTERS_GRP:0]   out_port_select   // 1-hot port: [0]=Global, [1..ROUTERS_GRP]=Intra
+);
+
+    // Pseudorandom Intermediate Group Generator (6-bit Galois LFSR)
+    reg [5:0] rand_reg;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            rand_reg <= 6'b101101;
+        end else begin
+            rand_reg <= {rand_reg[4:0], rand_reg[5] ^ rand_reg[4]};
+        end
+    end
+
+    // Compute Intermediate Group (Must NOT equal curr_group or dest_group)
+    wire [GROUP_W-1:0] candidate_grp = rand_reg[GROUP_W-1:0];
+    wire [GROUP_W-1:0] safe_int_grp = (candidate_grp == curr_group) ? (candidate_grp + 1'b1) :
+                                      (candidate_grp == dest_group) ? (candidate_grp + 2'd2) :
+                                      candidate_grp;
+
+    // UGAL Threshold Comparator: q_min > 2 * q_val + BIAS
+    wire [QUEUE_W:0] val_scaled = {val_queue_depth, 1'b0} + BIAS;
+    wire choose_valiant = (min_queue_depth > val_scaled);
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            route_valid      <= 1'b0;
+            use_non_minimal  <= 1'b0;
+            intermediate_grp <= {GROUP_W{1'b0}};
+            assigned_vc      <= 1'b0;
+            out_port_select  <= {(ROUTERS_GRP+1){1'b0}};
+        end else begin
+            route_valid <= req_valid;
+            if (req_valid) begin
+                if (dest_group == curr_group) begin
+                    // 1. Intra-group routing: Direct local crossbar link to target router
+                    use_non_minimal  <= 1'b0;
+                    intermediate_grp <= curr_group;
+                    assigned_vc      <= 1'b0; // Base intra-group VC
+                    out_port_select  <= (1'b1 << (dest_router + 1'b1));
+                end else begin
+                    // 2. Inter-group routing: Evaluate UGAL adaptive condition
+                    intermediate_grp <= safe_int_grp;
+                    if (choose_valiant) begin
+                        // Detour via intermediate group to bypass global hotspot
+                        use_non_minimal <= 1'b1;
+                        assigned_vc     <= 1'b1; // VC1 escape to prevent deadlock
+                        out_port_select <= 5'b00001; // Route to Valiant egress port
+                    end else begin
+                        // Direct minimal global channel
+                        use_non_minimal <= 1'b0;
+                        assigned_vc     <= 1'b0; // VC0 minimal channel
+                        out_port_select <= 5'b00001; // Route to Minimal global port
+                    end
+                end
+            end else begin
+                out_port_select <= {(ROUTERS_GRP+1){1'b0}};
+            end
+        end
+    end
+
+endmodule
+```
+
+---
+
+## 9. 🕹️ Interactive Lab & Arcade Arena
+
+Test your high-radix interconnect intuition in exascale architectural challenges:
+
+<div class="noc-tracks-grid" style="margin-top:1rem;">
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(37,99,235,0.15); color:#2563eb;">Arcade Mission</span>
+      <div class="noc-track-title">🌐 Topology Titans: Dragonfly Grouping</div>
+      <div class="noc-track-desc">
+        Mission 3: Wire a 16-node Dragonfly network organized into 4 hierarchical groups. Maximize bisection bandwidth while minimizing expensive optical inter-group links.
+      </div>
+    </div>
+    <a href="../interactive/topology/" class="noc-track-link">Play Topology Titans →</a>
   </div>
 
-  <div id="q34_block">
-    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
-      <b>Question:</b> In UGAL (Universal Globally-Adaptive Link) routing on a Dragonfly, why must the threshold for choosing a non-minimal path require the minimal queue to be at least twice as congested ($q_{MIN} > 2 \cdot q_{VAL}$)?
-    </p>
-
-    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q34_options">
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz34(0)">
-        A. Because non-minimal packets are always twice as large as minimal packets.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz34(1)">
-        B. Because a non-minimal path traverses two global inter-group channels instead of one, consuming twice as much scarce global network bandwidth.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz34(2)">
-        C. Because non-minimal routing disables the router crossbar switch.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz34(3)">
-        D. Because high-radix routers only have half-duplex links.
-      </button>
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(147,51,234,0.15); color:#9333ea;">Silicon Arena</span>
+      <div class="noc-track-title">⚔️ Arbiter Arena: High-Radix Clash</div>
+      <div class="noc-track-desc">
+        Experience the timing bottlenecks of 64-port switch allocation, comparing separable matrix arbiters against iterative iSLIP matching.
+      </div>
     </div>
+    <a href="../interactive/arbiter/" class="noc-track-link">Launch Arbiter Arena →</a>
+  </div>
+</div>
 
-    <div id="q34_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+---
+
+## 10. 🎯 Comprehensive Self-Assessment Quiz
+
+Test your mastery of high-radix scaling, Dragonfly packaging, and UGAL routing:
+
+<div class="noc-sim-container" id="quiz34_container" style="margin-top:1rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--tcl-border); padding-bottom:0.5rem;">
+    <span style="font-weight:700; font-size:1.05rem; color:var(--tcl-heading);">📝 Lesson 3.4 Self-Check</span>
+    <span id="quiz34_score" style="font-weight:700; font-size:0.9rem; color:#2563eb;">Score: 0 / 3</span>
+  </div>
+
+  <!-- Question 1 -->
+  <div class="quiz-item" style="margin-bottom:1.5rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q1:</b> In UGAL (Universal Globally-Adaptive Link) routing on a Dragonfly, why must the threshold condition require the direct minimal queue to be at least twice as congested ($q_{MIN} > 2 \cdot q_{VAL}$)?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q34_1_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ34(1, 0)">A. Because non-minimal packets are always twice as large as minimal packets.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ34(1, 1)">B. Because a non-minimal detour traverses two global inter-group channels instead of one, consuming twice as much scarce global network bandwidth.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ34(1, 2)">C. Because non-minimal routing disables the router crossbar switch.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ34(1, 3)">D. Because high-radix routers only have half-duplex links.</button>
+    </div>
+    <div id="q34_1_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 2 -->
+  <div class="quiz-item" style="margin-bottom:1.5rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q2:</b> How does the <strong>Flattened Butterfly (FBfly)</strong> achieve an ultra-low network diameter of strictly $D = 2$ hops regardless of node count?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q34_2_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ34(2, 0)">A. By replacing wires with free-space laser beams.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ34(2, 1)">B. By fully connecting all routers along each orthogonal dimension into cliques, allowing any source to reach any destination with at most 1 hop along Dimension X and 1 hop along Dimension Y.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ34(2, 2)">C. By allowing only nearest-neighbor packet transfers.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ34(2, 3)">D. By buffering all packets in an external central memory pool.</button>
+    </div>
+    <div id="q34_2_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div class="quiz-item" style="margin-bottom:1rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q3:</b> In supercomputing fabrics like Cray Slingshot and NVIDIA NVSwitch, why is the Dragonfly topology partitioned into hierarchical intra-group and inter-group tiers?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q34_3_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ34(3, 0)">A. To match physical packaging costs: high-density copper cables are used for cheap intra-cabinet wiring, while expensive optical links are reserved exclusively for sparse inter-cabinet connections.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ34(3, 1)">B. Because optical links cannot transmit packet headers.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ34(3, 2)">C. To force all compute nodes to run at identical temperatures.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ34(3, 3)">D. Because intra-group links are unidirectional while inter-group links are bidirectional.</button>
+    </div>
+    <div id="q34_3_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
   </div>
 </div>
 
 <script>
-function checkQuiz34(idx) {
-  const fb = document.getElementById("q34_feedback");
-  fb.style.display = "block";
-  const opts = document.getElementById("q34_options").children;
+let q34Score = 0;
+const answeredQ34 = {1: false, 2: false, 3: false};
+
+function answerQ34(qNum, selected) {
+  if (answeredQ34[qNum]) return;
+  answeredQ34[qNum] = true;
+
+  const correctAnswers = {1: 1, 2: 1, 3: 0};
+  const isCorrect = (selected === correctAnswers[qNum]);
+  const fb = document.getElementById("q34_" + qNum + "_feedback");
+  const opts = document.getElementById("q34_" + qNum + "_options").children;
+
   for (let i = 0; i < opts.length; i++) {
-    opts[i].onclick = null;
     opts[i].style.cursor = "default";
+    opts[i].onclick = null;
   }
 
-  if (idx === 1) {
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(34,197,94,0.1)";
-    fb.style.border = "1px solid rgba(34,197,94,0.3)";
+  if (isCorrect) {
+    q34Score++;
+    opts[selected].style.background = "rgba(34, 197, 94, 0.15)";
+    opts[selected].style.borderColor = "#22c55e";
+    fb.style.display = "block";
+    fb.style.background = "rgba(34, 197, 94, 0.1)";
+    fb.style.border = "1px solid rgba(34, 197, 94, 0.3)";
     fb.style.color = "#166534";
-    fb.innerHTML = "<strong>✓ Correct!</strong> A non-minimal path detours through an intermediate group, using two long global links instead of one. Routing non-minimally doubles network-wide global channel consumption, so it is only advantageous if the direct channel is over twice as congested.";
+    fb.innerHTML = "<strong>✓ Correct!</strong> " + getQ34Explanation(qNum, true);
   } else {
-    opts[idx].style.background = "rgba(239,68,68,0.15)";
-    opts[idx].style.borderColor = "#ef4444";
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(239,68,68,0.1)";
-    fb.style.border = "1px solid rgba(239,68,68,0.3)";
+    opts[selected].style.background = "rgba(239, 68, 68, 0.15)";
+    opts[selected].style.borderColor = "#ef4444";
+    opts[correctAnswers[qNum]].style.background = "rgba(34, 197, 94, 0.15)";
+    opts[correctAnswers[qNum]].style.borderColor = "#22c55e";
+    fb.style.display = "block";
+    fb.style.background = "rgba(239, 68, 68, 0.1)";
+    fb.style.border = "1px solid rgba(239, 68, 68, 0.3)";
     fb.style.color = "#991b1b";
-    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. Non-minimal routing consumes two global channels instead of one.";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> " + getQ34Explanation(qNum, false);
+  }
+
+  document.getElementById("quiz34_score").textContent = "Score: " + q34Score + " / 3";
+}
+
+function getQ34Explanation(qNum, wasCorrect) {
+  if (qNum === 1) {
+    return "A non-minimal detour traverses an intermediate group, using 2 long global links instead of 1. Because this doubles system-wide global channel bandwidth consumption, it is only worthwhile if the direct channel is more than twice as congested.";
+  } else if (qNum === 2) {
+    return "In a 2D Flattened Butterfly, each row and column is a fully connected clique. A packet hops at most once along X to reach the destination's column, and at most once along Y to reach the destination router, capping diameter strictly to D=2.";
+  } else {
+    return "The Dragonfly maps network topology directly to machine packaging hierarchy: dense, inexpensive electrical copper wires connect intra-chassis routers, while expensive optical cables span across server cabinets.";
   }
 }
 </script>
@@ -508,11 +702,12 @@ function checkQuiz34(idx) {
 Congratulations! You have completed **Track 3: Topologies & Interconnect Metrics**.
 
 Here is what you have mastered across this module:
-1. **Direct Topologies (Lesson 3.1):** Derivations of degree, diameter, bisection bandwidth, and the Folded Torus layout that prevents wire delay penalties.
-2. **Indirect & Concentrated Networks (Lesson 3.2):** Multistage Clos networks, Fat-Trees, and Balfour & Dally's Concentrated Mesh (cMesh) reducing router count by 75%.
-3. **Interconnect Metrics (Lesson 3.3):** Zero-load latency ($T_0$), saturation throughput ($\Theta_{sat} = 1/\gamma_{max}$), and the mathematical proof of Bit-Complement's 50% saturation penalty.
-4. **High-Radix Topologies (Lesson 3.4):** Flattened Butterfly ($D=2$) and Dragonfly ($D=3$), UGAL adaptive routing, and exascale silicon fabrics (NVIDIA NVSwitch & HPE Slingshot).
+1. **Direct Topologies (Lesson 3.1):** Derivations of degree, diameter, bisection bandwidth, the Folded Torus layout that prevents wire delay penalties, and [folded_torus_node_map.v](01-direct-topologies.md#7-synthesizable-hardware-folded-torus-coordinate-link-mapper).
+2. **Indirect & Concentrated Networks (Lesson 3.2):** Multistage Clos networks, Fat-Trees, Balfour & Dally's Concentrated Mesh (cMesh) reducing router count by 75%, and [cmesh_concentrator.v](02-indirect-hierarchical.md#7-synthesizable-hardware-41-cmesh-concentrator-ejection-unit).
+3. **Interconnect Metrics (Lesson 3.3):** Zero-load latency ($T_0$), saturation throughput ($\Theta_{sat} = 1/\gamma_{max}$), the mathematical proof of Bit-Complement's 50% saturation penalty, and [traffic_pattern_generator.v](03-metrics-traffic-patterns.md#6-synthesizable-hardware-synthetic-traffic-pattern-generator).
+4. **High-Radix Topologies (Lesson 3.4):** Flattened Butterfly ($D=2$) and Dragonfly ($D=3$), UGAL adaptive routing, exascale silicon fabrics (NVIDIA NVSwitch & HPE Slingshot), and `dragonfly_ugal_arbiter.v`.
 
 Ready to dive into routing algorithms, deadlock freedom, and the turn model?
 
 👉 **Proceed to [Track 4: Routing Algorithms & Deadlock Avoidance](../track4-routing-deadlock/index.md)**
+
