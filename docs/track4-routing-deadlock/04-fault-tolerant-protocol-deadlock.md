@@ -362,67 +362,275 @@ $$\text{Total Flits per Router} = 5\text{ ports} \times 12\text{ flits} = \mathb
 $$\text{Total Buffer Memory} = 60\text{ flits} \times 16\text{ Bytes/flit} = \mathbf{960\text{ Bytes} \approx 0.94\text{ KB per router}}$$
 
 ### Takeaway:
-Allocating less than $1\text{ KB}$ of SRAM buffer storage per router completely isolates cache coherence message classes, guaranteeing 100% immunity to protocol deadlocks across the entire chip!
+---
+
+## 7. 💻 Synthesizable Hardware: VNET Protocol Isolator & Fault Bypass Unit
+
+To guarantee that cache coherence protocols never freeze the physical fabric, router network interfaces partition traffic into separate **Virtual Networks (VNETs)** and apply **Strict Non-Blocking Priority Scheduling** ($Response > Forward > Request$).
+
+Furthermore, in degraded silicon with broken traces, the router incorporates a **Perimeter Fault Deflection Unit** that dynamically detours flits around severed links without dropping packets.
+
+The synthesizable Verilog module below, `vnet_protocol_isolator.v`, implements this dual-function protocol-isolation and fault-resilience engine:
+
+```verilog
+//=============================================================================
+// Module: vnet_protocol_isolator
+// Description: Synthesizable Multi-Class Virtual Network (VNET) Arbiter &
+//              Fault-Tolerant Link Bypass Unit for Shared-Memory NoCs.
+//              - Isolates 3 message classes to prevent protocol deadlock:
+//                  VNET 0: Request   (e.g., GetS, GetM)
+//                  VNET 1: Forward   (e.g., Invalidation, Fwd-GetS)
+//                  VNET 2: Response  (e.g., Data, Completion Ack)
+//              - Enforces strict priority: VNET2 > VNET1 > VNET0
+//                (Responses drain first, preventing Request-Response deadlock).
+//              - Fault Bypass: If primary destination port is marked faulty
+//                in faulty_ports[3:0], packet is dynamically deflected along
+//                a perimeter detour!
+//=============================================================================
+
+module vnet_protocol_isolator #(
+    parameter integer FLIT_WIDTH = 64
+)(
+    input  wire                    clk,
+    input  wire                    rst_n,
+
+    // Ingress Virtual Network FIFOs (from local core / router input)
+    input  wire [2:0]              vnet_req_valid,   // [2]=Response, [1]=Forward, [0]=Request
+    input  wire [3*FLIT_WIDTH-1:0] vnet_flit_data,   // Packed flits for each VNET
+    output reg  [2:0]              vnet_grant,       // 1-hot grant to winning VNET
+
+    // Desired Route Output Port from RC (1-hot: [3]=North, [2]=South, [1]=East, [0]=West)
+    input  wire [3:0]              primary_route_port,
+
+    // Hardware Fault Status from BIST Radar (1 = physical link broken/dead)
+    input  wire [3:0]              faulty_ports,
+
+    // Outgoing Switch Grant & Egress Signals
+    output reg                     egress_valid,
+    output reg  [FLIT_WIDTH-1:0]   egress_flit,
+    output reg  [1:0]              egress_vnet_id,
+    output reg  [3:0]              egress_port_1hot,
+    output reg                     is_deflected_detour
+);
+
+    // Unpack Ingress Flits
+    wire [FLIT_WIDTH-1:0] flit_vnet [0:2];
+    assign flit_vnet[0] = vnet_flit_data[0*FLIT_WIDTH +: FLIT_WIDTH]; // VNET0: Request
+    assign flit_vnet[1] = vnet_flit_data[1*FLIT_WIDTH +: FLIT_WIDTH]; // VNET1: Forward
+    assign flit_vnet[2] = vnet_flit_data[2*FLIT_WIDTH +: FLIT_WIDTH]; // VNET2: Response
+
+    // Strict Priority Arbiter: Response (2) > Forward (1) > Request (0)
+    reg [1:0] winning_vnet;
+    reg       has_winner;
+
+    always @(*) begin
+        if (vnet_req_valid[2]) begin
+            winning_vnet = 2'd2;
+            has_winner   = 1'b1;
+        end else if (vnet_req_valid[1]) begin
+            winning_vnet = 2'd1;
+            has_winner   = 1'b1;
+        end else if (vnet_req_valid[0]) begin
+            winning_vnet = 2'd0;
+            has_winner   = 1'b1;
+        end else begin
+            winning_vnet = 2'd0;
+            has_winner   = 1'b0;
+        end
+    end
+
+    // Fault-Tolerant Perimeter Detour Logic:
+    // If targeted link is faulty, deflect clockwise: North -> East -> South -> West -> North
+    reg [3:0] resolved_port;
+    reg       detour_active;
+
+    always @(*) begin
+        detour_active = 1'b0;
+        resolved_port = primary_route_port;
+
+        if (| (primary_route_port & faulty_ports)) begin
+            detour_active = 1'b1;
+            case (primary_route_port)
+                4'b1000: resolved_port = (!faulty_ports[1]) ? 4'b0010 : // East
+                                         (!faulty_ports[0]) ? 4'b0001 : // West
+                                                              4'b0100;  // South
+                4'b0100: resolved_port = (!faulty_ports[0]) ? 4'b0001 : // West
+                                         (!faulty_ports[1]) ? 4'b0010 : // East
+                                                              4'b1000;  // North
+                4'b0010: resolved_port = (!faulty_ports[2]) ? 4'b0100 : // South
+                                         (!faulty_ports[3]) ? 4'b1000 : // North
+                                                              4'b0001;  // West
+                4'b0001: resolved_port = (!faulty_ports[3]) ? 4'b1000 : // North
+                                         (!faulty_ports[2]) ? 4'b0100 : // South
+                                                              4'b0010;  // East
+                default: resolved_port = 4'b0000;
+            endcase
+        end
+    end
+
+    // Output Datapath Registers
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            vnet_grant          <= 3'b000;
+            egress_valid        <= 1'b0;
+            egress_flit         <= {FLIT_WIDTH{1'b0}};
+            egress_vnet_id      <= 2'd0;
+            egress_port_1hot    <= 4'b0000;
+            is_deflected_detour <= 1'b0;
+        end else begin
+            if (has_winner) begin
+                vnet_grant          <= (1'b1 << winning_vnet);
+                egress_valid        <= 1'b1;
+                egress_flit         <= flit_vnet[winning_vnet];
+                egress_vnet_id      <= winning_vnet;
+                egress_port_1hot    <= resolved_port;
+                is_deflected_detour <= detour_active;
+            end else begin
+                vnet_grant          <= 3'b000;
+                egress_valid        <= 1'b0;
+                egress_port_1hot    <= 4'b0000;
+                is_deflected_detour <= 1'b0;
+            end
+        end
+    end
+
+endmodule
+```
 
 ---
 
-## 7. 🎯 Knowledge Check: Lesson 4.4
+## 8. 🕹️ Interactive Lab & Arcade Arena
 
-<div class="noc-sim-container" id="quiz44" style="margin-top:1rem;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
-    📝 Concept Check: Fault Tolerance &amp; Protocol Deadlock
+Put fault-tolerant routing and protocol isolation to the test in silicon arcade simulators:
+
+<div class="noc-tracks-grid" style="margin-top:1rem;">
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">Silicon Defense</span>
+      <div class="noc-track-title">🛡️ Fault Defender: Silicon Resilience</div>
+      <div class="noc-track-desc">
+        Survive electro-migration wire breaks and dead router tiles! Use BIST radar pulses to detect broken links and steer traffic around convex fault rings.
+      </div>
+    </div>
+    <a href="../interactive/faults/" class="noc-track-link">Play Fault Defender →</a>
   </div>
 
-  <div id="q44_block">
-    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
-      <b>Question:</b> In Up*/Down* routing on an irregular or fault-degraded network, why is the transition from a Down edge to an Up edge ($Down \rightarrow Up$) strictly prohibited?
-    </p>
-
-    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q44_options">
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz44(0)">
-        A. Because Down links are twice as slow as Up links.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz44(1)">
-        B. Because permitting a packet to go Up after going Down allows closed directed cycles to form in the Channel Dependency Graph, which can cause routing deadlock.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz44(2)">
-        C. Because packets traveling Down lose their destination header flit.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz44(3)">
-        D. Because the root node only accepts Down packets.
-      </button>
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(37,99,235,0.15); color:#2563eb;">Traffic Arena</span>
+      <div class="noc-track-title">⚖️ QoS Gladiator: Traffic Arbiter</div>
+      <div class="noc-track-desc">
+        Arbitrate multi-class VNET flows under strict priority, defending real-time cache responses against massive injection floods of background requests.
+      </div>
     </div>
+    <a href="../interactive/qos/" class="noc-track-link">Launch QoS Gladiator →</a>
+  </div>
+</div>
 
-    <div id="q44_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+---
+
+## 9. 🎯 Comprehensive Self-Assessment Quiz
+
+Test your mastery of fault-tolerant routing, spanning tree rules, and cache protocol deadlock:
+
+<div class="noc-sim-container" id="quiz44_container" style="margin-top:1rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--tcl-border); padding-bottom:0.5rem;">
+    <span style="font-weight:700; font-size:1.05rem; color:var(--tcl-heading);">📝 Lesson 4.4 Self-Check</span>
+    <span id="quiz44_score" style="font-weight:700; font-size:0.9rem; color:#2563eb;">Score: 0 / 3</span>
+  </div>
+
+  <!-- Question 1 -->
+  <div class="quiz-item" style="margin-bottom:1.5rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q1:</b> In Up\*/Down\* routing on an irregular or fault-degraded network, why is the transition from a Down edge to an Up edge ($Down \rightarrow Up$) strictly prohibited?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q44_1_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ44(1, 0)">A. Because Down links operate at half the clock frequency of Up links.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ44(1, 1)">B. Because permitting a packet to go Up after traveling Down allows closed directed cycles to form in the Channel Dependency Graph, which can cause routing deadlock.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ44(1, 2)">C. Because packets traveling Down lose their destination header flit.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ44(1, 3)">D. Because the root node only accepts Down packets.</button>
+    </div>
+    <div id="q44_1_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 2 -->
+  <div class="quiz-item" style="margin-bottom:1.5rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q2:</b> What causes a <strong>Cache Coherence Protocol Deadlock</strong> in shared-memory multi-cores if all message classes share the exact same physical router buffers?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q44_2_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ44(2, 0)">A. A circular consumption dependency between Request and Response buffers: Core A cannot process Core B's Request until its own Response buffer drains, while Core B is blocked waiting for Core A's Response to drain its Request buffer.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ44(2, 1)">B. An electrical short circuit on the clock distribution tree.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ44(2, 2)">C. Parity errors in the L1 tag array.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ44(2, 3)">D. Packet fragmentation caused by jumbo flits.</button>
+    </div>
+    <div id="q44_2_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div class="quiz-item" style="margin-bottom:1rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q3:</b> In a 3-class MESI cache coherence protocol, what is the <strong>minimum number of Virtual Networks (VNETs)</strong> required to guarantee protocol deadlock freedom?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q44_3_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ44(3, 0)">A. At least 3 independent VNETs (Request, Forward/Probe, Response), ensuring that responses never block behind forwarded requests or initial requests.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ44(3, 1)">B. Only 1 VNET, provided that all FIFO buffers are larger than 64 flits.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ44(3, 2)">C. Exactly 16 VNETs, one for each core.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ44(3, 3)">D. VNETs are unnecessary if the crossbar uses round-robin arbitration.</button>
+    </div>
+    <div id="q44_3_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
   </div>
 </div>
 
 <script>
-function checkQuiz44(idx) {
-  const fb = document.getElementById("q44_feedback");
-  fb.style.display = "block";
-  const opts = document.getElementById("q44_options").children;
+let q44Score = 0;
+const answeredQ44 = {1: false, 2: false, 3: false};
+
+function answerQ44(qNum, selected) {
+  if (answeredQ44[qNum]) return;
+  answeredQ44[qNum] = true;
+
+  const correctAnswers = {1: 1, 2: 0, 3: 0};
+  const isCorrect = (selected === correctAnswers[qNum]);
+  const fb = document.getElementById("q44_" + qNum + "_feedback");
+  const opts = document.getElementById("q44_" + qNum + "_options").children;
+
   for (let i = 0; i < opts.length; i++) {
-    opts[i].onclick = null;
     opts[i].style.cursor = "default";
+    opts[i].onclick = null;
   }
 
-  if (idx === 1) {
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(34,197,94,0.1)";
-    fb.style.border = "1px solid rgba(34,197,94,0.3)";
+  if (isCorrect) {
+    q44Score++;
+    opts[selected].style.background = "rgba(34, 197, 94, 0.15)";
+    opts[selected].style.borderColor = "#22c55e";
+    fb.style.display = "block";
+    fb.style.background = "rgba(34, 197, 94, 0.1)";
+    fb.style.border = "1px solid rgba(34, 197, 94, 0.3)";
     fb.style.color = "#166534";
-    fb.innerHTML = "<strong>✓ Correct!</strong> By strictly enforcing that packets may only go Up towards the root and then Down to the destination ($U^* D^*$), the Channel Dependency Graph is guaranteed to be acyclic. Forbidding Down-to-Up turns prevents loops from closing.";
+    fb.innerHTML = "<strong>✓ Correct!</strong> " + getQ44Explanation(qNum, true);
   } else {
-    opts[idx].style.background = "rgba(239,68,68,0.15)";
-    opts[idx].style.borderColor = "#ef4444";
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(239,68,68,0.1)";
-    fb.style.border = "1px solid rgba(239,68,68,0.3)";
+    opts[selected].style.background = "rgba(239, 68, 68, 0.15)";
+    opts[selected].style.borderColor = "#ef4444";
+    opts[correctAnswers[qNum]].style.background = "rgba(34, 197, 94, 0.15)";
+    opts[correctAnswers[qNum]].style.borderColor = "#22c55e";
+    fb.style.display = "block";
+    fb.style.background = "rgba(239, 68, 68, 0.1)";
+    fb.style.border = "1px solid rgba(239, 68, 68, 0.3)";
     fb.style.color = "#991b1b";
-    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. Forbidding Down-to-Up transitions breaks all circular cycles in the spanning tree.";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> " + getQ44Explanation(qNum, false);
+  }
+
+  document.getElementById("quiz44_score").textContent = "Score: " + q44Score + " / 3";
+}
+
+function getQ44Explanation(qNum, wasCorrect) {
+  if (qNum === 1) {
+    return "By strictly enforcing that packets may only go Up towards the root and then Down to the destination (U* D*), the Channel Dependency Graph is guaranteed to be acyclic. Forbidding Down-to-Up turns prevents loops from closing.";
+  } else if (qNum === 2) {
+    return "Protocol deadlock occurs at the transaction layer: if node A cannot accept an incoming Request because its outgoing Response queue is blocked, and vice-versa for node B, a consumption cycle freezes the system.";
+  } else {
+    return "A 3-tier MESI protocol produces a dependency chain: Request -> Forward -> Response. To eliminate circular dependency at the consumption layer, each tier must map to a dedicated, independent Virtual Network (VNET0, VNET1, VNET2).";
   }
 }
 </script>
@@ -434,11 +642,12 @@ function checkQuiz44(idx) {
 Congratulations! You have completed **Track 4: Routing Algorithms & Deadlock Avoidance**.
 
 Here is what you have mastered across this module:
-1. **Deterministic Routing (Lesson 4.1):** Dimension-Order Routing (XY/YX), lookahead route computation logic, synthesizable Verilog RTL, and monotonic dimension deadlock proofs.
-2. **The Turn Model (Lesson 4.2):** Geometry of clockwise/counter-clockwise cycles, Glass & Ni's theorem, West-First, North-Last, and Chiu's balanced Odd-Even turn model.
-3. **Formal Deadlock Theory (Lesson 4.3):** Channel Dependency Graphs (CDGs), the Dally-Seitz theorem for deterministic networks, and Duato's Escape Channel theorem ($C = C_1 \cup C_0$) decoupling adaptivity from deadlock freedom.
-4. **Fault Tolerance & Protocol Deadlock (Lesson 4.4):** Up\*/Down\* spanning tree routing on degraded topologies, DISHA token recovery, and hardware Virtual Networks (VNETs) eliminating cache coherence Request-Response lockups.
+1. **Deterministic Routing (Lesson 4.1):** Dimension-Order Routing (XY/YX), lookahead route computation logic, synthesizable `lookahead_route_comp.v`, and monotonic dimension deadlock proofs.
+2. **The Turn Model (Lesson 4.2):** Geometry of clockwise/counter-clockwise cycles, Glass & Ni's theorem, West-First, North-Last, Chiu's balanced Odd-Even turn model, and synthesizable `turn_model_adaptive_router.v`.
+3. **Formal Deadlock Theory (Lesson 4.3):** Channel Dependency Graphs (CDGs), the Dally-Seitz theorem for deterministic networks, Duato's Escape Channel theorem ($C = C_1 \cup C_0$), and synthesizable `duato_escape_vc_allocator.v`.
+4. **Fault Tolerance & Protocol Deadlock (Lesson 4.4):** Up\*/Down\* spanning tree routing on degraded topologies, DISHA token recovery, hardware Virtual Networks (VNETs), and synthesizable `vnet_protocol_isolator.v`.
 
 Ready to explore how thermal hotspots, spatial temperature gradients, and congestion throttling impact NoC design?
 
 👉 **Proceed to [Track 5: Thermal & Congestion Management](../track5-congestion-thermal/index.md)**
+

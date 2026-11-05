@@ -509,63 +509,138 @@ Deterministic routing has zero flexibility to balance load dynamically. If a wor
 
 ---
 
-## 7. 🎯 Knowledge Check: Lesson 4.1
+## 7. 🕹️ Interactive Lab & Arcade Arena
 
-<div class="noc-sim-container" id="quiz41" style="margin-top:1rem;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
-    📝 Concept Check: Deterministic Routing &amp; DOR
+Put deterministic routing and turn rules into practice with interactive challenges:
+
+<div class="noc-tracks-grid" style="margin-top:1rem;">
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(37,99,235,0.15); color:#2563eb;">Puzzle Mission</span>
+      <div class="noc-track-title">🧩 Packet Master: Routing Puzzle</div>
+      <div class="noc-track-desc">
+        Levels 1–3: Steer packet flits across a 2D mesh grid under deterministic Dimension-Order Routing (DOR), avoiding head-on collisions and turn violations.
+      </div>
+    </div>
+    <a href="../interactive/puzzle/" class="noc-track-link">Play Packet Master →</a>
   </div>
 
-  <div id="q41_block">
-    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
-      <b>Question:</b> In Lookahead Route Computation (L-RC), why does router $R_i$ compute the output port for router $R_{i+1}$ instead of computing its own output port?
-    </p>
-
-    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q41_options">
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz41(0)">
-        A. Because router R_{i} does not know its own coordinate.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz41(1)">
-        B. To remove the Route Computation delay from the critical path of router R_{i+1}, allowing the flit to enter Switch Allocation immediately upon arrival.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz41(2)">
-        C. Because lookahead routing enables packets to travel diagonally.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz41(3)">
-        D. To reduce the number of Virtual Channels required.
-      </button>
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">Arcade Defense</span>
+      <div class="noc-track-title">🕹️ Deadlock Buster Arcade</div>
+      <div class="noc-track-desc">
+        Defend an active NoC fabric against cyclic channel dependencies! Detect circular packet wait-for graphs in real time and trigger emergency flit drains.
+      </div>
     </div>
+    <a href="../interactive/game/" class="noc-track-link">Play Deadlock Buster →</a>
+  </div>
+</div>
 
-    <div id="q41_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+---
+
+## 8. 🎯 Comprehensive Self-Assessment Quiz
+
+Test your understanding of deterministic routing, lookahead timing, and deadlock freedom proofs:
+
+<div class="noc-sim-container" id="quiz41_container" style="margin-top:1rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--tcl-border); padding-bottom:0.5rem;">
+    <span style="font-weight:700; font-size:1.05rem; color:var(--tcl-heading);">📝 Lesson 4.1 Self-Check</span>
+    <span id="quiz41_score" style="font-weight:700; font-size:0.9rem; color:#2563eb;">Score: 0 / 3</span>
+  </div>
+
+  <!-- Question 1 -->
+  <div class="quiz-item" style="margin-bottom:1.5rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q1:</b> In Lookahead Route Computation (L-RC), why does router $R_i$ compute the output port for router $R_{i+1}$ instead of computing its own output port?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q41_1_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ41(1, 0)">A. Because router $R_i$ does not know its own coordinate.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ41(1, 1)">B. To remove the Route Computation (RC) delay from the critical path of router $R_{i+1}$, allowing incoming flits to enter Switch Allocation immediately upon arrival.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ41(1, 2)">C. Because lookahead routing enables flits to travel diagonally across the mesh.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ41(1, 3)">D. To reduce the number of Virtual Channels required per router port.</button>
+    </div>
+    <div id="q41_1_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 2 -->
+  <div class="quiz-item" style="margin-bottom:1.5rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q2:</b> In a 2D Mesh, why is XY Dimension-Order Routing mathematically provable to be deadlock-free without requiring virtual channels?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q41_2_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ41(2, 0)">A. Because packets only travel along East and South channels.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ41(2, 1)">B. Because by strictly resolving the X dimension before turning into Y, all 4 possible $Y \rightarrow X$ turns are forbidden, preventing both clockwise and counter-clockwise circular wait cycles in the Channel Dependency Graph.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ41(2, 2)">C. Because XY routing discards packets whenever buffer congestion exceeds 80%.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ41(2, 3)">D. Because corner routers have higher arbitration priority.</button>
+    </div>
+    <div id="q41_2_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div class="quiz-item" style="margin-bottom:1rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q3:</b> Under Transpose traffic on an $8 \times 8$ mesh, why does XY routing trigger severe hotspot congestion compared to YX routing?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q41_3_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ41(3, 0)">A. Because XY routing forces all packets with identical target columns to turn at the exact same vertical channels simultaneously, whereas YX distributes vertical traversals across source columns before turning.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ41(3, 1)">B. Because XY routing runs at half the clock frequency of YX routing.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ41(3, 2)">C. Because Transpose traffic disables router crossbar arbiters.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ41(3, 3)">D. Because YX routing utilizes non-minimal paths.</button>
+    </div>
+    <div id="q41_3_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
   </div>
 </div>
 
 <script>
-function checkQuiz41(idx) {
-  const fb = document.getElementById("q41_feedback");
-  fb.style.display = "block";
-  const opts = document.getElementById("q41_options").children;
+let q41Score = 0;
+const answeredQ41 = {1: false, 2: false, 3: false};
+
+function answerQ41(qNum, selected) {
+  if (answeredQ41[qNum]) return;
+  answeredQ41[qNum] = true;
+
+  const correctAnswers = {1: 1, 2: 1, 3: 0};
+  const isCorrect = (selected === correctAnswers[qNum]);
+  const fb = document.getElementById("q41_" + qNum + "_feedback");
+  const opts = document.getElementById("q41_" + qNum + "_options").children;
+
   for (let i = 0; i < opts.length; i++) {
-    opts[i].onclick = null;
     opts[i].style.cursor = "default";
+    opts[i].onclick = null;
   }
 
-  if (idx === 1) {
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(34,197,94,0.1)";
-    fb.style.border = "1px solid rgba(34,197,94,0.3)";
+  if (isCorrect) {
+    q41Score++;
+    opts[selected].style.background = "rgba(34, 197, 94, 0.15)";
+    opts[selected].style.borderColor = "#22c55e";
+    fb.style.display = "block";
+    fb.style.background = "rgba(34, 197, 94, 0.1)";
+    fb.style.border = "1px solid rgba(34, 197, 94, 0.3)";
     fb.style.color = "#166534";
-    fb.innerHTML = "<strong>✓ Correct!</strong> By pre-computing the output port for the next downstream router in parallel with switch allocation at the current router, Route Computation is completely removed from the critical pipeline latency path.";
+    fb.innerHTML = "<strong>✓ Correct!</strong> " + getQ41Explanation(qNum, true);
   } else {
-    opts[idx].style.background = "rgba(239,68,68,0.15)";
-    opts[idx].style.borderColor = "#ef4444";
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(239,68,68,0.1)";
-    fb.style.border = "1px solid rgba(239,68,68,0.3)";
+    opts[selected].style.background = "rgba(239, 68, 68, 0.15)";
+    opts[selected].style.borderColor = "#ef4444";
+    opts[correctAnswers[qNum]].style.background = "rgba(34, 197, 94, 0.15)";
+    opts[correctAnswers[qNum]].style.borderColor = "#22c55e";
+    fb.style.display = "block";
+    fb.style.background = "rgba(239, 68, 68, 0.1)";
+    fb.style.border = "1px solid rgba(239, 68, 68, 0.3)";
     fb.style.color = "#991b1b";
-    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. Lookahead routing pre-computes the routing decision one hop ahead to eliminate the RC pipeline stage from downstream routers.";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> " + getQ41Explanation(qNum, false);
+  }
+
+  document.getElementById("quiz41_score").textContent = "Score: " + q41Score + " / 3";
+}
+
+function getQ41Explanation(qNum, wasCorrect) {
+  if (qNum === 1) {
+    return "By pre-computing the output direction for the downstream router while the packet traverses the current hop, Route Computation is completely removed from the downstream critical pipeline latency path.";
+  } else if (qNum === 2) {
+    return "In a 2D mesh, 8 turns exist. Forbidding all 4 Y->X turns (North->East, North->West, South->East, South->West) eliminates both clockwise and counter-clockwise cycles, guaranteeing an acyclic Channel Dependency Graph.";
+  } else {
+    return "Deterministic routing cannot balance load. Under Transpose traffic, XY routing channels all turning flits into the target column, bottlenecking vertical bisection links. YX disperses traffic across source columns first.";
   }
 }
 </script>
@@ -577,9 +652,10 @@ function checkQuiz41(idx) {
 In this lesson, we established:
 - **Dimension-Order Routing (XY / YX)**: Algorithmic mechanics and minimal distance routing.
 - **Lookahead Route Computation**: Removing route computation from the router's critical path via downstream pre-computation.
-- **Synthesizable Verilog RTL**: Clean, low-latency combinational routing logic.
+- **Synthesizable Verilog RTL**: Clean, low-latency combinational routing logic in `lookahead_route_comp.v`.
 - **Deadlock Freedom Proof**: Proving that strictly forbidding $Y \rightarrow X$ turns breaks all circular dependency cycles.
 
 However, XY routing's strict rigidity means packets cannot route around congested or faulty nodes. Can we break cycles while eliminating *fewer* turns to unlock path diversity?
 
 👉 **Proceed to [Lesson 4.2: Adaptive Routing & The Turn Model](02-adaptive-turn-model.md)**
+

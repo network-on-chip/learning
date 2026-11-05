@@ -9,7 +9,7 @@
   <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
     <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">⏱️ 4 In-Depth Lessons</span>
     <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: rgba(16, 185, 129, 0.2);">🔬 4 Interactive Simulators &amp; Visualizers</span>
-    <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">⚡ Synthesizable Lookahead Verilog RTL</span>
+    <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">💻 4 Synthesizable Verilog RTL Modules</span>
     <span class="noc-track-badge" style="background: rgba(147, 51, 234, 0.1); color: #9333ea; border-color: rgba(147, 51, 234, 0.2);">📐 Dally-Seitz &amp; Duato Formal Theorems</span>
   </div>
 </div>
@@ -63,10 +63,10 @@ graph TD
       <span class="noc-track-badge">Lesson 4.1</span>
       <div class="noc-track-title">Deterministic Dimension-Order Routing (DOR)</div>
       <div class="noc-track-desc">
-        Algorithmic foundations of XY and YX routing. Single-cycle combinational Route Computation (RC), lookahead routing optimization, synthesizable Verilog RTL, and mathematical proof of deadlock-freedom via monotonic dimension traversal.
+        Algorithmic foundations of XY and YX routing. Single-cycle combinational Route Computation (RC), lookahead routing optimization, synthesizable Verilog RTL (`lookahead_route_comp.v`), and mathematical proof of deadlock-freedom via monotonic dimension traversal.
       </div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Interactive XY / YX Path Stepper &amp; Turn Auditor, Synthesizable Verilog RTL, Self-Check Quiz.
+        ⚡ <strong>Features:</strong> Interactive XY / YX Path Stepper, Synthesizable Verilog RTL (`lookahead_route_comp.v`), 3-Question Self-Check Quiz, Arcade Linkages (Packet Master &amp; Deadlock Buster).
       </div>
     </div>
     <a href="01-deterministic-dor/" class="noc-track-link">Launch Lesson 4.1 →</a>
@@ -77,10 +77,10 @@ graph TD
       <span class="noc-track-badge">Lesson 4.2</span>
       <div class="noc-track-title">Adaptive Routing &amp; The Turn Model</div>
       <div class="noc-track-desc">
-        Overcoming deterministic congestion bottlenecks. Christopher Glass and Lionel Ni's Turn Model: breaking all directed cycles by prohibiting only 2 out of 8 turns. West-First, North-Last, and Ge-Ming Chiu's balanced Odd-Even turn model.
+        Overcoming deterministic congestion bottlenecks. Christopher Glass and Lionel Ni's Turn Model: breaking all directed cycles by prohibiting only 2 out of 8 turns. West-First, North-Last, Ge-Ming Chiu's balanced Odd-Even turn model, and synthesizable dual-mode RTL (`turn_model_adaptive_router.v`).
       </div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Interactive Turn Model &amp; Cycle Breaker Playground, Path Diversity Formulas, Self-Check Quiz.
+        ⚡ <strong>Features:</strong> Interactive Turn Model Playground, Synthesizable Verilog RTL (`turn_model_adaptive_router.v`), 3-Question Self-Check Quiz, Arcade Linkages (Packet Master &amp; Deadlock Buster).
       </div>
     </div>
     <a href="02-adaptive-turn-model/" class="noc-track-link">Launch Lesson 4.2 →</a>
@@ -91,10 +91,10 @@ graph TD
       <span class="noc-track-badge">Lesson 4.3</span>
       <div class="noc-track-title">Formal Deadlock Theory &amp; Duato's Escape Channels</div>
       <div class="noc-track-desc">
-        Rigorous graph-theoretic foundations: Channel Dependency Graphs (CDGs). Dally &amp; Seitz's necessary and sufficient condition for deterministic routing. José Duato's breakthrough Escape Channel Theorem ($C = C_1 \cup C_0$) decoupling adaptivity from deadlock freedom.
+        Rigorous graph-theoretic foundations: Channel Dependency Graphs (CDGs). Dally &amp; Seitz's necessary and sufficient condition for deterministic routing. José Duato's breakthrough Escape Channel Theorem ($C = C_1 \cup C_0$), and synthesizable escape-channel VC allocator RTL (`duato_escape_vc_allocator.v`).
       </div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Interactive CDG Deadlock Simulator &amp; Escape Channel Flusher, Silicon Case Studies, Self-Check Quiz.
+        ⚡ <strong>Features:</strong> Interactive CDG Deadlock Simulator &amp; Escape Channel Flusher, Synthesizable Verilog RTL (`duato_escape_vc_allocator.v`), 3-Question Self-Check Quiz, Arcade Linkages (Deadlock Buster &amp; Arbiter Arena).
       </div>
     </div>
     <a href="03-deadlock-theory-cdg/" class="noc-track-link">Launch Lesson 4.3 →</a>
@@ -105,10 +105,10 @@ graph TD
       <span class="noc-track-badge">Lesson 4.4</span>
       <div class="noc-track-title">Fault-Tolerant Routing &amp; Protocol Deadlock Avoidance</div>
       <div class="noc-track-desc">
-        Surviving hardware degradation and cache protocol stalls. Convex fault rings, Up*/Down* spanning tree routing for irregular and damaged topologies, deadlock recovery (DISHA token), and hardware Virtual Networks (VNETs) to avoid MESI Request-Response deadlocks.
+        Surviving hardware degradation and cache protocol stalls. Convex fault rings, Up*/Down* spanning tree routing for irregular and damaged topologies, deadlock recovery (DISHA token), hardware Virtual Networks (VNETs) to avoid MESI Request-Response deadlocks, and synthesizable VNET priority scheduler RTL (`vnet_protocol_isolator.v`).
       </div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Interactive Cache Coherence Protocol Deadlock &amp; VNET Isolation Visualizer, Self-Check Quiz.
+        ⚡ <strong>Features:</strong> Interactive VNET Isolation Visualizer, Synthesizable Verilog RTL (`vnet_protocol_isolator.v`), 3-Question Self-Check Quiz, Arcade Linkages (Fault Defender &amp; QoS Gladiator).
       </div>
     </div>
     <a href="04-fault-tolerant-protocol-deadlock/" class="noc-track-link">Launch Lesson 4.4 →</a>

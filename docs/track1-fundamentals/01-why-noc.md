@@ -1,5 +1,19 @@
 # 1.1 Why Network-on-Chip?
 
+<div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.25), rgba(15, 23, 42, 0.45)); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <div style="font-weight: 700; color: #60a5fa; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+      <span>📖 Companion Textbook Chapter Available</span>
+    </div>
+    <div style="font-size: 0.88rem; color: #cbd5e1; margin-top: 4px;">
+      Read <strong>Chapter 1: The Multi-Core Communication Crisis & Interconnect Physics</strong> in our open textbook, featuring full Elmore delay derivations, sub-10nm Mayadas-Shatzkes scattering models, and 2,048-core HammerBlade silicon case studies.
+    </div>
+  </div>
+  <a href="https://github.com/network-on-chip/book/blob/main/chapters/ch01-interconnect-crisis/index.md" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
+    <span>Explore Chapter 1 →</span>
+  </a>
+</div>
+
 As semiconductor technology scaled down following Moore's Law and Dennard Scaling, single-core microprocessors struck the **Power Wall** in the early 2000s. Chip architects could no longer drive clock frequencies higher without exceeding the thermal dissipation limits of standard packaging ($\approx 100\text{–}130\text{ W/cm}^2$). 
 
 To sustain computing performance growth, the industry executed a paradigm shift toward **Multi-Processor Systems-on-Chip (MPSoCs)** and **Chip Multi-Processors (CMPs)**, integrating dozens to hundreds of processing elements, accelerators, and memory controllers on a single monolithic silicon die.
@@ -401,6 +415,17 @@ Tilera 5-Layer iMesh:
 
 ### E. Modern Industry Standard: Intel Xeon Scalable Mesh (Skylake-SP to Emerald Rapids)
 For over a decade, Intel server processors utilized dual concentric ring buses. At 28 cores (Skylake-SP in 2017), ring traversal latencies and bisection bandwidth bottlenecks forced Intel to replace the ring with a **2D Mesh NoC**. By organizing cores and memory controllers into a rectangular grid, worst-case hop count was reduced by over 40%, boosting multi-threaded server scaling across cloud workloads.
+
+### F. FlooNoC: Open-Source Wide-Link NoC in 12nm (TVLSI 2025)
+Published in IEEE TVLSI 2025 by Benini et al. (ETH Zurich / University of Bologna), **FlooNoC** tackles bandwidth bottlenecks in domain-specific AI accelerators:
+- **Wide Physical Links:** Leverages high-level metal tracks to achieve **645 Gb/s per link** and **103 Tb/s aggregate bandwidth** across an $8 \times 4$ cluster mesh (288 RISC-V cores).
+- **Extreme Energy Efficiency:** Achieves **0.15 pJ/bit/hop** at 0.8V supply, cutting interconnect area overhead to just 3.5% per compute tile.
+
+### G. HammerBlade in Silicon: 2,048 RISC-V Cores in 12nm FinFET (TVLSI 2026)
+Published in IEEE TVLSI 2026 by Taylor et al. (University of Washington / Cornell), **HammerBlade (HB)** represents the pinnacle of monolithic manycore scaling:
+- **Die Floorplan:** 2,048 custom RISC-V compute cores on a $99\text{ mm}^2$ monolithic silicon die fabricated in TSMC 12nm.
+- **Ruche Network Topology:** Overlays nearest-neighbor 2D mesh links with multi-hop long-distance bypass wires to maximize wire bandwidth utilization.
+- **Bisection Bandwidth:** Operating at **1.49 GHz at 0.8 V**, the NoC achieves **53.2 Tb/s bisection bandwidth** and **2,572.6 Tb/s peak aggregate bandwidth**, reaching a routing density of 4,289 bit/mm.
 
 ---
 

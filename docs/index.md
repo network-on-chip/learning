@@ -91,7 +91,7 @@ Explore our structured learning pathways designed for undergraduate and graduate
         Deterministic Dimension-Order Routing (DOR), Glass &amp; Ni's Turn Model, Chiu's Odd-Even algorithm, Duato's Escape Channels, Up*/Down* tree routing, and Cache Coherence VNET isolation.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Interactive Simulators &amp; Lookahead Verilog RTL
+        ⚡ 4 Synthesizable Verilog RTLs • 4 Interactive Simulators &amp; Arcade Links
       </div>
     </div>
     <a href="track4-routing-deadlock/" class="noc-track-link">Explore Track 4 →</a>

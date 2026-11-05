@@ -203,6 +203,56 @@ QUESTIONS = [
         ],
         "answer": 0,
         "explanation": "UCIe achieves over 28x higher bandwidth density than PCIe with sub-0.5 pJ/bit energy efficiency, allowing routers on adjacent chiplets to be linked transparently into a unified global mesh."
+    },
+
+    # --- TEXTBOOK CHAPTER 1: INTERCONNECT PHYSICS EXTENSIONS ---
+    {
+        "id": "q13",
+        "module": "Track 1: Fundamentals (Book Ch 1)",
+        "tier": "Tier 1: Fundamental",
+        "tier_level": 1,
+        "base_points": 100,
+        "question": "Under the Elmore delay model, why does the propagation delay of a shared multi-drop bus grow quadratically/superlinearly with core count N rather than remaining flat?",
+        "options": [
+            "Every attached core introduces capacitive tap loading (C_tap) and die scaling increases physical wire length (L ~ sqrt(N)), compounding both wire resistance and total capacitance.",
+            "Buses require optical repeaters whose laser efficiency drops with core count.",
+            "Transistors on a bus automatically divide their supply voltage by N.",
+            "Clock frequencies in multi-core chips must be slowed down by quantum tunneling."
+        ],
+        "answer": 0,
+        "explanation": "Elmore delay tau_bus ~ R_wire * C_wire + R_driver * (C_wire + N * C_tap) + 0.5 * R_wire * (N * C_tap). Both wire resistance (proportional to wire length) and tap capacitance scale with N, causing delay to surge."
+    },
+    {
+        "id": "q14",
+        "module": "Track 1: Fundamentals (Book Ch 1)",
+        "tier": "Tier 2: Core Engineering",
+        "tier_level": 2,
+        "base_points": 200,
+        "question": "What is the physical mechanism behind the Mayadas-Shatzkes effect, and why does it severely penalize global interconnects below 14nm?",
+        "options": [
+            "Thermal expansion melts copper traces when packets exceed 100 Gbps.",
+            "When wire width shrinks below the electron mean free path (~39nm in Cu), diffuse scattering off grain boundaries and sidewalls causes effective copper resistivity to surge by 5x-15x.",
+            "Electromagnetic radiation creates destructive interference that erases packet flits.",
+            "Copper wires convert spontaneously into silicon dioxide under high clock frequencies."
+        ],
+        "answer": 1,
+        "explanation": "In nanoscale wires, electron scattering off grain boundaries (Mayadas-Shatzkes) and sidewall surfaces (Fuchs-Sondheimer), compounded by high-resistance Ta/TaN diffusion barrier liners, causes effective resistivity to spike dramatically."
+    },
+    {
+        "id": "q15",
+        "module": "Track 1: Fundamentals (Book Ch 1)",
+        "tier": "Tier 3: Silicon Mastery",
+        "tier_level": 3,
+        "base_points": 300,
+        "question": "Why is a monolithic centralized NxN crossbar switch physically unviable for large manycore systems (N >= 64 cores), despite offering single-hop non-blocking routing?",
+        "options": [
+            "It requires N^2 crosspoint switches (4,096 switches for N=64) and dense global wiring tracks, leading to severe silicon area explosion and physical routing track starvation.",
+            "Crossbars cannot route digital binary signals.",
+            "Crossbar switches cannot be built using CMOS transistors.",
+            "Crossbars violate Duato's deadlock theorem by definition."
+        ],
+        "answer": 0,
+        "explanation": "Full NxN crossbars exhibit quadratic O(N^2) area complexity and require O(N) global wires per port. For N >= 64, wiring congestion and crosspoint area overwhelm the silicon floorplan, whereas modular 2D Mesh NoCs scale linearly in local router area."
     }
 ]
 

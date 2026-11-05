@@ -439,63 +439,266 @@ The architecture strictly satisfies Duato's Theorem and is **provably deadlock-f
 
 ---
 
-## 8. 🎯 Knowledge Check: Lesson 4.3
+## 8. 💻 Synthesizable Hardware: Duato Escape Virtual Channel Allocator
 
-<div class="noc-sim-container" id="quiz43" style="margin-top:1rem;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
-    📝 Concept Check: Deadlock Theory &amp; Duato's Theorem
+José Duato's theorem enables fully adaptive routing on an adaptive channel pool ($C_1$) by reserving an acyclic escape channel pool ($C_0$). In silicon, this is implemented as an adaptive Virtual Channel allocator:
+1. **Adaptive VCs ($C_1$):** Packets can turn in any minimal direction based on available credits, maximizing bandwidth and spreading out traffic.
+2. **Escape VC ($C_0$):** Dedicated strictly to deterministic Dimension-Order Routing (XY), forming an acyclic dependency graph.
+3. **Fallback Arbitration:** Whenever adaptive VCs face congestion ($credits \le threshold$), packets fall back to the escape channel, guaranteeing starvation-free drain and provable deadlock freedom!
+
+The synthesizable Verilog module below, `duato_escape_vc_allocator.v`, implements this architecture:
+
+```verilog
+//=============================================================================
+// Module: duato_escape_vc_allocator
+// Description: Synthesizable Duato Escape Channel Virtual Channel Allocator
+//              for fully adaptive, deadlock-free NoC routing.
+//              - C1 Plane (VCs 1..NUM_ADAPTIVE): Adaptive routing based on
+//                downstream queue congestion.
+//              - C0 Plane (VC 0): Escape channel strictly reserved for
+//                deterministic Dimension-Order Routing (XY), forming an
+//                acyclic channel dependency subgraph.
+//              - Fallback Mechanism: If C1 VCs are congested or exhausted,
+//                flits safely escape via C0 to guarantee forward progress!
+//=============================================================================
+
+module duato_escape_vc_allocator #(
+    parameter integer COORD_W       = 3, // 8x8 mesh coordinates (3 bits)
+    parameter integer CREDIT_W      = 4, // Up to 15 credits per VC buffer
+    parameter integer NUM_ADAPT_VC  = 2  // Number of adaptive VCs (total VCs = 1 + NUM_ADAPT_VC)
+)(
+    input  wire                     clk,
+    input  wire                     rst_n,
+
+    // Routing Request & Node Coordinates
+    input  wire                     req_valid,
+    input  wire [COORD_W-1:0]       curr_x,
+    input  wire [COORD_W-1:0]       curr_y,
+    input  wire [COORD_W-1:0]       dest_x,
+    input  wire [COORD_W-1:0]       dest_y,
+
+    // Congestion / Credit Feedback
+    input  wire [CREDIT_W-1:0]      c0_escape_credits,   // VC 0 (XY Escape)
+    input  wire [CREDIT_W-1:0]      c1_adapt_credits_x,  // Adaptive VC credits along X
+    input  wire [CREDIT_W-1:0]      c1_adapt_credits_y,  // Adaptive VC credits along Y
+    input  wire [CREDIT_W-1:0]      threshold_low,       // Low-credit escape threshold
+
+    // Allocation Outputs
+    output reg                      grant_valid,
+    output reg                      grant_is_escape,     // 1 = routed on C0 escape, 0 = C1 adaptive
+    output reg  [1:0]               grant_vc_id,         // 0 = VC0 (Escape), 1..2 = Adaptive VCs
+    output reg  [4:0]               out_port_1hot        // [4]=LOCAL, [3]=NORTH, [2]=SOUTH, [1]=EAST, [0]=WEST
+);
+
+    // Direction Offsets
+    wire need_west  = (dest_x < curr_x);
+    wire need_east  = (dest_x > curr_x);
+    wire need_north = (dest_y < curr_y);
+    wire need_south = (dest_y > curr_y);
+
+    // Deterministic XY Route (Escape Channel Sub-function)
+    reg [4:0] dor_xy_port;
+    always @(*) begin
+        if (dest_x == curr_x && dest_y == curr_y) begin
+            dor_xy_port = 5'b10000; // Local Core Ejection
+        end else if (need_east) begin
+            dor_xy_port = 5'b00010; // East
+        end else if (need_west) begin
+            dor_xy_port = 5'b00001; // West
+        end else if (need_south) begin
+            dor_xy_port = 5'b00100; // South
+        end else begin
+            dor_xy_port = 5'b01000; // North
+        end
+    end
+
+    // Adaptive Routing Decision: Prefer dimension with higher available credits
+    wire x_has_credits = (c1_adapt_credits_x > threshold_low);
+    wire y_has_credits = (c1_adapt_credits_y > threshold_low);
+    wire prefer_y      = (c1_adapt_credits_y > c1_adapt_credits_x);
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            grant_valid     <= 1'b0;
+            grant_is_escape <= 1'b0;
+            grant_vc_id     <= 2'd0;
+            out_port_1hot   <= 5'b00000;
+        end else begin
+            grant_valid <= req_valid;
+            if (req_valid) begin
+                if (dest_x == curr_x && dest_y == curr_y) begin
+                    // Local core ejection
+                    grant_is_escape <= 1'b1;
+                    grant_vc_id     <= 2'd0;
+                    out_port_1hot   <= 5'b10000;
+                end else if ((need_north || need_south) && prefer_y && y_has_credits) begin
+                    // Adaptive Y traversal on C1
+                    grant_is_escape <= 1'b0;
+                    grant_vc_id     <= 2'd1;
+                    out_port_1hot   <= need_south ? 5'b00100 : 5'b01000;
+                end else if ((need_east || need_west) && x_has_credits) begin
+                    // Adaptive X traversal on C1
+                    grant_is_escape <= 1'b0;
+                    grant_vc_id     <= 2'd2;
+                    out_port_1hot   <= need_east ? 5'b00010 : 5'b00001;
+                end else if ((need_north || need_south) && y_has_credits) begin
+                    // Secondary adaptive Y traversal on C1
+                    grant_is_escape <= 1'b0;
+                    grant_vc_id     <= 2'd1;
+                    out_port_1hot   <= need_south ? 5'b00100 : 5'b01000;
+                end else if (c0_escape_credits > 0) begin
+                    // Adaptive channels blocked: Safe escape via C0 (Strict XY)
+                    grant_is_escape <= 1'b1;
+                    grant_vc_id     <= 2'd0;
+                    out_port_1hot   <= dor_xy_port;
+                end else begin
+                    // All buffers full: Stall grant
+                    grant_valid     <= 1'b0;
+                    out_port_1hot   <= 5'b00000;
+                end
+            end else begin
+                out_port_1hot <= 5'b00000;
+            end
+        end
+    end
+
+endmodule
+```
+
+---
+
+## 9. 🕹️ Interactive Lab & Arcade Arena
+
+Experience deadlock formation and escape channel flushing in interactive simulations:
+
+<div class="noc-tracks-grid" style="margin-top:1rem;">
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">Arcade Defense</span>
+      <div class="noc-track-title">🕹️ Deadlock Buster Arcade</div>
+      <div class="noc-track-desc">
+        Watch circular wait dependencies freeze multi-tile buffers in real time. Deploy Duato escape channels to break cyclic queues and restore maximum line-rate throughput!
+      </div>
+    </div>
+    <a href="../interactive/game/" class="noc-track-link">Play Deadlock Buster →</a>
   </div>
 
-  <div id="q43_block">
-    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
-      <b>Question:</b> Why does the Dally-Seitz theorem fail to accurately classify deadlock freedom in adaptive routing algorithms?
-    </p>
-
-    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q43_options">
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz43(0)">
-        A. Because the Dally-Seitz theorem only applies to circuit-switched networks.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz43(1)">
-        B. Because Dally-Seitz requires an acyclic Channel Dependency Graph (CDG). In an adaptive network, a CDG may contain cycles, but packets can adaptively choose alternative non-blocked channels, meaning cycles do not necessarily cause deadlock.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz43(2)">
-        C. Because Dally-Seitz does not account for packet serialization delay.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz43(3)">
-        D. Because adaptive routers cannot implement Virtual Channels.
-      </button>
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(147,51,234,0.15); color:#9333ea;">Silicon Arena</span>
+      <div class="noc-track-title">⚔️ Arbiter Arena: VC Clash</div>
+      <div class="noc-track-desc">
+        Experience Virtual Channel allocation under heavy adaptive traffic, arbitrating between escape channels and high-throughput speculative crossbar paths.
+      </div>
     </div>
+    <a href="../interactive/arbiter/" class="noc-track-link">Launch Arbiter Arena →</a>
+  </div>
+</div>
 
-    <div id="q43_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+---
+
+## 10. 🎯 Comprehensive Self-Assessment Quiz
+
+Test your understanding of Channel Dependency Graphs, Dally-Seitz conditions, and Duato's Theorem:
+
+<div class="noc-sim-container" id="quiz43_container" style="margin-top:1rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--tcl-border); padding-bottom:0.5rem;">
+    <span style="font-weight:700; font-size:1.05rem; color:var(--tcl-heading);">📝 Lesson 4.3 Self-Check</span>
+    <span id="quiz43_score" style="font-weight:700; font-size:0.9rem; color:#2563eb;">Score: 0 / 3</span>
+  </div>
+
+  <!-- Question 1 -->
+  <div class="quiz-item" style="margin-bottom:1.5rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q1:</b> Why does the <strong>Dally-Seitz theorem</strong> fail to accurately evaluate deadlock freedom in <em>adaptive</em> routing algorithms?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q43_1_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ43(1, 0)">A. Because Dally-Seitz only applies to circuit-switched optical networks.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ43(1, 1)">B. Because Dally-Seitz requires an acyclic Channel Dependency Graph (CDG). In adaptive networks, a CDG may contain cycles, but packets can dynamically select alternative non-blocked channels, so cycles do not necessarily cause deadlock.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ43(1, 2)">C. Because Dally-Seitz does not account for serialization delay.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ43(1, 3)">D. Because adaptive routers cannot implement Virtual Channels.</button>
+    </div>
+    <div id="q43_1_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 2 -->
+  <div class="quiz-item" style="margin-bottom:1.5rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q2:</b> Under José Duato's Escape Channel Theorem ($C = C_1 \cup C_0$), what fundamental condition MUST the escape channel subset $C_0$ satisfy?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q43_2_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ43(2, 0)">A. $C_0$ must operate at double the clock frequency of $C_1$.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ43(2, 1)">B. $C_0$ must have an acyclic Channel Dependency Graph on its own (such as being dedicated to deterministic XY routing) and must be accessible from any channel in $C_1$.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ43(2, 2)">C. $C_0$ must contain at least 75% of total router buffer storage.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ43(2, 3)">D. $C_0$ must only carry broadcast cache invalidation messages.</button>
+    </div>
+    <div id="q43_2_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div class="quiz-item" style="margin-bottom:1rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q3:</b> In modern multi-core router microarchitectures, why is dedicating just 1 out of 4 Virtual Channels to the escape plane ($C_0$) sufficient to sustain peak throughput?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q43_3_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ43(3, 0)">A. Because under normal load, over 95% of traffic flows through the adaptive VCs ($C_1$), and the escape channel $C_0$ only engages during transient congestion spikes to drain potential deadlocks.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ43(3, 1)">B. Because the escape VC bypasses the router crossbar switch.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ43(3, 2)">C. Because escape packets have zero flit serialization overhead.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ43(3, 3)">D. Because deterministic XY routing achieves higher throughput than adaptive routing.</button>
+    </div>
+    <div id="q43_3_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
   </div>
 </div>
 
 <script>
-function checkQuiz43(idx) {
-  const fb = document.getElementById("q43_feedback");
-  fb.style.display = "block";
-  const opts = document.getElementById("q43_options").children;
+let q43Score = 0;
+const answeredQ43 = {1: false, 2: false, 3: false};
+
+function answerQ43(qNum, selected) {
+  if (answeredQ43[qNum]) return;
+  answeredQ43[qNum] = true;
+
+  const correctAnswers = {1: 1, 2: 1, 3: 0};
+  const isCorrect = (selected === correctAnswers[qNum]);
+  const fb = document.getElementById("q43_" + qNum + "_feedback");
+  const opts = document.getElementById("q43_" + qNum + "_options").children;
+
   for (let i = 0; i < opts.length; i++) {
-    opts[i].onclick = null;
     opts[i].style.cursor = "default";
+    opts[i].onclick = null;
   }
 
-  if (idx === 1) {
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(34,197,94,0.1)";
-    fb.style.border = "1px solid rgba(34,197,94,0.3)";
+  if (isCorrect) {
+    q43Score++;
+    opts[selected].style.background = "rgba(34, 197, 94, 0.15)";
+    opts[selected].style.borderColor = "#22c55e";
+    fb.style.display = "block";
+    fb.style.background = "rgba(34, 197, 94, 0.1)";
+    fb.style.border = "1px solid rgba(34, 197, 94, 0.3)";
     fb.style.color = "#166534";
-    fb.innerHTML = "<strong>✓ Correct!</strong> Dally-Seitz provides a necessary and sufficient condition only for deterministic routing. In adaptive networks, packets have path choices; thus, cyclic dependencies do not automatically imply that packets are permanently stuck.";
+    fb.innerHTML = "<strong>✓ Correct!</strong> " + getQ43Explanation(qNum, true);
   } else {
-    opts[idx].style.background = "rgba(239,68,68,0.15)";
-    opts[idx].style.borderColor = "#ef4444";
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(239,68,68,0.1)";
-    fb.style.border = "1px solid rgba(239,68,68,0.3)";
+    opts[selected].style.background = "rgba(239, 68, 68, 0.15)";
+    opts[selected].style.borderColor = "#ef4444";
+    opts[correctAnswers[qNum]].style.background = "rgba(34, 197, 94, 0.15)";
+    opts[correctAnswers[qNum]].style.borderColor = "#22c55e";
+    fb.style.display = "block";
+    fb.style.background = "rgba(239, 68, 68, 0.1)";
+    fb.style.border = "1px solid rgba(239, 68, 68, 0.3)";
     fb.style.color = "#991b1b";
-    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. Dally-Seitz produces false negatives on adaptive routing because alternative paths can drain flits even if a cycle exists.";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> " + getQ43Explanation(qNum, false);
+  }
+
+  document.getElementById("quiz43_score").textContent = "Score: " + q43Score + " / 3";
+}
+
+function getQ43Explanation(qNum, wasCorrect) {
+  if (qNum === 1) {
+    return "Dally-Seitz provides a necessary and sufficient condition only for deterministic routing. In adaptive networks, packets have alternative routing paths; thus, cyclic dependencies do not automatically imply that packets are permanently stuck.";
+  } else if (qNum === 2) {
+    return "Duato's theorem decouples adaptivity from deadlock freedom by guaranteeing that an acyclic escape sub-network (C0) always exists to drain packets if the fully adaptive channels (C1) encounter cyclic stalls.";
+  } else {
+    return "In practice, adaptive channels (C1) absorb the vast majority of traffic. The escape channel (C0) serves primarily as a safety release valve, preserving 100% adaptive throughput while mathematically preventing deadlock.";
   }
 }
 </script>
@@ -508,6 +711,7 @@ In this lesson, we established:
 - **Channel Dependency Graphs (CDGs):** Modeling routing functions as directed graphs of channel resources.
 - **The Dally-Seitz Theorem:** Necessary and sufficient proof of deadlock freedom for deterministic routing via topological ordering.
 - **Duato's Theorem:** Decoupling adaptivity from deadlock freedom by partitioning channels into an adaptive plane ($C_1$) and an acyclic escape plane ($C_0$).
+- **Synthesizable Verilog RTL:** Implemented `duato_escape_vc_allocator.v`, arbitrating between adaptive VCs and XY escape channels.
 - **Silicon Microarchitecture:** How Alpha EV7, Cray T3E, and modern server fabrics implement escape virtual channels.
 
 However, even if our physical routing algorithm is provably deadlock-free, a chip can STILL freeze due to **Cache Coherence Protocol Deadlock** or physical link failures! 
@@ -515,3 +719,4 @@ However, even if our physical routing algorithm is provably deadlock-free, a chi
 In our final lesson of Track 4, we explore **Fault-Tolerant Routing & Protocol Deadlock Avoidance**.
 
 👉 **Proceed to [Lesson 4.4: Fault-Tolerant Routing & Protocol Deadlock](04-fault-tolerant-protocol-deadlock.md)**
+

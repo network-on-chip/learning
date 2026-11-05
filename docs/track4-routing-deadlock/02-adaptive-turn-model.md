@@ -451,63 +451,274 @@ West-First provides a staggering **$20\times$ increase in path diversity** for E
 
 ---
 
-## 6. 🎯 Knowledge Check: Lesson 4.2
+## 6. 💻 Synthesizable Hardware: Turn Model Adaptive Router
 
-<div class="noc-sim-container" id="quiz42" style="margin-top:1rem;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
-    📝 Concept Check: The Turn Model &amp; Adaptivity
+In hardware, an adaptive router must evaluate valid minimal directions, apply turn restrictions based on the selected turn model (West-First or Odd-Even), and select the output port exhibiting the lowest real-time FIFO queue congestion.
+
+The synthesizable Verilog module below, `turn_model_adaptive_router.v`, implements this dual-mode adaptive arbitration logic:
+
+```verilog
+//=============================================================================
+// Module: turn_model_adaptive_router
+// Description: Synthesizable Turn Model Adaptive Routing Unit for 2D Mesh NoCs.
+//              Supports both:
+//                MODE 0: Glass & Ni's West-First Turn Model
+//                MODE 1: Ge-Ming Chiu's Odd-Even Turn Model
+//              Evaluates candidate directions, filters prohibited turns, and
+//              selects the path with minimal local link congestion.
+//=============================================================================
+
+module turn_model_adaptive_router #(
+    parameter integer COORD_W   = 3,  // 8x8 mesh (3-bit coordinates)
+    parameter integer CONG_W    = 4,  // 4-bit congestion depth per port (0..15)
+    parameter integer MODE      = 0   // 0 = West-First, 1 = Odd-Even
+)(
+    input  wire                 clk,
+    input  wire                 rst_n,
+
+    // Node & Packet Coordinates
+    input  wire [COORD_W-1:0]   curr_x,
+    input  wire [COORD_W-1:0]   curr_y,
+    input  wire [COORD_W-1:0]   dest_x,
+    input  wire [COORD_W-1:0]   dest_y,
+    input  wire [1:0]           in_dir,        // Ingress port: 00=East, 01=West, 10=North, 11=South
+    input  wire                 req_valid,
+
+    // Real-Time Link Congestion Feedback (Lower value = lower load)
+    input  wire [CONG_W-1:0]    cong_north,
+    input  wire [CONG_W-1:0]    cong_south,
+    input  wire [CONG_W-1:0]    cong_east,
+    input  wire [CONG_W-1:0]    cong_west,
+
+    // Selected Output Route (1-hot: [4]=LOCAL, [3]=NORTH, [2]=SOUTH, [1]=EAST, [0]=WEST)
+    output reg  [4:0]           route_dir_1hot,
+    output reg                  route_valid
+);
+
+    // Minimal Direction Requirements
+    wire need_west  = (dest_x < curr_x);
+    wire need_east  = (dest_x > curr_x);
+    wire need_north = (dest_y < curr_y);
+    wire need_south = (dest_y > curr_y);
+
+    // Turn Model Restriction Flags
+    reg allow_west, allow_east, allow_north, allow_south;
+
+    always @(*) begin
+        if (MODE == 0) begin
+            // -------------------------------------------------------------
+            // MODE 0: West-First Turn Model (Glass & Ni)
+            // Prohibits South->West and North->West turns.
+            // If packet needs West, it MUST route West first.
+            // -------------------------------------------------------------
+            if (need_west) begin
+                allow_west  = 1'b1;
+                allow_east  = 1'b0;
+                allow_north = 1'b0;
+                allow_south = 1'b0;
+            end else begin
+                allow_west  = 1'b0;
+                allow_east  = need_east;
+                allow_north = need_north;
+                allow_south = need_south;
+            end
+        end else begin
+            // -------------------------------------------------------------
+            // MODE 1: Odd-Even Turn Model (Chiu)
+            // Even Column (curr_x[0] == 0): Prohibit East->North and East->South
+            // Odd Column  (curr_x[0] == 1): Prohibit North->West and South->West
+            // -------------------------------------------------------------
+            allow_west  = need_west;
+            allow_east  = need_east;
+            allow_north = need_north;
+            allow_south = need_south;
+
+            if (curr_x[0] == 1'b0) begin // Even column
+                // Prohibit turns from East into North or South
+                if (in_dir == 2'b00) begin
+                    allow_north = 1'b0;
+                    allow_south = 1'b0;
+                end
+            end else begin // Odd column
+                // Prohibit turns from North or South into West
+                if (in_dir == 2'b10 || in_dir == 2'b11) begin
+                    allow_west = 1'b0;
+                end
+            end
+        end
+    end
+
+    // Adaptive Direction Selection: Choose direction with lowest congestion
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            route_dir_1hot <= 5'b00000;
+            route_valid    <= 1'b0;
+        end else begin
+            route_valid <= req_valid;
+            if (req_valid) begin
+                if (dest_x == curr_x && dest_y == curr_y) begin
+                    route_dir_1hot <= 5'b10000; // Local Core Ejection
+                end else if (allow_west && (!allow_north || cong_west <= cong_north) &&
+                                           (!allow_south || cong_west <= cong_south) &&
+                                           (!allow_east  || cong_west <= cong_east)) begin
+                    route_dir_1hot <= 5'b00001; // West
+                end else if (allow_east && (!allow_north || cong_east <= cong_north) &&
+                                           (!allow_south || cong_east <= cong_south)) begin
+                    route_dir_1hot <= 5'b00010; // East
+                end else if (allow_south && (!allow_north || cong_south <= cong_north)) begin
+                    route_dir_1hot <= 5'b00100; // South
+                end else if (allow_north) begin
+                    route_dir_1hot <= 5'b01000; // North
+                end else begin
+                    // Fallback to minimal dimension order
+                    if (need_west)       route_dir_1hot <= 5'b00001;
+                    else if (need_east)  route_dir_1hot <= 5'b00010;
+                    else if (need_south) route_dir_1hot <= 5'b00100;
+                    else                 route_dir_1hot <= 5'b01000;
+                end
+            end else begin
+                route_dir_1hot <= 5'b00000;
+            end
+        end
+    end
+
+endmodule
+```
+
+---
+
+## 7. 🕹️ Interactive Lab & Arcade Arena
+
+Put the turn model and multi-path routing to the test in arcade challenges:
+
+<div class="noc-tracks-grid" style="margin-top:1rem;">
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(37,99,235,0.15); color:#2563eb;">Puzzle Mission</span>
+      <div class="noc-track-title">🧩 Packet Master: West-First Lab</div>
+      <div class="noc-track-desc">
+        Levels 4–5: Navigate congested grid hotspots using the West-First turn model. Exploit Eastbound multi-path diversity while managing Westbound deterministic bottlenecks.
+      </div>
+    </div>
+    <a href="../interactive/puzzle/" class="noc-track-link">Play Packet Master →</a>
   </div>
 
-  <div id="q42_block">
-    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
-      <b>Question:</b> Why does Ge-Ming Chiu's Odd-Even Turn Model achieve superior performance compared to Glass &amp; Ni's West-First routing on non-uniform traffic workloads?
-    </p>
-
-    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q42_options">
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz42(0)">
-        A. Because Odd-Even completely removes the need for Virtual Channels and halves the router clock period.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz42(1)">
-        B. Because West-First forces all Westbound packets into a single deterministic path (zero adaptivity), while Odd-Even alternates turn restrictions across column parity, providing balanced multi-path diversity in both East and West directions.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz42(2)">
-        C. Because Odd-Even allows packets to take non-minimal diagonal shortcuts.
-      </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz42(3)">
-        D. Because Odd-Even doubles the link wire width on odd columns.
-      </button>
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">Arcade Defense</span>
+      <div class="noc-track-title">🕹️ Deadlock Buster Arcade</div>
+      <div class="noc-track-desc">
+        Observe how missing turn restrictions spawn circular dependency cycles in real-time NoC traffic. Intervene with emergency buffer flushes!
+      </div>
     </div>
+    <a href="../interactive/game/" class="noc-track-link">Play Deadlock Buster →</a>
+  </div>
+</div>
 
-    <div id="q42_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+---
+
+## 8. 🎯 Comprehensive Self-Assessment Quiz
+
+Test your understanding of cycle prevention, turn restrictions, and path diversity:
+
+<div class="noc-sim-container" id="quiz42_container" style="margin-top:1rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--tcl-border); padding-bottom:0.5rem;">
+    <span style="font-weight:700; font-size:1.05rem; color:var(--tcl-heading);">📝 Lesson 4.2 Self-Check</span>
+    <span id="quiz42_score" style="font-weight:700; font-size:0.9rem; color:#2563eb;">Score: 0 / 3</span>
+  </div>
+
+  <!-- Question 1 -->
+  <div class="quiz-item" style="margin-bottom:1.5rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q1:</b> Why does Ge-Ming Chiu's <strong>Odd-Even Turn Model</strong> provide better performance balance than Glass &amp; Ni's <strong>West-First</strong> routing on non-uniform traffic?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q42_1_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ42(1, 0)">A. Because Odd-Even completely removes the need for router crossbar arbiters.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ42(1, 1)">B. Because West-First forces all Westbound packets into a single deterministic path (zero adaptivity), while Odd-Even alternates turn restrictions across column parity, providing balanced multi-path diversity in both East and West directions.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ42(1, 2)">C. Because Odd-Even allows packets to take non-minimal diagonal shortcuts.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ42(1, 3)">D. Because Odd-Even doubles the link wire width on odd columns.</button>
+    </div>
+    <div id="q42_1_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 2 -->
+  <div class="quiz-item" style="margin-bottom:1.5rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q2:</b> According to Glass &amp; Ni's Turn Model theorem, what is the <strong>minimum number of turns</strong> that must be prohibited in a 2D mesh to prevent all circular routing deadlocks?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q42_2_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ42(2, 0)">A. Exactly 4 turns, as in XY Dimension-Order Routing.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ42(2, 1)">B. Exactly 2 turns (one from the clockwise cycle and one from the counter-clockwise cycle), leaving 6 of the 8 turns permitted.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ42(2, 2)">C. Exactly 1 turn.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ42(2, 3)">D. All 8 turns must be prohibited.</button>
+    </div>
+    <div id="q42_2_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div class="quiz-item" style="margin-bottom:1rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.6rem;">
+      <b>Q3:</b> Can the Turn Model guarantee deadlock freedom in a <strong>2D Torus</strong> topology without utilizing Virtual Channels?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.45rem;" id="q42_3_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ42(3, 0)">A. Yes, because the Turn Model applies identically to any network graph.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ42(3, 1)">B. No, because wrap-around channels create additional 1D ring cycles along rows and columns that cannot be broken by 2D turn prohibitions alone; Virtual Channels or datapath dateline ordering are required.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ42(3, 2)">C. Yes, provided that packets only route in the East direction.</button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.6rem 0.85rem; cursor:pointer;" onclick="answerQ42(3, 3)">D. Yes, because Torus networks have zero bisection bandwidth.</button>
+    </div>
+    <div id="q42_3_feedback" style="display:none; margin-top:0.6rem; padding:0.75rem; border-radius:6px; font-size:0.88rem; line-height:1.5;"></div>
   </div>
 </div>
 
 <script>
-function checkQuiz42(idx) {
-  const fb = document.getElementById("q42_feedback");
-  fb.style.display = "block";
-  const opts = document.getElementById("q42_options").children;
+let q42Score = 0;
+const answeredQ42 = {1: false, 2: false, 3: false};
+
+function answerQ42(qNum, selected) {
+  if (answeredQ42[qNum]) return;
+  answeredQ42[qNum] = true;
+
+  const correctAnswers = {1: 1, 2: 1, 3: 1};
+  const isCorrect = (selected === correctAnswers[qNum]);
+  const fb = document.getElementById("q42_" + qNum + "_feedback");
+  const opts = document.getElementById("q42_" + qNum + "_options").children;
+
   for (let i = 0; i < opts.length; i++) {
-    opts[i].onclick = null;
     opts[i].style.cursor = "default";
+    opts[i].onclick = null;
   }
 
-  if (idx === 1) {
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(34,197,94,0.1)";
-    fb.style.border = "1px solid rgba(34,197,94,0.3)";
+  if (isCorrect) {
+    q42Score++;
+    opts[selected].style.background = "rgba(34, 197, 94, 0.15)";
+    opts[selected].style.borderColor = "#22c55e";
+    fb.style.display = "block";
+    fb.style.background = "rgba(34, 197, 94, 0.1)";
+    fb.style.border = "1px solid rgba(34, 197, 94, 0.3)";
     fb.style.color = "#166534";
-    fb.innerHTML = "<strong>✓ Correct!</strong> Static turn models like West-First suffer from directional asymmetry, offering 0% adaptivity when traveling West. Odd-Even alternates turn prohibitions based on column parity, unlocking balanced multi-pathing in all quadrants without virtual channels.";
+    fb.innerHTML = "<strong>✓ Correct!</strong> " + getQ42Explanation(qNum, true);
   } else {
-    opts[idx].style.background = "rgba(239,68,68,0.15)";
-    opts[idx].style.borderColor = "#ef4444";
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(239,68,68,0.1)";
-    fb.style.border = "1px solid rgba(239,68,68,0.3)";
+    opts[selected].style.background = "rgba(239, 68, 68, 0.15)";
+    opts[selected].style.borderColor = "#ef4444";
+    opts[correctAnswers[qNum]].style.background = "rgba(34, 197, 94, 0.15)";
+    opts[correctAnswers[qNum]].style.borderColor = "#22c55e";
+    fb.style.display = "block";
+    fb.style.background = "rgba(239, 68, 68, 0.1)";
+    fb.style.border = "1px solid rgba(239, 68, 68, 0.3)";
     fb.style.color = "#991b1b";
-    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. Odd-Even eliminates directional bias by distributing turn restrictions across even and odd columns.";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> " + getQ42Explanation(qNum, false);
+  }
+
+  document.getElementById("quiz42_score").textContent = "Score: " + q42Score + " / 3";
+}
+
+function getQ42Explanation(qNum, wasCorrect) {
+  if (qNum === 1) {
+    return "West-First has severe directional asymmetry: packets heading West have 0% adaptivity. Odd-Even restricts turns depending on column parity, providing balanced multi-pathing in all quadrants without virtual channels.";
+  } else if (qNum === 2) {
+    return "In a 2D mesh with 8 turns, cycles exist in two orientations: clockwise (CW) and counter-clockwise (CCW). Forbidding 1 turn from CW and 1 turn from CCW eliminates all simple cycles while preserving 6 allowed turns.";
+  } else {
+    return "In a torus, wrap-around links form 1D circular dependencies even along straight paths without any turns! Prohibiting 2D turns cannot break these 1D ring cycles; virtual channels (e.g. Dateline VC switching) are mandatory.";
   }
 }
 </script>
@@ -521,9 +732,11 @@ In this lesson, we established:
 - **Glass & Ni's Turn Model:** Proving that prohibiting only 2 out of 8 turns is sufficient to eliminate all deadlock cycles without virtual channels.
 - **Canonical Turn Models:** West-First, North-Last, and Negative-First algorithms.
 - **Chiu's Odd-Even Model:** Alternating turn restrictions across column parity to eliminate directional asymmetry.
+- **Synthesizable Verilog RTL:** Implemented `turn_model_adaptive_router.v` supporting both West-First and Odd-Even modes with real-time congestion arbitration.
 
 Now, what if we want **100% full adaptivity in all directions with zero turn restrictions**? Can we allow cycles in the network while still guaranteeing deadlock freedom?
 
 In the next lesson, we explore **Formal Deadlock Theory & Duato's Escape Channels**.
 
 👉 **Proceed to [Lesson 4.3: Deadlock Theory & Channel Dependency Graphs](03-deadlock-theory-cdg.md)**
+
