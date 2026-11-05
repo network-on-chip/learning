@@ -514,16 +514,110 @@ Buffers account for **over 60% of an on-chip router's total silicon area**! This
 
 ---
 
-## 8. 🎯 Knowledge Check: Lesson 2.2
+---
+
+## 8. Synthesizable Verilog RTL: Virtual Channel FSM Controller (`vc_fsm_allocator.v`)
+
+Below is a production-grade, synthesizable Verilog implementation of the Virtual Channel Finite State Machine (FSM). It manages the canonical 4-state lifecycle (`IDLE` $\rightarrow$ `ROUTING` $\rightarrow$ `WAIT_VC` $\rightarrow$ `ACTIVE` $\rightarrow$ `IDLE`), asserts request signals for Route Computation (RC), Virtual Channel Allocation (VA), and Switch Allocation (SA), and automatically deallocates the downstream VC when the Tail Flit traverses the crossbar:
+
+```verilog
+// Synthesizable Virtual Channel Finite State Machine (VC FSM)
+// Implements the canonical 4-state VC lifecycle:
+// IDLE -> ROUTING -> WAIT_VC -> ACTIVE -> IDLE
+// Handles head arrival, downstream VC reservation, switch grants, and tail deallocation.
+module vc_fsm_allocator #(
+    parameter integer NUM_VCS = 4,
+    parameter integer VC_ID   = 0
+)(
+    input  wire       clk,
+    input  wire       rst_n,
+
+    // Flit Arrival Handshakes (From Input Demux)
+    input  wire       flit_val,       // Valid flit arriving for this VC
+    input  wire       flit_is_head,   // Arriving flit is Head
+    input  wire       flit_is_tail,   // Arriving flit is Tail
+
+    // Allocation Handshakes
+    input  wire       rc_done,        // Route computation completed
+    input  wire       va_grant,       // Downstream VC allocated by VA
+    input  wire [1:0] down_vc_id,     // Allocated downstream VC ID
+    input  wire       sa_grant,       // Switch allocation granted (flit traverses crossbar)
+
+    // State & Control Outputs
+    output reg  [1:0] state,          // 2'b00: IDLE, 2'b01: ROUTING, 2'b10: WAIT_VC, 2'b11: ACTIVE
+    output reg  [1:0] assigned_vc,    // Registered downstream VC ID
+    output wire       req_rc,         // Request Route Computation
+    output wire       req_va,         // Request Virtual Channel Allocation
+    output wire       req_sa          // Request Switch Allocation (ready to traverse)
+);
+
+    localparam [1:0] STATE_IDLE    = 2'b00;
+    localparam [1:0] STATE_ROUTING = 2'b01;
+    localparam [1:0] STATE_WAIT_VC = 2'b10;
+    localparam [1:0] STATE_ACTIVE  = 2'b11;
+
+    assign req_rc = (state == STATE_ROUTING);
+    assign req_va = (state == STATE_WAIT_VC);
+    assign req_sa = (state == STATE_ACTIVE);
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            state       <= STATE_IDLE;
+            assigned_vc <= 2'b00;
+        end else begin
+            case (state)
+                STATE_IDLE: begin
+                    // Head flit arrives in this VC
+                    if (flit_val && flit_is_head) begin
+                        state <= STATE_ROUTING;
+                    end
+                end
+
+                STATE_ROUTING: begin
+                    // Route computation finished
+                    if (rc_done) begin
+                        state <= STATE_WAIT_VC;
+                    end
+                end
+
+                STATE_WAIT_VC: begin
+                    // Downstream VC allocated by VA
+                    if (va_grant) begin
+                        assigned_vc <= down_vc_id;
+                        state       <= STATE_ACTIVE;
+                    end
+                end
+
+                STATE_ACTIVE: begin
+                    // Tail flit departs across the crossbar: release VC
+                    if (sa_grant && flit_is_tail) begin
+                        state <= STATE_IDLE;
+                    end
+                end
+
+                default: state <= STATE_IDLE;
+            endcase
+        end
+    end
+
+endmodule
+```
+
+---
+
+## 9. 🎯 Knowledge Check: Lesson 2.2
+
+Test your comprehension of virtual channel microarchitecture, FSM states, and protocol deadlock avoidance.
 
 <div class="noc-sim-container" id="quiz22" style="margin-top:1rem;">
   <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
-    📝 Concept Check: Virtual Channels &amp; HoL Blocking
+    📝 Concept Check: Virtual Channels &amp; Protocol Isolation
   </div>
 
-  <div id="q22_block">
+  <!-- Question 1 -->
+  <div style="margin-bottom:1.5rem; padding-bottom:1.2rem; border-bottom:1px solid var(--tcl-border);">
     <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
-      <b>Question:</b> How does Virtual Channel flow control prevent Head-of-Line (HoL) blocking when a packet destined for a congested output port is at the front of a physical link?
+      <b>Question 1:</b> How does Virtual Channel flow control prevent Head-of-Line (HoL) blocking when a packet destined for a congested output port is at the front of a physical link?
     </p>
 
     <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q22_options">
@@ -531,7 +625,7 @@ Buffers account for **over 60% of an on-chip router's total silicon area**! This
         A. By dropping the blocked packet and requesting a retransmission from the L1 cache.
       </button>
       <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz22(1)">
-        B. By splitting the buffer memory into multiple logical FIFOs, allowing packets destined for uncongested ports to be arbitrated and forwarded across the crossbar while the blocked VC waits.
+        B. By splitting the buffer memory into multiple logical FIFOs, allowing packets in other VCs destined for uncongested ports to arbitrate and traverse the crossbar while the blocked VC waits.
       </button>
       <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz22(2)">
         C. By doubling the clock frequency of the congested router.
@@ -540,8 +634,47 @@ Buffers account for **over 60% of an on-chip router's total silicon area**! This
         D. By converting wormhole packets into circuit-switched optical bursts.
       </button>
     </div>
+    <div id="q22_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
 
-    <div id="q22_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  <!-- Question 2 -->
+  <div style="margin-bottom:1.5rem; padding-bottom:1.2rem; border-bottom:1px solid var(--tcl-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>Question 2:</b> In a directory-based cache coherent CMP, why is it mandatory that the Response Virtual Network (VNET 2) never generate new request messages?
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q22_q2_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz22_Q2(0)">
+        A. Responses consume too much optical laser energy.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz22_Q2(1)">
+        B. To break circular message-dependency cycles: if Responses can always be consumed without blocking on any other message class, they are guaranteed to drain, preventing Fetch Deadlock.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz22_Q2(2)">
+        C. Because Response packets do not carry valid data checksums.
+      </button>
+    </div>
+    <div id="q22_q2_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div>
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>Question 3:</b> A 5-port router configures $V = 4$ Virtual Channels per port, with each VC sized to $B = 4$ flits ($W = 128$ bits). Why do input buffers dominate silicon area in on-chip routers?
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q22_q3_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz22_Q3(0)">
+        A. Because flip-flop storage arrays across 5 ports require 10,240 bits ($>120,000$ standard-cell transistors), accounting for over 60% of total router silicon area.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz22_Q3(1)">
+        B. Buffers require water-cooling piping inside the crossbar.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz22_Q3(2)">
+        C. Virtual channels require individual battery cells to preserve state.
+      </button>
+    </div>
+    <div id="q22_q3_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
   </div>
 </div>
 
@@ -550,30 +683,64 @@ function checkQuiz22(idx) {
   const fb = document.getElementById("q22_feedback");
   fb.style.display = "block";
   const opts = document.getElementById("q22_options").children;
-  for (let i = 0; i < opts.length; i++) {
-    opts[i].onclick = null;
-    opts[i].style.cursor = "default";
-  }
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
 
   if (idx === 1) {
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(34,197,94,0.1)";
-    fb.style.border = "1px solid rgba(34,197,94,0.3)";
-    fb.style.color = "#166534";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
     fb.innerHTML = "<strong>✓ Correct!</strong> Virtual channels provide independent logical queues for packets sharing the same physical link. If one VC is stalled by downstream congestion, other VCs can win switch allocation and bypass the stalled packet.";
   } else {
-    opts[idx].style.background = "rgba(239,68,68,0.15)";
-    opts[idx].style.borderColor = "#ef4444";
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(239,68,68,0.1)";
-    fb.style.border = "1px solid rgba(239,68,68,0.3)";
-    fb.style.color = "#991b1b";
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
     fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. Virtual channels isolate queues so unblocked packets can bypass blocked ones.";
   }
 }
+
+function checkQuiz22_Q2(idx) {
+  const fb = document.getElementById("q22_q2_feedback");
+  fb.style.display = "block";
+  const opts = document.getElementById("q22_q2_options").children;
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
+
+  if (idx === 1) {
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
+    fb.innerHTML = "<strong>✓ Correct!</strong> In protocol dependency graphs, cycles cause deadlock (Requests $\\to$ Probes $\\to$ Responses). Ensuring that Responses can always be sunk into cache controllers without generating new network messages guarantees system forward progress.";
+  } else {
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. Response VNETs must be sink-guaranteed to prevent fetch deadlocks.";
+  }
+}
+
+function checkQuiz22_Q3(idx) {
+  const fb = document.getElementById("q22_q3_feedback");
+  fb.style.display = "block";
+  const opts = document.getElementById("q22_q3_options").children;
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
+
+  if (idx === 0) {
+    opts[0].style.background = "rgba(34,197,94,0.15)"; opts[0].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
+    fb.innerHTML = "<strong>✓ Correct!</strong> $5\\text{ ports} \\times 4\\text{ VCs} \\times 4\\text{ flits} \\times 128\\text{ bits} = 10,240\\text{ bits}$. At ~12 transistors per register bit, buffers consume $>120,000$ transistors—occupying over 60% of router footprint.";
+  } else {
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[0].style.background = "rgba(34,197,94,0.15)"; opts[0].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>A</strong>. Register buffer cells account for the vast majority of router transistor count.";
+  }
+}
 </script>
+
+---
+
+## 10. Interactive Arcade & Lab Challenges
+
+Test your Virtual Channel and protocol scheduling skills:
+- ⚔️ **[Arbiter Arena: Crossbar Clash](../interactive/arbiter.md):** Master virtual channel arbitration and input-output matching across competing flit queues.
+- 🛡️ **[QoS Gladiator: Traffic Arbiter](../interactive/qos.md):** Prioritize virtual channels for real-time traffic and isolate cache coherence protocol classes into dedicated VNETs.
 
 ---
 
@@ -584,7 +751,9 @@ In this lesson, we established:
 - How **Virtual Channels** decouple logical buffer allocation from physical channel allocation.
 - The **VC finite state machine** (`IDLE` $\rightarrow$ `ROUTING` $\rightarrow$ `WAITING_VC` $\rightarrow$ `ACTIVE`).
 - How **Virtual Networks (VNETs)** isolate memory requests and responses to eliminate protocol-level deadlocks.
+- Synthesizable Verilog RTL for a **Virtual Channel FSM Controller (`vc_fsm_allocator.v`)**.
 
 Now, when multiple virtual channels demand the same output port, how does the router fairly select the winner in sub-nanosecond time? In the next lesson, we study **Fast Silicon Arbiters and Crossbar Switching**.
 
 👉 **Proceed to [Lesson 2.3: Arbitration & Crossbar Switching](03-arbitration-crossbar.md)**
+

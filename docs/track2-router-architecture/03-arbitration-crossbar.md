@@ -439,6 +439,82 @@ graph TD
 2. **Bit-Slicing (Area & Power Optimization):**  
    Rather than building one massive monolithic 128-bit crossbar, architects partition the crossbar into **four 32-bit crossbar slices**. All 4 slices share identical control signals from the Switch Allocator, significantly reducing wire congestion and capacitive cross-talk.
 
+### Synthesizable Verilog RTL: 5×5 Crossbar Datapath (`crossbar_5x5.v`)
+
+Below is a production-grade, synthesizable Verilog implementation of a 5×5 crossbar switch with 1-hot select lines and pipelined output registers:
+
+```verilog
+// Synthesizable 5x5 Crossbar Switch Datapath with 1-Hot Selectors
+// Connects 5 input ports (N, S, E, W, L) to 5 output ports with
+// parameterized data/flit width and parallel output multiplexers.
+module crossbar_5x5 #(
+    parameter integer DATA_WIDTH = 128
+)(
+    input  wire                    clk,
+    input  wire                    rst_n,
+
+    // Input Port Data Buses (128 bits each)
+    input  wire [DATA_WIDTH-1:0]   in_north,
+    input  wire [DATA_WIDTH-1:0]   in_south,
+    input  wire [DATA_WIDTH-1:0]   in_east,
+    input  wire [DATA_WIDTH-1:0]   in_west,
+    input  wire [DATA_WIDTH-1:0]   in_local,
+
+    // 1-Hot Switch Allocation Select Signals (from SA stage)
+    // Bit mapping: [4]=Local, [3]=West, [2]=East, [1]=South, [0]=North
+    input  wire [4:0]              sel_north,
+    input  wire [4:0]              sel_south,
+    input  wire [4:0]              sel_east,
+    input  wire [4:0]              sel_west,
+    input  wire [4:0]              sel_local,
+
+    // Registered Output Port Data Buses
+    output reg  [DATA_WIDTH-1:0]   out_north,
+    output reg  [DATA_WIDTH-1:0]   out_south,
+    output reg  [DATA_WIDTH-1:0]   out_east,
+    output reg  [DATA_WIDTH-1:0]   out_west,
+    output reg  [DATA_WIDTH-1:0]   out_local
+);
+
+    // Combinatorial 5:1 Multiplexing Function
+    function [DATA_WIDTH-1:0] mux5(
+        input [4:0]            sel,
+        input [DATA_WIDTH-1:0] d_n,
+        input [DATA_WIDTH-1:0] d_s,
+        input [DATA_WIDTH-1:0] d_e,
+        input [DATA_WIDTH-1:0] d_w,
+        input [DATA_WIDTH-1:0] d_l
+    );
+        case (sel)
+            5'b00001: mux5 = d_n;
+            5'b00010: mux5 = d_s;
+            5'b00100: mux5 = d_e;
+            5'b01000: mux5 = d_w;
+            5'b10000: mux5 = d_l;
+            default:  mux5 = {DATA_WIDTH{1'b0}};
+        endcase
+    endfunction
+
+    // Pipeline Traversal Stage (ST) Registers
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            out_north <= {DATA_WIDTH{1'b0}};
+            out_south <= {DATA_WIDTH{1'b0}};
+            out_east  <= {DATA_WIDTH{1'b0}};
+            out_west  <= {DATA_WIDTH{1'b0}};
+            out_local <= {DATA_WIDTH{1'b0}};
+        end else begin
+            out_north <= mux5(sel_north, in_north, in_south, in_east, in_west, in_local);
+            out_south <= mux5(sel_south, in_north, in_south, in_east, in_west, in_local);
+            out_east  <= mux5(sel_east,  in_north, in_south, in_east, in_west, in_local);
+            out_west  <= mux5(sel_west,  in_north, in_south, in_east, in_west, in_local);
+            out_local <= mux5(sel_local, in_north, in_south, in_east, in_west, in_local);
+        end
+    end
+
+endmodule
+```
+
 ---
 
 ## 6. Worked Numerical Example: Critical Path Timing Analysis
@@ -470,19 +546,22 @@ The router can comfortably sustain a **2.50 GHz clock frequency**, switching ove
 
 ## 7. 🎯 Knowledge Check: Lesson 2.3
 
+Test your comprehension of matrix arbiters, separable allocators, and crossbar timing constraints.
+
 <div class="noc-sim-container" id="quiz23" style="margin-top:1rem;">
   <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
-    📝 Concept Check: Arbiters &amp; Switch Allocation
+    📝 Concept Check: Arbiters, Matching &amp; Crossbars
   </div>
 
-  <div id="q23_block">
+  <!-- Question 1 -->
+  <div style="margin-bottom:1.5rem; padding-bottom:1.2rem; border-bottom:1px solid var(--tcl-border);">
     <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
-      <b>Question:</b> In an $N$-client Matrix Arbiter with triangular priority matrix $M$, what is the exact hardware state update performed when Client $k$ wins the grant?
+      <b>Question 1:</b> In an $N$-client Matrix Arbiter with triangular priority matrix $M$, what is the exact hardware state update performed when Client $k$ wins the grant?
     </p>
 
     <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q23_options">
       <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz23(0)">
-        A. Row k is cleared to all 0s ($M[k,:] = 0$) and Column k is set to all 1s ($M[:,k] = 1$).
+        A. Row $k$ is cleared to all 0s ($M[k,:] = 0$) and Column $k$ is set to all 1s ($M[:,k] = 1$).
       </button>
       <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz23(1)">
         B. The matrix is multiplied by its inverse ($M = M \times M^{-1}$).
@@ -491,11 +570,50 @@ The router can comfortably sustain a **2.50 GHz clock frequency**, switching ove
         C. Diagonal elements $M[i,i]$ are toggled from 0 to 1.
       </button>
       <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz23(3)">
-        D. All elements in row k are inverted.
+        D. All elements in row $k$ are inverted.
       </button>
     </div>
+    <div id="q23_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
 
-    <div id="q23_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  <!-- Question 2 -->
+  <div style="margin-bottom:1.5rem; padding-bottom:1.2rem; border-bottom:1px solid var(--tcl-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>Question 2:</b> Why do silicon routers decompose the $20 \to 5$ crossbar matching problem into Separable Input-First or Output-First allocators instead of executing optimal Bipartite Maximum Matching (Hopcroft-Karp)?
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q23_q2_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz23_Q2(0)">
+        A. Hopcroft-Karp has $O(V^{2.5})$ time complexity that cannot converge within a sub-nanosecond clock period, whereas separable allocation achieves $>95\%$ matching efficiency in two fast, feedforward arbiter stages.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz23_Q2(1)">
+        B. Bipartite matching only works on analog signals.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz23_Q2(2)">
+        C. Crossbars cannot support more than 2 ports in digital CMOS.
+      </button>
+    </div>
+    <div id="q23_q2_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div>
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>Question 3:</b> When sizing a 7nm Switch Allocator with $t_{cq} = 30\text{ ps}$, $t_{in\_arb} = 140\text{ ps}$, $t_{wire} = 45\text{ ps}$, $t_{out\_arb} = 160\text{ ps}$, and $t_{setup} = 25\text{ ps}$, what is the maximum achievable clock frequency for the router pipeline?
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q23_q3_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz23_Q3(0)">
+        A. 500 MHz.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz23_Q3(1)">
+        B. 2.50 GHz, because $t_{SA} = 30 + 140 + 45 + 160 + 25 = 400\text{ ps} \implies f_{max} = 1 / 400\text{ ps} = 2.50\text{ GHz}$.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz23_Q3(2)">
+        C. 10 GHz, because wire traversal delay is negligible.
+      </button>
+    </div>
+    <div id="q23_q3_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
   </div>
 </div>
 
@@ -504,30 +622,64 @@ function checkQuiz23(idx) {
   const fb = document.getElementById("q23_feedback");
   fb.style.display = "block";
   const opts = document.getElementById("q23_options").children;
-  for (let i = 0; i < opts.length; i++) {
-    opts[i].onclick = null;
-    opts[i].style.cursor = "default";
-  }
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
 
   if (idx === 0) {
-    opts[0].style.background = "rgba(34,197,94,0.15)";
-    opts[0].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(34,197,94,0.1)";
-    fb.style.border = "1px solid rgba(34,197,94,0.3)";
-    fb.style.color = "#166534";
+    opts[0].style.background = "rgba(34,197,94,0.15)"; opts[0].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
     fb.innerHTML = "<strong>✓ Correct!</strong> Setting Row k to 0 means Client k has lower priority than all other clients. Setting Column k to 1 gives all other clients priority over k. This cleanly implements Least Recently Used (LRU) fairness in 2 gate levels.";
   } else {
-    opts[idx].style.background = "rgba(239,68,68,0.15)";
-    opts[idx].style.borderColor = "#ef4444";
-    opts[0].style.background = "rgba(34,197,94,0.15)";
-    opts[0].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(239,68,68,0.1)";
-    fb.style.border = "1px solid rgba(239,68,68,0.3)";
-    fb.style.color = "#991b1b";
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[0].style.background = "rgba(34,197,94,0.15)"; opts[0].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
     fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>A</strong>. Clearing row k to 0 and setting column k to 1 enforces LRU priority update in hardware.";
   }
 }
+
+function checkQuiz23_Q2(idx) {
+  const fb = document.getElementById("q23_q2_feedback");
+  fb.style.display = "block";
+  const opts = document.getElementById("q23_q2_options").children;
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
+
+  if (idx === 0) {
+    opts[0].style.background = "rgba(34,197,94,0.15)"; opts[0].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
+    fb.innerHTML = "<strong>✓ Correct!</strong> Separable allocation eliminates iterative matching loops, solving the matching problem via independent input and output arbiters in sub-nanosecond clock paths while retaining >95% throughput.";
+  } else {
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[0].style.background = "rgba(34,197,94,0.15)"; opts[0].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>A</strong>. Separable allocation trades marginal matching perfection for deterministic 2-stage hardware latency.";
+  }
+}
+
+function checkQuiz23_Q3(idx) {
+  const fb = document.getElementById("q23_q3_feedback");
+  fb.style.display = "block";
+  const opts = document.getElementById("q23_q3_options").children;
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
+
+  if (idx === 1) {
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
+    fb.innerHTML = "<strong>✓ Correct!</strong> Summing all components: $t_{SA} = 30 + 140 + 45 + 160 + 25 = 400\\text{ ps}$. Hence, $f_{max} = 1 / (400 \\times 10^{-12}) = 2.50\\text{ GHz}$.";
+  } else {
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. $t_{SA} = 400\\text{ ps} \\implies f_{max} = 2.50\\text{ GHz}$.";
+  }
+}
 </script>
+
+---
+
+## 8. Interactive Arcade & Lab Challenges
+
+Test your crossbar scheduling and arbitration reflexes:
+- ⚔️ **[Arbiter Arena: Crossbar Clash](../interactive/arbiter.md):** Test matrix arbitration and iSLIP scheduling under high injection rates and adversarial burst traffic.
+- 🏭 **[Chiplet Tycoon: Multi-Die Architect](../interactive/chiplet.md):** Route crossbar links across high-density packaging substrates and UCIe D2D interfaces.
 
 ---
 
@@ -535,10 +687,11 @@ function checkQuiz23(idx) {
 
 In this lesson, we explored:
 - Why **Matrix Arbiters** outperform Round-Robin arbiters in sub-nanosecond clock paths.
-- Verilog RTL implementation of triangular LRU priority matrices.
+- Verilog RTL implementation of triangular LRU priority matrices (`matrix_arbiter.v`).
 - How **Separable Switch Allocators** achieve near-optimal bipartite matching without $O(V^3)$ complexity.
-- Crossbar datapath routing and bit-slicing techniques.
+- Crossbar datapath routing, bit-slicing techniques, and synthesizable RTL for a **5×5 Crossbar (`crossbar_5x5.v`)**.
 
 In our final lesson of Track 2, we will explore the cutting edge of low-latency routers: **Single-Cycle, Lookahead, and SMART Multi-Hop Bypass Routers**.
 
 👉 **Proceed to [Lesson 2.4: Low-Latency & Single-Cycle Routers](04-low-latency-bypass-routers.md)**
+

@@ -415,16 +415,69 @@ Compressing the router pipeline reduces delivery latency by **over 60%** ($6.5\t
 
 ---
 
-## 7. 🎯 Knowledge Check: Lesson 2.1
+---
+
+## 7. Synthesizable Verilog RTL: Lookahead Route Pre-Computation (`lookahead_route_compute.v`)
+
+Below is a production-grade, synthesizable Verilog implementation of a Lookahead Route Pre-Computation unit. Rather than waiting for the flit to reach downstream Router $H+1$ and spending an entire clock cycle computing its output port, Router $H$ evaluates the routing decision for Router $H+1$ in parallel during traversal and embeds the 1-hot direction into the Head Flit header:
+
+```verilog
+// Synthesizable Lookahead Route Pre-Computation Unit
+// Pre-computes the output direction for Router (hop + 1) while the flit is
+// in Router (hop), removing Route Computation from the downstream critical path.
+module lookahead_route_compute #(
+    parameter integer COORD_WIDTH = 4 // Supports up to 16x16 2D Mesh coordinates
+)(
+    input  wire                   clk,
+    input  wire                   rst_n,
+    input  wire                   head_val,       // Valid Head Flit arriving at current router
+    
+    // Coordinates
+    input  wire [COORD_WIDTH-1:0] next_x,         // Coordinate of Downstream Router (hop + 1)
+    input  wire [COORD_WIDTH-1:0] next_y,
+    input  wire [COORD_WIDTH-1:0] dest_x,         // Final destination coordinate
+    input  wire [COORD_WIDTH-1:0] dest_y,
+
+    // Pre-computed 1-hot direction for Downstream Router (hop + 1)
+    output reg  [4:0]             lookahead_dir   // [4]=LOCAL, [3]=NORTH, [2]=SOUTH, [1]=EAST, [0]=WEST
+);
+
+    // Dimension-Order Routing (DOR: X-first, then Y)
+    wire [4:0] dir_comb;
+
+    assign dir_comb[0] = (dest_x < next_x);                        // Turn WEST at next hop
+    assign dir_comb[1] = (dest_x > next_x);                        // Turn EAST at next hop
+    assign dir_comb[2] = (dest_x == next_x) && (dest_y < next_y); // Turn SOUTH at next hop
+    assign dir_comb[3] = (dest_x == next_x) && (dest_y > next_y); // Turn NORTH at next hop
+    assign dir_comb[4] = (dest_x == next_x) && (dest_y == next_y); // Eject to LOCAL core at next hop
+
+    // Registered Lookahead Direction Output
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            lookahead_dir <= 5'b00000;
+        end else if (head_val) begin
+            lookahead_dir <= dir_comb;
+        end
+    end
+
+endmodule
+```
+
+---
+
+## 8. 🎯 Knowledge Check: Lesson 2.1
+
+Test your comprehension of router pipeline stages, lookahead pre-routing, and latency compression.
 
 <div class="noc-sim-container" id="quiz21" style="margin-top:1rem;">
   <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
-    📝 Concept Check: Router Pipelining
+    📝 Concept Check: Router Pipelining &amp; Latency Scaling
   </div>
 
-  <div id="q21_block">
+  <!-- Question 1 -->
+  <div style="margin-bottom:1.5rem; padding-bottom:1.2rem; border-bottom:1px solid var(--tcl-border);">
     <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
-      <b>Question:</b> Why do Body and Tail flits in a wormhole router only traverse 3 pipeline stages (BW ➔ SA ➔ ST) rather than the full 5 stages (BW ➔ RC ➔ VA ➔ SA ➔ ST)?
+      <b>Question 1:</b> Why do Body and Tail flits in a wormhole router only traverse 3 pipeline stages (BW ➔ SA ➔ ST) rather than the full 5 stages (BW ➔ RC ➔ VA ➔ SA ➔ ST)?
     </p>
 
     <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q21_options">
@@ -441,8 +494,47 @@ Compressing the router pipeline reduces delivery latency by **over 60%** ($6.5\t
         D. Because the operating system disables RC and VA after cycle 10.
       </button>
     </div>
+    <div id="q21_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
 
-    <div id="q21_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  <!-- Question 2 -->
+  <div style="margin-bottom:1.5rem; padding-bottom:1.2rem; border-bottom:1px solid var(--tcl-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>Question 2:</b> How does Lookahead Routing eliminate the Route Computation (RC) cycle from the downstream router's critical path?
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q21_q2_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz21_Q2(0)">
+        A. The current router (hop $H$) computes the output direction for the subsequent router (hop $H+1$) and embeds this pre-computed direction into the Head Flit, enabling hop $H+1$ to proceed directly to Virtual Channel Allocation (VA) upon arrival.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz21_Q2(1)">
+        B. It transmits packets backward toward the source node.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz21_Q2(2)">
+        C. It replaces crossbar switches with analog op-amps.
+      </button>
+    </div>
+    <div id="q21_q2_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div>
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>Question 3:</b> For a 4-flit packet traversing 5 hops with $t_{link} = 1$ cycle, how does the zero-load latency of a 1-stage speculative bypass router compare with a canonical 5-stage router?
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q21_q3_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz21_Q3(0)">
+        A. Both architectures produce identical 50-cycle latencies.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz21_Q3(1)">
+        B. The 1-stage bypass router delivers the packet in 13 cycles ($6.5\text{ ns}$ at 2.0 GHz) compared to 33 cycles ($16.5\text{ ns}$) for the canonical router—reducing total latency by over 60%.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz21_Q3(2)">
+        C. The canonical router is faster because 5 stages provide higher clock frequencies.
+      </button>
+    </div>
+    <div id="q21_q3_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
   </div>
 </div>
 
@@ -451,30 +543,64 @@ function checkQuiz21(idx) {
   const fb = document.getElementById("q21_feedback");
   fb.style.display = "block";
   const opts = document.getElementById("q21_options").children;
-  for (let i = 0; i < opts.length; i++) {
-    opts[i].onclick = null;
-    opts[i].style.cursor = "default";
-  }
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
 
   if (idx === 1) {
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(34,197,94,0.1)";
-    fb.style.border = "1px solid rgba(34,197,94,0.3)";
-    fb.style.color = "#166534";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
     fb.innerHTML = "<strong>✓ Correct!</strong> The Head Flit performs Route Computation (RC) and Virtual Channel Allocation (VA) to establish the output port and downstream VC reservation. Body flits follow in its wake and only require Switch Allocation (SA) to traverse the crossbar.";
   } else {
-    opts[idx].style.background = "rgba(239,68,68,0.15)";
-    opts[idx].style.borderColor = "#ef4444";
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(239,68,68,0.1)";
-    fb.style.border = "1px solid rgba(239,68,68,0.3)";
-    fb.style.color = "#991b1b";
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
     fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. Only the Head Flit carries addressing headers; trailing flits inherit the path state.";
   }
 }
+
+function checkQuiz21_Q2(idx) {
+  const fb = document.getElementById("q21_q2_feedback");
+  fb.style.display = "block";
+  const opts = document.getElementById("q21_q2_options").children;
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
+
+  if (idx === 0) {
+    opts[0].style.background = "rgba(34,197,94,0.15)"; opts[0].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
+    fb.innerHTML = "<strong>✓ Correct!</strong> By computing the direction for the next hop ahead of time, Lookahead Routing allows Buffer Write and Virtual Channel Allocation to execute immediately upon flit arrival, eliminating RC from the critical path.";
+  } else {
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[0].style.background = "rgba(34,197,94,0.15)"; opts[0].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>A</strong>. Lookahead routing pre-computes the routing decision one hop in advance.";
+  }
+}
+
+function checkQuiz21_Q3(idx) {
+  const fb = document.getElementById("q21_q3_feedback");
+  fb.style.display = "block";
+  const opts = document.getElementById("q21_q3_options").children;
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
+
+  if (idx === 1) {
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
+    fb.innerHTML = "<strong>✓ Correct!</strong> In the bypass router, $T_{head} = 5 \\times (1 + 1) = 10$ cycles, plus 3 body cycles = 13 cycles ($6.5\\text{ ns}$). In the canonical router, $T_{head} = 5 \\times (5 + 1) = 30$ cycles, plus 3 body cycles = 33 cycles ($16.5\\text{ ns}$).";
+  } else {
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. Pipelining compression reduces latency by >60% across 5 hops.";
+  }
+}
 </script>
+
+---
+
+## 9. Interactive Arcade & Lab Challenges
+
+Test your router pipeline mastery with interactive simulations:
+- 🧩 **[Packet Master: Flit Routing Puzzle](../interactive/puzzle.md):** Guide head and body flits through multi-stage router pipelines, resolving crossbar conflicts in real time.
+- 🎮 **[Deadlock Buster Arcade](../interactive/game.md):** Defend the router fabric against pipeline stalls and buffer deadlock knots.
 
 ---
 
@@ -484,7 +610,9 @@ In this lesson, we explored:
 - The classical **canonical 5-stage router pipeline** (BW, RC, VA, SA, ST).
 - Why **Head Flits carve the path** while Body/Tail flits skip RC and VA.
 - Pipelining optimizations including **Lookahead Routing**, **Speculative Allocation**, and **1-Cycle Crossbar Bypassing**.
+- Synthesizable Verilog RTL for **Lookahead Route Pre-Computation (`lookahead_route_compute.v`)**.
 
 In the next lesson, we will see how router input buffers are partitioned into **Virtual Channels (VCs)** to eliminate Head-of-Line blocking and isolate memory traffic.
 
 👉 **Proceed to [Lesson 2.2: Virtual Channel (VC) Design](02-virtual-channels.md)**
+

@@ -410,16 +410,84 @@ SMART delivers an astonishing **$5.34\times$ latency reduction** ($1.33\text{ ns
 
 ---
 
-## 7. 🎯 Knowledge Check: Lesson 2.4
+## 7. Synthesizable Verilog RTL: SMART Asynchronous Bypass Unit (`smart_bypass_unit.v`)
+
+Below is a production-grade, synthesizable Verilog implementation of a SMART bypass multiplexer unit. It establishes a zero-cycle combinational bypass path across the router tile when uncontended, prioritizes local flit transmissions to prevent buffer starvation, and diverts incoming bypass flits into local input FIFOs when downstream contention or packet termination occurs:
+
+```verilog
+// Synthesizable Single-Cycle SMART Bypass Multiplexer Unit
+// Enables zero-cycle combinational crossbar bypassing when uncontended,
+// and diverts incoming bypass flits into local FIFOs upon contention.
+module smart_bypass_unit #(
+    parameter integer DATA_WIDTH = 128
+)(
+    input  wire                  clk,
+    input  wire                  rst_n,
+
+    // Bypass Flit Ingress (From Adjacent Upstream Tile Link)
+    input  wire                  bypass_in_val,   // Incoming bypass flit request
+    input  wire [DATA_WIDTH-1:0] bypass_in_data,  // Incoming flit payload & header
+    input  wire                  bypass_is_dest,  // 1 if this router is the target destination
+
+    // Local Router Switch Contention
+    input  wire                  local_tx_val,    // Local router buffered flit wants same output port
+    input  wire [DATA_WIDTH-1:0] local_tx_data,   // Local buffered flit data
+
+    // Forward Egress Link (To Adjacent Downstream Tile)
+    output wire                  forward_val,     // Flit launched on forward wire link
+    output wire [DATA_WIDTH-1:0] forward_data,    // Data sent across wire link
+
+    // Local Ingress Buffering (When bypass is stopped or terminates)
+    output wire                  divert_to_fifo,  // Divert incoming bypass flit to local input queue
+    output wire [DATA_WIDTH-1:0] fifo_write_data, // Data written into local FIFO
+
+    // Telemetry
+    output reg                   bypass_success_pulse,
+    output reg                   bypass_conflict_pulse
+);
+
+    // Contention Policy: Local flit has priority over bypass flit
+    // (Prevents starvation of locally buffered flits)
+    wire bypass_granted = bypass_in_val & ~bypass_is_dest & ~local_tx_val;
+    wire divert_needed  = bypass_in_val & (bypass_is_dest | local_tx_val);
+
+    // Combinational Forward Mux: Zero clock cycles added!
+    assign forward_val  = local_tx_val | bypass_granted;
+    assign forward_data = local_tx_val ? local_tx_data : bypass_in_data;
+
+    // Divert path into local input buffer
+    assign divert_to_fifo  = divert_needed;
+    assign fifo_write_data = bypass_in_data;
+
+    // Telemetry tracking
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            bypass_success_pulse  <= 1'b0;
+            bypass_conflict_pulse <= 1'b0;
+        end else begin
+            bypass_success_pulse  <= bypass_granted;
+            bypass_conflict_pulse <= bypass_in_val & local_tx_val;
+        end
+    end
+
+endmodule
+```
+
+---
+
+## 8. 🎯 Knowledge Check: Lesson 2.4
+
+Test your comprehension of low-latency bypass mechanisms, speculative switch allocation, and SMART timing limits.
 
 <div class="noc-sim-container" id="quiz24" style="margin-top:1rem;">
   <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
-    📝 Concept Check: Low-Latency &amp; SMART Routers
+    📝 Concept Check: Low-Latency &amp; SMART Bypass Microarchitecture
   </div>
 
-  <div id="q24_block">
+  <!-- Question 1 -->
+  <div style="margin-bottom:1.5rem; padding-bottom:1.2rem; border-bottom:1px solid var(--tcl-border);">
     <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
-      <b>Question:</b> How does the SMART (Single-cycle Multi-hop Asynchronous Repeated Traversal) architecture enable a packet to traverse up to 4–8 routers in a single clock cycle without violating digital synchronous clocking?
+      <b>Question 1:</b> How does the SMART (Single-cycle Multi-hop Asynchronous Repeated Traversal) architecture enable a packet to traverse up to 4–8 routers in a single clock cycle without violating digital synchronous clocking?
     </p>
 
     <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q24_options">
@@ -436,8 +504,47 @@ SMART delivers an astonishing **$5.34\times$ latency reduction** ($1.33\text{ ns
         D. By replacing copper wires with optical laser waveguides.
       </button>
     </div>
+    <div id="q24_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
 
-    <div id="q24_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  <!-- Question 2 -->
+  <div style="margin-bottom:1.5rem; padding-bottom:1.2rem; border-bottom:1px solid var(--tcl-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>Question 2:</b> In a 1.5 GHz system ($T_{clk} = 667\text{ ps}$), each bypass multiplexer delay is $t_{bypass} = 65\text{ ps}$, link wire delay is $t_{link} = 75\text{ ps}$, and flip-flop overhead is $t_{setup} + t_{cq} = 60\text{ ps}$. What is the maximum number of hops $H_{max}$ that can be traversed within a single clock cycle?
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q24_q2_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz24_Q2(0)">
+        A. $H_{max} = 1$ hop only.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz24_Q2(1)">
+        B. $H_{max} = 4$ hops, because $4 \times (65 + 75)\text{ ps} + 60\text{ ps} = 620\text{ ps} < 667\text{ ps}$.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz24_Q2(2)">
+        C. $H_{max} = 20$ hops.
+      </button>
+    </div>
+    <div id="q24_q2_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div>
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>Question 3:</b> In Speculative Switch Allocation (Peh &amp; Dally), what occurs when a flit's speculative request wins crossbar Switch Allocation (SA), but its simultaneous Virtual Channel Allocation (VA) request fails due to downstream VC exhaustion?
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q24_q3_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz24_Q3(0)">
+        A. The crossbar switch melts due to excessive current.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz24_Q3(1)">
+        B. The speculative grant is cancelled (squashed), the crossbar traversal cycle becomes an idle bubble, the flit remains in its input buffer, and it re-attempts allocation next cycle.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz24_Q3(2)">
+        C. The packet is dropped immediately and an interrupt is fired to the CPU kernel.
+      </button>
+    </div>
+    <div id="q24_q3_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
   </div>
 </div>
 
@@ -446,30 +553,64 @@ function checkQuiz24(idx) {
   const fb = document.getElementById("q24_feedback");
   fb.style.display = "block";
   const opts = document.getElementById("q24_options").children;
-  for (let i = 0; i < opts.length; i++) {
-    opts[i].onclick = null;
-    opts[i].style.cursor = "default";
-  }
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
 
   if (idx === 1) {
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(34,197,94,0.1)";
-    fb.style.border = "1px solid rgba(34,197,94,0.3)";
-    fb.style.color = "#166534";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
     fb.innerHTML = "<strong>✓ Correct!</strong> SMART exploits the fact that wire propagation and simple multiplexer traversal are fast (~140 ps/hop), allowing an electrical signal to traverse multiple physical tiles combinatorially within a single 600–1000 ps clock period.";
   } else {
-    opts[idx].style.background = "rgba(239,68,68,0.15)";
-    opts[idx].style.borderColor = "#ef4444";
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(239,68,68,0.1)";
-    fb.style.border = "1px solid rgba(239,68,68,0.3)";
-    fb.style.color = "#991b1b";
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
     fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. SMART creates an asynchronous combinational bypass path across repeated tiles within a single clock cycle.";
   }
 }
+
+function checkQuiz24_Q2(idx) {
+  const fb = document.getElementById("q24_q2_feedback");
+  fb.style.display = "block";
+  const opts = document.getElementById("q24_q2_options").children;
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
+
+  if (idx === 1) {
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
+    fb.innerHTML = "<strong>✓ Correct!</strong> With $H = 4$, $4 \\times (65 + 75) + 60 = 620\\text{ ps} < 667\\text{ ps}$. However, $H = 5$ would require $5 \\times 140 + 60 = 760\\text{ ps} > 667\\text{ ps}$, causing timing violations. Therefore, $H_{max} = 4$.";
+  } else {
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. $H_{max} = 4$ hops satisfies the 667 ps period constraint.";
+  }
+}
+
+function checkQuiz24_Q3(idx) {
+  const fb = document.getElementById("q24_q3_feedback");
+  fb.style.display = "block";
+  const opts = document.getElementById("q24_q3_options").children;
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
+
+  if (idx === 1) {
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
+    fb.innerHTML = "<strong>✓ Correct!</strong> Speculative allocation prioritizes non-speculative flits. If a speculative request wins SA but fails VA, the SA grant is squashed and no flit is forwarded, introducing a 1-cycle bubble without data loss.";
+  } else {
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. Mis-speculation results in a squashed grant and a benign pipeline bubble.";
+  }
+}
 </script>
+
+---
+
+## 9. Interactive Arcade & Lab Challenges
+
+Test your low-latency and bypass routing intuition in arcade simulations:
+- ⚔️ **[Deflection Duel: Bufferless NoC](../interactive/deflection.md):** Experience extreme low-latency packet forwarding without input buffers using dynamic deflection routing.
+- 🌡️ **[Hotspot Hero: Silicon Thermal Defender](../interactive/hotspot.md):** Balance dynamic frequency scaling (DVFS) and power gating when aggressive low-latency bypass routers create local thermal hotspots.
 
 ---
 
@@ -477,10 +618,10 @@ function checkQuiz24(idx) {
 
 Congratulations! You have mastered the microarchitecture of silicon on-chip routers:
 
-1. **Lesson 2.1:** You traced the **canonical 5-stage pipeline** (BW, RC, VA, SA, ST) and learned how Lookahead Routing removes RC from the critical path.
-2. **Lesson 2.2:** You eliminated **Head-of-Line blocking** using **Virtual Channels** and isolated coherence protocols with **Virtual Networks (VNETs)**.
-3. **Lesson 2.3:** You implemented **sub-200ps Matrix Arbiters** with LRU triangular priority updates and resolved crossbar contention with **Separable Switch Allocators**.
-4. **Lesson 2.4:** You explored the cutting edge of low-latency design: **Speculative Switch Allocation**, **1-Cycle Crossbar Bypassing**, and **SMART Multi-Hop Traversal**.
+1. **Lesson 2.1:** You traced the **canonical 5-stage pipeline** (BW, RC, VA, SA, ST), implemented synthesizable **Lookahead Route Pre-Computation RTL (`lookahead_route_compute.v`)**, and eliminated RC from the critical path.
+2. **Lesson 2.2:** You eliminated **Head-of-Line blocking** using **Virtual Channels**, implemented a synthesizable **VC FSM Controller (`vc_fsm_allocator.v`)**, and isolated coherence protocols with **Virtual Networks (VNETs)**.
+3. **Lesson 2.3:** You implemented **sub-200ps Matrix Arbiters (`matrix_arbiter.v`)** with LRU triangular priority updates, resolved crossbar contention with **Separable Switch Allocators**, and implemented a synthesizable **5×5 Crossbar (`crossbar_5x5.v`)**.
+4. **Lesson 2.4:** You explored the cutting edge of low-latency design: **Speculative Switch Allocation**, **1-Cycle Crossbar Bypassing**, implemented synthesizable **SMART Bypass RTL (`smart_bypass_unit.v`)**, and proved multi-hop timing feasibility.
 
 ---
 
@@ -488,3 +629,4 @@ Congratulations! You have mastered the microarchitecture of silicon on-chip rout
 Now that we understand how individual routers function, how do we arrange and connect them across the chip to maximize bisection bandwidth and minimize hop diameter?
 
 👉 **Advance to [Track 3: Topologies & Metrics](../track3-topologies/index.md)**
+

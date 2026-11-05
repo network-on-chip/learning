@@ -8,9 +8,10 @@
   </p>
   <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
     <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">⏱️ 4 In-Depth Lessons</span>
-    <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: rgba(16, 185, 129, 0.2);">🔬 4 Interactive Simulators &amp; Visualizers</span>
-    <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">💻 Synthesizable Verilog Implementations</span>
-    <span class="noc-track-badge" style="background: rgba(147, 51, 234, 0.1); color: #9333ea; border-color: rgba(147, 51, 234, 0.2);">🎯 Self-Assessment Quizzes</span>
+    <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: rgba(16, 185, 129, 0.2);">🔬 4 Interactive Simulators</span>
+    <span class="noc-track-badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2);">💾 5 Synthesizable Verilog Modules</span>
+    <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">🎯 3-Question Quizzes</span>
+    <span class="noc-track-badge" style="background: rgba(236, 72, 153, 0.1); color: #ec4899; border-color: rgba(236, 72, 153, 0.2);">🎮 Arcade Game Linkages</span>
   </div>
 </div>
 
@@ -72,10 +73,10 @@ graph TD
         Deconstruct the classical 5-stage router pipeline: Buffer Write (BW), Route Computation (RC), Virtual Channel Allocation (VA), Switch Allocation (SA), and Switch Traversal (ST). Learn how Head flits carve the path while Body/Tail flits bypass RC and VA.
       </div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Interactive Cycle-by-Cycle Pipeline Stepper, Lookahead Routing derivation, Self-Check Quiz.
+        ⚡ <strong>Features:</strong> Synthesizable Verilog <code>lookahead_route_compute.v</code>, Interactive Pipeline Stepper, 3-Question Quiz, Arcade links to <em>Packet Master</em> &amp; <em>Deadlock Buster</em>.
       </div>
     </div>
-    <a href="01-pipeline-stages/" class="noc-track-link">Launch Lesson 2.1 →</a>
+    <a href="01-pipeline-stages.md" class="noc-track-link">Launch Lesson 2.1 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -86,10 +87,10 @@ graph TD
         Eliminate Head-of-Line (HoL) blocking by multiplexing multiple logical FIFOs onto a shared physical link. Understand the VC finite state machine (IDLE, ROUTING, WAITING_VC, ACTIVE), dynamic buffer allocation, and Virtual Networks (VNETs).
       </div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Interactive VC Head-of-Line Blocking Solver &amp; Multi-VC Visualizer, Self-Check Quiz.
+        ⚡ <strong>Features:</strong> Synthesizable Verilog <code>vc_fsm_allocator.v</code>, Interactive HoL Solver, 3-Question Quiz, Arcade links to <em>Arbiter Arena</em> &amp; <em>QoS Gladiator</em>.
       </div>
     </div>
-    <a href="02-virtual-channels/" class="noc-track-link">Launch Lesson 2.2 →</a>
+    <a href="02-virtual-channels.md" class="noc-track-link">Launch Lesson 2.2 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -100,10 +101,10 @@ graph TD
         Architect sub-nanosecond arbiters: Round-Robin vs Triangular Matrix Arbiters with Least Recently Used (LRU) updates. Solve the bipartite maximum matching bottleneck using Separable Input-First and Output-First Switch Allocators.
       </div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Interactive Live 4×4 Matrix Arbiter Simulator, Verilog RTL implementations, Self-Check Quiz.
+        ⚡ <strong>Features:</strong> Synthesizable Verilog <code>matrix_arbiter.v</code> &amp; <code>crossbar_5x5.v</code>, Interactive 4×4 Matrix Simulator, 3-Question Quiz, Arcade links to <em>Arbiter Arena</em> &amp; <em>Chiplet Tycoon</em>.
       </div>
     </div>
-    <a href="03-arbitration-crossbar/" class="noc-track-link">Launch Lesson 2.3 →</a>
+    <a href="03-arbitration-crossbar.md" class="noc-track-link">Launch Lesson 2.3 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -114,10 +115,10 @@ graph TD
         Explore aggressive microarchitectural optimizations: Speculative Switch Allocation (Peh &amp; Dally), 1-cycle direct crossbar bypass, and SMART (Single-cycle Multi-hop Asynchronous Repeated Traversal) for multi-hop zero-delay bypass.
       </div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Interactive SMART Multi-Hop Bypass Simulator, Mis-speculation recovery models, Self-Check Quiz.
+        ⚡ <strong>Features:</strong> Synthesizable Verilog <code>smart_bypass_unit.v</code>, Interactive SMART Multi-Hop Simulator, 3-Question Quiz, Arcade links to <em>Deflection Duel</em> &amp; <em>Hotspot Hero</em>.
       </div>
     </div>
-    <a href="04-low-latency-bypass-routers/" class="noc-track-link">Launch Lesson 2.4 →</a>
+    <a href="04-low-latency-bypass-routers.md" class="noc-track-link">Launch Lesson 2.4 →</a>
   </div>
 </div>
 
