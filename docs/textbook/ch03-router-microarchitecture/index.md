@@ -99,6 +99,16 @@ As formulated by Liu et al. (*IEEE TCAD 2026*), **BuffeRS** solves the fundament
 - Traditional bypass mechanisms (such as SMART or NoRD) suffer when bypass flits arrive at downstream nodes only to find input buffers completely full, causing abrupt deflections or pipeline stalls.
 - **BuffeRS** introduces a coordinated time-division **buffer reservation protocol** that reserves destination buffer slots *in advance* across router groups, providing deterministic contention-free bypass paths across both monolithic chips and multi-chiplet packaging boundaries.
 
+#### Table 3.1: Quantitative Comparison of High-Performance Router Microarchitectures
+| Architecture Paradigm | Pipeline Stages | Allocation Scheme | Clocking / Timing Strategy | Key Silicon Trade-Off |
+| :--- | :--- | :--- | :--- | :--- |
+| **Canonical VC Router** (Peh & Dally) | 4–5 cycles | Separable VA + SA | Fully Synchronous | Baseline area; multi-cycle per-hop serialization delay |
+| **Lookahead Routing** | 3 cycles | Lookahead RC + SA | Fully Synchronous | Strips RC stage; minimal packet header overhead |
+| **Speculative Allocator** | 2 cycles | Parallel speculative VA/SA | Fully Synchronous | Speculation mis-predictions stall under heavy injection |
+| **SMART / SHARP** | 1–2 cycles | Priority bypass muxes | Multi-hop async bypass | Bounded by physical $HPC_{max}$ wire RC delay budget |
+| **HyPA Router** (TVLSI 2026) | 0.8 ns / hop | Handshake pipeline | GALS Asynchronous domino | 62% lower power; eliminates global clock tree distribution |
+| **BuffeRS** (TCAD 2026) | 1 cycle | Buffer reservation slots | Time-division coordinated | Deterministic zero-contention bypass; token reservation logic |
+
 ---
 
 ## 3.3 Asynchronous Router Architectures: HyPA (TVLSI 2026)
