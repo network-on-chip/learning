@@ -8,6 +8,13 @@ The **High-Radix Revolution** (pioneered by John Dally, Changho Choi, and Steve 
 
 In this lesson, we analyze the mathematics of high-radix architectures, examine the **Flattened Butterfly** and **Dragonfly** topologies, explore **UGAL adaptive routing**, and inspect modern silicon implementations from **NVIDIA NVSwitch** to **Cray Slingshot**.
 
+<div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
+  <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Textbook Reference</div>
+  <div style="color: #334155; font-size: 0.95rem;">
+    Review the Passas-Katevenis radix-128 silicon proofs and non-blocking Clos theorems in <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch04-topologies-and-metrics/index.md#44-high-radix-interconnects-flattened-butterfly--dragonfly" target="_blank" rel="noopener">Chapter 4.4: High-Radix Interconnects</a></strong>.
+  </div>
+</div>
+
 ---
 
 ## 1. The High-Radix Architectural Shift

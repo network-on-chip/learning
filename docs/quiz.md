@@ -442,6 +442,54 @@ const QUESTIONS_BANK = [
     ],
     "answer": 0,
     "explanation": "If grant pointers updated on unaccepted grants or during later iterations, arbiters would rapidly synchronize their pointers, causing pathological contention waves. Updating only on accepted grants in iteration 1 de-synchronizes arbiters, delivering 100% throughput under uniform independent traffic."
+  },
+  {
+    "id": "q22",
+    "module": "Track 3: Topologies & Metrics (Book Ch 4)",
+    "tier": "Tier 1: Fundamental",
+    "tier_level": 1,
+    "base_points": 100,
+    "question": "Why does a Folded Torus interleave even and odd nodes along each dimension, rather than connecting wrap-around wires directly between the perimeter tiles as in a standard Torus?",
+    "options": [
+      "To guarantee that all physical links\u2014including wrap-around channels\u2014have a uniform length of 2*L0, completely eliminating the catastrophic (k-1)*L0 Elmore delay spike of perimeter wrap-around wires.",
+      "To allow routers to operate with only half as many transistors.",
+      "Because planar silicon dies can only bend into M\u00f6bius strips.",
+      "To turn the 2D network into a single 1D ring."
+    ],
+    "answer": 0,
+    "explanation": "In an un-folded kxk torus, perimeter wrap-around wires span (k-1) tiles, suffering quadratic Elmore delay scaling. Interleaving even and odd tiles in a Folded Torus guarantees every physical wire spans exactly 2*L0, preserving high clock frequencies across the entire chip."
+  },
+  {
+    "id": "q23",
+    "module": "Track 3: Topologies & Metrics (Book Ch 4)",
+    "tier": "Tier 2: Core Engineering",
+    "tier_level": 2,
+    "base_points": 200,
+    "question": "According to Clos network theory (1953), what is the exact mathematical condition on the number of middle-stage switches m required to guarantee that a 3-stage Clos network C(n, m, r) is Strictly Non-Blocking (SNB)?",
+    "options": [
+      "m >= 2n - 1",
+      "m >= n",
+      "m = r / 2",
+      "m = log2(n)"
+    ],
+    "answer": 0,
+    "explanation": "In a 3-stage Clos network with n inputs per first-stage switch, an incoming call requires a middle switch not used by the other n-1 inputs of the same switch or by the n-1 outputs of the destination switch. In the worst case of mutually disjoint paths, (n-1) + (n-1) = 2n-2 middle switches are busy, requiring m >= 2n - 1 to guarantee at least one free middle switch."
+  },
+  {
+    "id": "q24",
+    "module": "Track 3: Topologies & Metrics (Book Ch 4)",
+    "tier": "Tier 3: Silicon Mastery",
+    "tier_level": 3,
+    "base_points": 300,
+    "question": "How did Passas, Katevenis, and Pnevmatikatos (IEEE TCAD 2012) prove that monolithic on-chip crossbars remain area-efficient and scalable beyond 100 nodes in modern CMOS silicon?",
+    "options": [
+      "With 8+ metal layers, all N global data routing tracks fit directly over standard cells on intermediate metal layers without expanding the cell area, restricting the crossbar footprint to just 11% of a 128-core 150mm^2 die.",
+      "By replacing physical crossbar wires with quantum entangled photon pairs.",
+      "By clocking the crossbar at 100 GHz using superconducting Josephson junctions.",
+      "By restricting traffic strictly to nearest-neighbor communication only."
+    ],
+    "answer": 0,
+    "explanation": "Passas et al. demonstrated that crossbar wires can be routed over standard cells on upper metal layers, avoiding wiring track inflation. In 90nm CMOS, a radix-128 32-bit crossbar operating at 750 MHz occupied only 11% of the total die area, outperforming 2D meshes under stressed global workloads."
   }
 ];
 

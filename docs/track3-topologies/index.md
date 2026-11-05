@@ -14,6 +14,13 @@
   </div>
 </div>
 
+<div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
+  <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Official Companion Textbook Chapter Available</div>
+  <div style="color: #334155; font-size: 0.95rem;">
+    For comprehensive mathematical derivations of bisection bandwidth, zero-load latency formulas, folded torus Elmore delay invariance, and peer-reviewed silicon case studies (Passas et al., TCAD 2012; Jun et al., TCAD 2009; Dumitriu &amp; Khan, TVLSI 2009), read <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch04-topologies-and-metrics/index.md" target="_blank" rel="noopener">Chapter 4: Direct, Indirect &amp; High-Radix Interconnect Topologies</a></strong>.
+  </div>
+</div>
+
 ---
 
 ## 🗺️ Topological Taxonomy & Learning Roadmap

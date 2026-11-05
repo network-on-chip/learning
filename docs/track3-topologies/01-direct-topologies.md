@@ -4,6 +4,13 @@ In a **Direct Topology**, every router is directly coupled with a processing nod
 
 In this lesson, we derive the mathematical foundations of planar direct topologies—focusing on the **2D Mesh**, **2D Torus**, and **Folded Torus**—and examine how physical wire length constraints dictate topological selection.
 
+<div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
+  <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Textbook Reference</div>
+  <div style="color: #334155; font-size: 0.95rem;">
+    Dive deeper into first-principles bisection bandwidth derivations and folded torus Elmore delay invariance in <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch04-topologies-and-metrics/index.md#42-direct-topologies-2d-mesh-2d-torus--the-folded-torus" target="_blank" rel="noopener">Chapter 4.2: Direct Topologies</a></strong> of the companion textbook.
+  </div>
+</div>
+
 ---
 
 ## 1. Mathematical Framework for Network Topologies

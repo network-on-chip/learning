@@ -6,6 +6,13 @@ To quantitatively evaluate on-chip networks, architects model two fundamental me
 
 In this lesson, we derive the mathematical laws of network throughput, analyze traffic distributions, and prove why certain communication patterns trigger premature network saturation.
 
+<div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
+  <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Textbook Reference</div>
+  <div style="color: #334155; font-size: 0.95rem;">
+    Access the complete traffic sensitivity matrix and maximum channel load bounds ($\gamma_{max}$) in <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch04-topologies-and-metrics/index.md#41-fundamentals-of-interconnect-graph-theory--quantitative-metrics" target="_blank" rel="noopener">Chapter 4.1: Fundamentals of Interconnect Graph Theory</a></strong>.
+  </div>
+</div>
+
 ---
 
 ## 1. Mathematical Modeling of Network Performance
