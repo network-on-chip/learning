@@ -130,6 +130,7 @@ extra_javascript:
   - assets/vendor/katex/auto-render.min.js
   - assets/js/katex.js
   - assets/js/mermaid-theme.js
+  - assets/js/callouts.js
 
 extra_css:
   - assets/vendor/katex/katex.min.css

@@ -12,8 +12,8 @@
     }
 
     /* Node shapes */
-    .node rect, .node circle, .node ellipse, .node polygon,
-    .node path:not(.flowchart-link) {
+    .node rect:not([style*="fill"]), .node circle:not([style*="fill"]), .node ellipse:not([style*="fill"]), .node polygon:not([style*="fill"]),
+    .node path:not(.flowchart-link):not([style*="fill"]) {
       fill: var(--md-mermaid-node-bg-color, #ffffff) !important;
       stroke: var(--md-mermaid-node-fg-color, #2563eb) !important;
       stroke-width: 1.75px !important;

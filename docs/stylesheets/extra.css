@@ -10,8 +10,8 @@
   --md-default-bg-color--light: #f8fafc !important;
   --md-default-bg-color--lighter: #f1f5f9 !important;
   --md-default-fg-color: #0f172a !important;       /* Slate 900 */
-  --md-default-fg-color--light: #1e293b !important; /* Slate 800 body text */
-  --md-default-fg-color--lighter: #475569 !important; /* Slate 600 */
+  --md-default-fg-color--light: #0f172a !important; /* Deep Slate 900 body text - 15:1 contrast */
+  --md-default-fg-color--lighter: #334155 !important; /* Slate 700 - AAA 7.8:1 contrast for all secondary text */
   
   --md-primary-fg-color: #0f172a !important;       /* Slate 900 Header */
   --md-primary-fg-color--light: #1e293b !important;
@@ -43,6 +43,24 @@
   --tcl-border-hover: #cbd5e1;
   --tcl-heading: #0f172a;
 
+  /* NoC Design Tokens - Light Mode */
+  --noc-primary: #0f766e;
+  --noc-primary-light: #0d9488;
+  --noc-primary-dark: #115e59;
+  --noc-accent: #2563eb;
+  --noc-surface: #ffffff;
+  --noc-surface-subtle: #f8fafc;
+  --noc-border: #cbd5e1;
+  --noc-border-subtle: #e2e8f0;
+  --noc-text-main: #0f172a;
+  --noc-text-muted: #334155;
+  --noc-radius-sm: 8px;
+  --noc-radius-md: 12px;
+  --noc-radius-lg: 16px;
+  --noc-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
+  --noc-shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --noc-shadow-hover: 0 12px 24px -4px rgba(37, 99, 235, 0.15);
+
   /* Mermaid Diagram Tokens - Crisp High-Contrast Light Mode */
   --md-mermaid-node-bg-color: #ffffff !important;
   --md-mermaid-node-fg-color: #2563eb !important;
@@ -56,9 +74,9 @@
   --md-default-bg-color: #0b0f19 !important;       /* Deep space slate */
   --md-default-bg-color--light: #111827 !important;
   --md-default-bg-color--lighter: #1e293b !important;
-  --md-default-fg-color: #f8fafc !important;       /* Slate 50 */
-  --md-default-fg-color--light: #cbd5e1 !important; /* Slate 300 body text */
-  --md-default-fg-color--lighter: #94a3b8 !important; /* Slate 400 */
+  --md-default-fg-color: #ffffff !important;       /* Pure white */
+  --md-default-fg-color--light: #f8fafc !important; /* Slate 50 body text - 16:1 contrast */
+  --md-default-fg-color--lighter: #cbd5e1 !important; /* Slate 300 secondary text - 10:1 contrast */
 
   --md-primary-fg-color: #090d16 !important;
   --md-primary-fg-color--light: #111827 !important;
@@ -88,14 +106,32 @@
   --tcl-surface-card: #1e293b;
   --tcl-border: #334155;
   --tcl-border-hover: #475569;
-  --tcl-heading: #f8fafc;
+  --tcl-heading: #ffffff;
+
+  /* NoC Design Tokens - Dark Mode */
+  --noc-primary: #2dd4bf;
+  --noc-primary-light: #5eead4;
+  --noc-primary-dark: #14b8a6;
+  --noc-accent: #38bdf8;
+  --noc-surface: #1e293b;
+  --noc-surface-subtle: #111827;
+  --noc-border: #334155;
+  --noc-border-subtle: #475569;
+  --noc-text-main: #f8fafc;
+  --noc-text-muted: #cbd5e1;
+  --noc-radius-sm: 8px;
+  --noc-radius-md: 12px;
+  --noc-radius-lg: 16px;
+  --noc-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --noc-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --noc-shadow-hover: 0 12px 28px -4px rgba(56, 189, 248, 0.25);
 
   /* Mermaid Diagram Tokens - Crisp High-Contrast Dark Mode */
   --md-mermaid-node-bg-color: #1e293b !important;
   --md-mermaid-node-fg-color: #38bdf8 !important;
-  --md-mermaid-label-fg-color: #f8fafc !important;
+  --md-mermaid-label-fg-color: #ffffff !important;
   --md-mermaid-label-bg-color: #0b0f19 !important;
-  --md-mermaid-edge-color: #94a3b8 !important;
+  --md-mermaid-edge-color: #cbd5e1 !important;
 }
 
 /* Global Typography - Pure Sans-Serif Stack (No fuzzy serifs!) */
@@ -1398,3 +1434,396 @@ canvas#nocCanvas {
   overflow-y: auto;
   line-height: 1.6;
 }
+
+/* ==========================================================================
+   NoC Textbook & Companion Banner Styling
+   ========================================================================== */
+.noc-book-banner {
+  background: #f0f7ff !important;
+  border: 1.5px solid #bfdbfe !important;
+  border-radius: 12px !important;
+  padding: 18px 24px !important;
+  margin-bottom: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: 16px !important;
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.06) !important;
+}
+
+.noc-book-banner div[style*="font-weight: 700"] {
+  color: #1e3a8a !important; /* Deep Navy - 12:1 contrast */
+}
+
+.noc-book-banner div[style*="font-size: 0.88rem"],
+.noc-book-banner div[style*="font-size: 0.92rem"] {
+  color: #1e293b !important; /* Deep Slate - 14:1 contrast */
+  line-height: 1.6 !important;
+}
+
+.noc-book-banner a {
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25) !important;
+}
+
+[data-md-color-scheme="slate"] .noc-book-banner {
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.85)) !important;
+  border: 1px solid rgba(56, 189, 248, 0.35) !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35) !important;
+}
+
+[data-md-color-scheme="slate"] .noc-book-banner div[style*="font-weight: 700"] {
+  color: #38bdf8 !important; /* Electric Cyan */
+}
+
+[data-md-color-scheme="slate"] .noc-book-banner div[style*="font-size: 0.88rem"],
+[data-md-color-scheme="slate"] .noc-book-banner div[style*="font-size: 0.92rem"] {
+  color: #f8fafc !important; /* Slate 50 */
+}
+
+/* ==========================================================================
+   NoC Callout Card Styling
+   ========================================================================== */
+.noc-callout {
+  background: #f0fdfa !important;
+  border-left: 4px solid #0f766e !important;
+  border-radius: 0 10px 10px 0 !important;
+  padding: 1rem 1.25rem !important;
+  margin: 1.5rem 0 !important;
+  box-shadow: 0 1px 4px rgba(15, 118, 110, 0.08) !important;
+}
+
+.noc-callout div[style*="font-weight: 700"] {
+  color: #0f766e !important;
+}
+
+.noc-callout div[style*="font-size: 0.95rem"] {
+  color: #1e293b !important;
+  line-height: 1.65 !important;
+}
+
+.noc-callout a {
+  color: #0d9488 !important;
+  font-weight: 600 !important;
+}
+
+[data-md-color-scheme="slate"] .noc-callout {
+  background: rgba(15, 118, 110, 0.22) !important;
+  border-left: 4px solid #2dd4bf !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+}
+
+[data-md-color-scheme="slate"] .noc-callout div[style*="font-weight: 700"] {
+  color: #2dd4bf !important;
+}
+
+[data-md-color-scheme="slate"] .noc-callout div[style*="font-size: 0.95rem"] {
+  color: #f8fafc !important;
+}
+
+[data-md-color-scheme="slate"] .noc-callout a {
+  color: #5eead4 !important;
+}
+
+/* ==========================================================================
+   Theorems, Axioms & High-Contrast Blockquotes
+   ========================================================================== */
+.md-typeset blockquote {
+  color: var(--md-default-fg-color--light) !important;
+  background-color: var(--md-default-bg-color--light) !important;
+  border-left: 4px solid var(--tcl-blue-600) !important;
+  border-radius: 0 8px 8px 0 !important;
+  padding: 0.85rem 1.25rem !important;
+  margin: 1.5rem 0 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+.md-typeset blockquote strong,
+.md-typeset blockquote b {
+  color: var(--tcl-heading) !important;
+}
+
+.md-typeset blockquote p {
+  color: var(--md-default-fg-color--light) !important;
+  margin: 0.4rem 0 !important;
+}
+
+[data-md-color-scheme="slate"] .md-typeset blockquote {
+  background-color: #111827 !important;
+  border-left-color: #38bdf8 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* ==========================================================================
+   Figure Captions & Data Visuals
+   ========================================================================== */
+.md-typeset p > em:first-child,
+.md-typeset p > br + em,
+.md-typeset figure figcaption {
+  display: block;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--md-default-fg-color--lighter) !important;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* ==========================================================================
+   Admonitions & Callouts (Notes, Tips, Warnings)
+   ========================================================================== */
+.md-typeset .admonition,
+.md-typeset details {
+  border-width: 1.5px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05) !important;
+}
+
+.md-typeset .admonition-title,
+.md-typeset summary {
+  font-weight: 700 !important;
+}
+
+.md-typeset .admonition.tip {
+  border-color: #059669 !important;
+}
+.md-typeset .admonition.tip .admonition-title {
+  background-color: rgba(5, 150, 105, 0.1) !important;
+  color: #065f46 !important;
+}
+[data-md-color-scheme="slate"] .md-typeset .admonition.tip .admonition-title {
+  background-color: rgba(5, 150, 105, 0.2) !important;
+  color: #6ee7b7 !important;
+}
+
+.md-typeset .admonition.note,
+.md-typeset .admonition.info {
+  border-color: #2563eb !important;
+}
+.md-typeset .admonition.note .admonition-title,
+.md-typeset .admonition.info .admonition-title {
+  background-color: rgba(37, 99, 235, 0.08) !important;
+  color: #1e40af !important;
+}
+[data-md-color-scheme="slate"] .md-typeset .admonition.note .admonition-title,
+[data-md-color-scheme="slate"] .md-typeset .admonition.info .admonition-title {
+  background-color: rgba(37, 99, 235, 0.2) !important;
+  color: #93c5fd !important;
+}
+
+.md-typeset .admonition.warning {
+  border-color: #d97706 !important;
+}
+.md-typeset .admonition.warning .admonition-title {
+  background-color: rgba(217, 119, 6, 0.1) !important;
+  color: #92400e !important;
+}
+[data-md-color-scheme="slate"] .md-typeset .admonition.warning .admonition-title {
+  background-color: rgba(217, 119, 6, 0.2) !important;
+  color: #fcd34d !important;
+}
+
+.md-typeset .admonition.danger,
+.md-typeset .admonition.caution {
+  border-color: #dc2626 !important;
+}
+.md-typeset .admonition.danger .admonition-title,
+.md-typeset .admonition.caution .admonition-title {
+  background-color: rgba(220, 38, 38, 0.1) !important;
+  color: #991b1b !important;
+}
+[data-md-color-scheme="slate"] .md-typeset .admonition.danger .admonition-title,
+[data-md-color-scheme="slate"] .md-typeset .admonition.caution .admonition-title {
+  background-color: rgba(220, 38, 38, 0.2) !important;
+  color: #fca5a5 !important;
+}
+
+/* ==========================================================================
+   Data Tables & Comparative Matrices Zebra Striping
+   ========================================================================== */
+.md-typeset table:not([class]) tbody tr:nth-child(even) {
+  background-color: var(--md-default-bg-color--light) !important;
+}
+.md-typeset table:not([class]) tbody tr:hover {
+  background-color: var(--md-default-bg-color--lighter) !important;
+}
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) tbody tr:nth-child(even) {
+  background-color: rgba(30, 41, 59, 0.45) !important;
+}
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) tbody tr:hover {
+  background-color: rgba(56, 189, 248, 0.1) !important;
+}
+
+/* ==========================================================================
+   Adaptive High-Contrast Inline Color Remapping
+   Guarantees readable text in both Light and Dark themes
+   ========================================================================== */
+/* Light Mode Remaps (Convert neon/pastel colors to deep high-contrast tones) */
+[data-md-color-scheme="default"] span[style*="color:#38bdf8"],
+[data-md-color-scheme="default"] strong[style*="color:#38bdf8"],
+[data-md-color-scheme="default"] div[style*="color:#38bdf8"],
+[data-md-color-scheme="default"] span[style*="color: #38bdf8"],
+[data-md-color-scheme="default"] strong[style*="color: #38bdf8"],
+[data-md-color-scheme="default"] div[style*="color: #38bdf8"] {
+  color: #0284c7 !important; /* Sky 600 - High Contrast on White (5.5:1) */
+}
+
+[data-md-color-scheme="default"] span[style*="color:#60a5fa"],
+[data-md-color-scheme="default"] strong[style*="color:#60a5fa"],
+[data-md-color-scheme="default"] div[style*="color:#60a5fa"],
+[data-md-color-scheme="default"] span[style*="color: #60a5fa"],
+[data-md-color-scheme="default"] strong[style*="color: #60a5fa"],
+[data-md-color-scheme="default"] div[style*="color: #60a5fa"] {
+  color: #1d4ed8 !important; /* Blue 700 - 7.2:1 contrast */
+}
+
+[data-md-color-scheme="default"] span[style*="color:#93c5fd"],
+[data-md-color-scheme="default"] strong[style*="color:#93c5fd"],
+[data-md-color-scheme="default"] div[style*="color:#93c5fd"],
+[data-md-color-scheme="default"] span[style*="color: #93c5fd"],
+[data-md-color-scheme="default"] strong[style*="color: #93c5fd"],
+[data-md-color-scheme="default"] div[style*="color: #93c5fd"] {
+  color: #1e40af !important; /* Blue 800 - 9:1 contrast */
+}
+
+[data-md-color-scheme="default"] span[style*="color:#4ade80"],
+[data-md-color-scheme="default"] strong[style*="color:#4ade80"],
+[data-md-color-scheme="default"] div[style*="color:#4ade80"] {
+  color: #15803d !important; /* Green 700 */
+}
+
+[data-md-color-scheme="default"] span[style*="color:#22c55e"],
+[data-md-color-scheme="default"] strong[style*="color:#22c55e"],
+[data-md-color-scheme="default"] div[style*="color:#22c55e"] {
+  color: #166534 !important; /* Green 800 */
+}
+
+[data-md-color-scheme="default"] span[style*="color:#fb923c"],
+[data-md-color-scheme="default"] strong[style*="color:#fb923c"],
+[data-md-color-scheme="default"] span[style*="color:#f59e0b"],
+[data-md-color-scheme="default"] strong[style*="color:#f59e0b"] {
+  color: #b45309 !important; /* Amber 700 */
+}
+
+[data-md-color-scheme="default"] span[style*="color:#bae6fd"],
+[data-md-color-scheme="default"] strong[style*="color:#bae6fd"],
+[data-md-color-scheme="default"] div[style*="color:#bae6fd"],
+[data-md-color-scheme="default"] span[style*="color: #bae6fd"],
+[data-md-color-scheme="default"] strong[style*="color: #bae6fd"],
+[data-md-color-scheme="default"] div[style*="color: #bae6fd"] {
+  color: #0369a1 !important; /* Sky 700 - 4.8:1 contrast */
+}
+
+[data-md-color-scheme="default"] span[style*="color:#a7f3d0"],
+[data-md-color-scheme="default"] strong[style*="color:#a7f3d0"],
+[data-md-color-scheme="default"] div[style*="color:#a7f3d0"],
+[data-md-color-scheme="default"] span[style*="color: #a7f3d0"],
+[data-md-color-scheme="default"] strong[style*="color: #a7f3d0"],
+[data-md-color-scheme="default"] div[style*="color: #a7f3d0"] {
+  color: #047857 !important; /* Emerald 700 - 5.0:1 contrast */
+}
+
+[data-md-color-scheme="default"] span[style*="color:#34d399"],
+[data-md-color-scheme="default"] strong[style*="color:#34d399"],
+[data-md-color-scheme="default"] div[style*="color:#34d399"],
+[data-md-color-scheme="default"] span[style*="color: #34d399"],
+[data-md-color-scheme="default"] strong[style*="color: #34d399"],
+[data-md-color-scheme="default"] div[style*="color: #34d399"] {
+  color: #059669 !important; /* Emerald 600 - 4.6:1 contrast */
+}
+
+[data-md-color-scheme="default"] span[style*="color:#f87171"],
+[data-md-color-scheme="default"] strong[style*="color:#f87171"],
+[data-md-color-scheme="default"] div[style*="color:#f87171"],
+[data-md-color-scheme="default"] h2[style*="color:#f87171"],
+[data-md-color-scheme="default"] span[style*="color: #f87171"],
+[data-md-color-scheme="default"] strong[style*="color: #f87171"],
+[data-md-color-scheme="default"] div[style*="color: #f87171"],
+[data-md-color-scheme="default"] h2[style*="color: #f87171"] {
+  color: #dc2626 !important; /* Red 600 - 5.2:1 contrast */
+}
+
+[data-md-color-scheme="default"] span[style*="color:#c084fc"],
+[data-md-color-scheme="default"] strong[style*="color:#c084fc"],
+[data-md-color-scheme="default"] div[style*="color:#c084fc"],
+[data-md-color-scheme="default"] span[style*="color:#a855f7"],
+[data-md-color-scheme="default"] strong[style*="color:#a855f7"],
+[data-md-color-scheme="default"] div[style*="color:#a855f7"],
+[data-md-color-scheme="default"] span[style*="color: #c084fc"],
+[data-md-color-scheme="default"] strong[style*="color: #c084fc"],
+[data-md-color-scheme="default"] div[style*="color: #c084fc"],
+[data-md-color-scheme="default"] span[style*="color: #a855f7"],
+[data-md-color-scheme="default"] strong[style*="color: #a855f7"],
+[data-md-color-scheme="default"] div[style*="color: #a855f7"] {
+  color: #7e22ce !important; /* Purple 700 - 5.4:1 contrast */
+}
+
+[data-md-color-scheme="default"] span[style*="color:#cbd5e1"],
+[data-md-color-scheme="default"] div[style*="color:#cbd5e1"],
+[data-md-color-scheme="default"] span[style*="color:#e2e8f0"],
+[data-md-color-scheme="default"] div[style*="color:#e2e8f0"],
+[data-md-color-scheme="default"] span[style*="color:#94a3b8"],
+[data-md-color-scheme="default"] div[style*="color:#94a3b8"],
+[data-md-color-scheme="default"] span[style*="color: #cbd5e1"],
+[data-md-color-scheme="default"] div[style*="color: #cbd5e1"],
+[data-md-color-scheme="default"] span[style*="color: #e2e8f0"],
+[data-md-color-scheme="default"] div[style*="color: #e2e8f0"],
+[data-md-color-scheme="default"] span[style*="color: #94a3b8"],
+[data-md-color-scheme="default"] div[style*="color: #94a3b8"] {
+  color: #334155 !important; /* Slate 700 - 7.5:1 contrast */
+}
+
+/* Dark Mode Remaps (Convert dark slate inline text to luminous readable tones) */
+[data-md-color-scheme="slate"] span[style*="color:#334155"],
+[data-md-color-scheme="slate"] strong[style*="color:#334155"],
+[data-md-color-scheme="slate"] div[style*="color:#334155"],
+[data-md-color-scheme="slate"] span[style*="color:#475569"],
+[data-md-color-scheme="slate"] strong[style*="color:#475569"],
+[data-md-color-scheme="slate"] div[style*="color:#475569"],
+[data-md-color-scheme="slate"] span[style*="color:#64748b"],
+[data-md-color-scheme="slate"] strong[style*="color:#64748b"],
+[data-md-color-scheme="slate"] div[style*="color:#64748b"],
+[data-md-color-scheme="slate"] span[style*="color: #334155"],
+[data-md-color-scheme="slate"] strong[style*="color: #334155"],
+[data-md-color-scheme="slate"] div[style*="color: #334155"],
+[data-md-color-scheme="slate"] span[style*="color: #475569"],
+[data-md-color-scheme="slate"] strong[style*="color: #475569"],
+[data-md-color-scheme="slate"] div[style*="color: #475569"],
+[data-md-color-scheme="slate"] span[style*="color: #64748b"],
+[data-md-color-scheme="slate"] strong[style*="color: #64748b"],
+[data-md-color-scheme="slate"] div[style*="color: #64748b"] {
+  color: #cbd5e1 !important; /* Slate 300 - High Contrast on Dark Slate (10:1) */
+}
+
+[data-md-color-scheme="slate"] span[style*="color:#0f172a"],
+[data-md-color-scheme="slate"] strong[style*="color:#0f172a"],
+[data-md-color-scheme="slate"] div[style*="color:#0f172a"],
+[data-md-color-scheme="slate"] span[style*="color:#1e293b"],
+[data-md-color-scheme="slate"] strong[style*="color:#1e293b"],
+[data-md-color-scheme="slate"] div[style*="color:#1e293b"],
+[data-md-color-scheme="slate"] span[style*="color: #0f172a"],
+[data-md-color-scheme="slate"] strong[style*="color: #0f172a"],
+[data-md-color-scheme="slate"] div[style*="color: #0f172a"],
+[data-md-color-scheme="slate"] span[style*="color: #1e293b"],
+[data-md-color-scheme="slate"] strong[style*="color: #1e293b"],
+[data-md-color-scheme="slate"] div[style*="color: #1e293b"] {
+  color: #f8fafc !important; /* Slate 50 - 16:1 contrast */
+}
+
+/* Modern Input Range Accents */
+.md-typeset input[type="range"] {
+  accent-color: var(--tcl-blue-600);
+}
+
+/* Ensure light mode container backgrounds with light border/fill look crisp and readable */
+[data-md-color-scheme="default"] div[style*="background:rgba(56,189,248"],
+[data-md-color-scheme="default"] div[style*="background: rgba(56, 189, 248"] {
+  background: #f0f9ff !important;
+  border-color: #7dd3fc !important;
+}
+
+[data-md-color-scheme="default"] div[style*="background:rgba(16,185,129"],
+[data-md-color-scheme="default"] div[style*="background: rgba(16, 185, 129"] {
+  background: #f0fdf4 !important;
+  border-color: #86efac !important;
+}
+
