@@ -8,6 +8,13 @@ To solve these challenges, computer architects developed **Adaptive Routing**, a
 
 However, arbitrary adaptivity reintroduces the risk of **circular buffer deadlock**. In 1994, Christopher J. Glass and Lionel M. Ni introduced a foundational methodology called **The Turn Model**, proving that eliminating **just two turns** is sufficient to guarantee deadlock freedom while unlocking rich path diversity!
 
+<div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
+  <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Textbook Reference</div>
+  <div style="color: #334155; font-size: 0.95rem;">
+    Explore formal proofs of West-First, North-Last, and Negative-First turn models alongside synthesizable Verilog RTL in <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch05-routing-deadlock-theory/index.md#53-glass--ni-turn-models-for-adaptive-routing-1994" target="_blank" rel="noopener">Chapter 5.3: Glass &amp; Ni Turn Models</a></strong>.
+  </div>
+</div>
+
 ---
 
 ## 1. The Geometry of Deadlock Cycles

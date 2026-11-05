@@ -8,6 +8,13 @@ To mathematically prove that an interconnect will never lock up under any concei
 
 In this lesson, we examine the mathematical foundations of network deadlock, contrast the **Dally-Seitz Theorem** against **Duato's Escape Channel Theorem**, explore real-world silicon implementations, and simulate deadlock formation and escape in real time.
 
+<div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
+  <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Textbook Reference</div>
+  <div style="color: #334155; font-size: 0.95rem;">
+    Access the formal mathematical proofs for the Dally-Seitz and Duato theorems along with the open-source CDG cycle detector in <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch05-routing-deadlock-theory/index.md#52-the-dally-seitz-channel-dependency-graph-theorem-1987" target="_blank" rel="noopener">Chapter 5.2: The Dally-Seitz CDG Theorem</a></strong> and <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch05-routing-deadlock-theory/index.md#55-duatos-theorem-for-fully-adaptive-routing-1993" target="_blank" rel="noopener">Chapter 5.5: Duato's Theorem</a></strong>.
+  </div>
+</div>
+
 ---
 
 ## 1. Formal Graph-Theoretic Foundations

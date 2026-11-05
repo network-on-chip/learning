@@ -14,6 +14,13 @@
   </div>
 </div>
 
+<div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
+  <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Official Companion Textbook Chapter Available</div>
+  <div style="color: #334155; font-size: 0.95rem;">
+    For comprehensive mathematical proofs of the Dally-Seitz CDG cycle theorem, Glass-Ni turn models, Duato's escape channel theorem, and state-of-the-art case studies on protocol deadlock (PCMT, TCAD 2026) and 3D multi-chiplet routing (ScaDA-Rou, TCAS-II 2026), read <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch05-routing-deadlock-theory/index.md" target="_blank" rel="noopener">Chapter 5: Deadlock Theory, Turn Models &amp; Adaptive Routing</a></strong>.
+  </div>
+</div>
+
 ---
 
 ## 🗺️ Routing Algorithms Taxonomy & Roadmap

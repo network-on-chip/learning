@@ -490,6 +490,54 @@ const QUESTIONS_BANK = [
     ],
     "answer": 0,
     "explanation": "Passas et al. demonstrated that crossbar wires can be routed over standard cells on upper metal layers, avoiding wiring track inflation. In 90nm CMOS, a radix-128 32-bit crossbar operating at 750 MHz occupied only 11% of the total die area, outperforming 2D meshes under stressed global workloads."
+  },
+  {
+    "id": "q25",
+    "module": "Track 4: Routing & Deadlock (Book Ch 5)",
+    "tier": "Tier 1: Fundamental",
+    "tier_level": 1,
+    "base_points": 100,
+    "question": "What is the necessary and sufficient condition established by William Dally and Charles Seitz (1987) for a deterministic routing algorithm to be provably deadlock-free?",
+    "options": [
+      "Its Channel Dependency Graph (CDG) must contain no directed cycles (strictly acyclic).",
+      "The network must deploy at least 8 virtual channels per physical link.",
+      "Packets must be dropped as soon as a router buffer reaches 80% capacity.",
+      "All packets must be constrained to a length of exactly 1 flit."
+    ],
+    "answer": 0,
+    "explanation": "Dally and Seitz proved that a deterministic routing function is deadlock-free if and only if its Channel Dependency Graph is a directed acyclic graph (DAG), which guarantees a topological ordering of channels with at least one drainable sink."
+  },
+  {
+    "id": "q26",
+    "module": "Track 4: Routing & Deadlock (Book Ch 5)",
+    "tier": "Tier 2: Core Engineering",
+    "tier_level": 2,
+    "base_points": 200,
+    "question": "In a 2D Mesh with 8 possible 90-degree turns, how many turns must be prohibited under the Glass & Ni Turn Model (1994) to eliminate all simple cycles while maximizing routing adaptiveness without virtual channels?",
+    "options": [
+      "Exactly 2 turns (one from the clockwise cycle and one from the counter-clockwise cycle), preserving 6 out of 8 turns (75% turn freedom).",
+      "All 8 turns (packets can only move in straight lines without turning).",
+      "Exactly 4 turns (prohibiting all turns from the vertical dimension).",
+      "Zero turns (purely hardware arbitration prevents all cycles)."
+    ],
+    "answer": 0,
+    "explanation": "Every simple cycle in a 2D mesh is either clockwise or counter-clockwise. Prohibiting exactly one turn from each cycle (2 turns total out of 8) breaks all cycles while preserving 75% turn freedom without requiring extra virtual channels."
+  },
+  {
+    "id": "q27",
+    "module": "Track 4: Routing & Deadlock (Book Ch 5)",
+    "tier": "Tier 3: Silicon Mastery",
+    "tier_level": 3,
+    "base_points": 300,
+    "question": "Why does routing-level deadlock freedom (e.g. using XY DOR) fail to protect multi-core processors against Protocol-Level Deadlock, and how does PCMT (Jia et al., IEEE TCAD 2026) resolve it without dedicated Virtual Networks?",
+    "options": [
+      "Cache coherence creates circular message dependencies (Request -> Invalidation -> Response); PCMT prioritizes Response flits during switch allocation, draining response chains before new requests can saturate unified buffer pools.",
+      "XY routing reverses the direction of electrical current across copper traces.",
+      "Directory cache coherence cannot function on meshes larger than 2x2.",
+      "PCMT shuts off all L1 caches whenever traffic congestion exceeds 50%."
+    ],
+    "answer": 0,
+    "explanation": "Protocol deadlock occurs when cores cannot process incoming requests because outgoing response buffers are blocked. PCMT grants preemptive priority to coherence response messages, draining dependent flows and slashing router input buffer area by up to 63% without rigid virtual network walls."
   }
 ];
 
