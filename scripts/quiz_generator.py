@@ -303,6 +303,56 @@ QUESTIONS = [
         ],
         "answer": 1,
         "explanation": "Token flow control enables flit buffer bypassing. Because flits avoid writing and reading SRAM buffer cells under low-to-medium network contention, dynamic buffer energy is dramatically slashed."
+    },
+
+    # --- TEXTBOOK CHAPTER 3: ROUTER MICROARCHITECTURE & ARBITRATION ---
+    {
+        "id": "q19",
+        "module": "Track 2: Router Microarchitecture (Book Ch 3)",
+        "tier": "Tier 1: Fundamental",
+        "tier_level": 1,
+        "base_points": 100,
+        "question": "In a canonical 5-stage VC router (BW -> RC -> VA -> SA -> ST), which two critical microarchitectural optimizations enable shrinking pipeline latency down to 1 or 2 clock cycles under zero-load conditions?",
+        "options": [
+            "Lookahead Routing (computing RC one hop ahead in the upstream router) and Speculative Switch Allocation (running SA in parallel with VA).",
+            "Disabling all virtual channels and eliminating crossbars entirely.",
+            "Increasing the clock period by 10x so all 5 stages fit into one slow cycle.",
+            "Dropping all non-head flits at the input buffer."
+        ],
+        "answer": 0,
+        "explanation": "Lookahead routing precomputes output port calculation at the upstream router, removing RC from the pipeline. Speculative switch allocation allows flits to arbitrate for crossbar switch ports concurrently with VC allocation under the optimistic assumption that an output VC will be granted."
+    },
+    {
+        "id": "q20",
+        "module": "Track 2: Router Microarchitecture (Book Ch 3)",
+        "tier": "Tier 2: Core Engineering",
+        "tier_level": 2,
+        "base_points": 200,
+        "question": "In a hardware Matrix Arbiter implementing Least-Recently-Used (LRU) priority for N requesters, how is the state updated when client k is granted access?",
+        "options": [
+            "Row k of the priority matrix is cleared to 0 (M[k,:] = 0) and Column k is set to 1 (M[:,k] = 1, with diagonal M[k,k] = 0).",
+            "The priority matrix is inverted via matrix determinant calculation.",
+            "All elements in row k and column k are toggled with an XOR gate.",
+            "The entire NxN matrix is shifted left by 1 bit."
+        ],
+        "answer": 0,
+        "explanation": "To make client k the lowest priority (LRU), row k is cleared to 0 (k has priority over no other client) and column k is set to 1 (every other client j has priority over k). This deterministic hardware update executes in a single clock cycle with minimal gate overhead."
+    },
+    {
+        "id": "q21",
+        "module": "Track 2: Router Microarchitecture (Book Ch 3)",
+        "tier": "Tier 3: Silicon Mastery",
+        "tier_level": 3,
+        "base_points": 300,
+        "question": "In Nick McKeown's iSLIP crossbar scheduling algorithm, why do the grant arbiters at output ports update their round-robin pointers ONLY during iteration 1 and ONLY if the grant is accepted by the receiving input?",
+        "options": [
+            "To prevent arbiters from synchronizing (de-synchronization property), ensuring 100% throughput for uniform traffic without starvation while granting highest priority to unmatched inputs in later iterations.",
+            "Because physical crossbars cannot switch more than once per day.",
+            "To force all packets to take Hamiltonian cycles through the network.",
+            "To reduce the number of transistors in the memory controller."
+        ],
+        "answer": 0,
+        "explanation": "If grant pointers updated on unaccepted grants or during later iterations, arbiters would rapidly synchronize their pointers, causing pathological contention waves. Updating only on accepted grants in iteration 1 de-synchronizes arbiters, delivering 100% throughput under uniform independent traffic."
     }
 ]
 

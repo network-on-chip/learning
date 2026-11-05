@@ -1,5 +1,19 @@
 # 2.1 Canonical Router Pipeline
 
+<div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.25), rgba(15, 23, 42, 0.45)); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <div style="font-weight: 700; color: #60a5fa; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+      <span>📖 Companion Textbook Chapter Available</span>
+    </div>
+    <div style="font-size: 0.88rem; color: #cbd5e1; margin-top: 4px;">
+      Read <strong>Chapter 3: High-Performance Router Microarchitecture & Arbitration</strong> in our open textbook, featuring full mathematical proofs for iSLIP matching, single-cycle SMART traversal limits, HyPA asynchronous routers (TVLSI 2026), and BuffeRS bypass scheduling (TCAD 2026).
+    </div>
+  </div>
+  <a href="https://github.com/network-on-chip/book/blob/main/chapters/ch03-router-microarchitecture/index.md" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
+    <span>Explore Chapter 3 →</span>
+  </a>
+</div>
+
 To understand how a flit navigates a silicon on-chip router, we first examine the classic **canonical 5-stage router pipeline** popularized by William J. Dally and Li-Shiuan Peh, and then analyze how modern aggressive designs compress this pipeline down to a single clock cycle.
 
 The router's core task is to move flits from input physical links to output physical links while resolving contention, managing buffer allocations, and preserving packet ordering.

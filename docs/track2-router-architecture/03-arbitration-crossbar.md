@@ -1,5 +1,19 @@
 # 2.3 Fast Silicon Arbiters & Switch Allocation
 
+<div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.25), rgba(15, 23, 42, 0.45)); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <div style="font-weight: 700; color: #60a5fa; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+      <span>📖 Companion Textbook Chapter Available</span>
+    </div>
+    <div style="font-size: 0.88rem; color: #cbd5e1; margin-top: 4px;">
+      Read <strong>Chapter 3: High-Performance Router Microarchitecture & Arbitration</strong> in our open textbook, featuring complete mathematical derivations of Matrix Arbiter triangular updates, iSLIP iterative matching proofs, and synthesizable Verilog modules.
+    </div>
+  </div>
+  <a href="https://github.com/network-on-chip/book/blob/main/chapters/ch03-router-microarchitecture/index.md" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
+    <span>Explore Chapter 3 →</span>
+  </a>
+</div>
+
 When multiple input virtual channels demand the same output physical port simultaneously, the router must decide which flit gets to traverse the internal crossbar switch. 
 
 This decision must be executed in **sub-nanosecond time** (typically within a single clock period of $300\text{–}600\text{ ps}$ in modern server silicon) while guaranteeing **strict fairness**, **zero starvation**, and **maximum crossbar utilization**.
