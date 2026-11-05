@@ -651,6 +651,54 @@ QUESTIONS = [
         ],
         "answer": 0,
         "explanation": "Local turn models (like XY DOR) only guarantee acyclic dependencies within a single die. Combining multiple dies through D2D bridges creates global cycles in the channel dependency graph. Wang et al.'s In/Outbound Swap monitors stall timeouts (tau_stall) and temporarily diverts stalled flits into swap escape buffers, breaking the circular wait condition without dropping packets or dedicating multiple redundant VCs."
+    },
+    {
+        "id": "q40",
+        "module": "Track 7: Emerging Frontiers (Book Ch 10)",
+        "tier": "Tier 1: Fundamental",
+        "tier_level": 1,
+        "base_points": 100,
+        "question": "What fundamental physical advantage allows Optical Networks-on-Chip (ONoC) to achieve near-zero dynamic transmission energy scaling over long distances compared to copper wires?",
+        "options": [
+            "Photons propagating through passive silicon waveguides experience no data-dependent capacitive charging loss (CV^2 f) during transit; once generated, optical signals travel at the speed of light with fixed laser power regardless of bit rate.",
+            "Optical waveguides generate extra electricity as light travels through them.",
+            "Optical networks eliminate the need for photodetectors at the receiver.",
+            "Optical signals can only be transmitted at 0 Hz."
+        ],
+        "answer": 0,
+        "explanation": "Unlike electrical copper wires where every bit transition charges and discharges line capacitance (P ~ alpha * C * V^2 * f), photons traversing a passive silicon waveguide dissipate negligible data-dependent energy. Wavelength Division Multiplexing (WDM) further multiplies aggregate throughput across a single physical waveguide."
+    },
+    {
+        "id": "q41",
+        "module": "Track 7: Emerging Frontiers (Book Ch 10)",
+        "tier": "Tier 2: Core Engineering",
+        "tier_level": 2,
+        "base_points": 200,
+        "question": "Why do Parallel Switching Elements (PSEs) achieve significantly lower optical insertion loss and laser power dissipation than Crossing Switching Elements (CSEs) in ONoC architectures (Kao et al., IEEE TCAD 2026)?",
+        "options": [
+            "PSE structures place the micro-ring resonator between two parallel waveguides, eliminating internal waveguide crossings that introduce scattering loss (0.10-0.15 dB/crossing) and crosstalk noise.",
+            "PSE structures eliminate the need for micro-ring resonators altogether.",
+            "CSE structures cannot transmit red light.",
+            "PSE structures operate exclusively at absolute zero (-273.15°C)."
+        ],
+        "answer": 0,
+        "explanation": "Kao et al. proved that standard CSE structures force light through orthogonal waveguide crossings (both in the through path and drop path), accumulating 0.1-0.2 dB loss per crossing. In contrast, PSE structures place the MRR between parallel waveguides, eliminating internal crossings and slashing worst-case path loss by 5 dB in an 8x8 mesh, which cuts required laser power threefold."
+    },
+    {
+        "id": "q42",
+        "module": "Track 7: Emerging Frontiers (Book Ch 10)",
+        "tier": "Tier 3: Silicon Mastery",
+        "tier_level": 3,
+        "base_points": 300,
+        "question": "How does silicon's thermo-optic coefficient (dn/dT ≈ 1.86 × 10^{-4} K^{-1}) impact dense WDM optical networks, and why does thermal tuning consume substantial power (Ye et al., IEEE TVLSI 2013)?",
+        "options": [
+            "Thermal gradients across the processor cause the resonant wavelength of micro-ring resonators to drift by ~0.1 nm/°C; because dense WDM channel spacing is only 0.4-0.8 nm, active microheaters consuming 15-20 mW/nm must continuously stabilize resonators, dissipating multiple watts across hundreds of rings.",
+            "Temperature fluctuations cause the silicon waveguide to physically melt.",
+            "Thermo-optic drift permanently damages the Germanium photodetector within 1 millisecond.",
+            "Thermal effects only occur in vacuum environments."
+        ],
+        "answer": 0,
+        "explanation": "Silicon has a strong positive thermo-optic coefficient, shifting MRR cavity resonance by ~0.10 nm/°C. In dense WDM systems with 50-100 GHz channel spacings, a 5°C localized chip hotspot completely detunes the resonator from its laser wavelength, causing signal extinction. Integrated microheaters must heat cooler resonators to a common baseline temperature, consuming 15-20 mW per nm of redshift."
     }
 ]
 

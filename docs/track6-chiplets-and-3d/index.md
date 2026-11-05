@@ -14,9 +14,9 @@
 </div>
 
 <div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
-  <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Official Companion Textbook Chapter Available</div>
+  <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Official Companion Textbook Chapters Available</div>
   <div style="color: #334155; font-size: 0.95rem;">
-    For comprehensive physical derivations of TSV lumped parasitics, piezoresistive Keep-Out Zones, 7-port crossbar area scaling, vertical arbitration-free fast paths, and inter-tier thermal resistance ladders, read <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch08-3d-noc-tsvs/index.md" target="_blank" rel="noopener">Chapter 8: Three-Dimensional Networks-on-Chip (3D-NoC) &amp; TSVs</a></strong>.
+    For comprehensive physical derivations of TSV lumped parasitics, 7-port crossbar area scaling, vertical arbitration-free fast paths, and inter-tier thermal ladders, read <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch08-3d-noc-tsvs/index.md" target="_blank" rel="noopener">Chapter 8: Three-Dimensional Networks-on-Chip (3D-NoC) &amp; TSVs</a></strong>. For 2.5D silicon interposers, the UCIe 3-layer architecture, D2D credit queue sizing, and In/Outbound Swap backtracking deadlock recovery, read <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch09-chiplets-ucie/index.md" target="_blank" rel="noopener">Chapter 9: Multi-Chiplet Interconnects, 2.5D Systems &amp; UCIe</a></strong>.
   </div>
 </div>
 

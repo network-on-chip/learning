@@ -14,6 +14,13 @@
   </div>
 </div>
 
+<div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
+  <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Official Companion Textbook Chapter Available</div>
+  <div style="color: #334155; font-size: 0.95rem;">
+    For comprehensive physical analysis of silicon nanophotonics, Crossing vs. Parallel Switching Elements (CSE vs. PSE), WDM laser link budgets, micro-ring resonator thermal drift, and 60 GHz / sub-THz on-chip wireless transceivers, read <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch10-optical-wireless/index.md" target="_blank" rel="noopener">Chapter 10: Optical &amp; Wireless Networks-on-Chip (ONoC / WNoC)</a></strong>.
+  </div>
+</div>
+
 ---
 
 ## 🗺️ Featured Landmark Paper Studies
