@@ -411,64 +411,319 @@ $$\hat{T}_3(t + 10\text{ ms}) = 5.2 + 62.90 + 8.82 + 5.40 + 8.16 = \mathbf{90.48
 
 ---
 
-## 8. 🎯 Knowledge Check: Lesson 5.3
+## 8. Synthesizable Verilog Module: `proactive_thermal_throttler.v`
+
+In hardware-managed power controllers (PMUs), machine learning inference must execute with near-zero latency and minimal silicon area. The synthesizable module below implements an on-chip **Fixed-Point Linear Inference Engine** coupled to a **4-State Proactive Thermal Governor**. It samples four hardware performance counters (Core IPC, Cache Misses, Router Flits, and Temperature Velocity), evaluates the dot-product prediction equation $\hat{T} = \sum w_i x_i + b$ within two clock cycles, and proactively scales clock frequency or triggers **Thermal-Aware Routing (TAR)** flit deflection before dangerous thermal overshoots can manifest.
+
+```verilog
+//=============================================================================
+// File: proactive_thermal_throttler.v
+// Module: proactive_thermal_throttler
+// Description: Synthesizable On-Chip Fixed-Point ML Hotspot Predictor & 
+//              Proactive DVFS / Thermal-Aware Routing (TAR) Governor.
+//              Features:
+//              - Ingests 4 hardware telemetry features: Core IPC, Cache Misses,
+//                Router Flit Arrival Rate, and Heating Rate (dT/dt).
+//              - 2-stage pipelined signed 16-bit fixed-point dot-product engine.
+//              - Predicts future temperature T_hat(t + 10ms) in Celsius.
+//              - 4-State proactive governor:
+//                0: NORMAL (100% nominal frequency, standard routing)
+//                1: MILD_PREEMPT (85% frequency, early gentle scale-down)
+//                2: TAR_DEFLECT (70% frequency, assert thermal_deflect_en)
+//                3: EMERGENCY_CLAMP (50% frequency, maximum power brake)
+//=============================================================================
+
+`timescale 1ns / 1ps
+
+module proactive_thermal_throttler #(
+    parameter [7:0] TH_MILD_WARN   = 8'd78, // 78 deg C proactive threshold
+    parameter [7:0] TH_DEFLECT     = 8'd82, // 82 deg C TAR deflection threshold
+    parameter [7:0] TH_EMERGENCY   = 8'd88  // 88 deg C emergency clamp threshold
+)(
+    input  wire        clk,                 // Synchronous PMU clock
+    input  wire        rst_n,               // Active-low synchronous reset
+    
+    // Hardware Performance Counters (8-bit normalized features)
+    input  wire [7:0]  feat_core_ipc,       // Instructions per cycle (scaled)
+    input  wire [7:0]  feat_cache_miss,     // L2 cache miss frequency
+    input  wire [7:0]  feat_flit_rate,      // Router flits traversed per window
+    input  wire [7:0]  feat_temp_dt,        // Temperature rate of rise (dT/dt)
+    input  wire [7:0]  current_temp_c,      // Current sensor temperature in deg C
+    
+    // Pre-Trained Fixed-Point Model Weights (Signed Q8.8 format)
+    input  wire signed [15:0] weight_ipc,
+    input  wire signed [15:0] weight_miss,
+    input  wire signed [15:0] weight_flit,
+    input  wire signed [15:0] weight_dt,
+    input  wire signed [15:0] model_bias,
+    
+    // Proactive Control Actuation Outputs
+    output reg  [7:0]  predicted_temp_c,    // Forecasted temperature T_hat
+    output reg  [1:0]  dvfs_level,          // 0: 100%, 1: 85%, 2: 70%, 3: 50%
+    output reg         thermal_deflect_en,  // Asserted to deflect transit flits
+    output reg         emergency_alarm      // Critical prediction alert
+);
+
+    //-------------------------------------------------------------------------
+    // Pipeline Stage 1: Fixed-Point Multiplications
+    //-------------------------------------------------------------------------
+    reg signed [23:0] prod_ipc;
+    reg signed [23:0] prod_miss;
+    reg signed [23:0] prod_flit;
+    reg signed [23:0] prod_dt;
+    reg signed [23:0] bias_extended;
+    reg [7:0]         cur_temp_pipe1;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            prod_ipc       <= 24'sd0;
+            prod_miss      <= 24'sd0;
+            prod_flit      <= 24'sd0;
+            prod_dt        <= 24'sd0;
+            bias_extended  <= 24'sd0;
+            cur_temp_pipe1 <= 8'd25;
+        end else begin
+            prod_ipc       <= weight_ipc  * $signed({1'b0, feat_core_ipc});
+            prod_miss      <= weight_miss * $signed({1'b0, feat_cache_miss});
+            prod_flit      <= weight_flit * $signed({1'b0, feat_flit_rate});
+            prod_dt        <= weight_dt   * $signed({1'b0, feat_temp_dt});
+            bias_extended  <= {{8{model_bias[15]}}, model_bias};
+            cur_temp_pipe1 <= current_temp_c;
+        end
+    end
+
+    //-------------------------------------------------------------------------
+    // Pipeline Stage 2: Summation, Scaling & Forecast Evaluation
+    //-------------------------------------------------------------------------
+    reg signed [25:0] sum_acc;
+    reg signed [15:0] predicted_signed;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            sum_acc          <= 26'sd0;
+            predicted_temp_c <= 8'd25;
+        end else begin
+            sum_acc = prod_ipc + prod_miss + prod_flit + prod_dt + bias_extended;
+            // Scale down by 256 (arithmetic right shift 8) to convert Q8.8 back to integer
+            predicted_signed = cur_temp_pipe1 + (sum_acc >>> 8);
+
+            // Saturate between 0 deg C and 127 deg C
+            if (predicted_signed < 16'sd0) begin
+                predicted_temp_c <= 8'd0;
+            end else if (predicted_signed > 16'sd127) begin
+                predicted_temp_c <= 8'd127;
+            end else begin
+                predicted_temp_c <= predicted_signed[7:0];
+            end
+        end
+    end
+
+    //-------------------------------------------------------------------------
+    // 4-State Proactive Thermal Governor
+    //-------------------------------------------------------------------------
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            dvfs_level         <= 2'b00; // 100% nominal
+            thermal_deflect_en <= 1'b0;
+            emergency_alarm    <= 1'b0;
+        end else begin
+            if (predicted_temp_c >= TH_EMERGENCY) begin
+                // State 3: Emergency clamp
+                dvfs_level         <= 2'b11; // 50% frequency
+                thermal_deflect_en <= 1'b1;  // Deflect all transit packets
+                emergency_alarm    <= 1'b1;
+            end else if (predicted_temp_c >= TH_DEFLECT) begin
+                // State 2: Proactive deflection (TAR) + moderate throttling
+                dvfs_level         <= 2'b10; // 70% frequency
+                thermal_deflect_en <= 1'b1;  // Bypass flits diverted around core
+                emergency_alarm    <= 1'b0;
+            end else if (predicted_temp_c >= TH_MILD_WARN) begin
+                // State 1: Mild pre-emption (subtle DVFS step-down)
+                dvfs_level         <= 2'b01; // 85% frequency
+                thermal_deflect_en <= 1'b0;
+                emergency_alarm    <= 1'b0;
+            end else begin
+                // State 0: Normal safe operation
+                dvfs_level         <= 2'b00; // 100% frequency
+                thermal_deflect_en <= 1'b0;
+                emergency_alarm    <= 1'b0;
+            end
+        end
+    end
+
+endmodule
+```
+
+---
+
+## 9. 🕹️ Interactive Simulation & Arcade Linkages
+
+Deepen your practical understanding of proactive thermal management and packet deflection through our interactive arcade games:
+
+- 🎮 **[Hotspot Hero: Silicon Thermal Defender](../interactive/hotspot.md):** Deploy proactive DVFS throttling and Cryo bursts before localized thermal runaway destroys the die.
+- 🎮 **[Deflection Duel: Bufferless NoC](../interactive/deflection.md):** Master hot-potato packet deflection around overheated switches without livelock.
+
+---
+
+## 10. 🎯 Concept Check: Lesson 5.3
+
+Test your mastery of proactive thermal prediction, hardware counter extraction, and Thermal-Aware Routing with this 3-question self-assessment.
 
 <div class="noc-sim-container" id="quiz53" style="margin-top:1rem;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
-    📝 Concept Check: Proactive Hotspot Prediction
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+    <div style="font-weight:700; font-size:1.05rem; color:var(--tcl-heading);">
+      📝 Concept Check: Proactive Hotspot Prediction
+    </div>
+    <div id="q53_score_badge" style="font-size:0.85rem; font-weight:600; padding:4px 10px; border-radius:12px; background:rgba(37,99,235,0.1); color:#2563eb;">
+      Score: 0 / 3
+    </div>
   </div>
 
-  <div id="q53_block">
+  <!-- Question 1 -->
+  <div id="q53_1_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
     <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
-      <b>Question:</b> Why does proactive thermal prediction achieve significantly lower performance penalties (<3% slowdown) compared to reactive throttling (>20% slowdown)?
+      <b>1. Proactive vs. Reactive Governor:</b> Why does proactive thermal prediction achieve significantly lower performance penalties (<3% slowdown) compared to traditional reactive thermal throttling (>20% slowdown)?
     </p>
-
-    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q53_options">
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz53(0)">
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q53_1_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ53(1, 0)">
         A. Because proactive prediction eliminates the need for heat sinks.
       </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz53(1)">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ53(1, 1)">
         B. Because reactive throttling only activates after temperature has already spiked, forcing the system into emergency 50% frequency drops to halt thermal runaway. In contrast, proactive prediction detects trends early, requiring only minor (10–12%) pre-emptive adjustments.
       </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz53(2)">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ53(1, 2)">
         C. Because proactive models can run only on quantum processors.
       </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz53(3)">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ53(1, 3)">
         D. Because proactive prediction bypasses the cache coherence protocol.
       </button>
     </div>
+    <div id="q53_1_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
 
-    <div id="q53_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  <!-- Question 2 -->
+  <div id="q53_2_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>2. Hardware Feature Correlation:</b> Which hardware performance counter provides the strongest correlation with dynamic crossbar switching heat dissipation inside a router tile?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q53_2_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ53(2, 0)">
+        A. DRAM refresh interval.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ53(2, 1)">
+        B. Branch prediction miss rate.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ53(2, 2)">
+        C. Flit arrival and traversal rate ($\lambda_{flit}$), which directly tracks internal crossbar capacitive charging and input FIFO write-enable switching.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ53(2, 3)">
+        D. Floating-point square root instruction count.
+      </button>
+    </div>
+    <div id="q53_2_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div id="q53_3_block" style="margin-bottom:1rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>3. Thermal-Aware Routing (TAR):</b> How does Thermal-Aware Routing assist in hotspot mitigation without heavily reducing the processing throughput of the local compute core?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q53_3_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ53(3, 0)">
+        A. By deflecting bypass transit flits (packets simply passing through the tile) to cooler neighboring routers, cutting router dynamic switching power by 30–50% while allowing the local core to continue executing.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ53(3, 1)">
+        B. By turning off the power supply to the entire chip.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ53(3, 2)">
+        C. By reversing the direction of clock distribution trees.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ53(3, 3)">
+        D. By converting electronic packets into acoustic vibrations.
+      </button>
+    </div>
+    <div id="q53_3_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <div style="margin-top:1rem; text-align:right;">
+    <button class="noc-sim-btn" onclick="resetQuiz53()" style="padding:4px 12px; font-size:0.85rem;">🔄 Reset Quiz</button>
   </div>
 </div>
 
 <script>
-function checkQuiz53(idx) {
-  const fb = document.getElementById("q53_feedback");
+const q53Answers = { 1: 1, 2: 2, 3: 0 };
+let q53UserScore = { 1: false, 2: false, 3: false };
+
+function checkQ53(qNum, optIdx) {
+  const fb = document.getElementById(`q53_${qNum}_fb`);
+  const opts = document.getElementById(`q53_${qNum}_opts`).children;
   fb.style.display = "block";
-  const opts = document.getElementById("q53_options").children;
+
   for (let i = 0; i < opts.length; i++) {
     opts[i].onclick = null;
     opts[i].style.cursor = "default";
   }
 
-  if (idx === 1) {
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
+  const isCorrect = (optIdx === q53Answers[qNum]);
+  q53UserScore[qNum] = isCorrect;
+
+  if (isCorrect) {
+    opts[optIdx].style.background = "rgba(34,197,94,0.15)";
+    opts[optIdx].style.borderColor = "#22c55e";
     fb.style.background = "rgba(34,197,94,0.1)";
     fb.style.border = "1px solid rgba(34,197,94,0.3)";
     fb.style.color = "#166534";
-    fb.innerHTML = "<strong>✓ Correct!</strong> By predicting temperature rises 10 ms ahead using hardware counters, the governor pre-empts heat buildup with subtle, minor adjustments, preventing the panic-induced 50% frequency cuts of reactive DTM.";
+    if (qNum === 1) {
+      fb.innerHTML = "<strong>✓ Correct!</strong> By predicting temperature rises 10 ms ahead using hardware counters, the governor pre-empts heat buildup with subtle, minor adjustments, preventing the panic-induced 50% frequency cuts of reactive DTM.";
+    } else if (qNum === 2) {
+      fb.innerHTML = "<strong>✓ Correct!</strong> Flit injection and traversal rates directly determine the activity factor of the crossbar and link transceivers, driving dynamic router power dissipation.";
+    } else {
+      fb.innerHTML = "<strong>✓ Correct!</strong> In a 2D mesh, a substantial portion of router power is dissipated by transit traffic traversing the node. Deflecting transit packets around the warm tile allows the local core to keep executing with minimal throttling.";
+    }
   } else {
-    opts[idx].style.background = "rgba(239,68,68,0.15)";
-    opts[idx].style.borderColor = "#ef4444";
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
+    opts[optIdx].style.background = "rgba(239,68,68,0.15)";
+    opts[optIdx].style.borderColor = "#ef4444";
+    opts[q53Answers[qNum]].style.background = "rgba(34,197,94,0.15)";
+    opts[q53Answers[qNum]].style.borderColor = "#22c55e";
     fb.style.background = "rgba(239,68,68,0.1)";
     fb.style.border = "1px solid rgba(239,68,68,0.3)";
     fb.style.color = "#991b1b";
-    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. Early detection allows small, gentle pre-emptive frequency scaling instead of drastic emergency throttling.";
+    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q53Answers[qNum])}</strong>.`;
   }
+
+  updateQ53Score();
+}
+
+function updateQ53Score() {
+  const score = Object.values(q53UserScore).filter(Boolean).length;
+  const badge = document.getElementById("q53_score_badge");
+  badge.textContent = `Score: ${score} / 3`;
+  if (score === 3) {
+    badge.style.background = "rgba(34,197,94,0.2)";
+    badge.style.color = "#166534";
+  }
+}
+
+function resetQuiz53() {
+  q53UserScore = { 1: false, 2: false, 3: false };
+  for (let q = 1; q <= 3; q++) {
+    const fb = document.getElementById(`q53_${q}_fb`);
+    fb.style.display = "none";
+    fb.innerHTML = "";
+    const opts = document.getElementById(`q53_${q}_opts`).children;
+    for (let i = 0; i < opts.length; i++) {
+      opts[i].style.background = "";
+      opts[i].style.borderColor = "";
+      opts[i].style.cursor = "pointer";
+      opts[i].onclick = (function(qNum, optIdx) {
+        return function() { checkQ53(qNum, optIdx); };
+      })(q, i);
+    }
+  }
+  const badge = document.getElementById("q53_score_badge");
+  badge.textContent = "Score: 0 / 3";
+  badge.style.background = "rgba(37,99,235,0.1)";
+  badge.style.color = "#2563eb";
 }
 </script>
 
@@ -480,6 +735,7 @@ In this lesson, we established:
 - **Limitations of Reactive DTM**: Why thermal capacitance causes thermal overshoot and severe performance penalties.
 - **Proactive Machine Learning Forecasting**: Grounded in our verified open-source lab project, predicting temperatures $10\text{ ms}$ ahead with $\text{MAE} < 1.2^\circ\text{C}$.
 - **Thermal-Aware Routing (TAR)**: Diverting flits around hot routers to reduce dynamic switching power by $40\text{–}60\%$.
+- **Synthesizable On-Chip ML Predictor (`proactive_thermal_throttler.v`)**: Pipelined dot-product inference and 4-state proactive DVFS governor.
 
 Now, how does the on-chip controller acquire temperature readings in the first place? We cannot place a thermal diode on every tile. In our final lesson of Track 5, we explore **Optimal Thermal Sensor Placement & Field Reconstruction**.
 

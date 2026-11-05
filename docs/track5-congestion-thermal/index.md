@@ -9,8 +9,8 @@
   <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
     <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">⏱️ 4 In-Depth Lessons</span>
     <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: rgba(16, 185, 129, 0.2);">🔬 4 Interactive Simulators &amp; Visualizers</span>
-    <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">🔥 Grounded in Verified Open-Source Lab Projects</span>
-    <span class="noc-track-badge" style="background: rgba(147, 51, 234, 0.1); color: #9333ea; border-color: rgba(147, 51, 234, 0.2);">📐 Physics-Based RC Thermal Networks</span>
+    <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">💻 4 Synthesizable Verilog RTL Modules</span>
+    <span class="noc-track-badge" style="background: rgba(147, 51, 234, 0.1); color: #9333ea; border-color: rgba(147, 51, 234, 0.2);">🔥 Grounded in Verified Open-Source Lab Projects</span>
   </div>
 </div>
 
@@ -58,10 +58,10 @@ graph TD
       <span class="noc-track-badge">Lesson 5.1</span>
       <div class="noc-track-title">Thermal Physics &amp; Compact RC Modeling</div>
       <div class="noc-track-desc">
-        Fourier's law of heat conduction, the thermal-electrical duality ($R_{th}, C_{th}$), and compact RC grid models (HotSpot). Analyze the $10^7\times$ timescale mismatch between electrical clock cycles and thermal diffusion constants, and calculate reliability degradation via Black's electromigration equation.
+        Fourier's law of heat conduction, the thermal-electrical duality ($R_{th}, C_{th}$), and compact RC grid models (HotSpot). Analyze the $10^7\times$ timescale mismatch between electrical clock cycles and thermal diffusion constants, calculate reliability degradation via Black's electromigration equation, and implement on-chip thermal sensor controllers in synthesizable Verilog.
       </div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Interactive 2D Silicon Die Thermal RC Ladder &amp; Heat Spreading Simulator, Self-Check Quiz.
+        ⚡ <strong>Features:</strong> Interactive 2D Silicon Die Thermal RC Ladder Simulator, Synthesizable Verilog RTL (`thermal_sensor_digital_interface.v`), 3-Question Self-Check Quiz, Arcade Linkages (Hotspot Hero &amp; Volt Vortex).
       </div>
     </div>
     <a href="01-thermal-physics-rc-modeling/" class="noc-track-link">Launch Lesson 5.1 →</a>
@@ -72,10 +72,10 @@ graph TD
       <span class="noc-track-badge">Lesson 5.2</span>
       <div class="noc-track-title">Congestion Detection &amp; Source Quenching</div>
       <div class="noc-track-desc">
-        Physics of network saturation trees and Head-of-Line (HoL) blocking amplification. Gratz &amp; Keckler's Regional Congestion Awareness (RCA) propagating multi-hop congestion vectors upstream. Closed-loop source quenching, token-bucket throttling, and DyAD adaptive routing.
+        Physics of network saturation trees and Head-of-Line (HoL) blocking amplification. Gratz &amp; Keckler's Regional Congestion Awareness (RCA) propagating multi-hop congestion vectors upstream. Closed-loop source quenching, token-bucket throttling, DyAD adaptive routing, and synthesizable telemetry aggregation RTL.
       </div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Interactive Network Congestion Tree &amp; RCA Telemetry Visualizer, Saturation Formulas, Self-Check Quiz.
+        ⚡ <strong>Features:</strong> Interactive Network Congestion Tree &amp; RCA Telemetry Visualizer, Synthesizable Verilog RTL (`rca_congestion_aggregator.v`), 3-Question Self-Check Quiz, Arcade Linkages (Credit Commander &amp; QoS Gladiator).
       </div>
     </div>
     <a href="02-congestion-detection-throttling/" class="noc-track-link">Launch Lesson 5.2 →</a>
@@ -86,10 +86,10 @@ graph TD
       <span class="noc-track-badge">Lesson 5.3</span>
       <div class="noc-track-title">Proactive Hotspot Prediction with Machine Learning</div>
       <div class="noc-track-desc">
-        Why reactive Dynamic Thermal Management (DTM) suffers catastrophic thermal overshoot. Grounded in our open-source lab project: training lightweight ML models (Ridge, SVR, MLP) on real-time router counters to forecast hotspots at $(t + \Delta t)$, cutting violations by $85\%$ with $<3\%$ penalty.
+        Why reactive Dynamic Thermal Management (DTM) suffers catastrophic thermal overshoot. Grounded in our open-source lab project: training lightweight ML models (Ridge, SVR, MLP) on real-time router counters to forecast hotspots at $(t + \Delta t)$, cutting violations by $85\%$ with $<3\%$ penalty, and synthesizable fixed-point inference RTL.
       </div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Interactive Proactive vs. Reactive Thermal Predictor &amp; DVFS Simulator, Verified Code Walkthrough, Self-Check Quiz.
+        ⚡ <strong>Features:</strong> Interactive Proactive vs. Reactive Thermal Predictor &amp; DVFS Simulator, Synthesizable Verilog RTL (`proactive_thermal_throttler.v`), 3-Question Self-Check Quiz, Arcade Linkages (Hotspot Hero &amp; Deflection Duel).
       </div>
     </div>
     <a href="03-hotspot-prediction-ml/" class="noc-track-link">Launch Lesson 5.3 →</a>
@@ -100,10 +100,10 @@ graph TD
       <span class="noc-track-badge">Lesson 5.4</span>
       <div class="noc-track-title">Optimal Thermal Sensor Placement &amp; Field Reconstruction</div>
       <div class="noc-track-desc">
-        Reconstructing full die temperature fields from $K \ll N$ physical sensor diodes. Grounded in our verified lab project: Fisher Information Matrix (FIM) optimization, handling non-Gaussian EMI switching noise and sensor glitches, and robust Huber M-estimation and Kalman filtering.
+        Reconstructing full die temperature fields from $K \ll N$ physical sensor diodes. Grounded in our verified lab project: Fisher Information Matrix (FIM) optimization, handling non-Gaussian EMI switching noise and sensor glitches, robust Huber M-estimation, and synthesizable outlier rejection filter RTL.
       </div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Interactive Sparse Sensor Placement &amp; Robust Reconstruction Playground, Error Covariance Models, Self-Check Quiz.
+        ⚡ <strong>Features:</strong> Interactive Sparse Sensor Placement &amp; Robust Reconstruction Playground, Synthesizable Verilog RTL (`huber_m_estimator_filter.v`), 3-Question Self-Check Quiz, Arcade Linkages (Hotspot Hero &amp; Fault Defender).
       </div>
     </div>
     <a href="04-thermal-sensor-placement/" class="noc-track-link">Launch Lesson 5.4 →</a>

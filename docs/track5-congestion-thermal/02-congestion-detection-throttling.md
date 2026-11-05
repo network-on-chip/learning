@@ -451,64 +451,328 @@ With **Regional Congestion Awareness (RCA)**:
 
 ---
 
-## 6. 🎯 Knowledge Check: Lesson 5.2
+## 6. Synthesizable Verilog Module: `rca_congestion_aggregator.v`
+
+In high-performance on-chip networks, preventing throughput collapse requires detecting congestion before upstream queues experience Head-of-Line blocking. The module below implements **Regional Congestion Awareness (RCA)** telemetry aggregation and a closed-loop **Token-Bucket Source Quencher**. It combines local FIFO queue depths with 3-bit multi-hop stress signals from neighboring routers using an exponential-decay weighted sum, and dynamically gates local packet injection when regional stress crosses a programmable throttle threshold.
+
+```verilog
+//=============================================================================
+// File: rca_congestion_aggregator.v
+// Module: rca_congestion_aggregator
+// Description: Synthesizable Regional Congestion Awareness (RCA) Telemetry
+//              Aggregator and Token-Bucket Source Quenching Controller.
+//              Features:
+//              - Computes local congestion index from buffer depth and credits.
+//              - Ingests 3-bit directional stress vectors from N, S, E, W.
+//              - Computes exponential-decay regional stress:
+//                S_reg = S_local + (S_1hop >> 1) + (S_2hop >> 2).
+//              - Broadcasts aggregated regional stress downstream along 1D wires.
+//              - Token-bucket rate limiter that throttles local flit injection
+//                when regional stress exceeds configurable threshold.
+//=============================================================================
+
+`timescale 1ns / 1ps
+
+module rca_congestion_aggregator #(
+    parameter integer BUFFER_DEPTH         = 16,     // Local input FIFO depth
+    parameter integer MAX_TOKENS           = 32,     // Token bucket capacity
+    parameter [5:0]   DEFAULT_THROTTLE_TH  = 6'd24   // Stress threshold to throttle
+)(
+    input  wire        clk,               // Synchronous router clock
+    input  wire        rst_n,             // Active-low synchronous reset
+    
+    // Local Router Status
+    input  wire [4:0]  local_fifo_occupancy, // Number of flits currently in buffer
+    input  wire [4:0]  downstream_free_credits, // Free buffer slots at neighbor
+    
+    // Multi-Hop RCA Telemetry Inputs (3-bit stress from adjacent routers)
+    input  wire [2:0]  rca_stress_north,
+    input  wire [2:0]  rca_stress_south,
+    input  wire [2:0]  rca_stress_east,
+    input  wire [2:0]  rca_stress_west,
+    
+    // Programmable Configuration
+    input  wire [5:0]  cfg_throttle_thresh, // Throttle threshold
+    input  wire [3:0]  cfg_token_refill_rate, // Tokens added per 16 cycles
+    
+    // Network Interface (NI) Injection Control
+    input  wire        inject_request,    // Core requests to inject a new flit
+    output reg         inject_grant,      // Flit injection permitted
+    output reg  [2:0]  local_stress_out,  // 3-bit stress broadcast to neighbors
+    output reg  [5:0]  regional_stress,   // Combined multi-hop regional stress
+    output reg         throttling_active  // Status: injection is currently quenched
+);
+
+    //-------------------------------------------------------------------------
+    // 1. Local Congestion Index Computation
+    //-------------------------------------------------------------------------
+    // S_local ranges 0 to 7: higher when buffer is full and credits are low
+    reg [2:0] computed_local_stress;
+
+    always @(*) begin
+        if (downstream_free_credits == 5'd0 || local_fifo_occupancy >= (BUFFER_DEPTH - 2)) begin
+            computed_local_stress = 3'd7; // Extreme local saturation
+        end else if (local_fifo_occupancy >= (BUFFER_DEPTH >> 1)) begin
+            computed_local_stress = 3'd4; // Moderate queue backlog
+        end else if (local_fifo_occupancy > 5'd2) begin
+            computed_local_stress = 3'd2; // Light traffic
+        end else begin
+            computed_local_stress = 3'd0; // Idle / empty
+        end
+    end
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            local_stress_out <= 3'd0;
+        end else begin
+            local_stress_out <= computed_local_stress;
+        end
+    end
+
+    //-------------------------------------------------------------------------
+    // 2. Multi-Hop Exponential-Decay Regional Stress Aggregation
+    //-------------------------------------------------------------------------
+    // Regional Stress Formula:
+    // S_reg = (S_local * 4) + (Max(N,S,E,W) * 2) + (Sum_remaining >> 1)
+    reg [2:0] max_neighbor_stress;
+    reg [3:0] neighbor_sum;
+
+    always @(*) begin
+        // Find maximum single neighbor stress (directional bottleneck)
+        max_neighbor_stress = rca_stress_north;
+        if (rca_stress_south > max_neighbor_stress) max_neighbor_stress = rca_stress_south;
+        if (rca_stress_east  > max_neighbor_stress) max_neighbor_stress = rca_stress_east;
+        if (rca_stress_west  > max_neighbor_stress) max_neighbor_stress = rca_stress_west;
+
+        neighbor_sum = rca_stress_north + rca_stress_south + rca_stress_east + rca_stress_west;
+    end
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            regional_stress   <= 6'd0;
+            throttling_active <= 1'b0;
+        end else begin
+            // Weighted combination: local weight = 4, max 1-hop = 2, residual = 0.5
+            regional_stress <= ({3'd0, computed_local_stress} << 2) + 
+                               ({3'd0, max_neighbor_stress} << 1) + 
+                               (neighbor_sum >> 1);
+
+            throttling_active <= (regional_stress >= ((cfg_throttle_thresh != 6'd0) ? cfg_throttle_thresh : DEFAULT_THROTTLE_TH));
+        end
+    end
+
+    //-------------------------------------------------------------------------
+    // 3. Token-Bucket Source Quenching Injection Controller
+    //-------------------------------------------------------------------------
+    reg [5:0] token_bucket;
+    reg [3:0] refill_timer;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            token_bucket <= MAX_TOKENS[5:0];
+            refill_timer <= 4'd0;
+            inject_grant <= 1'b0;
+        end else begin
+            inject_grant <= 1'b0;
+
+            // Refill tokens periodically (suppressed when severe throttling is active)
+            refill_timer <= refill_timer + 4'd1;
+            if (refill_timer == 4'd15) begin
+                if (!throttling_active && (token_bucket + cfg_token_refill_rate <= MAX_TOKENS[5:0])) begin
+                    token_bucket <= token_bucket + cfg_token_refill_rate;
+                end else if (throttling_active && (token_bucket + 6'd1 <= MAX_TOKENS[5:0])) begin
+                    // Severely throttled refill rate: only 1 token per 16 cycles
+                    token_bucket <= token_bucket + 6'd1;
+                end
+            end
+
+            // Process injection request
+            if (inject_request) begin
+                if (!throttling_active && token_bucket >= 6'd1) begin
+                    inject_grant <= 1'b1;
+                    token_bucket <= token_bucket - 6'd1;
+                end else if (throttling_active && token_bucket >= 6'd4) begin
+                    // Under high regional stress, require at least 4 tokens to inject
+                    inject_grant <= 1'b1;
+                    token_bucket <= token_bucket - 6'd4;
+                end
+            end
+        end
+    end
+
+endmodule
+```
+
+---
+
+## 7. 🕹️ Interactive Simulation & Arcade Linkages
+
+Deepen your practical understanding of network congestion and credit flow control through our interactive arcade games:
+
+- 🎮 **[Credit Commander: Flow Control](../interactive/credits.md):** Master credit-based buffer turnarounds, avoid credit starvation, and prevent saturation collapse.
+- 🎮 **[QoS Gladiator: Traffic Arbiter](../interactive/qos.md):** Throttle aggressive best-effort flows and maintain strict ASIL-D latency bounds across congested switches.
+
+---
+
+## 8. 🎯 Concept Check: Lesson 5.2
+
+Test your mastery of saturation trees, Regional Congestion Awareness (RCA), and source quenching with this 3-question self-assessment.
 
 <div class="noc-sim-container" id="quiz52" style="margin-top:1rem;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
-    📝 Concept Check: Congestion Control &amp; RCA
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+    <div style="font-weight:700; font-size:1.05rem; color:var(--tcl-heading);">
+      📝 Concept Check: Congestion Control &amp; RCA
+    </div>
+    <div id="q52_score_badge" style="font-size:0.85rem; font-weight:600; padding:4px 10px; border-radius:12px; background:rgba(37,99,235,0.1); color:#2563eb;">
+      Score: 0 / 3
+    </div>
   </div>
 
-  <div id="q52_block">
+  <!-- Question 1 -->
+  <div id="q52_1_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
     <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
-      <b>Question:</b> Why does Regional Congestion Awareness (RCA) outperform purely local buffer occupancy metrics in preventing Head-of-Line (HoL) throughput collapse?
+      <b>1. Anatomy of Throughput Collapse:</b> Why does an overloaded destination node (such as a saturated memory controller) trigger chip-wide throughput collapse across completely unrelated traffic flows?
     </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q52_1_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ52(1, 0)">
+        A. Because the memory controller sends hardware reset signals to all routers.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ52(1, 1)">
+        B. Because lossless credit exhaustion backs up flits into upstream router FIFOs, where Head-of-Line (HoL) blocking traps unrelated packets behind the stalled flits, growing a tree that blocks other paths.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ52(1, 2)">
+        C. Because the physical copper links melt from excess current.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ52(1, 3)">
+        D. Because virtual channel allocators permanently assign all VCs to the core with lowest ID.
+      </button>
+    </div>
+    <div id="q52_1_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
 
-    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q52_options">
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz52(0)">
+  <!-- Question 2 -->
+  <div id="q52_2_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>2. RCA vs. Local Telemetry:</b> Why does Regional Congestion Awareness (RCA) outperform purely local buffer occupancy metrics in preventing Head-of-Line (HoL) throughput collapse?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q52_2_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ52(2, 0)">
         A. Because RCA doubles the physical wire width of all links.
       </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz52(1)">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ52(2, 1)">
         B. Because local buffer metrics only trigger after a router's own FIFOs have already filled, whereas RCA propagates multi-hop stress signals upstream along dedicated wires, alerting routers to steer packets onto alternate paths BEFORE local buffers fill up.
       </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz52(2)">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ52(2, 2)">
         C. Because RCA disables all packet routing algorithms and forces flits into memory.
       </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz52(3)">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ52(2, 3)">
         D. Because RCA uses optical links instead of copper traces.
       </button>
     </div>
+    <div id="q52_2_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
 
-    <div id="q52_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  <!-- Question 3 -->
+  <div id="q52_3_block" style="margin-bottom:1rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>3. Source Quenching Mechanics:</b> Why is token-bucket rate limiting at the Network Interface (source quenching) superior to in-network flit dropping or reactive buffer backpressure during severe saturation?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q52_3_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ52(3, 0)">
+        A. Dropping flits in lossless NoCs requires expensive transport retransmissions that worsen congestion, whereas source quenching stops packets before they consume buffer resources in the switching fabric.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ52(3, 1)">
+        B. Source quenching speeds up the processor clock frequency by 50%.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ52(3, 2)">
+        C. Because token buckets eliminate the need for crossbar arbiters.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ52(3, 3)">
+        D. Source quenching permanently eliminates cache coherency requirements.
+      </button>
+    </div>
+    <div id="q52_3_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <div style="margin-top:1rem; text-align:right;">
+    <button class="noc-sim-btn" onclick="resetQuiz52()" style="padding:4px 12px; font-size:0.85rem;">🔄 Reset Quiz</button>
   </div>
 </div>
 
 <script>
-function checkQuiz52(idx) {
-  const fb = document.getElementById("q52_feedback");
+const q52Answers = { 1: 1, 2: 1, 3: 0 };
+let q52UserScore = { 1: false, 2: false, 3: false };
+
+function checkQ52(qNum, optIdx) {
+  const fb = document.getElementById(`q52_${qNum}_fb`);
+  const opts = document.getElementById(`q52_${qNum}_opts`).children;
   fb.style.display = "block";
-  const opts = document.getElementById("q52_options").children;
+
   for (let i = 0; i < opts.length; i++) {
     opts[i].onclick = null;
     opts[i].style.cursor = "default";
   }
 
-  if (idx === 1) {
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
+  const isCorrect = (optIdx === q52Answers[qNum]);
+  q52UserScore[qNum] = isCorrect;
+
+  if (isCorrect) {
+    opts[optIdx].style.background = "rgba(34,197,94,0.15)";
+    opts[optIdx].style.borderColor = "#22c55e";
     fb.style.background = "rgba(34,197,94,0.1)";
     fb.style.border = "1px solid rgba(34,197,94,0.3)";
     fb.style.color = "#166534";
-    fb.innerHTML = "<strong>✓ Correct!</strong> Purely local buffer occupancy is reactive—it only warns a router when the saturation tree has already reached it. RCA transmits lightweight multi-hop telemetry upstream, allowing routers to divert traffic early before their own queues fill.";
+    if (qNum === 1) {
+      fb.innerHTML = "<strong>✓ Correct!</strong> Under lossless credit flow control, buffer exhaustion cascades backwards. Unrelated packets trapped behind stalled flits cannot move, causing the saturation tree to strangle innocent traffic.";
+    } else if (qNum === 2) {
+      fb.innerHTML = "<strong>✓ Correct!</strong> Purely local buffer occupancy is reactive—it only warns a router when the saturation tree has already reached it. RCA transmits lightweight multi-hop telemetry upstream, allowing routers to divert traffic early before their own queues fill.";
+    } else {
+      fb.innerHTML = "<strong>✓ Correct!</strong> On-chip networks are strictly lossless. Dropping flits would require complex TCP-like end-to-end retransmissions. Source quenching cleanly regulates injection rate without wasting crossbar bandwidth.";
+    }
   } else {
-    opts[idx].style.background = "rgba(239,68,68,0.15)";
-    opts[idx].style.borderColor = "#ef4444";
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
+    opts[optIdx].style.background = "rgba(239,68,68,0.15)";
+    opts[optIdx].style.borderColor = "#ef4444";
+    opts[q52Answers[qNum]].style.background = "rgba(34,197,94,0.15)";
+    opts[q52Answers[qNum]].style.borderColor = "#22c55e";
     fb.style.background = "rgba(239,68,68,0.1)";
     fb.style.border = "1px solid rgba(239,68,68,0.3)";
     fb.style.color = "#991b1b";
-    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. RCA provides proactive upstream visibility into downstream bottlenecks.";
+    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q52Answers[qNum])}</strong>.`;
   }
+
+  updateQ52Score();
+}
+
+function updateQ52Score() {
+  const score = Object.values(q52UserScore).filter(Boolean).length;
+  const badge = document.getElementById("q52_score_badge");
+  badge.textContent = `Score: ${score} / 3`;
+  if (score === 3) {
+    badge.style.background = "rgba(34,197,94,0.2)";
+    badge.style.color = "#166534";
+  }
+}
+
+function resetQuiz52() {
+  q52UserScore = { 1: false, 2: false, 3: false };
+  for (let q = 1; q <= 3; q++) {
+    const fb = document.getElementById(`q52_${q}_fb`);
+    fb.style.display = "none";
+    fb.innerHTML = "";
+    const opts = document.getElementById(`q52_${q}_opts`).children;
+    for (let i = 0; i < opts.length; i++) {
+      opts[i].style.background = "";
+      opts[i].style.borderColor = "";
+      opts[i].style.cursor = "pointer";
+      opts[i].onclick = (function(qNum, optIdx) {
+        return function() { checkQ52(qNum, optIdx); };
+      })(q, i);
+    }
+  }
+  const badge = document.getElementById("q52_score_badge");
+  badge.textContent = "Score: 0 / 3";
+  badge.style.background = "rgba(37,99,235,0.1)";
+  badge.style.color = "#2563eb";
 }
 </script>
 
@@ -520,6 +784,7 @@ In this lesson, we established:
 - **Saturation Trees & HoL Blocking**: How a single congested destination traps unrelated flows, triggering throughput collapse.
 - **RCA Telemetry**: Propagating multi-hop stress signals upstream to detect bottlenecks early.
 - **Source Quenching & DyAD**: Closed-loop token-bucket rate limiting and adaptive rerouting to relieve network pressure.
+- **Synthesizable RCA Aggregator (`rca_congestion_aggregator.v`)**: Real-time multi-hop stress weighting and token-bucket flit injection gating.
 
 Now, what if we combine real-time network traffic telemetry with **machine learning** to predict thermal hotspots before they even occur?
 

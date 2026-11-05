@@ -102,7 +102,7 @@
         傅里叶热扩散定律、RC紧凑热网络、区域拥塞感知（RCA）、源端限流压制、机器学习热点前瞻预测与非高斯噪声下稀疏传感器重构（深度融合实验室开源复现成果）。
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 包含 4 大交互式仿真器与实验室机器学习模型
+        ⚡ 包含 4 大可综合 Verilog RTL 模块、4 大交互式仿真器与街机实战链接
       </div>
     </div>
     <a href="track5-congestion-thermal/" class="noc-track-link">进入模块五 →</a>

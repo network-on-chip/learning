@@ -105,7 +105,7 @@ Explore our structured learning pathways designed for undergraduate and graduate
         Fourier heat diffusion, compact RC ladder models, Regional Congestion Awareness (RCA), source quenching, proactive ML hotspot forecasting, and sparse sensor reconstruction under non-Gaussian noise.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Interactive Simulators &amp; In-Lab ML Research
+        ⚡ 4 Synthesizable Verilog RTLs • 4 Interactive Simulators &amp; Arcade Links
       </div>
     </div>
     <a href="track5-congestion-thermal/" class="noc-track-link">Explore Track 5 →</a>

@@ -483,64 +483,343 @@ Operating the chip at $105^\circ\text{C}$ instead of $77^\circ\text{C}$ slashes 
 
 ---
 
-## 8. 🎯 Knowledge Check: Lesson 5.1
+## 8. Synthesizable Verilog Module: `thermal_sensor_digital_interface.v`
+
+In modern silicon, on-chip thermal monitoring relies on **Ring Oscillator (RO)** thermal sensors or thermal diode delta-$V_{BE}$ ADCs. The module below provides a fully synthesizable digital interface that counts ring oscillator pulses over a calibrated timebase window, applies factory zero-offset and gain calibration, filters high-frequency noise through moving average smoothing, and generates dual-threshold warning interrupts and critical thermal trip signals with programmable hysteresis to prevent oscillation chatter.
+
+```verilog
+//=============================================================================
+// File: thermal_sensor_digital_interface.v
+// Module: thermal_sensor_digital_interface
+// Description: Synthesizable On-Chip Thermal Sensor Digital Controller.
+//              Features:
+//              - Asynchronous RO pulse synchronizer & edge detector (CDC safe).
+//              - Calibrated timebase sampling window generator.
+//              - Linear gain/offset calibration: Temp = (raw * gain >> 8) + offset.
+//              - 4-sample moving average digital low-pass noise filter.
+//              - Dual-threshold comparison (Warning & Emergency Trip) with
+//                hysteresis band to eliminate thermal trip chatter.
+//=============================================================================
+
+`timescale 1ns / 1ps
+
+module thermal_sensor_digital_interface #(
+    parameter integer REF_CLK_FREQ_HZ      = 100_000_000, // 100 MHz reference clock
+    parameter integer SAMPLE_WINDOW_CYCLES = 100_000,     // 1 ms measurement window
+    parameter [7:0]   DEFAULT_TH_WARN      = 8'd85,       // 85 deg C early warning
+    parameter [7:0]   DEFAULT_TH_CRIT      = 8'd105,      // 105 deg C emergency trip
+    parameter [7:0]   HYSTERESIS_DELTA     = 8'd4         // 4 deg C hysteresis band
+)(
+    input  wire        clk,               // Synchronous system clock
+    input  wire        rst_n,             // Active-low synchronous reset
+    input  wire        sensor_ro_pulse,   // Asynchronous ring-oscillator pulse input
+    
+    // Factory Calibration & Threshold Config
+    input  wire [7:0]  cfg_cal_offset,    // Zero-point offset correction
+    input  wire [7:0]  cfg_cal_gain,      // Scale factor (8-bit fixed point: 1.0 = 8'h80)
+    input  wire [7:0]  cfg_th_warn,       // Programmable warning threshold
+    input  wire [7:0]  cfg_th_crit,       // Programmable critical trip threshold
+    
+    // Status & Interrupt Outputs
+    output reg  [7:0]  current_temp_c,    // Current filtered temperature in deg C
+    output reg  [15:0] raw_pulse_count,   // Raw pulse count in last sampling window
+    output reg         irq_temp_warn,     // Warning interrupt for proactive DVFS
+    output reg         trip_temp_crit,    // Emergency hardware clock-gating / shutoff
+    output reg         sample_valid       // High for 1 cycle when new temp is ready
+);
+
+    //-------------------------------------------------------------------------
+    // 1. Two-Stage Synchronizer & Edge Detector for Asynchronous RO Pulse
+    //-------------------------------------------------------------------------
+    reg ro_sync_0, ro_sync_1, ro_sync_2;
+    wire ro_pulse_edge;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            ro_sync_0 <= 1'b0;
+            ro_sync_1 <= 1'b0;
+            ro_sync_2 <= 1'b0;
+        end else begin
+            ro_sync_0 <= sensor_ro_pulse;
+            ro_sync_1 <= ro_sync_0;
+            ro_sync_2 <= ro_sync_1;
+        end
+    end
+
+    assign ro_pulse_edge = ro_sync_1 & ~ro_sync_2;
+
+    //-------------------------------------------------------------------------
+    // 2. Sampling Window Timebase & Pulse Accumulator
+    //-------------------------------------------------------------------------
+    reg [31:0] window_counter;
+    reg [15:0] pulse_accumulator;
+    reg        window_done;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            window_counter    <= 32'd0;
+            pulse_accumulator <= 16'd0;
+            window_done       <= 1'b0;
+            raw_pulse_count   <= 16'd0;
+        end else begin
+            if (ro_pulse_edge) begin
+                pulse_accumulator <= pulse_accumulator + 16'd1;
+            end
+
+            if (window_counter >= SAMPLE_WINDOW_CYCLES - 1) begin
+                window_counter    <= 32'd0;
+                raw_pulse_count   <= pulse_accumulator;
+                pulse_accumulator <= 16'd0;
+                window_done       <= 1'b1;
+            end else begin
+                window_counter    <= window_counter + 32'd1;
+                window_done       <= 1'b0;
+            end
+        end
+    end
+
+    //-------------------------------------------------------------------------
+    // 3. Calibration & Moving Average Low-Pass Filter
+    //-------------------------------------------------------------------------
+    reg [15:0] scaled_temp;
+    reg [7:0]  inst_temp_c;
+    reg [7:0]  temp_history [0:3];
+    reg [9:0]  filter_sum;
+    integer    i;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            scaled_temp    <= 16'd0;
+            inst_temp_c    <= 8'd0;
+            current_temp_c <= 8'd25; // Default ambient 25 deg C
+            sample_valid   <= 1'b0;
+            filter_sum     <= 10'd100;
+            for (i = 0; i < 4; i = i + 1) begin
+                temp_history[i] <= 8'd25;
+            end
+        end else begin
+            sample_valid <= 1'b0;
+
+            if (window_done) begin
+                // Compute calibrated instant temperature:
+                // Raw pulse count is converted via fixed-point gain (scaled by 256) + offset
+                scaled_temp = (raw_pulse_count[7:0] * cfg_cal_gain) >> 7;
+                inst_temp_c = scaled_temp[7:0] + cfg_cal_offset;
+
+                // Shift 4-tap history window
+                temp_history[3] <= temp_history[2];
+                temp_history[2] <= temp_history[1];
+                temp_history[1] <= temp_history[0];
+                temp_history[0] <= inst_temp_c;
+
+                // 4-tap average: (h0 + h1 + h2 + h3) >> 2
+                filter_sum = temp_history[0] + temp_history[1] + temp_history[2] + temp_history[3];
+                current_temp_c <= filter_sum[9:2];
+                sample_valid   <= 1'b1;
+            end
+        end
+    end
+
+    //-------------------------------------------------------------------------
+    // 4. Threshold Comparison with Hysteresis Band
+    //-------------------------------------------------------------------------
+    wire [7:0] active_th_warn = (cfg_th_warn != 8'd0) ? cfg_th_warn : DEFAULT_TH_WARN;
+    wire [7:0] active_th_crit = (cfg_th_crit != 8'd0) ? cfg_th_crit : DEFAULT_TH_CRIT;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            irq_temp_warn  <= 1'b0;
+            trip_temp_crit <= 1'b0;
+        end else if (sample_valid) begin
+            // Warning interrupt with hysteresis
+            if (!irq_temp_warn && (current_temp_c >= active_th_warn)) begin
+                irq_temp_warn <= 1'b1;
+            end else if (irq_temp_warn && (current_temp_c < (active_th_warn - HYSTERESIS_DELTA))) begin
+                irq_temp_warn <= 1'b0;
+            end
+
+            // Critical thermal trip with hysteresis
+            if (!trip_temp_crit && (current_temp_c >= active_th_crit)) begin
+                trip_temp_crit <= 1'b1;
+            end else if (trip_temp_crit && (current_temp_c < (active_th_crit - HYSTERESIS_DELTA))) begin
+                trip_temp_crit <= 1'b0;
+            end
+        end
+    end
+
+endmodule
+```
+
+---
+
+## 9. 🕹️ Interactive Simulation & Arcade Linkages
+
+Deepen your practical understanding of silicon thermal dynamics by exploring our interactive arcade games:
+
+- 🎮 **[Hotspot Hero: Silicon Thermal Defender](../interactive/hotspot.md):** Battle 2D RC thermal conduction hotspots and balance cooling budgets under intense multi-core computational loads.
+- 🎮 **[Volt Vortex: Dark Silicon Power](../interactive/power.md):** Master TDP budgets, rail surges, and dynamic sleep gating to keep silicon junction temperatures below critical thermal limits.
+
+---
+
+## 10. 🎯 Concept Check: Lesson 5.1
+
+Test your mastery of thermal physics, RC modeling, and silicon lifetime degradation with this 3-question self-assessment.
 
 <div class="noc-sim-container" id="quiz51" style="margin-top:1rem;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
-    📝 Concept Check: Thermal Physics &amp; RC Modeling
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+    <div style="font-weight:700; font-size:1.05rem; color:var(--tcl-heading);">
+      📝 Concept Check: Thermal Physics &amp; RC Modeling
+    </div>
+    <div id="q51_score_badge" style="font-size:0.85rem; font-weight:600; padding:4px 10px; border-radius:12px; background:rgba(37,99,235,0.1); color:#2563eb;">
+      Score: 0 / 3
+    </div>
   </div>
 
-  <div id="q51_block">
+  <!-- Question 1 -->
+  <div id="q51_1_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
     <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
-      <b>Question:</b> Why does reactive Dynamic Thermal Management (DTM)—which throttles clock frequency only after a physical on-chip diode exceeds a threshold—fail to prevent thermal damage during sudden compute bursts?
+      <b>1. Timescale Mismatch:</b> Why does reactive Dynamic Thermal Management (DTM)—which throttles clock frequency only after a physical on-chip diode exceeds a threshold—fail to prevent thermal damage during sudden compute bursts?
     </p>
-
-    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q51_options">
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz51(0)">
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q51_1_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ51(1, 0)">
         A. Because thermal diodes cannot measure temperatures above 50°C.
       </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz51(1)">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ51(1, 1)">
         B. Because silicon has a thermal capacitance time constant of 5–15 milliseconds, which is over 10^7 clock cycles slower than electrical power spikes, causing temperature to severely overshoot before the sensor can react.
       </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz51(2)">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ51(1, 2)">
         C. Because reactive DTM disables the router virtual channels.
       </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz51(3)">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ51(1, 3)">
         D. Because heat in silicon only conducts horizontally, never vertically.
       </button>
     </div>
+    <div id="q51_1_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
 
-    <div id="q51_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  <!-- Question 2 -->
+  <div id="q51_2_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>2. Silicon Reliability Physics:</b> According to Black's Electromigration Equation ($\text{MTTF} \propto \exp(E_a / k_B T)$), how does a temperature surge from $77^\circ\text{C}$ to $105^\circ\text{C}$ affect the expected operating lifetime of on-chip interconnects?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q51_2_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ51(2, 0)">
+        A. Lifetime decreases by approximately 10% linearly with temperature.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ51(2, 1)">
+        B. Lifetime increases due to annealing of metal grain boundaries.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ51(2, 2)">
+        C. Expected lifetime collapses exponentially by approximately 86% ($\text{MTTF}_{burst} \approx 0.14 \times \text{MTTF}_{nom}$).
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ51(2, 3)">
+        D. Interconnect MTTF is completely independent of silicon temperature.
+      </button>
+    </div>
+    <div id="q51_2_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div id="q51_3_block" style="margin-bottom:1rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>3. Thermal-Electrical Analogy:</b> In the HotSpot compact RC thermal modeling framework, which thermal property corresponds to electrical capacitance ($C = Q/V$)?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q51_3_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ51(3, 0)">
+        A. Thermal capacitance $C_{th} = \rho \cdot c_p \cdot V$ ($\text{J/K}$), representing the volumetric heat energy stored per degree of temperature elevation.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ51(3, 1)">
+        B. Thermal conductivity $k_{Si}$ ($\text{W/(m}\cdot\text{K)}$).
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ51(3, 2)">
+        C. Heat sink convective coefficient $h_{conv}$.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ51(3, 3)">
+        D. Total tile power dissipation $P_{gen}$ ($\text{W}$).
+      </button>
+    </div>
+    <div id="q51_3_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <div style="margin-top:1rem; text-align:right;">
+    <button class="noc-sim-btn" onclick="resetQuiz51()" style="padding:4px 12px; font-size:0.85rem;">🔄 Reset Quiz</button>
   </div>
 </div>
 
 <script>
-function checkQuiz51(idx) {
-  const fb = document.getElementById("q51_feedback");
+const q51Answers = { 1: 1, 2: 2, 3: 0 };
+let q51UserScore = { 1: false, 2: false, 3: false };
+
+function checkQ51(qNum, optIdx) {
+  const fb = document.getElementById(`q51_${qNum}_fb`);
+  const opts = document.getElementById(`q51_${qNum}_opts`).children;
   fb.style.display = "block";
-  const opts = document.getElementById("q51_options").children;
+
   for (let i = 0; i < opts.length; i++) {
     opts[i].onclick = null;
     opts[i].style.cursor = "default";
   }
 
-  if (idx === 1) {
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
+  const isCorrect = (optIdx === q51Answers[qNum]);
+  q51UserScore[qNum] = isCorrect;
+
+  if (isCorrect) {
+    opts[optIdx].style.background = "rgba(34,197,94,0.15)";
+    opts[optIdx].style.borderColor = "#22c55e";
     fb.style.background = "rgba(34,197,94,0.1)";
     fb.style.border = "1px solid rgba(34,197,94,0.3)";
     fb.style.color = "#166534";
-    fb.innerHTML = "<strong>✓ Correct!</strong> Due to the large thermal capacitance of the silicon substrate and packaging (tau ~ 5–15 ms), heat accumulates over millions of clock cycles before physical sensor readings rise. By the time reactive DTM trips, severe thermal overshoot has already occurred.";
+    if (qNum === 1) {
+      fb.innerHTML = "<strong>✓ Correct!</strong> Due to the large thermal capacitance of the silicon substrate and packaging (tau ~ 5–15 ms), heat accumulates over millions of clock cycles before physical sensor readings rise. By the time reactive DTM trips, severe thermal overshoot has already occurred.";
+    } else if (qNum === 2) {
+      fb.innerHTML = "<strong>✓ Correct!</strong> Black's law reveals the exponential penalty of thermal surges: a 28°C rise slashes MTTF to ~14% of nominal lifetime, accelerating failure by over 7x.";
+    } else {
+      fb.innerHTML = "<strong>✓ Correct!</strong> Thermal capacitance C_th = rho * c_p * V quantifies how much thermal energy (in Joules) is required to raise the node temperature by 1 Kelvin, perfectly analogous to electrical charge storage in a capacitor.";
+    }
   } else {
-    opts[idx].style.background = "rgba(239,68,68,0.15)";
-    opts[idx].style.borderColor = "#ef4444";
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
+    opts[optIdx].style.background = "rgba(239,68,68,0.15)";
+    opts[optIdx].style.borderColor = "#ef4444";
+    opts[q51Answers[qNum]].style.background = "rgba(34,197,94,0.15)";
+    opts[q51Answers[qNum]].style.borderColor = "#22c55e";
     fb.style.background = "rgba(239,68,68,0.1)";
     fb.style.border = "1px solid rgba(239,68,68,0.3)";
     fb.style.color = "#991b1b";
-    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. The 10^7x timescale mismatch between electrical power spikes and physical thermal diffusion causes severe thermal lag.";
+    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q51Answers[qNum])}</strong>.`;
   }
+
+  updateQ51Score();
+}
+
+function updateQ51Score() {
+  const score = Object.values(q51UserScore).filter(Boolean).length;
+  const badge = document.getElementById("q51_score_badge");
+  badge.textContent = `Score: ${score} / 3`;
+  if (score === 3) {
+    badge.style.background = "rgba(34,197,94,0.2)";
+    badge.style.color = "#166534";
+  }
+}
+
+function resetQuiz51() {
+  q51UserScore = { 1: false, 2: false, 3: false };
+  for (let q = 1; q <= 3; q++) {
+    const fb = document.getElementById(`q51_${q}_fb`);
+    fb.style.display = "none";
+    fb.innerHTML = "";
+    const opts = document.getElementById(`q51_${q}_opts`).children;
+    for (let i = 0; i < opts.length; i++) {
+      opts[i].style.background = "";
+      opts[i].style.borderColor = "";
+      opts[i].style.cursor = "pointer";
+      opts[i].onclick = (function(qNum, optIdx) {
+        return function() { checkQ51(qNum, optIdx); };
+      })(q, i);
+    }
+  }
+  const badge = document.getElementById("q51_score_badge");
+  badge.textContent = "Score: 0 / 3";
+  badge.style.background = "rgba(37,99,235,0.1)";
+  badge.style.color = "#2563eb";
 }
 </script>
 
@@ -553,6 +832,7 @@ In this lesson, we established:
 - **Thermal-Electrical Duality**: Mapping thermal properties directly to equivalent $R_{th}$ and $C_{th}$ electrical ladder circuits.
 - **The HotSpot Grid Model**: Formulating state-space differential equations for fast runtime thermal estimation.
 - **Timescale Disparity**: Proving why thermal capacitance lag makes purely reactive throttling susceptible to dangerous thermal overshoots.
+- **Synthesizable On-Chip Thermal Sensor Controller (`thermal_sensor_digital_interface.v`)**: Pulse counting, moving-average smoothing, and dual-threshold trip logic with hysteresis.
 
 Now, heat generation is directly coupled to **network traffic congestion**. When packets back up in router buffers, dynamic switching power spikes. In the next lesson, we examine **Congestion Detection & Source Quenching**.
 

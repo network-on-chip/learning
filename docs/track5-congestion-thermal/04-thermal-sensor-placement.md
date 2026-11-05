@@ -452,64 +452,281 @@ Spreading sensors across spatial centroids maximizes the determinant of the Fish
 
 ---
 
-## 8. 🎯 Knowledge Check: Lesson 5.4
+## 8. Synthesizable Verilog Module: `huber_m_estimator_filter.v`
+
+In nanometer silicon, high-frequency digital clock trees and power supply inductive droops ($L \cdot dI/dt$) inject non-Gaussian, heavy-tailed impulsive noise onto thermal diode analog lines. The module below implements a synthesizable **Robust Huber M-Estimator and Outlier Filter**. It buffers raw 10-bit thermal ADC words, computes the deviation $|y - \hat{T}_{prior}|$, and applies Huber piecewise weighting: retaining quadratic $L_2$ sensitivity for small noise while clamping large outliers to a linear $L_1$ penalty, effectively suppressing phantom hotspots and asserting an `outlier_flag` for system telemetry.
+
+```verilog
+//=============================================================================
+// File: huber_m_estimator_filter.v
+// Module: huber_m_estimator_filter
+// Description: Synthesizable Robust Huber M-Estimation Filter for Thermal
+//              Sensor ADC Streams under Non-Gaussian EMI / Voltage Droop Noise.
+//              Features:
+//              - Ingests raw 10-bit ADC thermal measurements (0.25 deg C resolution).
+//              - Computes absolute residual: residual = |adc_raw - prior_temp|.
+//              - Huber M-estimator thresholding:
+//                If residual <= HUBER_DELTA: updates via standard Kalman/L2 gain.
+//                If residual > HUBER_DELTA: clamps effective innovation to +/- DELTA
+//                (transitioning from quadratic L2 penalty to robust linear L1).
+//              - Detects impulsive outliers and asserts outlier_flag.
+//              - Exponential smoothing accumulator yielding filtered temperature.
+//=============================================================================
+
+`timescale 1ns / 1ps
+
+module huber_m_estimator_filter #(
+    parameter [9:0] DEFAULT_HUBER_DELTA = 10'd24, // Delta = 6.0 deg C (in 0.25 deg C units)
+    parameter [3:0] FILTER_ALPHA_SHIFT  = 4'd2    // Alpha = 1/4 (exponential smoothing)
+)(
+    input  wire        clk,               // Synchronous system clock
+    input  wire        rst_n,             // Active-low synchronous reset
+    input  wire        sample_valid_in,   // Strobe: new ADC sample available
+    input  wire [9:0]  adc_raw_sample,    // Raw 10-bit ADC reading (0.25 deg C/LSB)
+    input  wire [9:0]  cfg_huber_delta,   // Configurable Huber threshold delta
+    
+    output reg  [9:0]  filtered_temp,     // Robust filtered temperature (0.25 deg C/LSB)
+    output reg  [7:0]  filtered_temp_c,   // Temperature rounded to integer Celsius
+    output reg         outlier_flag,      // High when an impulsive outlier was rejected
+    output reg         sample_valid_out   // Strobe: filtered estimate ready
+);
+
+    wire [9:0] active_delta = (cfg_huber_delta != 10'd0) ? cfg_huber_delta : DEFAULT_HUBER_DELTA;
+
+    //-------------------------------------------------------------------------
+    // 1. Residual Computation & Huber Clipping
+    //-------------------------------------------------------------------------
+    reg signed [11:0] signed_raw;
+    reg signed [11:0] signed_prior;
+    reg signed [11:0] signed_error;
+    reg signed [11:0] huber_clamped_error;
+    reg               is_outlier;
+
+    always @(*) begin
+        signed_raw   = $signed({2'b00, adc_raw_sample});
+        signed_prior = $signed({2'b00, filtered_temp});
+        signed_error = signed_raw - signed_prior;
+
+        // Huber piecewise loss function:
+        // Clamps error contribution to [-active_delta, +active_delta]
+        if (signed_error > $signed({2'b00, active_delta})) begin
+            huber_clamped_error = $signed({2'b00, active_delta});
+            is_outlier = 1'b1;
+        end else if (signed_error < -$signed({2'b00, active_delta})) begin
+            huber_clamped_error = -$signed({2'b00, active_delta});
+            is_outlier = 1'b1;
+        end else begin
+            huber_clamped_error = signed_error;
+            is_outlier = 1'b0;
+        end
+    end
+
+    //-------------------------------------------------------------------------
+    // 2. Robust State Update & Low-Pass Accumulator
+    //-------------------------------------------------------------------------
+    reg signed [15:0] accumulator;
+    reg signed [11:0] innovation_step;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            filtered_temp    <= 10'd100; // 25.0 deg C default (100 * 0.25 deg C)
+            filtered_temp_c  <= 8'd25;
+            accumulator      <= 16'd100 << 4; // Scaled by 16 for fractional precision
+            outlier_flag     <= 1'b0;
+            sample_valid_out <= 1'b0;
+        end else begin
+            sample_valid_out <= 1'b0;
+
+            if (sample_valid_in) begin
+                outlier_flag <= is_outlier;
+
+                // Innovation step = clamped_error >> FILTER_ALPHA_SHIFT
+                innovation_step = huber_clamped_error >>> FILTER_ALPHA_SHIFT;
+
+                // Update internal accumulator
+                accumulator = accumulator + $signed({{4{innovation_step[11]}}, innovation_step});
+
+                // Extract new filtered output
+                filtered_temp   <= accumulator[13:4];
+                filtered_temp_c <= accumulator[13:6]; // Divide by 4 to get integer deg C
+                sample_valid_out <= 1'b1;
+            end
+        end
+    end
+
+endmodule
+```
+
+---
+
+## 9. 🕹️ Interactive Simulation & Arcade Linkages
+
+Deepen your practical understanding of sensor field monitoring, noise resilience, and silicon robustness through our interactive arcade games:
+
+- 🎮 **[Hotspot Hero: Silicon Thermal Defender](../interactive/hotspot.md):** Test spatial thermal monitoring and observe how sensor noise affects cooling decisions in real time.
+- 🎮 **[Fault Defender: Silicon Resilience](../interactive/faults.md):** Detect malfunctioning sensors and degraded silicon circuits through on-line fault isolation.
+
+---
+
+## 10. 🎯 Concept Check: Lesson 5.4
+
+Test your mastery of sparse sensor placement, non-Gaussian EMI noise, and robust Huber M-estimation with this 3-question self-assessment.
 
 <div class="noc-sim-container" id="quiz54" style="margin-top:1rem;">
-  <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
-    📝 Concept Check: Sensor Placement &amp; Non-Gaussian Noise
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+    <div style="font-weight:700; font-size:1.05rem; color:var(--tcl-heading);">
+      📝 Concept Check: Sensor Placement &amp; Non-Gaussian Noise
+    </div>
+    <div id="q54_score_badge" style="font-size:0.85rem; font-weight:600; padding:4px 10px; border-radius:12px; background:rgba(37,99,235,0.1); color:#2563eb;">
+      Score: 0 / 3
+    </div>
   </div>
 
-  <div id="q54_block">
+  <!-- Question 1 -->
+  <div id="q54_1_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
     <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
-      <b>Question:</b> Why does Ordinary Least Squares (OLS) reconstruction fail when thermal sensors experience electromagnetic interference (EMI) or voltage droop glitches?
+      <b>1. Failure of Ordinary Least Squares (OLS):</b> Why does classical Ordinary Least Squares reconstruction fail catastrophically when on-chip thermal sensors experience electromagnetic interference (EMI) or voltage droop glitches?
     </p>
-
-    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q54_options">
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz54(0)">
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q54_1_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ54(1, 0)">
         A. Because OLS requires more sensors than tiles.
       </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz54(1)">
-        B. Because OLS minimizes squared residuals, meaning a single large impulsive spike (+15°C glitch) creates an astronomical quadratic penalty that severely distorts the reconstructed thermal map.
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ54(1, 1)">
+        B. Because OLS minimizes squared residuals ($L_2$), meaning a single large impulsive spike (+15°C glitch) creates an astronomical quadratic penalty that severely distorts the reconstructed thermal map and triggers phantom throttling.
       </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz54(2)">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ54(1, 2)">
         C. Because OLS only works at absolute zero temperature.
       </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz54(3)">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ54(1, 3)">
         D. Because EMI noise switches the matrix dimensions of H.
       </button>
     </div>
+    <div id="q54_1_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
 
-    <div id="q54_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  <!-- Question 2 -->
+  <div id="q54_2_block" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--noc-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>2. D-Optimal Placement Criterion:</b> What does maximizing the determinant of the Fisher Information Matrix ($\det(\mathbf{M}_{FIM})$) achieve when selecting $K$ sensor locations on an $N$-tile multi-core processor?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q54_2_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ54(2, 0)">
+        A. It packs all sensors as close together as possible in the center of the chip.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ54(2, 1)">
+        B. It minimizes the volume of the reconstruction error ellipsoid, spreading sensors across dominant thermal eigenvectors to maximize total spatial information.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ54(2, 2)">
+        C. It eliminates electrical power dissipation in the thermal sensor diodes.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ54(2, 3)">
+        D. It increases the physical wire count connecting sensors to the router crossbar.
+      </button>
+    </div>
+    <div id="q54_2_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div id="q54_3_block" style="margin-bottom:1rem;">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>3. Robust Huber Loss Mechanics:</b> How does the Huber loss function achieve robust estimation under heavy-tailed non-Gaussian noise?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q54_3_opts">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ54(3, 0)">
+        A. By behaving quadratically ($L_2$) for small residuals ($|r| \le \delta$) to maintain smooth convergence, and transitioning to a linear ($L_1$) penalty for large residuals ($|r| > \delta$) to bound the influence of impulsive glitches.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ54(3, 1)">
+        B. By multiplying all negative residuals by infinity.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ54(3, 2)">
+        C. By disabling the Kalman filter whenever a packet enters the router.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQ54(3, 3)">
+        D. By assuming that thermal conductivity $k_{Si} = 0$.
+      </button>
+    </div>
+    <div id="q54_3_fb" style="display:none; margin-top:0.75rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <div style="margin-top:1rem; text-align:right;">
+    <button class="noc-sim-btn" onclick="resetQuiz54()" style="padding:4px 12px; font-size:0.85rem;">🔄 Reset Quiz</button>
   </div>
 </div>
 
 <script>
-function checkQuiz54(idx) {
-  const fb = document.getElementById("q54_feedback");
+const q54Answers = { 1: 1, 2: 1, 3: 0 };
+let q54UserScore = { 1: false, 2: false, 3: false };
+
+function checkQ54(qNum, optIdx) {
+  const fb = document.getElementById(`q54_${qNum}_fb`);
+  const opts = document.getElementById(`q54_${qNum}_opts`).children;
   fb.style.display = "block";
-  const opts = document.getElementById("q54_options").children;
+
   for (let i = 0; i < opts.length; i++) {
     opts[i].onclick = null;
     opts[i].style.cursor = "default";
   }
 
-  if (idx === 1) {
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
+  const isCorrect = (optIdx === q54Answers[qNum]);
+  q54UserScore[qNum] = isCorrect;
+
+  if (isCorrect) {
+    opts[optIdx].style.background = "rgba(34,197,94,0.15)";
+    opts[optIdx].style.borderColor = "#22c55e";
     fb.style.background = "rgba(34,197,94,0.1)";
     fb.style.border = "1px solid rgba(34,197,94,0.3)";
     fb.style.color = "#166534";
-    fb.innerHTML = "<strong>✓ Correct!</strong> The quadratic L2 penalty in OLS over-penalizes large outlier errors, pulling the reconstructed thermal surface towards corrupted readings. Robust Huber M-estimation applies a linear penalty to large residuals, effectively filtering out sensor glitches.";
+    if (qNum === 1) {
+      fb.innerHTML = "<strong>✓ Correct!</strong> The quadratic L2 penalty in OLS over-penalizes large outlier errors, pulling the reconstructed thermal surface towards corrupted readings. Robust Huber M-estimation applies a linear penalty to large residuals, effectively filtering out sensor glitches.";
+    } else if (qNum === 2) {
+      fb.innerHTML = "<strong>✓ Correct!</strong> D-optimality maximizes det(M_FIM), which is inversely proportional to the volume of the confidence ellipsoid of estimation errors, ensuring optimal spatial spread across the die.";
+    } else {
+      fb.innerHTML = "<strong>✓ Correct!</strong> The piecewise definition of Huber loss bounds the influence of extreme sensor errors: small noise is filtered with Gaussian optimality, while impulsive glitches are treated with robust L1 median-like bounds.";
+    }
   } else {
-    opts[idx].style.background = "rgba(239,68,68,0.15)";
-    opts[idx].style.borderColor = "#ef4444";
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
+    opts[optIdx].style.background = "rgba(239,68,68,0.15)";
+    opts[optIdx].style.borderColor = "#ef4444";
+    opts[q54Answers[qNum]].style.background = "rgba(34,197,94,0.15)";
+    opts[q54Answers[qNum]].style.borderColor = "#22c55e";
     fb.style.background = "rgba(239,68,68,0.1)";
     fb.style.border = "1px solid rgba(239,68,68,0.3)";
     fb.style.color = "#991b1b";
-    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. OLS squares all errors, causing non-Gaussian outliers to dominate and corrupt the entire reconstruction.";
+    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q54Answers[qNum])}</strong>.`;
   }
+
+  updateQ54Score();
+}
+
+function updateQ54Score() {
+  const score = Object.values(q54UserScore).filter(Boolean).length;
+  const badge = document.getElementById("q54_score_badge");
+  badge.textContent = `Score: ${score} / 3`;
+  if (score === 3) {
+    badge.style.background = "rgba(34,197,94,0.2)";
+    badge.style.color = "#166534";
+  }
+}
+
+function resetQuiz54() {
+  q54UserScore = { 1: false, 2: false, 3: false };
+  for (let q = 1; q <= 3; q++) {
+    const fb = document.getElementById(`q54_${q}_fb`);
+    fb.style.display = "none";
+    fb.innerHTML = "";
+    const opts = document.getElementById(`q54_${q}_opts`).children;
+    for (let i = 0; i < opts.length; i++) {
+      opts[i].style.background = "";
+      opts[i].style.borderColor = "";
+      opts[i].style.cursor = "pointer";
+      opts[i].onclick = (function(qNum, optIdx) {
+        return function() { checkQ54(qNum, optIdx); };
+      })(q, i);
+    }
+  }
+  const badge = document.getElementById("q54_score_badge");
+  badge.textContent = "Score: 0 / 3";
+  badge.style.background = "rgba(37,99,235,0.1)";
+  badge.style.color = "#2563eb";
 }
 </script>
 
@@ -524,6 +741,7 @@ Here is what you have mastered across this module:
 2. **Congestion Detection & Source Quenching (Lesson 5.2):** Saturation tree anatomy, Head-of-Line blocking, Regional Congestion Awareness (RCA), and token-bucket injection throttling.
 3. **Proactive Hotspot Prediction (Lesson 5.3):** Grounded in our open-source lab project, predicting temperature $10\text{ ms}$ ahead using hardware performance counters ($\text{MAE} < 1.2^\circ\text{C}$), reducing thermal violations by $85\%$.
 4. **Optimal Sensor Placement & Reconstruction (Lesson 5.4):** Grounded in our verified lab project, Fisher Information Matrix optimization, non-Gaussian EMI noise mitigation, and robust Huber M-estimation.
+5. **Synthesizable Verilog Hardware:** Complete hardware RTL modules across all 4 lessons (`thermal_sensor_digital_interface.v`, `rca_congestion_aggregator.v`, `proactive_thermal_throttler.v`, and `huber_m_estimator_filter.v`).
 
 Now, what happens when we stack chips in the third dimension or integrate heterogeneous chiplets across silicon interposers?
 
