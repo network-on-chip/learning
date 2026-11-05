@@ -80,6 +80,22 @@ plugins:
             "Track 6: Chiplets & 3D NoC": "第六模块：芯粒与三维片上网络"
             "Track 7: Landmark Papers": "第七模块：经典论文精读"
             "Overview": "总览"
+            "Official Textbook (10 Chapters)": "官方开源教材 (全十章)"
+            "Part I: Foundations & Microarchitecture": "第一部分：互连基础与微架构"
+            "Part II: Topologies & Deadlock Freedom": "第二部分：拓扑结构与无死锁路由"
+            "Part III: Physical Constraints: Power & Thermal": "第三部分：物理约束：功耗与热管理"
+            "Part IV: Advanced Packaging & 3D Systems": "第四部分：先进封装与三维片上系统"
+            "Part V: Emerging Frontiers": "第五部分：前沿探索：光子与无线片上网络"
+            "Chapter 1: The Interconnect Crisis & Wire Physics": "第一章：多核通信危机与物理线互连"
+            "Chapter 2: Switching, Flow Control & Buffers": "第二章：交换技术、流控与缓存管理"
+            "Chapter 3: Router Microarchitecture & Arbitration": "第三章：高性能路由器微架构与仲裁调度"
+            "Chapter 4: Direct, Indirect & High-Radix Topologies": "第四章：直接/间接与高基数互连拓扑"
+            "Chapter 5: Deadlock Theory, Turn Models & Adaptive Routing": "第五章：死锁理论、转向模型与自适应路由"
+            "Chapter 6: Low-Power Architectures & Dark Silicon": "第六章：低功耗架构与暗硅动态管理"
+            "Chapter 7: Thermal Modeling, Hotspots & Fault Tolerance": "第七章：热学建模、热点防御与容错弹性"
+            "Chapter 8: Three-Dimensional NoC (3D-NoC) & TSVs": "第八章：三维片上网络 (3D-NoC) 与硅通孔"
+            "Chapter 9: Multi-Chiplet Interconnects & UCIe": "第九章：多芯粒先进互连与 UCIe 接口规范"
+            "Chapter 10: Optical & Wireless Networks-on-Chip": "第十章：光子与无线片上网络前沿技术"
 
 markdown_extensions:
   - admonition
@@ -130,6 +146,23 @@ extra:
 
 nav:
   - Home: index.md
+  - "Official Textbook (10 Chapters)":
+      - Overview: textbook/index.md
+      - "Part I: Foundations & Microarchitecture":
+          - "Chapter 1: The Interconnect Crisis & Wire Physics": textbook/ch01-interconnect-crisis/index.md
+          - "Chapter 2: Switching, Flow Control & Buffers": textbook/ch02-switching-flow-control/index.md
+          - "Chapter 3: Router Microarchitecture & Arbitration": textbook/ch03-router-microarchitecture/index.md
+      - "Part II: Topologies & Deadlock Freedom":
+          - "Chapter 4: Direct, Indirect & High-Radix Topologies": textbook/ch04-topologies-and-metrics/index.md
+          - "Chapter 5: Deadlock Theory, Turn Models & Adaptive Routing": textbook/ch05-routing-deadlock-theory/index.md
+      - "Part III: Physical Constraints: Power & Thermal":
+          - "Chapter 6: Low-Power Architectures & Dark Silicon": textbook/ch06-low-power-dark-silicon/index.md
+          - "Chapter 7: Thermal Modeling, Hotspots & Fault Tolerance": textbook/ch07-thermal-fault-tolerance/index.md
+      - "Part IV: Advanced Packaging & 3D Systems":
+          - "Chapter 8: Three-Dimensional NoC (3D-NoC) & TSVs": textbook/ch08-3d-noc-tsvs/index.md
+          - "Chapter 9: Multi-Chiplet Interconnects & UCIe": textbook/ch09-chiplets-ucie/index.md
+      - "Part V: Emerging Frontiers":
+          - "Chapter 10: Optical & Wireless Networks-on-Chip": textbook/ch10-optical-wireless/index.md
   - "Interactive Lab":
       - "Deadlock Buster Arcade Game": interactive/game.md
       - "Packet Master: Routing Puzzle": interactive/puzzle.md

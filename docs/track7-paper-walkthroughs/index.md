@@ -14,11 +14,18 @@
   </div>
 </div>
 
-<div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
-  <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Official Companion Textbook Chapter Available</div>
-  <div style="color: #334155; font-size: 0.95rem;">
-    For comprehensive physical analysis of silicon nanophotonics, Crossing vs. Parallel Switching Elements (CSE vs. PSE), WDM laser link budgets, micro-ring resonator thermal drift, and 60 GHz / sub-THz on-chip wireless transceivers, read <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch10-optical-wireless/index.md" target="_blank" rel="noopener">Chapter 10: Optical &amp; Wireless Networks-on-Chip (ONoC / WNoC)</a></strong>.
+<div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.25), rgba(15, 23, 42, 0.45)); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <div style="font-weight: 700; color: #60a5fa; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+      <span>📚 Grounded in the Official 10-Chapter Textbook</span>
+    </div>
+    <div style="font-size: 0.88rem; color: #cbd5e1; margin-top: 4px;">
+      These four landmark silicon studies demonstrate the physical concepts of <strong>Chapters 1–10</strong> in real chips: Intel SCC 48-core mesh (Ch 1, 3, 6), NVIDIA Simba 36-chiplet MCM (Ch 4, 9), 3D Optical NoC (Ch 8, 10), and Neuromorphic SNN router (Ch 2, 3).
+    </div>
   </div>
+  <a href="../textbook/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
+    <span>Explore 10-Chapter Textbook →</span>
+  </a>
 </div>
 
 ---

@@ -14,11 +14,18 @@
   </div>
 </div>
 
-<div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
-  <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Official Companion Textbook Chapter Available</div>
-  <div style="color: #334155; font-size: 0.95rem;">
-    For comprehensive mathematical proofs of the Dally-Seitz CDG cycle theorem, Glass-Ni turn models, Duato's escape channel theorem, and state-of-the-art case studies on protocol deadlock (PCMT, TCAD 2026) and 3D multi-chiplet routing (ScaDA-Rou, TCAS-II 2026), read <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch05-routing-deadlock-theory/index.md" target="_blank" rel="noopener">Chapter 5: Deadlock Theory, Turn Models &amp; Adaptive Routing</a></strong>.
+<div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.25), rgba(15, 23, 42, 0.45)); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <div style="font-weight: 700; color: #60a5fa; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+      <span>📚 Aligned with Official Textbook Chapter 5</span>
+    </div>
+    <div style="font-size: 0.88rem; color: #cbd5e1; margin-top: 4px;">
+      For rigorous mathematical proofs of the Dally-Seitz theorem, Channel Dependency Graphs (CDG), Glass-Ni turn models, Duato's escape channels, and cache coherence VNET isolation, read <strong>Chapter 5: Deadlock Theory, Turn Models &amp; Adaptive Routing</strong>.
+    </div>
   </div>
+  <a href="../textbook/ch05-routing-deadlock-theory/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
+    <span>Read Chapter 5 Online →</span>
+  </a>
 </div>
 
 ---

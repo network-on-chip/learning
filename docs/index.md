@@ -2,13 +2,14 @@
   <div class="noc-track-badge">✨ Open-Source Curriculum & Research Lab</div>
   <h1>Network-on-Chip Learning Hub</h1>
   <p class="subtitle">
-    An interactive, scholarly curriculum bridging theoretical computer architecture, silicon router microarchitecture, and open-source reproducible research. Grounded in 541 curated IEEE papers and verified hardware simulations.
+    An interactive, scholarly curriculum bridging theoretical computer architecture, silicon router microarchitecture, and open-source reproducible research. Grounded in 542 curated IEEE/ACM papers, 10 definitive textbook chapters, and verified hardware simulations.
   </p>
   <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-    <a href="track1-fundamentals/" class="noc-sim-btn" style="text-decoration: none;">🚀 Start Learning</a>
-    <a href="quiz/" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">🎯 Take Certification Quiz</a>
-    <a href="interactive/game/" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 Play Deadlock Buster</a>
-    <a href="interactive/puzzle/" class="noc-sim-btn" style="text-decoration: none; background: #8b5cf6;">🧩 Packet Master Puzzle</a>
+    <a href="textbook/" class="noc-sim-btn" style="text-decoration: none; background: #2563eb;">📖 Read Official Textbook (10 Chaps)</a>
+    <a href="assets/book.pdf" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 Download PDF (132 Pages)</a>
+    <a href="track1-fundamentals/" class="noc-sim-btn secondary" style="text-decoration: none;">🚀 Start Curriculum</a>
+    <a href="quiz/" class="noc-sim-btn secondary" style="text-decoration: none;">🎯 Certification Quiz</a>
+    <a href="interactive/game/" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 Deadlock Buster</a>
     <a href="interactive/visualizer/" class="noc-sim-btn secondary" style="text-decoration: none;">🎮 2D Mesh Simulator</a>
     <a href="leaderboard/" class="noc-sim-btn secondary" style="text-decoration: none;">🏆 Leaderboard</a>
     <a href="glossary/" class="noc-sim-btn secondary" style="text-decoration: none;">📖 Glossary</a>
@@ -17,20 +18,157 @@
 
 <div class="noc-stats-grid">
   <div class="noc-stat-card">
-    <span class="noc-stat-number">541</span>
+    <span class="noc-stat-number">10</span>
+    <span class="noc-stat-label">Core Textbook Chapters</span>
+  </div>
+  <div class="noc-stat-card">
+    <span class="noc-stat-number">542+</span>
     <span class="noc-stat-label">Curated IEEE Papers</span>
   </div>
   <div class="noc-stat-card">
-    <span class="noc-stat-number">37,400+</span>
-    <span class="noc-stat-label">Extracted Figures & RTL</span>
-  </div>
-  <div class="noc-stat-card">
-    <span class="noc-stat-number">7</span>
-    <span class="noc-stat-label">Mastery Tracks</span>
+    <span class="noc-stat-number">15</span>
+    <span class="noc-stat-label">Interactive Labs & Games</span>
   </div>
   <div class="noc-stat-card">
     <span class="noc-stat-number">100%</span>
     <span class="noc-stat-label">Open & Reproducible</span>
+  </div>
+</div>
+
+---
+
+## 📖 Official Open Textbook (10 Chapters)
+
+Explore the definitive 10-chapter textbook **"Network-on-Chip and Advanced Interconnects: Architecture, Co-Design & Emerging Frontiers"**, published under open access and designed to be accessible from high school students to research architects.
+
+<div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.65)); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+  <div>
+    <div style="font-weight: 700; color: #93c5fd; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
+      <span>📘 Camera-Ready Monograph PDF Available</span>
+    </div>
+    <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 800px; line-height: 1.5;">
+      Formatted in Springer Nature <code>svmono</code> layout (132 pages). Covers Elmore RC wire delays, router pipelines, high-radix topologies, turn model deadlock freedom, dark silicon DVFS, HotSpot thermal models, 3D TSVs, UCIe chiplets, and silicon nanophotonics.
+    </div>
+  </div>
+  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+    <a href="textbook/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+      <span>Read Online Hub →</span>
+    </a>
+    <a href="assets/book.pdf" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #0284c7; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+      <span>Download PDF (132 Pages) ↓</span>
+    </a>
+  </div>
+</div>
+
+<div class="noc-tracks-grid">
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">Part I • Ch 1</span>
+      <div class="noc-track-title">Interconnect Crisis &amp; Wire Physics</div>
+      <div class="noc-track-desc">
+        Why shared buses failed. Dennard scaling collapse, quantum tunneling, RC wire delays, Mayadas-Shatzkes scattering, and optimal repeater spacing.
+      </div>
+    </div>
+    <a href="textbook/ch01-interconnect-crisis/" class="noc-track-link">Read Chapter 1 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">Part I • Ch 2</span>
+      <div class="noc-track-title">Switching, Flow Control &amp; Buffers</div>
+      <div class="noc-track-desc">
+        Wormhole vs VCT switching, flits/phits, credit turnaround latency loops ($RTT$), Virtual Channel buffers, and AXI4/TileLink NI packetization.
+      </div>
+    </div>
+    <a href="textbook/ch02-switching-flow-control/" class="noc-track-link">Read Chapter 2 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">Part I • Ch 3</span>
+      <div class="noc-track-title">Router Microarchitecture &amp; Arbitration</div>
+      <div class="noc-track-desc">
+        Canonical 4-stage pipeline, speculative parallel VA/SA allocation, matrix &amp; wavefront arbiters (sub-200ps LRU), and SMART bypass routers.
+      </div>
+    </div>
+    <a href="textbook/ch03-router-microarchitecture/" class="noc-track-link">Read Chapter 3 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2);">Part II • Ch 4</span>
+      <div class="noc-track-title">Direct, Indirect &amp; High-Radix Topologies</div>
+      <div class="noc-track-desc">
+        Graph metrics, 2D Mesh, Torus, Folded Torus, cMesh, Clos networks, Fat-Trees, Flattened Butterfly, and Dragonfly exascale topologies.
+      </div>
+    </div>
+    <a href="textbook/ch04-topologies-and-metrics/" class="noc-track-link">Read Chapter 4 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2);">Part II • Ch 5</span>
+      <div class="noc-track-title">Deadlock Theory, Turn Models &amp; Routing</div>
+      <div class="noc-track-desc">
+        Channel Dependency Graphs (CDG), Dally-Seitz theorem, Glass-Ni turn models, Chiu's Odd-Even, Duato's escape VCs, and coherence VNET isolation.
+      </div>
+    </div>
+    <a href="textbook/ch05-routing-deadlock-theory/" class="noc-track-link">Read Chapter 5 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">Part III • Ch 6</span>
+      <div class="noc-track-title">Low-Power Architectures &amp; Dark Silicon</div>
+      <div class="noc-track-desc">
+        Dynamic switching power, sub-threshold leakage, dark silicon budget ($>20\%$), Voltage-Frequency Islands (VFIs), and lookahead power gating.
+      </div>
+    </div>
+    <a href="textbook/ch06-low-power-dark-silicon/" class="noc-track-link">Read Chapter 6 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">Part III • Ch 7</span>
+      <div class="noc-track-title">Thermal Modeling &amp; Fault Tolerance</div>
+      <div class="noc-track-desc">
+        Fourier heat equation, compact RC ladders (HotSpot), thermal throttling, Gaussian-Sum Filter (GSF) sensor placement, and bypass fault detours.
+      </div>
+    </div>
+    <a href="textbook/ch07-thermal-fault-tolerance/" class="noc-track-link">Read Chapter 7 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2);">Part IV • Ch 8</span>
+      <div class="noc-track-title">Three-Dimensional NoC (3D-NoC) &amp; TSVs</div>
+      <div class="noc-track-desc">
+        Vertical TSVs, capacitive parasitics, Keep-Out Zones, 7-port 3D crossbars, arbitration-free vertical fast-paths, and vertical heat dissipation.
+      </div>
+    </div>
+    <a href="textbook/ch08-3d-noc-tsvs/" class="noc-track-link">Read Chapter 8 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2);">Part IV • Ch 9</span>
+      <div class="noc-track-title">Multi-Chiplet Interconnects &amp; UCIe</div>
+      <div class="noc-track-desc">
+        Optical reticle limit, Murphy yield economics (the Giant Pizza Problem), 2.5D interposers, the UCIe stack, and In/Outbound Swap deadlock recovery.
+      </div>
+    </div>
+    <a href="textbook/ch09-chiplets-ucie/" class="noc-track-link">Read Chapter 9 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(236, 72, 153, 0.1); color: #ec4899; border-color: rgba(236, 72, 153, 0.2);">Part V • Ch 10</span>
+      <div class="noc-track-title">Optical &amp; Wireless Networks-on-Chip</div>
+      <div class="noc-track-desc">
+        Silicon nanophotonics, micro-ring resonators (MRRs), PSE/CSE switching, thermo-optic drift ($0.10\text{ nm/}^\circ\text{C}$), and 60 GHz on-chip wireless RF transceivers.
+      </div>
+    </div>
+    <a href="textbook/ch10-optical-wireless/" class="noc-track-link">Read Chapter 10 →</a>
   </div>
 </div>
 

@@ -13,10 +13,25 @@
     <span class="noc-track-badge" style="background: rgba(147, 51, 234, 0.1); color: #9333ea; border-color: rgba(147, 51, 234, 0.2);">📦 UCIe 1.0/2.0 &amp; TSV Standards</span>
 </div>
 
-<div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
-  <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Official Companion Textbook Chapters Available</div>
-  <div style="color: #334155; font-size: 0.95rem;">
-    For comprehensive physical derivations of TSV lumped parasitics, 7-port crossbar area scaling, vertical arbitration-free fast paths, and inter-tier thermal ladders, read <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch08-3d-noc-tsvs/index.md" target="_blank" rel="noopener">Chapter 8: Three-Dimensional Networks-on-Chip (3D-NoC) &amp; TSVs</a></strong>. For 2.5D silicon interposers, the UCIe 3-layer architecture, D2D credit queue sizing, and In/Outbound Swap backtracking deadlock recovery, read <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch09-chiplets-ucie/index.md" target="_blank" rel="noopener">Chapter 9: Multi-Chiplet Interconnects, 2.5D Systems &amp; UCIe</a></strong>.
+<div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.25), rgba(15, 23, 42, 0.45)); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <div style="font-weight: 700; color: #60a5fa; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+      <span>📚 Aligned with Official Textbook Chapters 8, 9 &amp; 10</span>
+    </div>
+    <div style="font-size: 0.88rem; color: #cbd5e1; margin-top: 4px;">
+      Read <strong>Chapter 8 (3D-NoC &amp; TSVs)</strong> for vertical parasitics, 7-port crossbars, and thermal trapping. Read <strong>Chapter 9 (Chiplets &amp; UCIe)</strong> for Murphy yield economics, 2.5D interposers, and In/Outbound swap deadlock recovery. Read <strong>Chapter 10 (Optical &amp; Wireless NoC)</strong> for silicon photonics, MRRs, and 60 GHz wireless transceivers.
+    </div>
+  </div>
+  <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+    <a href="../textbook/ch08-3d-noc-tsvs/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none;">
+      <span>Read Chapter 8 →</span>
+    </a>
+    <a href="../textbook/ch09-chiplets-ucie/" style="display: inline-flex; align-items: center; gap: 6px; background: #0284c7; color: #ffffff; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none;">
+      <span>Read Chapter 9 →</span>
+    </a>
+    <a href="../textbook/ch10-optical-wireless/" style="display: inline-flex; align-items: center; gap: 6px; background: #ec4899; color: #ffffff; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none;">
+      <span>Read Chapter 10 →</span>
+    </a>
   </div>
 </div>
 

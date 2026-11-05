@@ -13,10 +13,22 @@
     <span class="noc-track-badge" style="background: rgba(147, 51, 234, 0.1); color: #9333ea; border-color: rgba(147, 51, 234, 0.2);">🔥 Grounded in Verified Open-Source Lab Projects</span>
 </div>
 
-<div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
-  <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Official Companion Textbook Chapters Available</div>
-  <div style="color: #334155; font-size: 0.95rem;">
-    For comprehensive mathematical treatment of sub-threshold leakage, Arrhenius thermal scaling, ultrafine-grained power gating, and distributed DVFS (LAURA, TCAS-II 2013; LPCR, TCAD 2025), read <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch06-low-power-dark-silicon/index.md" target="_blank" rel="noopener">Chapter 6: Low-Power Architectures &amp; Dark Silicon Dynamics</a></strong>. For compact RC duality, sensor estimation, and fault-tolerant routing, see <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch07-thermal-fault-tolerance/index.md" target="_blank" rel="noopener">Chapter 7: Thermal Modeling, Hotspots &amp; Fault-Tolerant Resilience</a></strong>.
+<div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.25), rgba(15, 23, 42, 0.45)); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <div style="font-weight: 700; color: #60a5fa; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+      <span>📚 Aligned with Official Textbook Chapters 6 &amp; 7</span>
+    </div>
+    <div style="font-size: 0.88rem; color: #cbd5e1; margin-top: 4px;">
+      Read <strong>Chapter 6 (Low Power &amp; Dark Silicon)</strong> for sub-threshold leakage, VFIs, and lookahead power gating. Read <strong>Chapter 7 (Thermal Modeling &amp; Fault Tolerance)</strong> for HotSpot RC modeling, GSF sensor reconstruction, and hardware bypass detours.
+    </div>
+  </div>
+  <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+    <a href="../textbook/ch06-low-power-dark-silicon/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none;">
+      <span>Read Chapter 6 →</span>
+    </a>
+    <a href="../textbook/ch07-thermal-fault-tolerance/" style="display: inline-flex; align-items: center; gap: 6px; background: #0284c7; color: #ffffff; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none;">
+      <span>Read Chapter 7 →</span>
+    </a>
   </div>
 </div>
 

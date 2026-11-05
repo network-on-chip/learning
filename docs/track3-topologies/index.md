@@ -14,11 +14,18 @@
   </div>
 </div>
 
-<div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
-  <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Official Companion Textbook Chapter Available</div>
-  <div style="color: #334155; font-size: 0.95rem;">
-    For comprehensive mathematical derivations of bisection bandwidth, zero-load latency formulas, folded torus Elmore delay invariance, and peer-reviewed silicon case studies (Passas et al., TCAD 2012; Jun et al., TCAD 2009; Dumitriu &amp; Khan, TVLSI 2009), read <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch04-topologies-and-metrics/index.md" target="_blank" rel="noopener">Chapter 4: Direct, Indirect &amp; High-Radix Interconnect Topologies</a></strong>.
+<div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.25), rgba(15, 23, 42, 0.45)); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <div style="font-weight: 700; color: #60a5fa; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+      <span>📚 Aligned with Official Textbook Chapter 4</span>
+    </div>
+    <div style="font-size: 0.88rem; color: #cbd5e1; margin-top: 4px;">
+      For complete mathematical derivations of bisection bandwidth, zero-load latency formulas, folded torus wire balancing, Clos routing, and Dragonfly exascale networks, read <strong>Chapter 4: Direct, Indirect &amp; High-Radix Topologies</strong>.
+    </div>
   </div>
+  <a href="../textbook/ch04-topologies-and-metrics/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
+    <span>Read Chapter 4 Online →</span>
+  </a>
 </div>
 
 ---

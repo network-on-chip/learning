@@ -19,15 +19,20 @@
 <div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.25), rgba(15, 23, 42, 0.45)); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
   <div>
     <div style="font-weight: 700; color: #60a5fa; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
-      <span>📚 Companion Open Textbook</span>
+      <span>📚 Aligned with Official Textbook Chapters 1 &amp; 2</span>
     </div>
     <div style="font-size: 0.88rem; color: #cbd5e1; margin-top: 4px;">
-      Studying for graduate exams or research publications? Dive into the accompanying <strong>NoC Textbook</strong> for complete mathematical proofs, Mayadas-Shatzkes interconnect scattering models, and IEEE TVLSI paper case studies.
+      Studying for graduate exams or research publications? Read <strong>Chapter 1 (Interconnect Crisis &amp; Wire Physics)</strong> and <strong>Chapter 2 (Switching, Flow Control &amp; Buffers)</strong> for complete mathematical derivations, Mayadas-Shatzkes scattering models, and Little's Law buffer equations.
     </div>
   </div>
-  <a href="https://github.com/network-on-chip/book" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
-    <span>Explore NoC Textbook →</span>
-  </a>
+  <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+    <a href="../textbook/ch01-interconnect-crisis/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none;">
+      <span>Read Chapter 1 →</span>
+    </a>
+    <a href="../textbook/ch02-switching-flow-control/" style="display: inline-flex; align-items: center; gap: 6px; background: #0284c7; color: #ffffff; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none;">
+      <span>Read Chapter 2 →</span>
+    </a>
+  </div>
 </div>
 
 ---

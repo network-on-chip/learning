@@ -2,32 +2,172 @@
   <div class="noc-track-badge">✨ 开源片上网络学术体系与实验平台</div>
   <h1>片上网络学习与研究中心</h1>
   <p class="subtitle">
-    连接理论体系、硅基微架构与可复现工程的交互式片上网络（Network-on-Chip, NoC）学习平台。基于 541 篇 IEEE 顶刊论文与端到端硬件仿真基准构建。
+    连接理论体系、硅基微架构与可复现工程的交互式片上网络（Network-on-Chip, NoC）学习平台。基于 542 篇精选顶刊论文、10 章官方教材与端到端硬件仿真基准构建。
   </p>
-    <a href="track1-fundamentals/" class="noc-sim-btn" style="text-decoration: none;">🚀 开始学习</a>
-    <a href="quiz/" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">🎯 芯片架构认证考核</a>
-    <a href="interactive/game/" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 死锁大作战游戏</a>
-    <a href="interactive/puzzle/" class="noc-sim-btn" style="text-decoration: none; background: #8b5cf6;">🧩 路由解密挑战</a>
-    <a href="interactive/visualizer/" class="noc-sim-btn secondary" style="text-decoration: none;">🎮 启动二维网格仿真器</a>
+  <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+    <a href="textbook/" class="noc-sim-btn" style="text-decoration: none; background: #2563eb;">📖 阅读官方教材 (全十章)</a>
+    <a href="assets/book.pdf" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 下载教材 PDF (132页)</a>
+    <a href="track1-fundamentals/" class="noc-sim-btn secondary" style="text-decoration: none;">🚀 开始系统学习</a>
+    <a href="quiz/" class="noc-sim-btn secondary" style="text-decoration: none;">🎯 架构认证考核</a>
+    <a href="interactive/game/" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 死锁大作战</a>
+    <a href="interactive/visualizer/" class="noc-sim-btn secondary" style="text-decoration: none;">🎮 二维网格仿真器</a>
     <a href="leaderboard/" class="noc-sim-btn secondary" style="text-decoration: none;">🏆 荣誉排行榜</a>
+  </div>
 </div>
 
 <div class="noc-stats-grid">
   <div class="noc-stat-card">
-    <span class="noc-stat-number">541</span>
+    <span class="noc-stat-number">10</span>
+    <span class="noc-stat-label">教材核心章节</span>
+  </div>
+  <div class="noc-stat-card">
+    <span class="noc-stat-number">542+</span>
     <span class="noc-stat-label">精选 IEEE 顶刊论文</span>
   </div>
   <div class="noc-stat-card">
-    <span class="noc-stat-number">37,400+</span>
-    <span class="noc-stat-label">高精图表与架构图</span>
-  </div>
-  <div class="noc-stat-card">
-    <span class="noc-stat-number">7</span>
-    <span class="noc-stat-label">进阶学习模块</span>
+    <span class="noc-stat-number">15</span>
+    <span class="noc-stat-label">交互式实验与游戏</span>
   </div>
   <div class="noc-stat-card">
     <span class="noc-stat-number">100%</span>
     <span class="noc-stat-label">开源与可复现基准</span>
+  </div>
+</div>
+
+---
+
+## 📖 官方开源教材 (全十章)
+
+探索《片上网络与先进互连：架构、协同设计与前沿探索》（*Network-on-Chip and Advanced Interconnects*），全书涵盖五大部分共十章，专为从中学生到芯片科研人员打造的高可读性教材：
+
+<div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.65)); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+  <div>
+    <div style="font-weight: 700; color: #93c5fd; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
+      <span>📘 完整出版排版 PDF 现已开放下载</span>
+    </div>
+    <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 800px; line-height: 1.5;">
+      采用施普林格·自然（Springer Nature）<code>svmono</code> 专著版式编译（共 132 页），系统涵盖线物理延时、路由器微架构、高基数拓扑、转向模型死锁证明、暗硅低功耗、热敏建模、3D 硅通孔、UCIe 芯粒互连与纳米光子学。
+    </div>
+  </div>
+  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+    <a href="textbook/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+      <span>在线阅读教材 →</span>
+    </a>
+    <a href="assets/book.pdf" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #0284c7; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+      <span>下载 PDF 电子书 (132页) ↓</span>
+    </a>
+  </div>
+</div>
+
+<div class="noc-tracks-grid">
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">第一部分 • 第1章</span>
+      <div class="noc-track-title">多核通信危机与物理线互连</div>
+      <div class="noc-track-desc">
+        共享总线为何失效？登纳德缩放定律破灭、量子隧穿、Elmore RC 导线延时、铜晶界散射及最佳中继器插入。
+      </div>
+    </div>
+    <a href="textbook/ch01-interconnect-crisis/" class="noc-track-link">阅读第 1 章 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">第一部分 • 第2章</span>
+      <div class="noc-track-title">交换技术、流控与缓存管理</div>
+      <div class="noc-track-desc">
+        虫洞交换 vs 虚拟直通、微元分片、信用往返延迟回路 ($RTT$)、虚拟通道线头阻塞消除与 AXI4 网络接口打包。
+      </div>
+    </div>
+    <a href="textbook/ch02-switching-flow-control/" class="noc-track-link">阅读第 2 章 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">第一部分 • 第3章</span>
+      <div class="noc-track-title">路由器微架构与仲裁调度</div>
+      <div class="noc-track-desc">
+        经典四级流水线、投机并行分配、矩阵仲裁器（亚 200 皮秒 LRU）、波前仲裁器与 SMART 单周期多跳旁路。
+      </div>
+    </div>
+    <a href="textbook/ch03-router-microarchitecture/" class="noc-track-link">阅读第 3 章 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2);">第二部分 • 第4章</span>
+      <div class="noc-track-title">直接/间接与高基数互连拓扑</div>
+      <div class="noc-track-desc">
+        图论互连评估、2D Mesh、Torus 环网、折叠环、cMesh、Clos 网络、Fat-Tree 胖树与 Dragonfly 蜻蜓拓扑。
+      </div>
+    </div>
+    <a href="textbook/ch04-topologies-and-metrics/" class="noc-track-link">阅读第 4 章 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2);">第二部分 • 第5章</span>
+      <div class="noc-track-title">死锁理论、转向模型与路由</div>
+      <div class="noc-track-desc">
+        通道依赖图（CDG）、Dally-Seitz 定理、Glass-Ni 转向模型、Odd-Even 奇偶路由、Duato 逃逸通道与一致性死锁消除。
+      </div>
+    </div>
+    <a href="textbook/ch05-routing-deadlock-theory/" class="noc-track-link">阅读第 5 章 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">第三部分 • 第6章</span>
+      <div class="noc-track-title">低功耗架构与暗硅动态管理</div>
+      <div class="noc-track-desc">
+        动态翻转功耗、亚阈值漏电、暗硅热预算约束（$>20\%$ 关断面积）、电压频率岛（VFI）与前瞻电源门控机制。
+      </div>
+    </div>
+    <a href="textbook/ch06-low-power-dark-silicon/" class="noc-track-link">阅读第 6 章 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">第三部分 • 第7章</span>
+      <div class="noc-track-title">热学建模、热点防御与容错弹性</div>
+      <div class="noc-track-desc">
+        傅里叶热传导方程、紧凑 RC 阶梯热模型（HotSpot）、热敏节流、高斯和滤波（GSF）传感器重建与硬件旁路容错。
+      </div>
+    </div>
+    <a href="textbook/ch07-thermal-fault-tolerance/" class="noc-track-link">阅读第 7 章 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2);">第四部分 • 第8章</span>
+      <div class="noc-track-title">三维片上网络 (3D-NoC) 与硅通孔</div>
+      <div class="noc-track-desc">
+        垂直 TSV 缩放物理、寄生电容、禁布区（KOZ）、7 端口 3D 交叉开关、无仲裁垂直快速通道与层间热堆叠管理。
+      </div>
+    </div>
+    <a href="textbook/ch08-3d-noc-tsvs/" class="noc-track-link">阅读第 8 章 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2);">第四部分 • 第9章</span>
+      <div class="noc-track-title">多芯粒先进互连与 UCIe 接口规范</div>
+      <div class="noc-track-desc">
+        光刻掩模版极限、墨菲良率模型（大比萨难题）、2.5D 中介层（CoWoS/EMIB）、UCIe 三层架构与出入境置换死锁恢复。
+      </div>
+    </div>
+    <a href="textbook/ch09-chiplets-ucie/" class="noc-track-link">阅读第 9 章 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(236, 72, 153, 0.1); color: #ec4899; border-color: rgba(236, 72, 153, 0.2);">第五部分 • 第10章</span>
+      <div class="noc-track-title">光子与无线片上网络前沿技术</div>
+      <div class="noc-track-desc">
+        硅基纳米光子学、微环谐振腔（MRR）、PSE/CSE 光开关、热光漂移（$0.10\text{ nm/}^\circ\text{C}$）与 60 GHz 片上无线收发器。
+      </div>
+    </div>
+    <a href="textbook/ch10-optical-wireless/" class="noc-track-link">阅读第 10 章 →</a>
   </div>
 </div>
 
