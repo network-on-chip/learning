@@ -571,14 +571,17 @@ $$\text{Minimum Buffer Storage per Port: } B_{WH} = 2\text{ flits} \times 128\te
 
 ## 8. 🎯 Knowledge Check: Lesson 1.2
 
+Test your comprehension of packet switching, flit headers, and buffer mechanics.
+
 <div class="noc-sim-container" id="quiz12" style="margin-top:1rem;">
   <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
-    📝 Concept Check: Switching Mechanics
+    📝 Concept Check: Switching Mechanics &amp; Buffer Trade-offs
   </div>
 
-  <div id="q12_block">
+  <!-- Question 1 -->
+  <div style="margin-bottom:1.5rem; padding-bottom:1.2rem; border-bottom:1px solid var(--tcl-border);">
     <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
-      <b>Question:</b> When a packet's Head Flit encounters contention and stops at a blocked router, how do Virtual Cut-Through (VCT) and Wormhole (WH) switching differ in their handling of the trailing Body flits?
+      <b>Question 1:</b> When a packet's Head Flit encounters contention and stops at a blocked router, how do Virtual Cut-Through (VCT) and Wormhole (WH) switching differ in their handling of the trailing Body flits?
     </p>
 
     <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q12_options">
@@ -586,7 +589,7 @@ $$\text{Minimum Buffer Storage per Port: } B_{WH} = 2\text{ flits} \times 128\te
         A. VCT drops trailing flits immediately; Wormhole sends an interrupt to the operating system.
       </button>
       <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz12(1)">
-        B. VCT buffers the entire remaining packet inside the blocked node's local buffer (requiring B ≥ L); Wormhole buffers only what fits in the immediate queue and freezes the remaining flits stretched out across upstream routers.
+        B. VCT buffers the entire remaining packet inside the blocked node's local buffer (requiring $B \ge L$); Wormhole buffers only what fits in the immediate queue and freezes the remaining flits stretched out across upstream routers.
       </button>
       <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz12(2)">
         C. Both techniques behave identically and reroute trailing flits over optical links.
@@ -595,8 +598,47 @@ $$\text{Minimum Buffer Storage per Port: } B_{WH} = 2\text{ flits} \times 128\te
         D. Wormhole switching converts the body flits into parallel bus signals.
       </button>
     </div>
+    <div id="q12_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
 
-    <div id="q12_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  <!-- Question 2 -->
+  <div style="margin-bottom:1.5rem; padding-bottom:1.2rem; border-bottom:1px solid var(--tcl-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>Question 2:</b> Consider transmitting a 5-flit packet across $H = 8$ hops with router pipeline delay $t_r = 2$ cycles and serialization rate $1$ flit/cycle. According to zero-load latency models, why does Wormhole switching drastically outperform Store-and-Forward (SAF)?
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q12_q2_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz12_Q2(0)">
+        A. Store-and-Forward serializes the 5 flits at every individual hop ($T_{SAF} = 8 \times (2 + 5) = 56$ cycles), whereas Wormhole pipelines flits so serialization occurs only once ($T_{WH} = 8 \times 2 + 5 = 21$ cycles, $2.67\times$ faster).
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz12_Q2(1)">
+        B. Store-and-Forward relies on optical laser pulses while Wormhole uses analog capacitors.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz12_Q2(2)">
+        C. Wormhole switching bypasses the laws of physics by predicting future packets.
+      </button>
+    </div>
+    <div id="q12_q2_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div>
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>Question 3:</b> What is the root cause of Head-of-Line (HoL) blocking in pure wormhole-switched networks without virtual channels?
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q12_q3_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz12_Q3(0)">
+        A. Transistor threshold voltage drift in the crossbar multiplexers.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz12_Q3(1)">
+        B. When a Head Flit is stalled, its trailing body flits freeze across intermediate router buffers and physical links, blocking unrelated packets behind them from advancing even toward completely idle output ports.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz12_Q3(2)">
+        C. Tail flits erase routing memory tables before body flits arrive.
+      </button>
+    </div>
+    <div id="q12_q3_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
   </div>
 </div>
 
@@ -605,30 +647,65 @@ function checkQuiz12(idx) {
   const fb = document.getElementById("q12_feedback");
   fb.style.display = "block";
   const opts = document.getElementById("q12_options").children;
-  for (let i = 0; i < opts.length; i++) {
-    opts[i].onclick = null;
-    opts[i].style.cursor = "default";
-  }
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
 
   if (idx === 1) {
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(34,197,94,0.1)";
-    fb.style.border = "1px solid rgba(34,197,94,0.3)";
-    fb.style.color = "#166534";
-    fb.innerHTML = "<strong>✓ Correct!</strong> In Virtual Cut-Through, input buffers are guaranteed to hold entire packets, so trailing flits coalesce at the blocked router. In Wormhole switching, buffers are tiny (flit-sized), causing the flit train to stall across multiple upstream routers.";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
+    fb.innerHTML = "<strong>✓ Correct!</strong> In Virtual Cut-Through, input buffers are guaranteed to hold entire packets, so trailing flits coalesce inside the blocked router. In Wormhole switching, buffers are tiny (flit-sized), causing the flit train to stall across multiple upstream routers.";
   } else {
-    opts[idx].style.background = "rgba(239,68,68,0.15)";
-    opts[idx].style.borderColor = "#ef4444";
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(239,68,68,0.1)";
-    fb.style.border = "1px solid rgba(239,68,68,0.3)";
-    fb.style.color = "#991b1b";
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
     fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. VCT buffers full packets at the contention point; Wormhole freezes flits in-place across intermediate routers.";
   }
 }
+
+function checkQuiz12_Q2(idx) {
+  const fb = document.getElementById("q12_q2_feedback");
+  fb.style.display = "block";
+  const opts = document.getElementById("q12_q2_options").children;
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
+
+  if (idx === 0) {
+    opts[0].style.background = "rgba(34,197,94,0.15)"; opts[0].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
+    fb.innerHTML = "<strong>✓ Correct!</strong> Store-and-Forward suffers multiplicative serialization delay $H \\times (t_r + L/W) = 56$ cycles. Wormhole pipelining incurs serialization delay only once: $H \\cdot t_r + L/W = 21$ cycles, yielding over 2.6× lower zero-load latency!";
+  } else {
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[0].style.background = "rgba(34,197,94,0.15)"; opts[0].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>A</strong>. SAF serializes flits at every hop, whereas Wormhole cuts through pipelined.";
+  }
+}
+
+function checkQuiz12_Q3(idx) {
+  const fb = document.getElementById("q12_q3_feedback");
+  fb.style.display = "block";
+  const opts = document.getElementById("q12_q3_options").children;
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
+
+  if (idx === 1) {
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
+    fb.innerHTML = "<strong>✓ Correct!</strong> Because pure wormhole routers allocate physical channels to a single packet stream, stalled flits freeze across links, blocking subsequent packets even if those packets want to turn toward completely uncongested output ports.";
+  } else {
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. HoL blocking occurs because frozen body flits monopolize link buffers and trap trailing traffic.";
+  }
+}
 </script>
+
+---
+
+## 9. Interactive Arcade & Lab Challenges
+
+Test your flit scheduling and switching expertise with interactive challenges:
+- 🎮 **[Packet Master: Flit Routing Puzzle](../interactive/puzzle.md):** Navigate flit trains through multi-hop mesh routers, avoiding buffer contention and pipeline deadlocks.
+- ⚔️ **[Deflection Duel: Bufferless Routing](../interactive/deflection.md):** Experience zero-buffer hot-potato deflection routing and discover when deflection collapses under load.
+- ⚖️ **[Arbiter Arena: Crossbar Scheduling](../interactive/arbiter.md):** Master matrix and round-robin arbitration to eliminate Head-of-Line stalls across crossbar ports.
 
 ---
 
@@ -643,3 +720,4 @@ In this lesson, we explored:
 Now that we understand how flits navigate routers, how do routers ensure they never transmit a flit when the downstream buffer is full? In the next lesson, we study **Flow Control and the Credit Mechanism**.
 
 👉 **Proceed to [Lesson 1.3: Flow Control & Credit Mechanism](03-flow-control-credit.md)**
+

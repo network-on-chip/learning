@@ -558,16 +558,98 @@ The link wastes **$44.44\%$ of its theoretical bandwidth** due to credit starvat
 
 ---
 
-## 7. 🎯 Knowledge Check: Lesson 1.3
+## 7. Synthesizable Verilog RTL: Credit Flow Controller (`credit_flow_control.v`)
+
+Below is a production-grade, synthesizable Verilog implementation of an upstream credit-based flow control manager. It maintains the real-time credit counter, gates upstream flit transmissions, processes downstream credit pulses, handles simultaneous transmit/credit events, and flags protocol underflow/overflow errors:
+
+```verilog
+// Synthesizable Credit-Based Flow Control Manager
+// Parameterized buffer depth, single-cycle credit accounting,
+// transmit grant qualification, and stall bubble detection.
+module credit_flow_control #(
+    parameter integer BUFFER_DEPTH = 4,                       // Max downstream FIFO slots
+    parameter integer CREDIT_WIDTH = $clog2(BUFFER_DEPTH + 1) // Bitwidth for credit counter
+)(
+    input  wire                    clk,
+    input  wire                    rst_n,
+
+    // Upstream Transmit Interface (Core / Switch -> Local Tx)
+    input  wire                    tx_val,          // Valid flit request from upstream pipeline
+    output wire                    tx_ready,        // Ready to accept flit (credits available)
+    output wire                    tx_fire,         // Handshake fire: flit departs across physical link
+
+    // Credit Return Interface (From Downstream Rx Link)
+    input  wire                    credit_in,       // 1-cycle pulse: downstream buffer freed a slot
+
+    // Diagnostic & Telemetry Status
+    output reg  [CREDIT_WIDTH-1:0] credit_count,    // Real-time available downstream credits
+    output wire                    credit_exhausted,// 1 when counter is 0 (bubble cycle)
+    output reg                     overflow_err,    // Protocol violation: credit returned when buffer already full
+    output reg                     underflow_err    // Flit transmitted when zero credits available
+);
+
+    // Flit departs when valid request arrives AND at least 1 credit is available
+    assign tx_ready         = (credit_count > {CREDIT_WIDTH{1'b0}});
+    assign tx_fire          = tx_val & tx_ready;
+    assign credit_exhausted = (credit_count == {CREDIT_WIDTH{1'b0}});
+
+    // Synchronous Credit Accounting
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            credit_count  <= BUFFER_DEPTH[CREDIT_WIDTH-1:0]; // Initialize to full capacity
+            overflow_err  <= 1'b0;
+            underflow_err <= 1'b0;
+        end else begin
+            case ({tx_fire, credit_in})
+                2'b10: begin
+                    // Flit transmitted without incoming credit: decrement
+                    if (credit_count > {CREDIT_WIDTH{1'b0}}) begin
+                        credit_count <= credit_count - 1'b1;
+                    end else begin
+                        underflow_err <= 1'b1; // Protocol error!
+                    end
+                end
+
+                2'b01: begin
+                    // Credit returned without flit transmission: increment
+                    if (credit_count < BUFFER_DEPTH[CREDIT_WIDTH-1:0]) begin
+                        credit_count <= credit_count + 1'b1;
+                    end else begin
+                        overflow_err <= 1'b1; // Protocol error: illegal extra credit!
+                    end
+                end
+
+                2'b11: begin
+                    // Simultaneous transmission and credit return: net change is zero
+                    credit_count <= credit_count;
+                end
+
+                2'b00: begin
+                    // Idle cycle: maintain state
+                    credit_count <= credit_count;
+                end
+            endcase
+        end
+    end
+
+endmodule
+```
+
+---
+
+## 8. 🎯 Knowledge Check: Lesson 1.3
+
+Test your comprehension of credit flow control, buffer turnaround latency, and backpressure mechanisms.
 
 <div class="noc-sim-container" id="quiz13" style="margin-top:1rem;">
   <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
-    📝 Concept Check: Flow Control &amp; Buffer Sizing
+    📝 Concept Check: Flow Control &amp; Buffer Dimensioning
   </div>
 
-  <div id="q13_block">
+  <!-- Question 1 -->
+  <div style="margin-bottom:1.5rem; padding-bottom:1.2rem; border-bottom:1px solid var(--tcl-border);">
     <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
-      <b>Question:</b> In credit-based flow control, what is the consequence of configuring an input buffer depth $B$ that is strictly smaller than the Credit Round-Trip Time ($B < RTT$)?
+      <b>Question 1:</b> In credit-based flow control, what is the consequence of configuring an input buffer depth $B$ that is strictly smaller than the Credit Round-Trip Time ($B < RTT$)?
     </p>
 
     <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q13_options">
@@ -575,7 +657,7 @@ The link wastes **$44.44\%$ of its theoretical bandwidth** due to credit starvat
         A. Excess flits are dropped on the wire, triggering an OS page fault.
       </button>
       <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz13(1)">
-        B. The upstream transmitter exhausts its credits after sending B flits and must stall until the first credit returns, introducing pipeline bubbles that reduce throughput below 100%.
+        B. The upstream transmitter exhausts its credits after sending $B$ flits and must stall until the first credit returns, introducing pipeline bubbles that cap throughput at $B / RTT$.
       </button>
       <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz13(2)">
         C. The downstream router enters an irreversible electrical latchup.
@@ -584,8 +666,47 @@ The link wastes **$44.44\%$ of its theoretical bandwidth** due to credit starvat
         D. Flits automatically compress themselves by 50% to fit into the smaller buffer.
       </button>
     </div>
+    <div id="q13_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
 
-    <div id="q13_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  <!-- Question 2 -->
+  <div style="margin-bottom:1.5rem; padding-bottom:1.2rem; border-bottom:1px solid var(--tcl-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>Question 2:</b> A 2.4 GHz NoC link requires $t_{link} = 2$ cycles for wire traversal, $t_{bw} = 1$ cycle for receiver FIFO write, $t_{deq} = 2$ cycles for switch allocation and dequeue, $t_{cred\_gen} = 1$ cycle for credit generation, $t_{cred\_wire} = 2$ cycles for backward credit return, and $t_{up\_proc} = 1$ cycle for upstream grant logic. What is the minimum buffer depth $B_{min}$ to sustain 100% throughput?
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q13_q2_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz13_Q2(0)">
+        A. $B_{min} = 4$ flits.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz13_Q2(1)">
+        B. $B_{min} = 9$ flits, because $RTT = 2 + 1 + 2 + 1 + 2 + 1 = 9$ clock cycles.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz13_Q2(2)">
+        C. $B_{min} = 1$ flit, because routers always buffer flits in cache.
+      </button>
+    </div>
+    <div id="q13_q2_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div>
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>Question 3:</b> Why does On/Off backpressure flow control require a physical buffer with a safety headroom $\ge RTT$ above its high threshold $T_{high}$?
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q13_q3_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz13_Q3(0)">
+        A. Because during the $RTT$ cycles required for the OFF signal to reach and halt the upstream transmitter, flits already in-flight on the forward link will continue arriving and must be safely absorbed.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz13_Q3(1)">
+        B. To store debugging logs for the operating system kernel.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz13_Q3(2)">
+        C. To power off the receiver transistors during idle periods.
+      </button>
+    </div>
+    <div id="q13_q3_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
   </div>
 </div>
 
@@ -594,30 +715,64 @@ function checkQuiz13(idx) {
   const fb = document.getElementById("q13_feedback");
   fb.style.display = "block";
   const opts = document.getElementById("q13_options").children;
-  for (let i = 0; i < opts.length; i++) {
-    opts[i].onclick = null;
-    opts[i].style.cursor = "default";
-  }
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
 
   if (idx === 1) {
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(34,197,94,0.1)";
-    fb.style.border = "1px solid rgba(34,197,94,0.3)";
-    fb.style.color = "#166534";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
     fb.innerHTML = "<strong>✓ Correct!</strong> When B < RTT, the upstream transmitter depletes its credit counter and must stall for (RTT - B) cycles waiting for credit return, capping sustained throughput at B / RTT.";
   } else {
-    opts[idx].style.background = "rgba(239,68,68,0.15)";
-    opts[idx].style.borderColor = "#ef4444";
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(239,68,68,0.1)";
-    fb.style.border = "1px solid rgba(239,68,68,0.3)";
-    fb.style.color = "#991b1b";
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
     fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. Flow control guarantees no packets are dropped, but an undersized buffer causes credit starvation stalls.";
   }
 }
+
+function checkQuiz13_Q2(idx) {
+  const fb = document.getElementById("q13_q2_feedback");
+  fb.style.display = "block";
+  const opts = document.getElementById("q13_q2_options").children;
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
+
+  if (idx === 1) {
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
+    fb.innerHTML = "<strong>✓ Correct!</strong> Summing all components yields $RTT = 2 + 1 + 2 + 1 + 2 + 1 = 9$ clock cycles. Hence, $B_{min} = \\lceil RTT \\rceil = 9$ flits are required for 100% throughput.";
+  } else {
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. $B_{min} \\ge RTT = 9$ flits.";
+  }
+}
+
+function checkQuiz13_Q3(idx) {
+  const fb = document.getElementById("q13_q3_feedback");
+  fb.style.display = "block";
+  const opts = document.getElementById("q13_q3_options").children;
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
+
+  if (idx === 0) {
+    opts[0].style.background = "rgba(34,197,94,0.15)"; opts[0].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
+    fb.innerHTML = "<strong>✓ Correct!</strong> Because the backpressure OFF signal takes time to traverse the return link, flits that are already in flight will still arrive. The headroom $\\ge RTT$ absorbs these in-flight flits to prevent buffer overflow.";
+  } else {
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[0].style.background = "rgba(34,197,94,0.15)"; opts[0].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>A</strong>. Safety headroom absorbs flits already in-flight during backpressure signal propagation.";
+  }
+}
 </script>
+
+---
+
+## 9. Interactive Arcade & Lab Challenges
+
+Test your credit budgeting and buffer management in arcade simulations:
+- 🎮 **[Credit Commander: Flow Control Defense](../interactive/credits.md):** Defend router buffers against sudden traffic surges by managing credit limits, preventing buffer overflows, and eliminating credit-exhaustion bubbles.
+- 🔬 **[2D Mesh Routing Visualizer](../interactive/visualizer.md):** Track real-time credit decrements and backward pulse returns across all 5 router ports simultaneously.
 
 ---
 
@@ -628,7 +783,9 @@ In this lesson, we established:
 - How **credit-based accounting** prevents buffer overflow without dropping packets.
 - The mathematical derivation of the **Credit Round-Trip Time ($RTT$)** and why $B_{min} \ge RTT$ is required for maximum throughput.
 - Trade-offs with alternative mechanisms like **On/Off backpressure** and **bufferless deflection routing**.
+- A complete, synthesizable Verilog implementation of an upstream **Credit Flow Controller (`credit_flow_control.v`)**.
 
 Now, how do external compute cores (CPUs, GPUs, Caches) actually inject memory transactions into this flit-switched network? In our final foundational lesson, we study the **Network Interface (NI)**.
 
 👉 **Proceed to [Lesson 1.4: Network Interface (NI) Architecture](04-network-interface-packetization.md)**
+

@@ -301,3 +301,21 @@
     <a href="interactive/visualizer/" class="noc-track-link">启动仿真器 →</a>
   </div>
 </div>
+
+---
+
+## 🔬 贯通理论、芯片与代码
+
+本课程中的每一个核心概念，均与我们验证过的学术研究成果及复现工件严密配对：
+
+```mermaid
+graph LR
+  A["理论与学术文献<br/>(541 篇 IEEE 经典论文)"] --> B["体系化课程模块<br/>(模块 1–7)"]
+  B --> C["网页交互式实验<br/>(二维网格路由仿真器)"]
+  B --> D["硬件开源实现<br/>(projects/ 下 Verilog & Python)"]
+  D --> E["基准测试与芯片实测<br/>(热学、延迟与能效数据)"]
+```
+
+### 准备好开始了吗？
+立即开启你的第一步：[第一模块：片上网络基础](track1-fundamentals/)，或者前往体验 [交互式二维路由仿真器](interactive/visualizer/)！
+

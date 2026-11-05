@@ -449,12 +449,13 @@ Test your comprehension of on-chip interconnect fundamentals.
 
 <div class="noc-sim-container" id="quiz11" style="margin-top:1rem;">
   <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
-    📝 Concept Check: Interconnect Scaling
+    📝 Concept Check: Interconnect Scaling & Physical Limits
   </div>
 
-  <div id="q11_block">
-    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;" id="q11_text">
-      <b>Question:</b> Why does copper wire resistance per unit length increase dramatically in sub-10nm CMOS processes compared to older 180nm processes?
+  <!-- Question 1 -->
+  <div style="margin-bottom:1.5rem; padding-bottom:1.2rem; border-bottom:1px solid var(--tcl-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>Question 1:</b> Why does copper wire resistance per unit length increase dramatically in sub-10nm CMOS processes compared to older 180nm processes?
     </p>
 
     <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q11_options">
@@ -462,17 +463,53 @@ Test your comprehension of on-chip interconnect fundamentals.
         A. Because copper atoms evaporate at room temperature in narrow wires.
       </button>
       <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz11(1)">
-        B. Because electron surface and grain-boundary scattering dominate when dimensions approach the electron mean free path, and resistive TaN diffusion barriers occupy a larger fraction of wire area.
+        B. Because electron surface and grain-boundary scattering dominate when dimensions approach the electron mean free path (Mayadas-Shatzkes effect), and resistive TaN diffusion barriers occupy a larger fraction of wire area.
       </button>
       <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz11(2)">
         C. Because digital clock frequencies are too low to activate electron valence bands.
       </button>
-      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz11(3)">
-        D. Because sub-10nm processes replace copper wires with aluminum.
+    </div>
+    <div id="q11_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 2 -->
+  <div style="margin-bottom:1.5rem; padding-bottom:1.2rem; border-bottom:1px solid var(--tcl-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>Question 2:</b> According to the Elmore Delay model, why does a shared multi-drop bus fail to scale as the number of attached processor cores $N$ increases from 4 to 32?
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q11_q2_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz11_Q2(0)">
+        A. Each connected core attaches a capacitive transceiver tap ($C_{tap}$), linearly multiplying total line capacitance ($C_{total} \propto N$) and throttling bus frequency down to 200–400 MHz.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz11_Q2(1)">
+        B. Multi-drop buses can only transmit in hexadecimal notation.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz11_Q2(2)">
+        C. The bus wires experience quantum entanglement interference.
       </button>
     </div>
+    <div id="q11_q2_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
 
-    <div id="q11_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  <!-- Question 3 -->
+  <div>
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>Question 3:</b> What is the fatal physical bottleneck of replacing a shared bus with a centralized full $N \times N$ crossbar switch for a 64-core processor?
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q11_q3_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz11_Q3(0)">
+        A. Crossbar switches cannot support digital binary logic.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz11_Q3(1)">
+        B. Crosspoint multiplexer count and wire tracks scale quadratically as $O(N^2)$ (4,096 crosspoints for 64 cores), causing severe wiring congestion and routing track starvation.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz11_Q3(2)">
+        C. Crossbars require negative supply voltages.
+      </button>
+    </div>
+    <div id="q11_q3_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
   </div>
 </div>
 
@@ -481,30 +518,64 @@ function checkQuiz11(idx) {
   const fb = document.getElementById("q11_feedback");
   fb.style.display = "block";
   const opts = document.getElementById("q11_options").children;
-  for (let i = 0; i < opts.length; i++) {
-    opts[i].onclick = null;
-    opts[i].style.cursor = "default";
-  }
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
 
   if (idx === 1) {
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(34,197,94,0.1)";
-    fb.style.border = "1px solid rgba(34,197,94,0.3)";
-    fb.style.color = "#166534";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
     fb.innerHTML = "<strong>✓ Correct!</strong> As wire width shrinks to the electron mean free path (~39nm), electron scattering off grain boundaries and sidewalls increases resistivity dramatically (Mayadas-Shatzkes effect). In addition, high-resistance diffusion barrier liners (Ta/TaN) occupy a larger percentage of the trench cross-section.";
   } else {
-    opts[idx].style.background = "rgba(239,68,68,0.15)";
-    opts[idx].style.borderColor = "#ef4444";
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(239,68,68,0.1)";
-    fb.style.border = "1px solid rgba(239,68,68,0.3)";
-    fb.style.color = "#991b1b";
-    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. At nanoscale dimensions, physical boundary scattering and electromigration barrier liners cause effective copper resistivity to explode.";
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. At nanoscale dimensions, physical boundary scattering and electromigration barrier liners cause effective copper resistivity to surge.";
+  }
+}
+
+function checkQuiz11_Q2(idx) {
+  const fb = document.getElementById("q11_q2_feedback");
+  fb.style.display = "block";
+  const opts = document.getElementById("q11_q2_options").children;
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
+
+  if (idx === 0) {
+    opts[0].style.background = "rgba(34,197,94,0.15)"; opts[0].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
+    fb.innerHTML = "<strong>✓ Correct!</strong> In Elmore delay, every attached core adds capacitive load (C_tap), making total wire capacitance grow with N. This forces bus clock frequencies to plunge, creating a severe bandwidth mismatch with high-frequency CPU cores.";
+  } else {
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[0].style.background = "rgba(34,197,94,0.15)"; opts[0].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>A</strong>. Capacitive loading taps scale linearly with core count, throttling bus operating frequencies.";
+  }
+}
+
+function checkQuiz11_Q3(idx) {
+  const fb = document.getElementById("q11_q3_feedback");
+  fb.style.display = "block";
+  const opts = document.getElementById("q11_q3_options").children;
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
+
+  if (idx === 1) {
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
+    fb.innerHTML = "<strong>✓ Correct!</strong> Centralized crossbars require O(N^2) crosspoints. For 64 cores, 4,096 crosspoint switches and long global wires cause physical layout congestion and routing track starvation.";
+  } else {
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. Full crossbars exhibit quadratic O(N^2) complexity, causing wiring congestion at high radix.";
   }
 }
 </script>
+
+---
+
+## 8. Interactive Arcade & Lab Challenges
+
+Ready to test your interconnect design skills in interactive games?
+- 🎮 **[Topology Titans: Graph Architect](../interactive/topology.md):** Connect supercomputing topologies (Hypercube, Torus, Dragonfly) under pin degree and wire length budgets.
+- 🔬 **[2D Mesh Routing Visualizer](../interactive/visualizer.md):** Inject synthetic traffic and observe concurrent packet switching across point-to-point router links.
 
 ---
 

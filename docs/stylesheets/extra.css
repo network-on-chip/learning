@@ -39,6 +39,13 @@
   --tcl-border: #e2e8f0;
   --tcl-border-hover: #cbd5e1;
   --tcl-heading: #0f172a;
+
+  /* Mermaid Diagram Tokens - Crisp High-Contrast Light Mode */
+  --md-mermaid-node-bg-color: #ffffff !important;
+  --md-mermaid-node-fg-color: #2563eb !important;
+  --md-mermaid-label-fg-color: #0f172a !important;
+  --md-mermaid-label-bg-color: #ffffff !important;
+  --md-mermaid-edge-color: #334155 !important;
 }
 
 [data-md-color-scheme="slate"] {
@@ -79,6 +86,13 @@
   --tcl-border: #334155;
   --tcl-border-hover: #475569;
   --tcl-heading: #f8fafc;
+
+  /* Mermaid Diagram Tokens - Crisp High-Contrast Dark Mode */
+  --md-mermaid-node-bg-color: #1e293b !important;
+  --md-mermaid-node-fg-color: #38bdf8 !important;
+  --md-mermaid-label-fg-color: #f8fafc !important;
+  --md-mermaid-label-bg-color: #0b0f19 !important;
+  --md-mermaid-edge-color: #94a3b8 !important;
 }
 
 /* Global Typography - Pure Sans-Serif Stack (No fuzzy serifs!) */
@@ -100,11 +114,188 @@ body, .md-typeset {
   font-weight: 700 !important;
 }
 
-.md-typeset h1, .md-typeset h2, .md-typeset h3, .md-typeset h4 {
+.md-typeset h1, .md-typeset h2, .md-typeset h3, .md-typeset h4, .md-typeset h5, .md-typeset h6 {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
   color: var(--tcl-heading) !important;
   font-weight: 700;
   letter-spacing: -0.02em;
+}
+
+/* ==========================================================================
+   Mermaid Diagrams & Flowcharts - Multi-Theme High-Contrast Readability
+   ========================================================================== */
+
+.md-typeset .mermaid,
+.md-typeset pre.mermaid {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0.75rem 0 !important;
+  margin: 1.5rem auto !important;
+  text-align: center;
+  display: block;
+}
+
+.md-typeset .mermaid svg {
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* --- Light Mode (Default Scheme) Flowcharts & Diagrams --- */
+[data-md-color-scheme="default"] .mermaid,
+[data-md-color-scheme="default"] .mermaid svg {
+  color: #0f172a !important;
+}
+
+/* Wording / Text in Light Mode: Crisp Deep Black / Slate 900 */
+[data-md-color-scheme="default"] .mermaid text,
+[data-md-color-scheme="default"] .mermaid tspan,
+[data-md-color-scheme="default"] .mermaid .nodeLabel,
+[data-md-color-scheme="default"] .mermaid .nodeLabel p,
+[data-md-color-scheme="default"] .mermaid .nodeLabel span,
+[data-md-color-scheme="default"] .mermaid .label,
+[data-md-color-scheme="default"] .mermaid .label span,
+[data-md-color-scheme="default"] .mermaid .label div,
+[data-md-color-scheme="default"] .mermaid foreignObject div,
+[data-md-color-scheme="default"] .mermaid foreignObject span,
+[data-md-color-scheme="default"] .mermaid .cluster text,
+[data-md-color-scheme="default"] .mermaid .cluster span,
+[data-md-color-scheme="default"] .mermaid .edgeLabel,
+[data-md-color-scheme="default"] .mermaid .edgeLabel p,
+[data-md-color-scheme="default"] .mermaid .edgeLabel span,
+[data-md-color-scheme="default"] .mermaid .flowchartTitleText,
+[data-md-color-scheme="default"] .mermaid .classDiagramTitleText,
+[data-md-color-scheme="default"] .mermaid .statediagramTitleText,
+[data-md-color-scheme="default"] .mermaid .messageText,
+[data-md-color-scheme="default"] .mermaid .noteText,
+[data-md-color-scheme="default"] .mermaid .loopText {
+  color: #0f172a !important;
+  fill: #0f172a !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-weight: 600 !important;
+}
+
+/* Flowchart Nodes in Light Mode: Clean White Surface with Royal Blue Stroke */
+[data-md-color-scheme="default"] .mermaid .node rect:not([style*="fill"]),
+[data-md-color-scheme="default"] .mermaid .node circle:not([style*="fill"]),
+[data-md-color-scheme="default"] .mermaid .node ellipse:not([style*="fill"]),
+[data-md-color-scheme="default"] .mermaid .node polygon:not([style*="fill"]),
+[data-md-color-scheme="default"] .mermaid .node path:not(.flowchart-link):not([style*="fill"]) {
+  fill: #ffffff !important;
+  stroke: #2563eb !important;
+  stroke-width: 1.75px !important;
+  filter: drop-shadow(0 1px 3px rgba(15, 23, 42, 0.08));
+}
+
+/* Connecting Paths and Links in Light Mode */
+[data-md-color-scheme="default"] .mermaid .edgePath .path,
+[data-md-color-scheme="default"] .mermaid .flowchart-link,
+[data-md-color-scheme="default"] .mermaid .relation,
+[data-md-color-scheme="default"] .mermaid .transition {
+  stroke: #334155 !important;
+  stroke-width: 1.75px !important;
+}
+
+[data-md-color-scheme="default"] .mermaid .edgePath .arrowheadPath,
+[data-md-color-scheme="default"] .mermaid marker path,
+[data-md-color-scheme="default"] .mermaid .marker {
+  fill: #334155 !important;
+  stroke: #334155 !important;
+}
+
+[data-md-color-scheme="default"] .mermaid .cluster rect {
+  fill: #f8fafc !important;
+  stroke: #cbd5e1 !important;
+  stroke-width: 1.5px !important;
+}
+
+[data-md-color-scheme="default"] .mermaid .edgeLabel,
+[data-md-color-scheme="default"] .mermaid .edgeLabel rect {
+  background-color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+/* --- Dark Mode (Slate Scheme) Flowcharts & Diagrams --- */
+[data-md-color-scheme="slate"] .mermaid,
+[data-md-color-scheme="slate"] .mermaid svg {
+  color: #f8fafc !important;
+}
+
+/* Wording / Text in Dark Mode: Crisp Bright White / Slate 50 */
+[data-md-color-scheme="slate"] .mermaid text,
+[data-md-color-scheme="slate"] .mermaid tspan,
+[data-md-color-scheme="slate"] .mermaid .nodeLabel,
+[data-md-color-scheme="slate"] .mermaid .nodeLabel p,
+[data-md-color-scheme="slate"] .mermaid .nodeLabel span,
+[data-md-color-scheme="slate"] .mermaid .label,
+[data-md-color-scheme="slate"] .mermaid .label span,
+[data-md-color-scheme="slate"] .mermaid .label div,
+[data-md-color-scheme="slate"] .mermaid foreignObject div,
+[data-md-color-scheme="slate"] .mermaid foreignObject span,
+[data-md-color-scheme="slate"] .mermaid .cluster text,
+[data-md-color-scheme="slate"] .mermaid .cluster span,
+[data-md-color-scheme="slate"] .mermaid .edgeLabel,
+[data-md-color-scheme="slate"] .mermaid .edgeLabel p,
+[data-md-color-scheme="slate"] .mermaid .edgeLabel span,
+[data-md-color-scheme="slate"] .mermaid .flowchartTitleText,
+[data-md-color-scheme="slate"] .mermaid .classDiagramTitleText,
+[data-md-color-scheme="slate"] .mermaid .statediagramTitleText,
+[data-md-color-scheme="slate"] .mermaid .messageText,
+[data-md-color-scheme="slate"] .mermaid .noteText,
+[data-md-color-scheme="slate"] .mermaid .loopText {
+  color: #f8fafc !important;
+  fill: #f8fafc !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-weight: 600 !important;
+}
+
+/* Flowchart Nodes in Dark Mode: Slate 800 Surface with Electric Cyan Stroke */
+[data-md-color-scheme="slate"] .mermaid .node rect:not([style*="fill"]),
+[data-md-color-scheme="slate"] .mermaid .node circle:not([style*="fill"]),
+[data-md-color-scheme="slate"] .mermaid .node ellipse:not([style*="fill"]),
+[data-md-color-scheme="slate"] .mermaid .node polygon:not([style*="fill"]),
+[data-md-color-scheme="slate"] .mermaid .node path:not(.flowchart-link):not([style*="fill"]) {
+  fill: #1e293b !important;
+  stroke: #38bdf8 !important;
+  stroke-width: 1.75px !important;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45));
+}
+
+/* Connecting Paths and Links in Dark Mode */
+[data-md-color-scheme="slate"] .mermaid .edgePath .path,
+[data-md-color-scheme="slate"] .mermaid .flowchart-link,
+[data-md-color-scheme="slate"] .mermaid .relation,
+[data-md-color-scheme="slate"] .mermaid .transition {
+  stroke: #94a3b8 !important;
+  stroke-width: 1.75px !important;
+}
+
+[data-md-color-scheme="slate"] .mermaid .edgePath .arrowheadPath,
+[data-md-color-scheme="slate"] .mermaid marker path,
+[data-md-color-scheme="slate"] .mermaid .marker {
+  fill: #94a3b8 !important;
+  stroke: #94a3b8 !important;
+}
+
+[data-md-color-scheme="slate"] .mermaid .cluster rect {
+  fill: rgba(30, 41, 59, 0.65) !important;
+  stroke: #334155 !important;
+  stroke-width: 1.5px !important;
+}
+
+[data-md-color-scheme="slate"] .mermaid .edgeLabel,
+[data-md-color-scheme="slate"] .mermaid .edgeLabel rect {
+  background-color: #0b0f19 !important;
+  fill: #0b0f19 !important;
+}
+
+/* Soften pastel node backgrounds in Dark Mode to ensure pristine contrast */
+[data-md-color-scheme="slate"] .mermaid .node rect[style*="fill"],
+[data-md-color-scheme="slate"] .mermaid .node polygon[style*="fill"],
+[data-md-color-scheme="slate"] .mermaid .node circle[style*="fill"] {
+  fill-opacity: 0.22 !important;
 }
 
 .md-typeset code, .md-typeset pre {

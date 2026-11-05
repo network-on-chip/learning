@@ -385,16 +385,140 @@ ARM CoreLink CMN-700 Mesh Tile:
 
 ---
 
-## 7. 🎯 Knowledge Check: Lesson 1.4
+## 7. Synthesizable Verilog RTL: Dual-Clock Asynchronous FIFO (`async_fifo_cdc.v`)
+
+Below is a production-grade, synthesizable Verilog implementation of an asynchronous FIFO used in the Network Interface to bridge the high-frequency CPU core clock domain with the power-optimized on-chip network clock domain. It uses Gray-code read and write pointers with two-stage flip-flop synchronizers to eliminate metastability risks:
+
+```verilog
+// Synthesizable Dual-Clock Asynchronous FIFO for Clock Domain Crossing (CDC)
+// Features Gray-code pointer encoding, 2-stage flip-flop MTBF synchronizers,
+// and safe cross-clock full / empty detection between Core Clk and NoC Clk.
+module async_fifo_cdc #(
+    parameter integer DATA_WIDTH = 128,                       // Flit width in bits
+    parameter integer ADDR_WIDTH = 4                          // Depth = 2^ADDR_WIDTH (16 entries)
+)(
+    // Write Domain (e.g. Core Clock Domain @ 3.2 GHz)
+    input  wire                  wclk,
+    input  wire                  wrst_n,
+    input  wire                  winc,                        // Write push request
+    input  wire [DATA_WIDTH-1:0] wdata,                       // Input flit data
+    output wire                  wfull,                       // FIFO full backpressure
+
+    // Read Domain (e.g. NoC Interconnect Clock Domain @ 1.6 GHz)
+    input  wire                  rclk,
+    input  wire                  rrst_n,
+    input  wire                  rinc,                        // Read pop request
+    output wire [DATA_WIDTH-1:0] rdata,                       // Output flit data
+    output wire                  rempty                       // FIFO empty indicator
+);
+
+    localparam integer DEPTH = 1 << ADDR_WIDTH;
+
+    // Dual-Port SRAM / Register Memory Array
+    reg [DATA_WIDTH-1:0] mem [DEPTH-1:0];
+
+    // Pointers in Write Domain
+    reg [ADDR_WIDTH:0] wptr_bin;
+    reg [ADDR_WIDTH:0] wptr_gray;
+
+    // Pointers in Read Domain
+    reg [ADDR_WIDTH:0] rptr_bin;
+    reg [ADDR_WIDTH:0] rptr_gray;
+
+    // 2-Stage MTBF Synchronizers
+    reg [ADDR_WIDTH:0] wptr_gray_sync1, wptr_gray_sync2; // Write pointer into Read domain
+    reg [ADDR_WIDTH:0] rptr_gray_sync1, rptr_gray_sync2; // Read pointer into Write domain
+
+    // ----------------------------------------------------
+    // Write Domain Logic
+    // ----------------------------------------------------
+    wire [ADDR_WIDTH:0] wptr_bin_next  = wptr_bin + (winc & ~wfull);
+    wire [ADDR_WIDTH:0] wptr_gray_next = (wptr_bin_next >> 1) ^ wptr_bin_next;
+
+    always @(posedge wclk or negedge wrst_n) begin
+        if (!wrst_n) begin
+            wptr_bin  <= {(ADDR_WIDTH+1){1'b0}};
+            wptr_gray <= {(ADDR_WIDTH+1){1'b0}};
+        end else begin
+            wptr_bin  <= wptr_bin_next;
+            wptr_gray <= wptr_gray_next;
+        end
+    end
+
+    // Memory write
+    always @(posedge wclk) begin
+        if (winc & ~wfull) begin
+            mem[wptr_bin[ADDR_WIDTH-1:0]] <= wdata;
+        end
+    end
+
+    // Synchronize Read Pointer (Gray) into Write Domain
+    always @(posedge wclk or negedge wrst_n) begin
+        if (!wrst_n) begin
+            rptr_gray_sync1 <= {(ADDR_WIDTH+1){1'b0}};
+            rptr_gray_sync2 <= {(ADDR_WIDTH+1){1'b0}};
+        end else begin
+            rptr_gray_sync1 <= rptr_gray;
+            rptr_gray_sync2 <= rptr_gray_sync1;
+        end
+    end
+
+    // Full condition in Write Domain:
+    // MSB and MSB-1 inverted, remaining bits identical in Gray code
+    assign wfull = (wptr_gray_next == {~rptr_gray_sync2[ADDR_WIDTH:ADDR_WIDTH-1],
+                                        rptr_gray_sync2[ADDR_WIDTH-2:0]});
+
+    // ----------------------------------------------------
+    // Read Domain Logic
+    // ----------------------------------------------------
+    wire [ADDR_WIDTH:0] rptr_bin_next  = rptr_bin + (rinc & ~rempty);
+    wire [ADDR_WIDTH:0] rptr_gray_next = (rptr_bin_next >> 1) ^ rptr_bin_next;
+
+    always @(posedge rclk or negedge rrst_n) begin
+        if (!rrst_n) begin
+            rptr_bin  <= {(ADDR_WIDTH+1){1'b0}};
+            rptr_gray <= {(ADDR_WIDTH+1){1'b0}};
+        end else begin
+            rptr_bin  <= rptr_bin_next;
+            rptr_gray <= rptr_gray_next;
+        end
+    end
+
+    // Memory read
+    assign rdata = mem[rptr_bin[ADDR_WIDTH-1:0]];
+
+    // Synchronize Write Pointer (Gray) into Read Domain
+    always @(posedge rclk or negedge rrst_n) begin
+        if (!rrst_n) begin
+            wptr_gray_sync1 <= {(ADDR_WIDTH+1){1'b0}};
+            wptr_gray_sync2 <= {(ADDR_WIDTH+1){1'b0}};
+        end else begin
+            wptr_gray_sync1 <= wptr_gray;
+            wptr_gray_sync2 <= wptr_gray_sync1;
+        end
+    end
+
+    // Empty condition in Read Domain: read pointer equals synchronized write pointer
+    assign rempty = (rptr_gray == wptr_gray_sync2);
+
+endmodule
+```
+
+---
+
+## 8. 🎯 Knowledge Check: Lesson 1.4
+
+Test your comprehension of network interfaces, protocol deadlock prevention, and asynchronous clock domain crossings.
 
 <div class="noc-sim-container" id="quiz14" style="margin-top:1rem;">
   <div style="font-weight:700; font-size:1.05rem; margin-bottom:1rem; color:var(--tcl-heading);">
-    📝 Concept Check: Network Interfaces &amp; Protocol Deadlock
+    📝 Concept Check: Network Interfaces, CDC &amp; Protocol Deadlock
   </div>
 
-  <div id="q14_block">
+  <!-- Question 1 -->
+  <div style="margin-bottom:1.5rem; padding-bottom:1.2rem; border-bottom:1px solid var(--tcl-border);">
     <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
-      <b>Question:</b> Even when an on-chip network uses strictly acyclic Dimension-Order Routing (DOR), why can a system still freeze in a "Protocol Deadlock" (Fetch Deadlock), and how does the Network Interface prevent it?
+      <b>Question 1:</b> Even when an on-chip network uses strictly acyclic Dimension-Order Routing (DOR), why can a system still freeze in a "Protocol Deadlock" (Fetch Deadlock), and how does the Network Interface prevent it?
     </p>
 
     <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q14_options">
@@ -411,8 +535,47 @@ ARM CoreLink CMN-700 Mesh Tile:
         D. Because AXI bursts require 1000 bits of CRC parity.
       </button>
     </div>
+    <div id="q14_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
 
-    <div id="q14_feedback" style="display:none; margin-top:1rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  <!-- Question 2 -->
+  <div style="margin-bottom:1.5rem; padding-bottom:1.2rem; border-bottom:1px solid var(--tcl-border);">
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>Question 2:</b> In a dual-clock asynchronous FIFO bridging a CPU core domain (3.2 GHz) to a NoC domain (1.6 GHz), why is it dangerous to synchronize standard binary pointers directly across clock domains?
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q14_q2_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz14_Q2(0)">
+        A. Binary counters toggle multiple bits simultaneously (e.g. 3 to 4 toggles 3 bits: `0011` to `0100`); wire skew can cause the destination clock to sample intermediate metastable values, whereas Gray code guarantees only 1 bit flips per increment.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz14_Q2(1)">
+        B. Binary numbers cannot be represented by CMOS transistors.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz14_Q2(2)">
+        C. Binary pointers cause the clock tree to reverse its direction.
+      </button>
+    </div>
+    <div id="q14_q2_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div>
+    <p style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+      <b>Question 3:</b> When a CPU core initiates an AMBA AXI5 burst read for a 64-byte cache line over a 128-bit NoC, how are packets structured on the egress and ingress paths?
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:0.5rem;" id="q14_q3_options">
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz14_Q3(0)">
+        A. The egress request requires 64 separate flits; the ingress response returns as analog voltage levels.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz14_Q3(1)">
+        B. The egress request is a compact Single-Flit Packet (Head+Tail) carrying the read address and transaction ID; the ingress response is a 5-Flit Packet (1 Head + 3 Body + 1 Tail) whose final flit asserts `RLAST` on the core's AXI interface.
+      </button>
+      <button class="noc-sim-select" style="text-align:left; padding:0.65rem 0.85rem; cursor:pointer;" onclick="checkQuiz14_Q3(2)">
+        C. AXI bursts cannot be converted into flits and require dedicated coaxial cables.
+      </button>
+    </div>
+    <div id="q14_q3_feedback" style="display:none; margin-top:0.75rem; padding:0.85rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
   </div>
 </div>
 
@@ -421,30 +584,64 @@ function checkQuiz14(idx) {
   const fb = document.getElementById("q14_feedback");
   fb.style.display = "block";
   const opts = document.getElementById("q14_options").children;
-  for (let i = 0; i < opts.length; i++) {
-    opts[i].onclick = null;
-    opts[i].style.cursor = "default";
-  }
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
 
   if (idx === 1) {
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(34,197,94,0.1)";
-    fb.style.border = "1px solid rgba(34,197,94,0.3)";
-    fb.style.color = "#166534";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
     fb.innerHTML = "<strong>✓ Correct!</strong> Routing algorithms prevent routing-level deadlocks (buffer cycles in the mesh), but higher-level memory protocols create request-response dependency cycles. Virtual Networks (VNETs) isolate requests from responses, breaking the cycle.";
   } else {
-    opts[idx].style.background = "rgba(239,68,68,0.15)";
-    opts[idx].style.borderColor = "#ef4444";
-    opts[1].style.background = "rgba(34,197,94,0.15)";
-    opts[1].style.borderColor = "#22c55e";
-    fb.style.background = "rgba(239,68,68,0.1)";
-    fb.style.border = "1px solid rgba(239,68,68,0.3)";
-    fb.style.color = "#991b1b";
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
     fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. Protocol deadlocks occur when responses are blocked behind requests in shared queues. VNET separation guarantees forward progress.";
   }
 }
+
+function checkQuiz14_Q2(idx) {
+  const fb = document.getElementById("q14_q2_feedback");
+  fb.style.display = "block";
+  const opts = document.getElementById("q14_q2_options").children;
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
+
+  if (idx === 0) {
+    opts[0].style.background = "rgba(34,197,94,0.15)"; opts[0].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
+    fb.innerHTML = "<strong>✓ Correct!</strong> Multi-bit toggling creates severe metastability and race conditions because bits arrive at different times across clock domains. Gray code guarantees unit Hamming distance (only 1 bit changes per increment), ensuring sampled pointers are either the exact previous value or the updated value.";
+  } else {
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[0].style.background = "rgba(34,197,94,0.15)"; opts[0].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>A</strong>. Gray code eliminates multi-bit toggle metastability during cross-clock synchronization.";
+  }
+}
+
+function checkQuiz14_Q3(idx) {
+  const fb = document.getElementById("q14_q3_feedback");
+  fb.style.display = "block";
+  const opts = document.getElementById("q14_q3_options").children;
+  for (let i = 0; i < opts.length; i++) { opts[i].onclick = null; opts[i].style.cursor = "default"; }
+
+  if (idx === 1) {
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(34,197,94,0.1)"; fb.style.border = "1px solid rgba(34,197,94,0.3)"; fb.style.color = "#166534";
+    fb.innerHTML = "<strong>✓ Correct!</strong> An AXI read address beat fits in a single Head+Tail flit. The 64-byte data returns across four 128-bit flits plus header metadata (1 Head + 3 Body + 1 Tail flits), with the tail flit completing the AXI RLAST handshake.";
+  } else {
+    opts[idx].style.background = "rgba(239,68,68,0.15)"; opts[idx].style.borderColor = "#ef4444";
+    opts[1].style.background = "rgba(34,197,94,0.15)"; opts[1].style.borderColor = "#22c55e";
+    fb.style.background = "rgba(239,68,68,0.1)"; fb.style.border = "1px solid rgba(239,68,68,0.3)"; fb.style.color = "#991b1b";
+    fb.innerHTML = "<strong>✗ Incorrect.</strong> The correct answer is <strong>B</strong>. Single-flit read requests trigger multi-flit data responses that reassemble into AXI bursts.";
+  }
+}
 </script>
+
+---
+
+## 9. Interactive Arcade & Lab Challenges
+
+Put your Network Interface and protocol skills into practice:
+- ⚔️ **[QoS Gladiator: Priority Scheduler](../interactive/qos.md):** Schedule latency-sensitive coherence requests against bandwidth-hungry DMA traffic to optimize system Quality-of-Service.
+- 🧩 **[Packet Master: Flit Routing Puzzle](../interactive/puzzle.md):** Navigate packetized flit trains through complex crossbar networks while avoiding contention traps.
 
 ---
 
@@ -454,8 +651,8 @@ Congratulations! You have completed the foundational track of Network-on-Chip ar
 
 1. **Lesson 1.1:** You learned why shared buses and crossbars broke under Moore's Law, and how the **NoC paradigm** enabled scalable multicore processors.
 2. **Lesson 1.2:** You mastered the data unit hierarchy (**Messages, Packets, Flits, Phits**) and proved why **Wormhole Switching** minimizes buffer area and latency.
-3. **Lesson 1.3:** You derived the **Credit Round-Trip Time ($RTT$) loop** and established the buffer sizing law ($B_{min} \ge RTT$) to eliminate throughput pipeline bubbles.
-4. **Lesson 1.4:** You connected compute cores to the NoC using the **Network Interface (NI)**, crossed clock domains with Gray-code FIFOs, and eliminated protocol deadlocks using **Virtual Networks (VNETs)**.
+3. **Lesson 1.3:** You derived the **Credit Round-Trip Time ($RTT$) loop**, implemented synthesizable **Credit Flow Control RTL**, and established the buffer sizing law ($B_{min} \ge RTT$).
+4. **Lesson 1.4:** You connected compute cores to the NoC using the **Network Interface (NI)**, implemented synthesizable **Dual-Clock CDC Async FIFO RTL**, and eliminated protocol deadlocks using **Virtual Networks (VNETs)**.
 
 ---
 
@@ -463,3 +660,4 @@ Congratulations! You have completed the foundational track of Network-on-Chip ar
 Now that flits can flow seamlessly into the network, how does an on-chip router actually arbitrate ports, resolve conflicts, and switch flits in a single clock cycle?
 
 👉 **Advance to [Track 2: Router Microarchitecture](../track2-router-architecture/index.md)**
+

@@ -8,9 +8,10 @@
   </p>
   <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
     <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">⏱️ 4 In-Depth Lessons</span>
-    <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: rgba(16, 185, 129, 0.2);">🔬 4 Interactive Calculators &amp; Simulators</span>
-    <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">🎯 Self-Assessment Quizzes</span>
-    <span class="noc-track-badge" style="background: rgba(147, 51, 234, 0.1); color: #9333ea; border-color: rgba(147, 51, 234, 0.2);">🏛️ Silicon Case Studies (Intel, AMD, Apple, ARM)</span>
+    <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: rgba(16, 185, 129, 0.2);">🔬 4 Interactive Simulators</span>
+    <span class="noc-track-badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2);">💾 Synthesizable Verilog RTL</span>
+    <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">🎯 3-Question Quizzes</span>
+    <span class="noc-track-badge" style="background: rgba(236, 72, 153, 0.1); color: #ec4899; border-color: rgba(236, 72, 153, 0.2);">🎮 Arcade Game Linkages</span>
   </div>
 </div>
 
@@ -68,10 +69,10 @@ graph TD
         Explore the breakdown of shared multi-drop buses (AMBA, Wishbone) and the quadratic area of crossbars. Learn Elmore wire delay models, electron scattering at sub-10nm nodes, repeater overheads, and the seminal 2001 breakthrough: <em>"Route packets, not wires."</em>
       </div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Interactive Bus vs Crossbar vs NoC Scalability Calculator, Intel TeraFLOPS &amp; SCC silicon case studies, Self-Check Quiz.
+        ⚡ <strong>Features:</strong> Interactive Bus vs Crossbar vs NoC Scalability Calculator, Intel TeraFLOPS &amp; SCC case studies, 3-Question Quiz, Arcade links to <em>Topology Titans</em> &amp; <em>2D Mesh Visualizer</em>.
       </div>
     </div>
-    <a href="01-why-noc/" class="noc-track-link">Launch Lesson 1.1 →</a>
+    <a href="01-why-noc.md" class="noc-track-link">Launch Lesson 1.1 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -82,10 +83,10 @@ graph TD
         Deconstruct application messages into Packets, Flits (Head, Body, Tail), and physical Phits. Compare Store-and-Forward (SAF), Virtual Cut-Through (VCT), and Wormhole (WH) switching with zero-load latency derivations, timing diagrams, and Head-of-Line blocking analysis.
       </div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Interactive Switching Techniques Simulator with cycle-by-cycle animation &amp; congestion injection, Self-Check Quiz.
+        ⚡ <strong>Features:</strong> Interactive Switching Techniques Simulator with cycle-by-cycle animation, 3-Question Quiz, Arcade links to <em>Packet Master</em>, <em>Deflection Duel</em> &amp; <em>Arbiter Arena</em>.
       </div>
     </div>
-    <a href="02-packet-switching-flits/" class="noc-track-link">Launch Lesson 1.2 →</a>
+    <a href="02-packet-switching-flits.md" class="noc-track-link">Launch Lesson 1.2 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -96,10 +97,10 @@ graph TD
         Analyze lossless on-chip flow control protocols. Derive the Credit Round-Trip Time ($RTT$) loop and prove the fundamental buffer sizing condition ($B_{min} \ge RTT$) required to sustain 100% throughput line rate without pipeline bubbles.
       </div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Interactive Credit Turnaround Loop Simulator, bubble cycle wave visualizer, On/Off hysteresis modeling, Self-Check Quiz.
+        ⚡ <strong>Features:</strong> Synthesizable Verilog <code>credit_flow_control.v</code>, Interactive Credit Turnaround Loop Simulator, 3-Question Quiz, Arcade link to <em>Credit Commander</em>.
       </div>
     </div>
-    <a href="03-flow-control-credit/" class="noc-track-link">Launch Lesson 1.3 →</a>
+    <a href="03-flow-control-credit.md" class="noc-track-link">Launch Lesson 1.3 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -110,10 +111,10 @@ graph TD
         Bridge the gap between IP cores and routers. Understand how ARM AXI and RISC-V TileLink transactions are packetized, how dual-clock asynchronous FIFOs cross clock domains (CDC), and how Virtual Networks (VNETs) eliminate protocol deadlocks.
       </div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Interactive AXI-to-Flit Packetizer Explorer, Gray-code pointer CDC breakdown, ARM CMN-700 case study, Self-Check Quiz.
+        ⚡ <strong>Features:</strong> Synthesizable Verilog <code>async_fifo_cdc.v</code>, Interactive AXI-to-Flit Packetizer Explorer, 3-Question Quiz, Arcade links to <em>QoS Gladiator</em> &amp; <em>Packet Master</em>.
       </div>
     </div>
-    <a href="04-network-interface-packetization/" class="noc-track-link">Launch Lesson 1.4 →</a>
+    <a href="04-network-interface-packetization.md" class="noc-track-link">Launch Lesson 1.4 →</a>
   </div>
 </div>
 
@@ -146,4 +147,4 @@ The transition from buses to NoCs represents one of the most critical shifts in 
 | **2021** | Apple M1 Max / Ultra | UltraFusion 2.5 TB/s D2D NoC | High-density passive interposer linking dual dies with ultra-low latency packet fabric. |
 | **2023** | AMD EPYC Genoa &amp; Zen 4 | Infinity Fabric NoC | Modular chiplet architecture connecting 12 CCDs through a centralized I/O die. |
 
-Ready to begin? Start with **[Lesson 1.1: Why Network-on-Chip?](01-why-noc/)**.
+Ready to begin? Start with **[Lesson 1.1: Why Network-on-Chip?](01-why-noc.md)**.
