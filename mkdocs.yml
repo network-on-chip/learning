@@ -40,6 +40,9 @@ theme:
     - content.code.annotate
     - content.tabs.link
 
+hooks:
+  - hooks.py
+
 plugins:
   - search
   - i18n:

@@ -99,7 +99,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive 3D TSV Mesh &amp; 7-Port Router Architecture Visualizer, Synthesizable Verilog RTL (`router_3d_7port_allocator.v`), 3-Question Self-Check Quiz, Arcade Linkages (Topology Titans &amp; Arbiter Arena).
       </div>
     </div>
-    <a href="01-3d-tsv-interconnects.md" class="noc-track-link">Launch Lesson 6.1 →</a>
+    <a href="01-3d-tsv-interconnects/" class="noc-track-link">Launch Lesson 6.1 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -113,7 +113,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive Multi-Chiplet D2D Packaging &amp; UCIe Explorer, Synthesizable Verilog RTL (`ucie_d2d_link_adapter.v`), 3-Question Self-Check Quiz, Arcade Linkages (Chiplet Tycoon &amp; Credit Commander).
       </div>
     </div>
-    <a href="02-chiplets-ucie-interconnects.md" class="noc-track-link">Launch Lesson 6.2 →</a>
+    <a href="02-chiplets-ucie-interconnects/" class="noc-track-link">Launch Lesson 6.2 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -127,7 +127,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive 3D Thermal Stacking &amp; CDG Deadlock Simulator, Synthesizable Verilog RTL (`xyz_3d_dor_router.v`), 3-Question Self-Check Quiz, Arcade Linkages (Hotspot Hero &amp; Deadlock Buster).
       </div>
     </div>
-    <a href="03-3d-topologies-thermal-deadlock.md" class="noc-track-link">Launch Lesson 6.3 →</a>
+    <a href="03-3d-topologies-thermal-deadlock/" class="noc-track-link">Launch Lesson 6.3 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -141,7 +141,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive Silicon Micro-Ring Resonator (MRR) WDM &amp; Spectrum Tuner, Synthesizable Verilog RTL (`onoc_mrr_thermal_tuner.v`), 3-Question Self-Check Quiz, Arcade Linkages (Photon Pilot &amp; Wireless Wave).
       </div>
     </div>
-    <a href="04-optical-wireless-frontiers.md" class="noc-track-link">Launch Lesson 6.4 →</a>
+    <a href="04-optical-wireless-frontiers/" class="noc-track-link">Launch Lesson 6.4 →</a>
   </div>
 </div>
 

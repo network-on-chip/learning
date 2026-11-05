@@ -6,7 +6,7 @@
   </p>
   <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
     <a href="textbook/" class="noc-sim-btn" style="text-decoration: none; background: #2563eb;">📖 Read Official Textbook (10 Chaps)</a>
-    <a href="assets/book.pdf" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 Download PDF (134 Pages)</a>
+    <a href="assets/book.pdf" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 Download PDF (140 Pages)</a>
     <a href="track1-fundamentals/" class="noc-sim-btn secondary" style="text-decoration: none;">🚀 Start Curriculum</a>
     <a href="quiz/" class="noc-sim-btn secondary" style="text-decoration: none;">🎯 Certification Quiz</a>
     <a href="interactive/game/" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 Deadlock Buster</a>
@@ -22,7 +22,7 @@
     <span class="noc-stat-label">Core Textbook Chapters</span>
   </div>
   <div class="noc-stat-card">
-    <span class="noc-stat-number">134</span>
+    <span class="noc-stat-number">140</span>
     <span class="noc-stat-label">Monograph Pages</span>
   </div>
   <div class="noc-stat-card">
@@ -47,7 +47,7 @@ Explore the definitive 10-chapter textbook **"Network-on-Chip and Advanced Inter
       <span>📘 Camera-Ready Monograph PDF Available</span>
     </div>
     <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 800px; line-height: 1.5;">
-      Formatted in Springer Nature <code>svmono</code> layout (132 pages). Covers Elmore RC wire delays, router pipelines, high-radix topologies, turn model deadlock freedom, dark silicon DVFS, HotSpot thermal models, 3D TSVs, UCIe chiplets, and silicon nanophotonics.
+      Formatted in Springer Nature <code>svmono</code> layout (140 pages). Covers Elmore RC wire delays, router pipelines, high-radix topologies, turn model deadlock freedom, dark silicon DVFS, HotSpot thermal models, 3D TSVs, UCIe chiplets, and silicon nanophotonics.
     </div>
   </div>
   <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -55,7 +55,7 @@ Explore the definitive 10-chapter textbook **"Network-on-Chip and Advanced Inter
       <span>Read Online Hub →</span>
     </a>
     <a href="assets/book.pdf" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #0284c7; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
-      <span>Download PDF (132 Pages) ↓</span>
+      <span>Download PDF (140 Pages) ↓</span>
     </a>
   </div>
 </div>

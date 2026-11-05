@@ -701,7 +701,7 @@ Put your topological intuition to the test with hands-on silicon design challeng
         Take a 16-node ring with diameter 8 hops and wire periodic shortcuts and wrap-around links to cut diameter to &le; 4 hops while keeping node radix bounded to 4 ports.
       </div>
     </div>
-    <a href="../interactive/topology/" class="noc-track-link">Play Topology Titans →</a>
+    <a href="../../interactive/topology/" class="noc-track-link">Play Topology Titans →</a>
   </div>
 
   <div class="noc-track-card">
@@ -712,7 +712,7 @@ Put your topological intuition to the test with hands-on silicon design challeng
         Observe flit-by-flit traffic flows across 2D Mesh and Torus networks under synthetic loads, monitoring bisection link saturation in real time.
       </div>
     </div>
-    <a href="../interactive/visualizer/" class="noc-track-link">Launch Visualizer →</a>
+    <a href="../../interactive/visualizer/" class="noc-track-link">Launch Visualizer →</a>
   </div>
 </div>
 

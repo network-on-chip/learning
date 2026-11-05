@@ -468,7 +468,7 @@ Explore multi-stage and hierarchical networks in interactive simulations:
         Construct a 2-tier Fat-Tree interconnect for 16 compute nodes, balancing spine switch radix against leaf aggregation bandwidth.
       </div>
     </div>
-    <a href="../interactive/topology/" class="noc-track-link">Play Topology Titans →</a>
+    <a href="../../interactive/topology/" class="noc-track-link">Play Topology Titans →</a>
   </div>
 
   <div class="noc-track-card">
@@ -479,7 +479,7 @@ Explore multi-stage and hierarchical networks in interactive simulations:
         Architect multi-die chiplet interconnects using concentrated switches and silicon interposers to maximize multi-core yield.
       </div>
     </div>
-    <a href="../interactive/chiplet/" class="noc-track-link">Launch Chiplet Tycoon →</a>
+    <a href="../../interactive/chiplet/" class="noc-track-link">Launch Chiplet Tycoon →</a>
   </div>
 </div>
 

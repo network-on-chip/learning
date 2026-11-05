@@ -525,7 +525,7 @@ Put deterministic routing and turn rules into practice with interactive challeng
         Levels 1–3: Steer packet flits across a 2D mesh grid under deterministic Dimension-Order Routing (DOR), avoiding head-on collisions and turn violations.
       </div>
     </div>
-    <a href="../interactive/puzzle/" class="noc-track-link">Play Packet Master →</a>
+    <a href="../../interactive/puzzle/" class="noc-track-link">Play Packet Master →</a>
   </div>
 
   <div class="noc-track-card">
@@ -536,7 +536,7 @@ Put deterministic routing and turn rules into practice with interactive challeng
         Defend an active NoC fabric against cyclic channel dependencies! Detect circular packet wait-for graphs in real time and trigger emergency flit drains.
       </div>
     </div>
-    <a href="../interactive/game/" class="noc-track-link">Play Deadlock Buster →</a>
+    <a href="../../interactive/game/" class="noc-track-link">Play Deadlock Buster →</a>
   </div>
 </div>
 

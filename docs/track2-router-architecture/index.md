@@ -91,7 +91,7 @@ graph TD
         ⚡ <strong>Features:</strong> Synthesizable Verilog <code>lookahead_route_compute.v</code>, Interactive Pipeline Stepper, 3-Question Quiz, Arcade links to <em>Packet Master</em> &amp; <em>Deadlock Buster</em>.
       </div>
     </div>
-    <a href="01-pipeline-stages.md" class="noc-track-link">Launch Lesson 2.1 →</a>
+    <a href="01-pipeline-stages/" class="noc-track-link">Launch Lesson 2.1 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -105,7 +105,7 @@ graph TD
         ⚡ <strong>Features:</strong> Synthesizable Verilog <code>vc_fsm_allocator.v</code>, Interactive HoL Solver, 3-Question Quiz, Arcade links to <em>Arbiter Arena</em> &amp; <em>QoS Gladiator</em>.
       </div>
     </div>
-    <a href="02-virtual-channels.md" class="noc-track-link">Launch Lesson 2.2 →</a>
+    <a href="02-virtual-channels/" class="noc-track-link">Launch Lesson 2.2 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -119,7 +119,7 @@ graph TD
         ⚡ <strong>Features:</strong> Synthesizable Verilog <code>matrix_arbiter.v</code> &amp; <code>crossbar_5x5.v</code>, Interactive 4×4 Matrix Simulator, 3-Question Quiz, Arcade links to <em>Arbiter Arena</em> &amp; <em>Chiplet Tycoon</em>.
       </div>
     </div>
-    <a href="03-arbitration-crossbar.md" class="noc-track-link">Launch Lesson 2.3 →</a>
+    <a href="03-arbitration-crossbar/" class="noc-track-link">Launch Lesson 2.3 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -133,7 +133,7 @@ graph TD
         ⚡ <strong>Features:</strong> Synthesizable Verilog <code>smart_bypass_unit.v</code>, Interactive SMART Multi-Hop Simulator, 3-Question Quiz, Arcade links to <em>Deflection Duel</em> &amp; <em>Hotspot Hero</em>.
       </div>
     </div>
-    <a href="04-low-latency-bypass-routers.md" class="noc-track-link">Launch Lesson 2.4 →</a>
+    <a href="04-low-latency-bypass-routers/" class="noc-track-link">Launch Lesson 2.4 →</a>
   </div>
 </div>
 

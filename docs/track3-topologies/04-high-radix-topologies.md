@@ -596,7 +596,7 @@ Test your high-radix interconnect intuition in exascale architectural challenges
         Mission 3: Wire a 16-node Dragonfly network organized into 4 hierarchical groups. Maximize bisection bandwidth while minimizing expensive optical inter-group links.
       </div>
     </div>
-    <a href="../interactive/topology/" class="noc-track-link">Play Topology Titans →</a>
+    <a href="../../interactive/topology/" class="noc-track-link">Play Topology Titans →</a>
   </div>
 
   <div class="noc-track-card">
@@ -607,7 +607,7 @@ Test your high-radix interconnect intuition in exascale architectural challenges
         Experience the timing bottlenecks of 64-port switch allocation, comparing separable matrix arbiters against iterative iSLIP matching.
       </div>
     </div>
-    <a href="../interactive/arbiter/" class="noc-track-link">Launch Arbiter Arena →</a>
+    <a href="../../interactive/arbiter/" class="noc-track-link">Launch Arbiter Arena →</a>
   </div>
 </div>
 

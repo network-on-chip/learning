@@ -594,7 +594,7 @@ Experience deadlock formation and escape channel flushing in interactive simulat
         Watch circular wait dependencies freeze multi-tile buffers in real time. Deploy Duato escape channels to break cyclic queues and restore maximum line-rate throughput!
       </div>
     </div>
-    <a href="../interactive/game/" class="noc-track-link">Play Deadlock Buster →</a>
+    <a href="../../interactive/game/" class="noc-track-link">Play Deadlock Buster →</a>
   </div>
 
   <div class="noc-track-card">
@@ -605,7 +605,7 @@ Experience deadlock formation and escape channel flushing in interactive simulat
         Experience Virtual Channel allocation under heavy adaptive traffic, arbitrating between escape channels and high-throughput speculative crossbar paths.
       </div>
     </div>
-    <a href="../interactive/arbiter/" class="noc-track-link">Launch Arbiter Arena →</a>
+    <a href="../../interactive/arbiter/" class="noc-track-link">Launch Arbiter Arena →</a>
   </div>
 </div>
 

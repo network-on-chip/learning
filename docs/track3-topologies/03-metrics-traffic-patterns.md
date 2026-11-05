@@ -615,7 +615,7 @@ Benchmark traffic patterns and thermal dynamics in real-time arcade simulations:
         Observe how localized traffic bursts and Bit-Complement congestion trigger severe silicon hot spots, requiring real-time DVFS and cryo cooling.
       </div>
     </div>
-    <a href="../interactive/hotspot/" class="noc-track-link">Play Hotspot Hero →</a>
+    <a href="../../interactive/hotspot/" class="noc-track-link">Play Hotspot Hero →</a>
   </div>
 
   <div class="noc-track-card">
@@ -626,7 +626,7 @@ Benchmark traffic patterns and thermal dynamics in real-time arcade simulations:
         Toggle between Uniform Random, Bit-Complement, and All-to-All communication patterns and observe network link saturation live on graph topologies.
       </div>
     </div>
-    <a href="../interactive/topology/" class="noc-track-link">Launch Stress Lab →</a>
+    <a href="../../interactive/topology/" class="noc-track-link">Launch Stress Lab →</a>
   </div>
 </div>
 

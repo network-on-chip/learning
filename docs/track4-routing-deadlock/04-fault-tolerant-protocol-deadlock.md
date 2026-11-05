@@ -517,7 +517,7 @@ Put fault-tolerant routing and protocol isolation to the test in silicon arcade 
         Survive electro-migration wire breaks and dead router tiles! Use BIST radar pulses to detect broken links and steer traffic around convex fault rings.
       </div>
     </div>
-    <a href="../interactive/faults/" class="noc-track-link">Play Fault Defender →</a>
+    <a href="../../interactive/faults/" class="noc-track-link">Play Fault Defender →</a>
   </div>
 
   <div class="noc-track-card">
@@ -528,7 +528,7 @@ Put fault-tolerant routing and protocol isolation to the test in silicon arcade 
         Arbitrate multi-class VNET flows under strict priority, defending real-time cache responses against massive injection floods of background requests.
       </div>
     </div>
-    <a href="../interactive/qos/" class="noc-track-link">Launch QoS Gladiator →</a>
+    <a href="../../interactive/qos/" class="noc-track-link">Launch QoS Gladiator →</a>
   </div>
 </div>
 

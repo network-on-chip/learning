@@ -608,7 +608,7 @@ Put the turn model and multi-path routing to the test in arcade challenges:
         Levels 4–5: Navigate congested grid hotspots using the West-First turn model. Exploit Eastbound multi-path diversity while managing Westbound deterministic bottlenecks.
       </div>
     </div>
-    <a href="../interactive/puzzle/" class="noc-track-link">Play Packet Master →</a>
+    <a href="../../interactive/puzzle/" class="noc-track-link">Play Packet Master →</a>
   </div>
 
   <div class="noc-track-card">
@@ -619,7 +619,7 @@ Put the turn model and multi-path routing to the test in arcade challenges:
         Observe how missing turn restrictions spawn circular dependency cycles in real-time NoC traffic. Intervene with emergency buffer flushes!
       </div>
     </div>
-    <a href="../interactive/game/" class="noc-track-link">Play Deadlock Buster →</a>
+    <a href="../../interactive/game/" class="noc-track-link">Play Deadlock Buster →</a>
   </div>
 </div>
 

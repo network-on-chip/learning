@@ -84,7 +84,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive Intel SCC 48-Core Mesh Simulator, Synthesizable Verilog RTL (`scc_mesh_router_wwfa.v`), 3-Question Self-Check Quiz, Arcade Linkages (Arbiter Arena &amp; Volt Vortex).
       </div>
     </div>
-    <a href="01-intel-scc-mesh.md" class="noc-track-link">Launch Lesson 7.1 →</a>
+    <a href="01-intel-scc-mesh/" class="noc-track-link">Launch Lesson 7.1 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -98,7 +98,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive NVIDIA Simba Hierarchical MCM-NoC Explorer, Synthesizable Verilog RTL (`simba_multicast_router.v`), 3-Question Self-Check Quiz, Arcade Linkages (Chiplet Tycoon &amp; QoS Gladiator).
       </div>
     </div>
-    <a href="02-nvidia-simba-mcm.md" class="noc-track-link">Launch Lesson 7.2 →</a>
+    <a href="02-nvidia-simba-mcm/" class="noc-track-link">Launch Lesson 7.2 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -112,7 +112,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive 3D Optical NoC WDM &amp; Thermal Budget Analyzer, Synthesizable Verilog RTL (`onoc_hybrid_3d_crossbar.v`), 3-Question Self-Check Quiz, Arcade Linkages (Photon Pilot &amp; Hotspot Hero).
       </div>
     </div>
-    <a href="03-3d-optical-noc.md" class="noc-track-link">Launch Lesson 7.3 →</a>
+    <a href="03-3d-optical-noc/" class="noc-track-link">Launch Lesson 7.3 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -126,7 +126,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive In-Flight Partial-Sum Reduction Visualizer, Synthesizable Verilog RTL (`neuromorphic_psum_router.v`), 3-Question Self-Check Quiz, Arcade Linkages (Neuromorphic Nexus &amp; Packet Master).
       </div>
     </div>
-    <a href="04-in-network-neuromorphic.md" class="noc-track-link">Launch Lesson 7.4 →</a>
+    <a href="04-in-network-neuromorphic/" class="noc-track-link">Launch Lesson 7.4 →</a>
   </div>
 </div>
 

@@ -78,7 +78,7 @@ graph TD
         ⚡ <strong>Features:</strong> Synthesizable <code>folded_torus_node_map.v</code>, Interactive Mesh vs. Torus Topology Explorer &amp; Shortest-Path Visualizer, 3-Question Self-Check Quiz, 🌐 <em>Topology Titans</em> Arcade Mission.
       </div>
     </div>
-    <a href="01-direct-topologies.md" class="noc-track-link">Launch Lesson 3.1 →</a>
+    <a href="01-direct-topologies/" class="noc-track-link">Launch Lesson 3.1 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -92,7 +92,7 @@ graph TD
         ⚡ <strong>Features:</strong> Synthesizable <code>cmesh_concentrator.v</code>, Interactive 64-Core Mesh vs. cMesh Area &amp; Latency Calculator, 3-Question Self-Check Quiz, 🏗️ <em>Chiplet Tycoon</em> Lab.
       </div>
     </div>
-    <a href="02-indirect-hierarchical.md" class="noc-track-link">Launch Lesson 3.2 →</a>
+    <a href="02-indirect-hierarchical/" class="noc-track-link">Launch Lesson 3.2 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -106,7 +106,7 @@ graph TD
         ⚡ <strong>Features:</strong> Synthesizable <code>traffic_pattern_generator.v</code>, Interactive Synthetic Traffic &amp; Bisection Stress Visualizer, Bit-Complement mathematical proof, 3-Question Self-Check Quiz, 🛡️ <em>Hotspot Hero</em> Arcade.
       </div>
     </div>
-    <a href="03-metrics-traffic-patterns.md" class="noc-track-link">Launch Lesson 3.3 →</a>
+    <a href="03-metrics-traffic-patterns/" class="noc-track-link">Launch Lesson 3.3 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -120,7 +120,7 @@ graph TD
         ⚡ <strong>Features:</strong> Synthesizable <code>dragonfly_ugal_arbiter.v</code>, Interactive High-Radix vs. Low-Radix Trade-off Explorer, Slingshot case study, 3-Question Self-Check Quiz, ⚔️ <em>Arbiter Arena</em>.
       </div>
     </div>
-    <a href="04-high-radix-topologies.md" class="noc-track-link">Launch Lesson 3.4 →</a>
+    <a href="04-high-radix-topologies/" class="noc-track-link">Launch Lesson 3.4 →</a>
   </div>
 </div>
 
