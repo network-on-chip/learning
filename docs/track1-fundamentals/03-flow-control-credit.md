@@ -1,5 +1,19 @@
 # 1.3 Flow Control & Credit Mechanism
 
+<div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.25), rgba(15, 23, 42, 0.45)); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <div style="font-weight: 700; color: #60a5fa; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+      <span>📖 Companion Textbook Chapter Available</span>
+    </div>
+    <div style="font-size: 0.88rem; color: #cbd5e1; margin-top: 4px;">
+      Read <strong>Chapter 2: Switching Techniques, Flow Control & Buffer Management</strong> in our open textbook, featuring full credit turnaround RTT equations, minimum buffer sizing proofs ($B_{min} \ge RTT$), and SWIFT Token Flow Control (TVLSI 2013).
+    </div>
+  </div>
+  <a href="https://github.com/network-on-chip/book/blob/main/chapters/ch02-switching-flow-control/index.md" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
+    <span>Explore Chapter 2 →</span>
+  </a>
+</div>
+
 In wide-area networks (such as the Internet and Ethernet), when router buffers overflow, packets are simply dropped, and higher-level protocols (like TCP) retransmit missing data. 
 
 In a silicon System-on-Chip, **dropping packets is strictly forbidden**. Cache coherence protocols (such as MESI or MOESI) and memory consistency models depend on guaranteed, lossless delivery. A single dropped invalidation message or memory writeback would immediately cause cache incoherence, deadlock, or silent data corruption.

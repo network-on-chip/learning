@@ -346,6 +346,54 @@ const QUESTIONS_BANK = [
     ],
     "answer": 0,
     "explanation": "Full NxN crossbars exhibit quadratic O(N^2) area complexity and require O(N) global wires per port. For N >= 64, wiring congestion and crosspoint area overwhelm the silicon floorplan, whereas modular 2D Mesh NoCs scale linearly in local router area."
+  },
+  {
+    "id": "q16",
+    "module": "Track 1: Fundamentals (Book Ch 2)",
+    "tier": "Tier 1: Fundamental",
+    "tier_level": 1,
+    "base_points": 100,
+    "question": "What is the foundational architectural advantage of Wormhole Switching compared to Store-and-Forward and Virtual Cut-Through?",
+    "options": [
+      "Wormhole switching decouples the buffer allocation unit (flit) from packet size, allowing router buffers to be as small as 1 to 4 flits, slashing SRAM buffer area by 75% to 90%.",
+      "Wormhole switching eliminates the need for clock trees across the chip.",
+      "Wormhole switching guarantees zero-latency light-speed optical traversal.",
+      "Wormhole switching drops packets automatically when congested."
+    ],
+    "answer": 0,
+    "explanation": "By allocating buffer storage at the flit granularity rather than requiring full packet buffering, Wormhole switching allows routers to operate with compact 2-4 flit queues, dramatically reducing router silicon area and power."
+  },
+  {
+    "id": "q17",
+    "module": "Track 1: Fundamentals (Book Ch 2)",
+    "tier": "Tier 2: Core Engineering",
+    "tier_level": 2,
+    "base_points": 200,
+    "question": "In credit-based flow control, what is the exact physical condition for the downstream buffer depth B_min required to sustain 100% full wire-rate throughput without pipeline stall bubbles?",
+    "options": [
+      "B_min must be equal to 1 flit regardless of link latency.",
+      "B_min >= RTT * Peak_Injection_Rate, where RTT is the total credit turnaround loop delay (forward flight + receiver processing + reverse credit flight + transmitter processing).",
+      "B_min must equal the total number of cores on the chip.",
+      "B_min must be zero (bufferless deflection only)."
+    ],
+    "answer": 1,
+    "explanation": "If buffer depth B < RTT, the upstream transmitter runs out of credits before the first credit pulse returns from downstream, forcing the forward physical link to sit idle during credit turnaround cycles."
+  },
+  {
+    "id": "q18",
+    "module": "Track 1: Fundamentals (Book Ch 2)",
+    "tier": "Tier 3: Silicon Mastery",
+    "tier_level": 3,
+    "base_points": 300,
+    "question": "How does Token Flow Control in the SWIFT NoC (Peh et al., IEEE TVLSI 2013) achieve up to 38% power reduction compared to canonical wormhole routers?",
+    "options": [
+      "By shutting off power to 90% of the router tiles permanently.",
+      "By transmitting tokens ahead of data flits, allowing incoming flits to bypass input FIFO buffers entirely and cut through directly into the crossbar when tokens are granted.",
+      "By routing packets exclusively through analog operational amplifiers.",
+      "By replacing packet flits with radio-frequency pulses."
+    ],
+    "answer": 1,
+    "explanation": "Token flow control enables flit buffer bypassing. Because flits avoid writing and reading SRAM buffer cells under low-to-medium network contention, dynamic buffer energy is dramatically slashed."
   }
 ];
 

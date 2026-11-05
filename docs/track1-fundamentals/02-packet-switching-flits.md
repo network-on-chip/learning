@@ -1,5 +1,19 @@
 # 1.2 Packets, Flits & Switching
 
+<div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.25), rgba(15, 23, 42, 0.45)); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <div style="font-weight: 700; color: #60a5fa; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+      <span>📖 Companion Textbook Chapter Available</span>
+    </div>
+    <div style="font-size: 0.88rem; color: #cbd5e1; margin-top: 4px;">
+      Read <strong>Chapter 2: Switching Techniques, Flow Control & Buffer Management</strong> in our open textbook, featuring mathematical latency derivations for SAF vs VCT vs Wormhole, FlooNoC AXI4 NI architectures, and synthesizable credit flow RTL.
+    </div>
+  </div>
+  <a href="https://github.com/network-on-chip/book/blob/main/chapters/ch02-switching-flow-control/index.md" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
+    <span>Explore Chapter 2 →</span>
+  </a>
+</div>
+
 In Network-on-Chip (NoC), data communication is divided into a rigorous structural hierarchy. This hierarchy balances routing flexibility with the microarchitectural reality that **on-chip SRAM/register buffers consume precious silicon area and power**.
 
 In this lesson, we examine how application transactions are diced into **packets**, **flits**, and **phits**, and compare the three seminal switching techniques that govern how data travels across routers: **Store-and-Forward**, **Virtual Cut-Through**, and **Wormhole Switching**.
