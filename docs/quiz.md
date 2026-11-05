@@ -634,6 +634,54 @@ const QUESTIONS_BANK = [
     ],
     "answer": 0,
     "explanation": "ZoneDefense avoids sacrificing healthy nodes by bounding arbitrary faults into convex blocks. Nodes in the aligned columns (Defense Zones) steer incoming traffic around the perimeter in advance, eliminating cyclic dependencies on the Channel Dependency Graph without virtual channels."
+  },
+  {
+    "id": "q34",
+    "module": "Track 6: Chiplets & 3D (Book Ch 8)",
+    "tier": "Tier 1: Fundamental",
+    "tier_level": 1,
+    "base_points": 100,
+    "question": "What is a Through-Silicon Via (TSV) Keep-Out Zone (KOZ), and what physical phenomenon dictates its size?",
+    "options": [
+      "A boundary of 3 to 5 um surrounding a TSV where no active transistors can be placed, dictated by thermo-mechanical compressive stress from copper-silicon CTE mismatch that alters transistor carrier mobility via the piezoresistive effect.",
+      "A region of the wafer where no power supply lines can run due to electromagnetic radiation.",
+      "A software firewall zone in the Linux operating system kernel.",
+      "A circular moat filled with liquid coolant around every router."
+    ],
+    "answer": 0,
+    "explanation": "Copper's thermal expansion coefficient (17 ppm/K) is far higher than silicon's (2.6 ppm/K). During thermal cooling after manufacturing, copper TSVs exert high mechanical stress on surrounding silicon, shifting NMOS and PMOS mobility by up to 30%. The Keep-Out Zone (KOZ) protects transistors from this stress."
+  },
+  {
+    "id": "q35",
+    "module": "Track 6: Chiplets & 3D (Book Ch 8)",
+    "tier": "Tier 2: Core Engineering",
+    "tier_level": 2,
+    "base_points": 200,
+    "question": "Why does expanding a 2D router (5 ports) to a fully symmetric 3D router (7 ports) almost double the crossbar switch area, and how do Vertical Arbitration-Free architectures (More et al., IEEE TCAD 2018) mitigate this overhead?",
+    "options": [
+      "Crossbar multiplexer complexity scales quadratically (P^2 = 49 crosspoints vs. 25 crosspoints, a 96% increase); arbitration-free designs deploy dedicated unidirectional vertical links that eliminate vertical allocators and simplify the crossbar matrix.",
+      "Crossbar area scales logarithmically with port count.",
+      "Because 3D routers must be fabricated exclusively with diamond substrates.",
+      "Arbitration-free architectures double the clock frequency to avoid adding vertical ports."
+    ],
+    "answer": 0,
+    "explanation": "An N-port crossbar requires N^2 crosspoints; increasing from 5 to 7 ports increases crosspoint count from 25 to 49 (+96%). More et al. demonstrated that dedicated vertical fast-paths eliminate complex vertical arbiters and reduce router silicon area by ~20%."
+  },
+  {
+    "id": "q36",
+    "module": "Track 6: Chiplets & 3D (Book Ch 8)",
+    "tier": "Tier 3: Silicon Mastery",
+    "tier_level": 3,
+    "base_points": 300,
+    "question": "What causes the severe 'Thermal Trapping' phenomenon in vertically stacked 3D-ICs, and why is the top tier significantly hotter than the bottom tier?",
+    "options": [
+      "Heat generated in upper silicon tiers must conduct downward through multiple thinned silicon substrates and low-conductivity dielectric bonding interfaces (SiO2/adhesives) before reaching the bottom heat sink, causing thermal resistance accumulation.",
+      "Because heat in outer space always flows downward toward the earth.",
+      "Because upper tiers operate at 10x higher supply voltages than lower tiers.",
+      "Because top tiers are exposed to ambient solar radiation inside the server chassis."
+    ],
+    "answer": 0,
+    "explanation": "In standard packaging, the single die sits directly on the heat sink. In 3D stacks, only Tier 0 has direct thermal contact with the heat sink. Upper tiers must conduct heat through the entire thermal resistance ladder (accumulating inter-tier dielectric resistances), elevating top-tier temperatures by 25\u00b0C to 40\u00b0C over bottom tiers."
   }
 ];
 

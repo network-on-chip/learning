@@ -11,6 +11,12 @@
     <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: rgba(16, 185, 129, 0.2);">🔬 4 Interactive Simulators &amp; Tools</span>
     <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">💻 4 Synthesizable Verilog RTL Modules</span>
     <span class="noc-track-badge" style="background: rgba(147, 51, 234, 0.1); color: #9333ea; border-color: rgba(147, 51, 234, 0.2);">📦 UCIe 1.0/2.0 &amp; TSV Standards</span>
+</div>
+
+<div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
+  <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Official Companion Textbook Chapter Available</div>
+  <div style="color: #334155; font-size: 0.95rem;">
+    For comprehensive physical derivations of TSV lumped parasitics, piezoresistive Keep-Out Zones, 7-port crossbar area scaling, vertical arbitration-free fast paths, and inter-tier thermal resistance ladders, read <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch08-3d-noc-tsvs/index.md" target="_blank" rel="noopener">Chapter 8: Three-Dimensional Networks-on-Chip (3D-NoC) &amp; TSVs</a></strong>.
   </div>
 </div>
 
