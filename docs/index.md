@@ -2,11 +2,11 @@
   <div class="noc-track-badge">✨ Open-Source Curriculum & Research Lab</div>
   <h1>Network-on-Chip Learning Hub</h1>
   <p class="subtitle">
-    An interactive, scholarly curriculum bridging theoretical computer architecture, silicon router microarchitecture, and open-source reproducible research. Grounded in 542 curated IEEE/ACM papers, 10 definitive textbook chapters, and verified hardware simulations.
+    An interactive, scholarly curriculum bridging theoretical computer architecture, silicon router microarchitecture, and open-source reproducible research. Grounded in 10 definitive textbook chapters, hands-on hardware simulations, and verified silicon research.
   </p>
   <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
     <a href="textbook/" class="noc-sim-btn" style="text-decoration: none; background: #2563eb;">📖 Read Official Textbook (10 Chaps)</a>
-    <a href="assets/book.pdf" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 Download PDF (132 Pages)</a>
+    <a href="assets/book.pdf" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 Download PDF (134 Pages)</a>
     <a href="track1-fundamentals/" class="noc-sim-btn secondary" style="text-decoration: none;">🚀 Start Curriculum</a>
     <a href="quiz/" class="noc-sim-btn secondary" style="text-decoration: none;">🎯 Certification Quiz</a>
     <a href="interactive/game/" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 Deadlock Buster</a>
@@ -22,8 +22,8 @@
     <span class="noc-stat-label">Core Textbook Chapters</span>
   </div>
   <div class="noc-stat-card">
-    <span class="noc-stat-number">542+</span>
-    <span class="noc-stat-label">Curated IEEE Papers</span>
+    <span class="noc-stat-number">134</span>
+    <span class="noc-stat-label">Monograph Pages</span>
   </div>
   <div class="noc-stat-card">
     <span class="noc-stat-number">15</span>
@@ -473,7 +473,7 @@ Every concept in this curriculum is paired with concrete, reproducible artifacts
 
 ```mermaid
 graph LR
-  A["Theory & Literature<br/>(541 IEEE Papers)"] --> B["Curriculum Modules<br/>(Tracks 1–7)"]
+  A["Interconnect Theory<br/>& Architecture"] --> B["Curriculum Modules<br/>(Tracks 1–7)"]
   B --> C["Interactive Browser Lab<br/>(Canvas Routing Simulator)"]
   B --> D["Hardware Implementations<br/>(projects/ in Verilog & Python)"]
   D --> E["Benchmarking & Silicon Data<br/>(Thermal, Latency, Energy)"]

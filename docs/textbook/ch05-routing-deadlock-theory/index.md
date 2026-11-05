@@ -1,7 +1,7 @@
 # Chapter 5: Deadlock Theory, Turn Models & Adaptive Routing
 
 > **Authors**: NoC-Lab Research Consortium  
-> **Grounding Corpus**: `papers/` (542+ peer-reviewed articles from IEEE TVLSI, TCAD, JSSC, TCAS-I, TCAS-II)  
+> **Domain**: Silicon Microarchitecture & Interconnect Design  
 > **Interactive Companion**: [NoC Learning Hub — Track 4: Routing & Deadlock](https://network-on-chip.github.io/learning/track4-routing-deadlock/)  
 > **Interactive Arcade**: [Deadlock Buster](https://network-on-chip.github.io/learning/interactive/game/) & [Packet Master](https://network-on-chip.github.io/learning/interactive/puzzle/)  
 > **Accompanying Code**: [`code/cdg_cycle_detector.py`](code/cdg_cycle_detector.py), [`code/turn_model_routing.v`](code/turn_model_routing.v)
@@ -321,7 +321,7 @@ Lijing Zhu, Huaxi Gu, Yun Tan, and Guangming Zhang (*IEEE Transactions on Circui
 
 ---
 
-## 5.10 Grounding Bibliography & References
+## 5.10 References & Bibliography
 
 1. **W. J. Dally and C. L. Seitz**, "Deadlock-Free Message Routing in Multiprocessor Interconnection Networks," *IEEE Transactions on Computers*, Vol. C-36, No. 5, pp. 547–553, May 1987. DOI: [10.1109/TC.1987.1676939](https://doi.org/10.1109/TC.1987.1676939).
 2. **J. Duato**, "A New Theory of Deadlock-Free Adaptive Routing in Wormhole Networks," *IEEE Transactions on Parallel and Distributed Systems*, Vol. 4, No. 12, pp. 1320–1331, Dec. 1993. DOI: [10.1109/71.257110](https://doi.org/10.1109/71.257110).

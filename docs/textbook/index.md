@@ -2,14 +2,14 @@
 ## Architecture, Co-Design & Emerging Frontiers
 
 <div class="noc-hero">
-  <div class="noc-track-badge">📖 Official Open Textbook • 10 Chapters • 132 Pages</div>
+  <div class="noc-track-badge">📖 Official Open Textbook • 10 Chapters • 134 Pages</div>
   <h1>Network-on-Chip and Advanced Interconnects</h1>
   <p class="subtitle">
-    The definitive open-access monograph and textbook synthesizing <strong>542+ peer-reviewed papers</strong> from IEEE TVLSI, TCAD, JSSC, TCAS-I, and TCAS-II into 10 cohesive, rigorously grounded chapters across 5 architectural parts. Written with an intuitive, step-by-step pedagogical style accessible from high school students to leading silicon architects.
+    The definitive open-access monograph and textbook covering 10 cohesive, rigorously grounded chapters across 5 architectural parts. Written with an intuitive, step-by-step pedagogical style accessible from high school students to leading silicon architects.
   </p>
   <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem;">
     <a href="ch01-interconnect-crisis/" class="noc-sim-btn" style="text-decoration: none;">🚀 Read Chapter 1 Online</a>
-    <a href="../assets/book.pdf" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 Download Monograph PDF (132 Pages)</a>
+    <a href="../assets/book.pdf" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 Download Monograph PDF (134 Pages)</a>
     <a href="https://github.com/network-on-chip/book" target="_blank" class="noc-sim-btn secondary" style="text-decoration: none;">🐙 GitHub Book Source</a>
     <a href="../interactive/game.md" class="noc-sim-btn secondary" style="text-decoration: none; background: #ea580c; color: white;">👾 Interactive Labs</a>
   </div>
@@ -25,12 +25,12 @@
     <span class="noc-stat-label">Architectural Parts</span>
   </div>
   <div class="noc-stat-card">
-    <span class="noc-stat-number">132</span>
+    <span class="noc-stat-number">134</span>
     <span class="noc-stat-label">Camera-Ready Pages</span>
   </div>
   <div class="noc-stat-card">
-    <span class="noc-stat-number">542+</span>
-    <span class="noc-stat-label">Synthesized Papers</span>
+    <span class="noc-stat-number">100%</span>
+    <span class="noc-stat-label">Open & Reproducible</span>
   </div>
 </div>
 
@@ -341,8 +341,8 @@ If you use this open textbook or its accompanying Verilog RTL models and Python 
   series    = {Springer Monographs in Computer Architecture},
   publisher = {NoC-Lab Open Publishing},
   year      = {2026},
-  pages     = {1--132},
+  pages     = {1--134},
   url       = {https://network-on-chip.github.io/learning/textbook/},
-  note      = {Grounded in 542 peer-reviewed IEEE/ACM articles}
+  note      = {Springer Nature Monographs in Computer Architecture}
 }
 ```

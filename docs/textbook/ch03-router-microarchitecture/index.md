@@ -1,7 +1,7 @@
 # Chapter 3: High-Performance Router Microarchitecture & Arbitration
 
 > **Authors**: NoC-Lab Research Consortium  
-> **Grounding Corpus**: `papers/` (542+ peer-reviewed articles from IEEE TVLSI, TCAD, JSSC, TCAS-I, TCAS-II)  
+> **Domain**: Silicon Microarchitecture & Interconnect Design  
 > **Interactive Companion**: [NoC Learning Hub — Track 2: Router Microarchitecture](https://network-on-chip.github.io/learning/track2-router-architecture/)  
 > **Accompanying Code**: [`code/matrix_arbiter_islip_sim.py`](code/matrix_arbiter_islip_sim.py), [`code/matrix_arbiter_4port.v`](code/matrix_arbiter_4port.v)
 

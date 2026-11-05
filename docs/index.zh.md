@@ -2,11 +2,11 @@
   <div class="noc-track-badge">✨ 开源片上网络学术体系与实验平台</div>
   <h1>片上网络学习与研究中心</h1>
   <p class="subtitle">
-    连接理论体系、硅基微架构与可复现工程的交互式片上网络（Network-on-Chip, NoC）学习平台。基于 542 篇精选顶刊论文、10 章官方教材与端到端硬件仿真基准构建。
+    连接理论体系、硅基微架构与可复现工程的交互式片上网络（Network-on-Chip, NoC）学习平台。基于 10 章官方开源教材、端到端硬件仿真基准与可复现工程构建。
   </p>
   <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
     <a href="textbook/" class="noc-sim-btn" style="text-decoration: none; background: #2563eb;">📖 阅读官方教材 (全十章)</a>
-    <a href="assets/book.pdf" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 下载教材 PDF (132页)</a>
+    <a href="assets/book.pdf" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 下载教材 PDF (134页)</a>
     <a href="track1-fundamentals/" class="noc-sim-btn secondary" style="text-decoration: none;">🚀 开始系统学习</a>
     <a href="quiz/" class="noc-sim-btn secondary" style="text-decoration: none;">🎯 架构认证考核</a>
     <a href="interactive/game/" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 死锁大作战</a>
@@ -21,8 +21,8 @@
     <span class="noc-stat-label">教材核心章节</span>
   </div>
   <div class="noc-stat-card">
-    <span class="noc-stat-number">542+</span>
-    <span class="noc-stat-label">精选 IEEE 顶刊论文</span>
+    <span class="noc-stat-number">134</span>
+    <span class="noc-stat-label">教材出版总页数</span>
   </div>
   <div class="noc-stat-card">
     <span class="noc-stat-number">15</span>
@@ -450,7 +450,7 @@
 
 ```mermaid
 graph LR
-  A["理论与学术文献<br/>(541 篇 IEEE 经典论文)"] --> B["体系化课程模块<br/>(模块 1–7)"]
+  A["片上互连理论<br/>与体系结构"] --> B["体系化课程模块<br/>(模块 1–7)"]
   B --> C["网页交互式实验<br/>(二维网格路由仿真器)"]
   B --> D["硬件开源实现<br/>(projects/ 下 Verilog & Python)"]
   D --> E["基准测试与芯片实测<br/>(热学、延迟与能效数据)"]

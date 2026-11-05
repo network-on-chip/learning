@@ -4,7 +4,7 @@
   <div class="noc-track-badge">Network Architecture • Module 07</div>
   <h1>Landmark IEEE Paper Deep Dives &amp; Silicon Case Studies</h1>
   <p class="subtitle">
-    Bridge theoretical NoC principles with real-world taped-out silicon from our curated archive of 541 IEEE journal papers. Strip away academic jargon to dissect the microarchitectures of milestone processors: from Intel's 48-Core Single-Chip Cloud Computer (SCC) with per-tile DVFS, to NVIDIA's 36-chiplet Simba MCM accelerator with Ground-Referenced Signaling (GRS), 3D Optical NoC with reduced-MRR crossbars, and in-network computing neuromorphic partial-sum routers.
+    Bridge theoretical NoC principles with real-world taped-out silicon from premier IEEE and ACM literature. Strip away academic jargon to dissect the microarchitectures of milestone processors: from Intel's 48-Core Single-Chip Cloud Computer (SCC) with per-tile DVFS, to NVIDIA's 36-chiplet Simba MCM accelerator with Ground-Referenced Signaling (GRS), 3D Optical NoC with reduced-MRR crossbars, and in-network computing neuromorphic partial-sum routers.
   </p>
   <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
     <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">⏱️ 4 In-Depth Lessons</span>

@@ -1,7 +1,7 @@
 # Chapter 6: Low-Power Architectures & Dark Silicon Dynamics
 
 > **Authors**: NoC-Lab Research Consortium  
-> **Grounding Corpus**: `papers/` (542+ peer-reviewed articles from IEEE TVLSI, TCAD, JSSC, TCAS-I, TCAS-II)  
+> **Domain**: Silicon Microarchitecture & Interconnect Design  
 > **Interactive Companion**: [NoC Learning Hub — Track 5: Thermal & Energy](https://network-on-chip.github.io/learning/track5-thermal-congestion/)  
 > **Interactive Arcade**: [Power Pavilion: Energy Tycoon](https://network-on-chip.github.io/learning/interactive/power/)  
 > **Accompanying Code**: [`code/dvfs_vfi_power_sim.py`](code/dvfs_vfi_power_sim.py), [`code/power_gating_router_fsm.v`](code/power_gating_router_fsm.v)
@@ -238,7 +238,7 @@ Bufferless Deflection (CHIPPER) & +20\% (Links) & -75\% & -60\% (No FIFO) & +2--
 
 ---
 
-## 6.8 References & Grounding Bibliography
+## 6.8 References & Bibliography
 
 1. **H. Matsutani, M. Koibuchi, D. Ikebuchi, K. Usami, H. Nakamura, and H. Amano**, "Performance, Area, and Power Evaluations of Ultrafine-Grained Run-Time Power-Gating Routers for CMPs," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, Vol. 30, No. 4, pp. 520–533, April 2011. DOI: [10.1109/TCAD.2010.2097310](https://doi.org/10.1109/TCAD.2010.2097310).
 2. **M. K. Yadav, M. R. Casu, and M. Zamboni**, "LAURA-NoC: Local Automatic Rate Adjustment in Network-on-Chips With a Simple DVFS," *IEEE Transactions on Circuits and Systems–II: Express Briefs*, Vol. 60, No. 10, pp. 647–651, October 2013. DOI: [10.1109/TCSII.2013.2278077](https://doi.org/10.1109/TCSII.2013.2278077).

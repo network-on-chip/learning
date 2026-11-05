@@ -1,7 +1,7 @@
 # Chapter 2: Switching Techniques, Flow Control & Buffer Management
 
 > **Authors**: NoC-Lab Research Consortium  
-> **Grounding Corpus**: `papers/` (542+ peer-reviewed articles from IEEE TVLSI, TCAD, JSSC, TCAS-I, TCAS-II)  
+> **Domain**: Silicon Microarchitecture & Interconnect Design  
 > **Interactive Companion**: [NoC Learning Hub — Track 1: Lessons 1.2–1.3](https://network-on-chip.github.io/learning/track1-fundamentals/)  
 > **Accompanying Code**: [`code/switching_techniques_sim.py`](code/switching_techniques_sim.py), [`code/credit_flow_control.v`](code/credit_flow_control.v)
 

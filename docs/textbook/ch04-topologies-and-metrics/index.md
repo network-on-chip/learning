@@ -1,7 +1,7 @@
 # Chapter 4: Direct, Indirect & High-Radix Interconnect Topologies
 
 > **Authors**: NoC-Lab Research Consortium  
-> **Grounding Corpus**: `papers/` (542+ peer-reviewed articles from IEEE TVLSI, TCAD, JSSC, TCAS-I, TCAS-II)  
+> **Domain**: Silicon Microarchitecture & Interconnect Design  
 > **Interactive Companion**: [NoC Learning Hub — Track 3: Topologies & Metrics](https://network-on-chip.github.io/learning/track3-topologies/)  
 > **Interactive Lab**: [Topology Titans: Graph Architect](https://network-on-chip.github.io/learning/interactive/topology/)  
 > **Accompanying Code**: [`code/topology_metrics_sim.py`](code/topology_metrics_sim.py), [`code/topology_router_mesh_torus.v`](code/topology_router_mesh_torus.v)
@@ -344,7 +344,7 @@ The following table summarizes the graph-theoretic, microarchitectural, and phys
 
 ---
 
-## 4.9 References & Grounding Bibliography
+## 4.9 References & Bibliography
 
 1. **G. Passas, M. Katevenis, and D. Pnevmatikatos**, "Crossbar NoCs Are Scalable Beyond 100 Nodes," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, Vol. 31, No. 4, pp. 573–585, April 2012. DOI: [10.1109/TCAD.2011.2176730](https://doi.org/10.1109/TCAD.2011.2176730).
 2. **M. Jun, S. Yoo, and E.-Y. Chung**, "Topology Synthesis of Cascaded Crossbar Switches," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, Vol. 28, No. 6, pp. 926–930, June 2009. DOI: [10.1109/TCAD.2009.2017079](https://doi.org/10.1109/TCAD.2009.2017079).

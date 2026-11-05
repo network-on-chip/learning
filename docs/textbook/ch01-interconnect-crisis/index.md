@@ -1,7 +1,7 @@
 # Chapter 1: The Multi-Core Communication Crisis & Interconnect Physics
 
 > **Authors**: NoC-Lab Research Consortium  
-> **Grounding Corpus**: `papers/` (542+ peer-reviewed articles from IEEE TVLSI, TCAD, JSSC, TCAS-I, TCAS-II)  
+> **Domain**: Silicon Microarchitecture & Interconnect Design  
 > **Interactive Companion**: [NoC Learning Hub — Track 1: Fundamentals](https://network-on-chip.github.io/learning/track1-fundamentals/)  
 > **Accompanying Code**: [`code/elmore_bus_vs_noc.py`](code/elmore_bus_vs_noc.py), [`code/bus_arbiter_contention.v`](code/bus_arbiter_contention.v)
 
