@@ -611,6 +611,7 @@ requestAnimationFrame(snnLoop);
 
 // Keyboard controls
 window.addEventListener('keydown', (e) => {
+  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return;
   if (e.code === 'Space' || e.code === 'KeyS') {
     if (snnGame && snnGame.isRunning) {
       triggerStdpSurge();

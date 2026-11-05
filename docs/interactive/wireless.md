@@ -694,6 +694,7 @@ requestAnimationFrame(wirelessLoop);
 
 // Keyboard controls
 window.addEventListener('keydown', (e) => {
+  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return;
   if (e.code === 'Space' || e.code === 'KeyR') {
     if (wirelessGame && wirelessGame.isRunning) {
       triggerRfSurge();

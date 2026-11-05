@@ -72,7 +72,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive Bus vs Crossbar vs NoC Scalability Calculator, Intel TeraFLOPS &amp; SCC case studies, 3-Question Quiz, Arcade links to <em>Topology Titans</em> &amp; <em>2D Mesh Visualizer</em>.
       </div>
     </div>
-    <a href="01-why-noc.md" class="noc-track-link">Launch Lesson 1.1 →</a>
+    <a href="01-why-noc/" class="noc-track-link">Launch Lesson 1.1 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -86,7 +86,7 @@ graph TD
         ⚡ <strong>Features:</strong> Interactive Switching Techniques Simulator with cycle-by-cycle animation, 3-Question Quiz, Arcade links to <em>Packet Master</em>, <em>Deflection Duel</em> &amp; <em>Arbiter Arena</em>.
       </div>
     </div>
-    <a href="02-packet-switching-flits.md" class="noc-track-link">Launch Lesson 1.2 →</a>
+    <a href="02-packet-switching-flits/" class="noc-track-link">Launch Lesson 1.2 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -100,7 +100,7 @@ graph TD
         ⚡ <strong>Features:</strong> Synthesizable Verilog <code>credit_flow_control.v</code>, Interactive Credit Turnaround Loop Simulator, 3-Question Quiz, Arcade link to <em>Credit Commander</em>.
       </div>
     </div>
-    <a href="03-flow-control-credit.md" class="noc-track-link">Launch Lesson 1.3 →</a>
+    <a href="03-flow-control-credit/" class="noc-track-link">Launch Lesson 1.3 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -114,7 +114,7 @@ graph TD
         ⚡ <strong>Features:</strong> Synthesizable Verilog <code>async_fifo_cdc.v</code>, Interactive AXI-to-Flit Packetizer Explorer, 3-Question Quiz, Arcade links to <em>QoS Gladiator</em> &amp; <em>Packet Master</em>.
       </div>
     </div>
-    <a href="04-network-interface-packetization.md" class="noc-track-link">Launch Lesson 1.4 →</a>
+    <a href="04-network-interface-packetization/" class="noc-track-link">Launch Lesson 1.4 →</a>
   </div>
 </div>
 
