@@ -16,7 +16,7 @@
 <div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
   <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Official Companion Textbook Chapters Available</div>
   <div style="color: #334155; font-size: 0.95rem;">
-    For comprehensive mathematical treatment of sub-threshold leakage, Arrhenius thermal scaling, ultrafine-grained power gating, and distributed DVFS (LAURA, TCAS-II 2013; LPCR, TCAD 2025), read <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch06-low-power-dark-silicon/index.md" target="_blank" rel="noopener">Chapter 6: Low-Power Architectures &amp; Dark Silicon Dynamics</a></strong>. For compact RC duality, sensor estimation, and fault-tolerant routing, see <strong>Chapter 7: Thermal Modeling, Hotspots &amp; Fault-Tolerant Resilience</strong>.
+    For comprehensive mathematical treatment of sub-threshold leakage, Arrhenius thermal scaling, ultrafine-grained power gating, and distributed DVFS (LAURA, TCAS-II 2013; LPCR, TCAD 2025), read <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch06-low-power-dark-silicon/index.md" target="_blank" rel="noopener">Chapter 6: Low-Power Architectures &amp; Dark Silicon Dynamics</a></strong>. For compact RC duality, sensor estimation, and fault-tolerant routing, see <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch07-thermal-fault-tolerance/index.md" target="_blank" rel="noopener">Chapter 7: Thermal Modeling, Hotspots &amp; Fault-Tolerant Resilience</a></strong>.
   </div>
 </div>
 

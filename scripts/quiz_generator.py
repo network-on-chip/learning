@@ -503,6 +503,56 @@ QUESTIONS = [
         ],
         "answer": 0,
         "explanation": "LPCR constructs an empirical transition probability matrix across serial link words. By transforming the codeword assignment into a maximum-weight matching problem on a complete bipartite graph, it assigns minimum Hamming-distance transitions to the highest-probability consecutive symbol pairs, reducing dynamic link switching power by up to 28% without latency overhead."
+    },
+
+    # --- TEXTBOOK CHAPTER 7: THERMAL MODELING, HOTSPOTS & FAULT-TOLERANT RESILIENCE ---
+    {
+        "id": "q31",
+        "module": "Track 5: Thermal & Resilience (Book Ch 7)",
+        "tier": "Tier 1: Fundamental",
+        "tier_level": 1,
+        "base_points": 100,
+        "question": "Under the HotSpot electro-thermal duality, what physical thermal property is analogous to electrical capacitance (C) in a circuit?",
+        "options": [
+            "Thermal capacitance (heat capacity, C_th = rho * c_p * V in J/K), which represents the thermal inertia of silicon blocks resisting rapid temperature fluctuations.",
+            "The electrical resistivity of copper interconnect wires.",
+            "The clock frequency of the network router.",
+            "The memory bandwidth of the off-chip DRAM."
+        ],
+        "answer": 0,
+        "explanation": "In the electro-thermal RC duality, temperature rise Delta T corresponds to voltage V, heat flow P corresponds to current I, thermal resistance R_th corresponds to electrical resistance R, and thermal capacitance C_th = rho * c_p * V corresponds to electrical capacitance C."
+    },
+    {
+        "id": "q32",
+        "module": "Track 5: Thermal & Resilience (Book Ch 7)",
+        "tier": "Tier 2: Core Engineering",
+        "tier_level": 2,
+        "base_points": 200,
+        "question": "Why do standard linear Kalman filters diverge when reconstructing on-chip thermal maps from physical thermal sensors, and how does the Gaussian-Sum Filter (Fu et al., IEEE TCAD 2019) solve this?",
+        "options": [
+            "Physical sensors suffer from non-Gaussian heavy-tailed EMI spikes and power grid L*di/dt switching surges; the Gaussian-Sum Filter models noise as a Gaussian Mixture Model and uses Huber outlier rejection to isolate extreme spikes.",
+            "Because thermal sensors can only measure temperature in Fahrenheit.",
+            "Because silicon chips operate in absolute vacuum where heat cannot conduct.",
+            "Because Kalman filters require infinite memory that cannot fit on silicon."
+        ],
+        "answer": 0,
+        "explanation": "Power delivery inductive ground bounce and clock switching surges corrupt sensor lines with heavy-tailed non-Gaussian noise. The Gaussian-Sum Filter (GSF) decomposes the posterior into weighted Gaussian components and applies Huber thresholding to reject outlier readings, cutting reconstruction error by up to 53%."
+    },
+    {
+        "id": "q33",
+        "module": "Track 5: Thermal & Resilience (Book Ch 7)",
+        "tier": "Tier 3: Silicon Mastery",
+        "tier_level": 3,
+        "base_points": 300,
+        "question": "How does the ZoneDefense routing algorithm (Fu et al., IEEE TVLSI 2014) achieve provable deadlock freedom around multiple permanent silicon faults in a 2D mesh without virtual channels?",
+        "options": [
+            "It encloses arbitrary faults into convex rectangular blocks and propagates defense zones along aligned columns so packets detour around the convex boundary in advance without forming circular channel wait dependencies.",
+            "It disables every single router on the chip whenever a single link fails.",
+            "It converts the 2D mesh into a bidirectional token ring.",
+            "It drops all packets that come within 5 hops of any router."
+        ],
+        "answer": 0,
+        "explanation": "ZoneDefense avoids sacrificing healthy nodes by bounding arbitrary faults into convex blocks. Nodes in the aligned columns (Defense Zones) steer incoming traffic around the perimeter in advance, eliminating cyclic dependencies on the Channel Dependency Graph without virtual channels."
     }
 ]
 
