@@ -679,19 +679,19 @@ function checkQ54(qNum, optIdx) {
   const isCorrect = (optIdx === q54Answers[qNum]);
   q54UserScore[qNum] = isCorrect;
 
+  const q54Explanations = {
+    1: "The quadratic L2 penalty in OLS over-penalizes large outlier errors, pulling the reconstructed thermal surface towards corrupted readings. Robust Huber M-estimation applies a linear penalty to large residuals, effectively filtering out sensor glitches.",
+    2: "D-optimality maximizes det(M_FIM), which is inversely proportional to the volume of the confidence ellipsoid of estimation errors, ensuring optimal spatial spread across the die.",
+    3: "The piecewise definition of Huber loss bounds the influence of extreme sensor errors: small noise is filtered with Gaussian optimality, while impulsive glitches are treated with robust L1 median-like bounds."
+  };
+
   if (isCorrect) {
     opts[optIdx].style.background = "rgba(34,197,94,0.15)";
     opts[optIdx].style.borderColor = "#22c55e";
     fb.style.background = "rgba(34,197,94,0.1)";
     fb.style.border = "1px solid rgba(34,197,94,0.3)";
     fb.style.color = "#166534";
-    if (qNum === 1) {
-      fb.innerHTML = "<strong>✓ Correct!</strong> The quadratic L2 penalty in OLS over-penalizes large outlier errors, pulling the reconstructed thermal surface towards corrupted readings. Robust Huber M-estimation applies a linear penalty to large residuals, effectively filtering out sensor glitches.";
-    } else if (qNum === 2) {
-      fb.innerHTML = "<strong>✓ Correct!</strong> D-optimality maximizes det(M_FIM), which is inversely proportional to the volume of the confidence ellipsoid of estimation errors, ensuring optimal spatial spread across the die.";
-    } else {
-      fb.innerHTML = "<strong>✓ Correct!</strong> The piecewise definition of Huber loss bounds the influence of extreme sensor errors: small noise is filtered with Gaussian optimality, while impulsive glitches are treated with robust L1 median-like bounds.";
-    }
+    fb.innerHTML = `<strong>✓ Correct!</strong><br><div style="margin-top:0.4rem; line-height:1.5;"><strong>Detailed Solution:</strong> ${q54Explanations[qNum]}</div>`;
   } else {
     opts[optIdx].style.background = "rgba(239,68,68,0.15)";
     opts[optIdx].style.borderColor = "#ef4444";
@@ -700,7 +700,7 @@ function checkQ54(qNum, optIdx) {
     fb.style.background = "rgba(239,68,68,0.1)";
     fb.style.border = "1px solid rgba(239,68,68,0.3)";
     fb.style.color = "#991b1b";
-    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q54Answers[qNum])}</strong>.`;
+    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q54Answers[qNum])}</strong>.<br><div style="margin-top:0.4rem; line-height:1.5;"><strong>Detailed Solution:</strong> ${q54Explanations[qNum]}</div>`;
   }
 
   updateQ54Score();

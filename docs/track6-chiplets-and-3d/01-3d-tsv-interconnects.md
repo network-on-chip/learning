@@ -909,19 +909,19 @@ function checkQ61(qNum, optIdx) {
   const isCorrect = (optIdx === q61Answers[qNum]);
   q61UserScore[qNum] = isCorrect;
 
+  const q61Explanations = {
+    1: "A full non-blocking crossbar matrix scales as P^2. Expanding from 5 to 7 ports scales crosspoints from 25 to 49 (49/25 = 1.96, or +96% area).",
+    2: "Copper expands at 17 ppm/K while silicon expands at 2.6 ppm/K. The resulting mechanical stress alters the silicon band structure via the piezoresistive effect, shifting carrier mobility and threshold voltages.",
+    3: "With a length of only 30-50 um and a wide 4-5 um copper diameter, the TSV's lumped RC product yields a sub-picosecond delay that is completely negligible compared to horizontal planar wires."
+  };
+
   if (isCorrect) {
     opts[optIdx].style.background = "rgba(34,197,94,0.15)";
     opts[optIdx].style.borderColor = "#22c55e";
     fb.style.background = "rgba(34,197,94,0.1)";
     fb.style.border = "1px solid rgba(34,197,94,0.3)";
     fb.style.color = "#166534";
-    if (qNum === 1) {
-      fb.innerHTML = "<strong>✓ Correct!</strong> A full non-blocking crossbar matrix scales as P^2. Expanding from 5 to 7 ports scales crosspoints from 25 to 49 (49/25 = 1.96, or +96% area).";
-    } else if (qNum === 2) {
-      fb.innerHTML = "<strong>✓ Correct!</strong> Copper expands at 17 ppm/K while silicon expands at 2.6 ppm/K. The resulting mechanical stress alters the silicon band structure via the piezoresistive effect, shifting carrier mobility and threshold voltages.";
-    } else {
-      fb.innerHTML = "<strong>✓ Correct!</strong> With a length of only 30-50 um and a wide 4-5 um copper diameter, the TSV's lumped RC product yields a sub-picosecond delay that is completely negligible compared to horizontal planar wires.";
-    }
+    fb.innerHTML = `<strong>✓ Correct!</strong><br><div style="margin-top:0.4rem; line-height:1.5;"><strong>Detailed Solution:</strong> ${q61Explanations[qNum]}</div>`;
   } else {
     opts[optIdx].style.background = "rgba(239,68,68,0.15)";
     opts[optIdx].style.borderColor = "#ef4444";
@@ -930,7 +930,7 @@ function checkQ61(qNum, optIdx) {
     fb.style.background = "rgba(239,68,68,0.1)";
     fb.style.border = "1px solid rgba(239,68,68,0.3)";
     fb.style.color = "#991b1b";
-    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q61Answers[qNum])}</strong>.`;
+    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q61Answers[qNum])}</strong>.<br><div style="margin-top:0.4rem; line-height:1.5;"><strong>Detailed Solution:</strong> ${q61Explanations[qNum]}</div>`;
   }
 
   updateQ61Score();

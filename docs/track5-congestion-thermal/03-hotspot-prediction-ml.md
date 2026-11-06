@@ -673,19 +673,19 @@ function checkQ53(qNum, optIdx) {
   const isCorrect = (optIdx === q53Answers[qNum]);
   q53UserScore[qNum] = isCorrect;
 
+  const q53Explanations = {
+    1: "By predicting temperature rises 10 ms ahead using hardware counters, the governor pre-empts heat buildup with subtle, minor adjustments, preventing the panic-induced 50% frequency cuts of reactive DTM.",
+    2: "Flit injection and traversal rates directly determine the activity factor of the crossbar and link transceivers, driving dynamic router power dissipation.",
+    3: "In a 2D mesh, a substantial portion of router power is dissipated by transit traffic traversing the node. Deflecting transit packets around the warm tile allows the local core to keep executing with minimal throttling."
+  };
+
   if (isCorrect) {
     opts[optIdx].style.background = "rgba(34,197,94,0.15)";
     opts[optIdx].style.borderColor = "#22c55e";
     fb.style.background = "rgba(34,197,94,0.1)";
     fb.style.border = "1px solid rgba(34,197,94,0.3)";
     fb.style.color = "#166534";
-    if (qNum === 1) {
-      fb.innerHTML = "<strong>✓ Correct!</strong> By predicting temperature rises 10 ms ahead using hardware counters, the governor pre-empts heat buildup with subtle, minor adjustments, preventing the panic-induced 50% frequency cuts of reactive DTM.";
-    } else if (qNum === 2) {
-      fb.innerHTML = "<strong>✓ Correct!</strong> Flit injection and traversal rates directly determine the activity factor of the crossbar and link transceivers, driving dynamic router power dissipation.";
-    } else {
-      fb.innerHTML = "<strong>✓ Correct!</strong> In a 2D mesh, a substantial portion of router power is dissipated by transit traffic traversing the node. Deflecting transit packets around the warm tile allows the local core to keep executing with minimal throttling.";
-    }
+    fb.innerHTML = `<strong>✓ Correct!</strong><br><div style="margin-top:0.4rem; line-height:1.5;"><strong>Detailed Solution:</strong> ${q53Explanations[qNum]}</div>`;
   } else {
     opts[optIdx].style.background = "rgba(239,68,68,0.15)";
     opts[optIdx].style.borderColor = "#ef4444";
@@ -694,7 +694,7 @@ function checkQ53(qNum, optIdx) {
     fb.style.background = "rgba(239,68,68,0.1)";
     fb.style.border = "1px solid rgba(239,68,68,0.3)";
     fb.style.color = "#991b1b";
-    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q53Answers[qNum])}</strong>.`;
+    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q53Answers[qNum])}</strong>.<br><div style="margin-top:0.4rem; line-height:1.5;"><strong>Detailed Solution:</strong> ${q53Explanations[qNum]}</div>`;
   }
 
   updateQ53Score();

@@ -8,14 +8,47 @@
 
 ---
 
+## Chapter Introduction
+
+In the preceding chapters, we examined the physical wire crisis on silicon (Chapter 1), dissected the packetization and flow control mechanisms required to stream data losslessly across channels (Chapter 2), and uncovered the microarchitectural pipeline of high-speed virtual-channel routers (Chapter 3). We now arrive at the architectural blueprint that binds these components into a unified system: **interconnect topology**.
+
+The topology of an on-chip network defines the physical and logical arrangement of channels and routers connecting compute cores, graphics engines, AI tensor accelerators, and memory controllers. From a graph-theoretic perspective, topology establishes the absolute performance upper bounds and physical silicon cost lower bounds of the entire multiprocessor:
+- It dictates the **Zero-Load Latency ($T_0$)** through the average hop count ($\bar{h}$) and network diameter ($D$).
+- It dictates the **Saturation Throughput ($\Theta_{sat}$)** through the bisection bandwidth ($B_C$) and maximum channel load ($\gamma_{max}$).
+- It dictates the **Physical Silicon Feasibility** through router crossbar radix ($k$), metal layer wiring track density, and floorplan layout regularity.
+
+For decades, system designers faced a fundamental tension between **low-radix planar networks** (such as 2D Meshes and Tori), which minimize router complexity and wire lengths at the cost of high hop counts, and **high-radix express networks** (such as Flattened Butterflies, Dragonflies, and multi-stage Clos networks), which slash hop counts down to 1–2 crossings at the expense of high-radix crossbars and long global metal links. In modern sub-10nm FinFET silicon, the emergence of 10 to 16 back-end-of-line metal layers has further rewritten this trade-off, enabling dense over-the-cell global wire routing and large-scale monolithic crossbars.
+
+This chapter presents a rigorous, mathematically grounded exploration of on-chip topologies. We formalize graph-theoretic interconnect metrics from first principles, evaluate canonical direct planar networks (2D Mesh, 2D Torus, Folded Torus), analyze high-radix indirect architectures (Concentrated Mesh, Flattened Butterfly, Dragonfly, Clos networks), examine automated topology synthesis algorithms for heterogeneous SoCs (MIRO, switch merge-partitioning), and review groundbreaking physical floorplanning proofs that demonstrate the scalability of crossbar networks beyond 100 silicon nodes.
+
+### Learning Objectives
+- **Derive Fundamental Interconnect Metrics**: Formulate mathematical proofs for router radix ($k$), diameter ($D$), average hop count ($\bar{h}$), bisection bandwidth ($B_C$), maximum channel load ($\gamma_{max}$), and zero-load latency ($T_0$).
+- **Analyze Direct Topologies**: Compare 2D Mesh, 2D Torus, and Folded Torus architectures in terms of wrap-around wire delays, path diversity, and bisection limits.
+- **Master High-Radix Interconnect Paradigms**: Evaluate the trade-offs of Concentrated Meshes (cMesh), Flattened Butterflies, and hierarchical Dragonfly networks operating under Universal Globally-Adaptive Routing (UGAL).
+- **Understand Application-Specific Synthesis**: Formulate Communication Requirement Graphs (CRG) and analyze heuristic clustering algorithms (MIRO) and switch merge-partitioning techniques for heterogeneous MPSoCs.
+- **Evaluate Physical VLSI Layout Limits**: Analyze over-the-cell metal layer allocation and examine the Passas-Katevenis theorem proving crossbar scalability beyond 100 nodes in deep sub-micron CMOS.
+
+### Chapter Roadmap & Interactive Modules
+- **Section 4.1**: Fundamentals of Interconnect Graph Theory & Quantitative Metrics.
+- **Section 4.2**: Direct Topologies: 2D Mesh, 2D Torus & The Folded Torus.
+- **Section 4.3**: Indirect & Multi-Stage Topologies: Clos, Beneš & Fat-Trees.
+- **Section 4.4**: High-Radix Express Topologies: cMesh, Flattened Butterfly & Dragonfly.
+- **Section 4.5**: Application-Specific & Cascaded Topologies: Synthesis & Partitioning (MIRO).
+- **Section 4.6**: Silicon Floorplanning, Wire Density & Physical Layout Limits.
+- **Section 4.7**: Comprehensive Comparative Tradeoff Matrix.
+- **Section 4.8**: Self-Assessment Checkpoint Questions.
+- **Section 4.9**: References & Bibliography.
+
+---
+
 ## 4.1 Fundamentals of Interconnect Graph Theory & Quantitative Metrics
 
 The **topology** of a Network-on-Chip defines the logical and physical connectivity between routers, processing elements (cores, accelerators, DSPs), and memory controllers. From a mathematical perspective, an interconnection network is represented as a directed graph $G = (V, E)$, where the vertex set $V$ denotes the routers and network nodes ($|V| = N$), and the edge set $E$ denotes the point-to-point physical channels interconnecting them.
 
 The selection of a topology establishes the absolute performance upper bounds and silicon cost lower bounds of the system:
-1. **Zero-Load Latency ($T_0$)**: The minimum time required for a packet to traverse the network in the absence of competing traffic.
-2. **Saturation Throughput ($\Theta_{sat}$)**: The maximum data rate that the network can sustain before queues fill up and queueing latency diverges to infinity.
-3. **Physical Layout Complexity**: Silicon area overhead, metal wire layer usage, wire congestion, repeater power dissipation, and pin limitations.
+- **Zero-Load Latency ($T_0$)**: The minimum time required for a packet to traverse the network in the absence of competing traffic.
+- **Saturation Throughput ($\Theta_{sat}$)**: The maximum data rate that the network can sustain before queues fill up and queueing latency diverges to infinity.
+- **Physical Layout Complexity**: Silicon area overhead, metal wire layer usage, wire congestion, repeater power dissipation, and pin limitations.
 
 ```mermaid
 graph TD
@@ -41,57 +74,43 @@ graph TD
 
 To evaluate any candidate topology objectively, we formalize the fundamental graph-theoretic and architectural metrics:
 
-#### 1. Router Radix (Degree $k$)
-The degree of a node $u \in V$, denoted as $\text{deg}(u)$, is the number of physical links incident upon it:
+- **Router Radix (Node Degree $k$)**:
+  - The degree of a node $u \in V$, denoted as $\text{deg}(u)$, is the total number of physical bidirectional links incident upon it:
+    $$\text{deg}(u) = \text{deg}_{in}(u) + \text{deg}_{out}(u)$$
+  - In a symmetric, regular network where every node connects to $k$ physical channels, the router radix is $k$. A standard 2D mesh router connects to 4 cardinal neighbors (North, South, East, West) plus 1 local compute tile interface, yielding physical radix $k = 5$.
+  - *Microarchitectural Trade-Off*: Because internal crossbar switch area and power scale quadratically ($O(k^2)$), low-radix designs minimize router area, whereas high-radix topologies ($k \ge 16\text{–}64$) require larger switch fabrics but dramatically compress network diameter.
 
-$$\text{deg}(u) = \text{deg}_{in}(u) + \text{deg}_{out}(u)$$
+- **Network Diameter ($D$)**:
+  - The maximum shortest-path distance between any arbitrary pair of nodes in the network graph:
+    $$D = \max_{u, v \in V} d(u, v)$$
+  - Represents the worst-case zero-load communication distance across the chip.
+  - In an $N$-node 2D mesh, $D = 2(\sqrt{N} - 1)$ (e.g., $D = 14$ hops for an $8 \times 8$ mesh), whereas in a 2D torus, wrap-around channels slash diameter in half to $D = 2\lfloor\frac{\sqrt{N}}{2}\rfloor$ ($D = 8$ hops).
 
-In a symmetric, regular network where every node has degree $k$, the router radix is $k$. A router connected to 4 neighbors plus 1 local compute interface has a physical radix of $5$. Because the internal crossbar switch area and power scale quadratically with radix ($O(k^2)$), low-radix topologies minimize router microarchitectural area, whereas high-radix topologies require larger switches but slash network hop count.
+- **Average Hop Distance ($\bar{h}$)**:
+  - The expected hop count between randomly chosen source-destination pairs under a spatial traffic distribution $p(u, v)$:
+    $$\bar{h} = \sum_{u \in V} \sum_{v \in V, v \ne u} p(u, v) \cdot d(u, v)$$
+  - Under **Uniform Random (UR)** traffic, every node communicates with every other node with equal probability $p(u, v) = \frac{1}{N(N-1)}$:
+    $$\bar{h}_{UR} = \frac{1}{N(N-1)} \sum_{u \ne v} d(u, v)$$
+  - Direct energy impact: dynamic flit transmission energy across the chip scales proportionally with average hops ($E_{total} \propto \bar{h} \cdot E_{hop}$).
 
-#### 2. Network Diameter ($D$)
-The diameter is the maximum shortest-path distance between any pair of nodes in the network:
+- **Bisection Bandwidth ($B_C$)**:
+  - The minimum aggregate bandwidth across any cut that partitions the node set $V$ into two equal subsets $V_1$ and $V_2$ ($|V_1| = |V_2| = N/2$):
+    $$B_C = \min_{V_1, V_2} \sum_{u \in V_1, v \in V_2, (u, v) \in E} C(u, v)$$
+  - For symmetric topologies with uniform channel width $W$ bits and clock frequency $f_{clk}$, bisection bandwidth is defined by the count of physical channels crossing the bisection cut $N_C$:
+    $$B_C = N_C \cdot W \cdot f_{clk}$$
+  - Serves as the ultimate hardware bottleneck under global or adversarial traffic patterns (e.g., matrix transpose, bit-reversal, or deep neural network all-to-all collective reductions).
 
-$$D = \max_{u, v \in V} d(u, v)$$
+- **Maximum Channel Load ($\gamma_{max}$) and Saturation Throughput ($\Theta_{sat}$)**:
+  - Let $\gamma_e$ denote the expected traffic volume traversing physical channel $e \in E$ when each node injects 1 flit per cycle. The maximum channel load is:
+    $$\gamma_{max} = \max_{e \in E} \gamma_e$$
+  - Because a physical channel carries at most 1 flit per cycle, the maximum achievable injection rate per node before queues diverge to infinity (the **saturation throughput** $\Theta_{sat}$) is strictly bounded by:
+    $$\Theta_{sat} \le \frac{1}{\gamma_{max}} \le \frac{2 B_C}{N} \quad \text{[flits/node/cycle]}$$
+  - Under uniform random traffic across a bisection cut dividing the network in half, exactly half of all injected packets cross the cut, leading directly to the upper bound $\Theta_{sat} \le \frac{2 B_C}{N}$.
 
-where $d(u, v)$ is the minimum number of channel hops required to travel from source node $u$ to destination node $v$. Diameter represents the worst-case zero-load communication distance.
-
-#### 3. Average Hop Distance ($\bar{h}$)
-The expected hop count between randomly chosen source-destination pairs under a given spatial traffic distribution $p(u, v)$:
-
-$$\bar{h} = \sum_{u \in V} \sum_{v \in V, v \ne u} p(u, v) \cdot d(u, v)$$
-
-Under **Uniform Random (UR)** traffic, every node communicates with every other node with equal probability $p(u, v) = \frac{1}{N(N-1)}$, reducing the metric to:
-
-$$\bar{h}_{UR} = \frac{1}{N(N-1)} \sum_{u \ne v} d(u, v)$$
-
-#### 4. Bisection Bandwidth ($B_C$)
-The bisection bandwidth is the minimum bandwidth cut across the network that partitions the node set $V$ into two equal subsets $V_1$ and $V_2$ ($|V_1| = |V_2| = N/2$):
-
-$$B_C = \min_{V_1, V_2} \sum_{u \in V_1, v \in V_2, (u, v) \in E} C(u, v)$$
-
-where $C(u, v)$ is the channel bandwidth (in bits/sec or flits/cycle) of edge $(u, v)$. In symmetric topologies with uniform channel width $W$ bits and clock frequency $f_{clk}$, bisection bandwidth is expressed as the count of channels crossing the bisection cut $N_C$:
-
-$$B_C = N_C \cdot W \cdot f_{clk}$$
-
-Bisection bandwidth dictates the system's global throughput under adversarial or stress traffic patterns (e.g., bit-complement, matrix transpose).
-
-#### 5. Maximum Channel Load ($\gamma_{max}$) and Saturation Throughput ($\Theta_{sat}$)
-Let $\gamma_e$ denote the expected traffic volume traversing physical channel $e \in E$ when each node injects 1 flit per cycle. The **maximum channel load** $\gamma_{max}$ is defined as:
-
-$$\gamma_{max} = \max_{e \in E} \gamma_e$$
-
-Because a physical channel can carry at most 1 flit per cycle, the maximum achievable injection rate per node before network saturation (the **ideal saturation throughput** $\Theta_{sat}$) is strictly bounded by:
-
-$$\Theta_{sat} \le \frac{1}{\gamma_{max}} \le \frac{2 B_C}{N} \quad \text{[flits/node/cycle]}$$
-
-Under uniform random traffic across a bisection cut dividing the network in half, exactly half of the packets injected by $V_1$ are destined for $V_2$, requiring $\frac{N}{2} \times \frac{1}{2} = \frac{N}{4}$ flits/cycle to cross the cut in each direction. Hence, the aggregate cut demand is $\frac{N}{2}$, leading directly to the bound $\Theta_{sat} \le \frac{2 B_C}{N}$.
-
-#### 6. Zero-Load Latency ($T_0$)
-The average latency experienced by a packet of length $L$ flits traversing the network under zero contention:
-
-$$T_0 = (\bar{h} + 1) \cdot t_{router} + \bar{h} \cdot t_{wire} + \left( \frac{L - 1}{\text{Rate}} \right)$$
-
-where $t_{router}$ is the router pipeline latency (cycles/hop), $t_{wire}$ is the link flight time (cycles/hop), and $\frac{L - 1}{\text{Rate}}$ is the packet serialization latency across the channel.
+- **Zero-Load Latency ($T_0$)**:
+  - The average latency experienced by a packet of length $L$ flits traversing the network under zero contention:
+    $$T_0 = (\bar{h} + 1) \cdot t_{router} + \bar{h} \cdot t_{wire} + \left( \frac{L - 1}{\text{Rate}} \right)$$
+  - Decouples into three physical components: per-hop router pipeline latency ($t_{router}$), inter-router link flight time ($t_{wire}$), and packet serialization delay ($\frac{L - 1}{\text{Rate}}$).
 
 ---
 
@@ -258,11 +277,10 @@ Proposed by John Kim et al. (ISCA 2007), the **Flattened Butterfly** projects a 
 ### 4.4.2 The Dragonfly Topology
 
 The **Dragonfly** topology (Kim, Dally et al., ISCA 2008) organizes high-radix routers into a hierarchical two-level network:
-1. **Local Groups (Cliques)**: Inside each group, $a$ routers are fully interconnected with high-density local links.
-2. **Global Links**: Each router has $h$ global optical or long metal channels connecting directly to routers in other groups.
-3. **Concentration**: Each router serves $p$ local compute nodes.
-
-Under **Universal Globally-Adaptive Routing (UGAL)**, the Dragonfly routes minimally when global channels are uncongested, but dynamically misroutes packets non-minimally through a random intermediate group under adversarial traffic (such as nearest-neighbor or transpose patterns), effectively doubling saturation throughput by eliminating hot links.
+- **Local Groups (Intra-Group Cliques)**: Inside each group, $a$ routers are fully interconnected with high-density, low-latency local channels.
+- **Global Link Interconnect**: Each router provisions $h$ global channels connecting directly to routers situated in disparate groups, forming a virtual complete graph across groups.
+- **Node Concentration**: Each router directly multiplexes traffic from $p$ local compute nodes or cache slices.
+- **Adaptive Path Diversity via UGAL**: Under **Universal Globally-Adaptive Routing (UGAL)**, the Dragonfly routes minimally when global channels are uncongested, but dynamically deflects packets non-minimally through a random intermediate group under adversarial traffic (such as nearest-neighbor or transpose patterns), effectively doubling saturation throughput by eliminating hot links.
 
 ---
 
@@ -335,34 +353,95 @@ The following table summarizes the graph-theoretic, microarchitectural, and phys
 
 ---
 
-## 4.8 Self-Assessment Checkpoint Questions
+## 4.8 Checkpoint Assessment
 
-### Conceptual & Quantitative Exercises
+Test your mastery of Chapter 4 concepts against the official certification questions (mirroring the 3-Tier Exam Engine in [`quiz.md`](../../quiz.md)):
 
-1. **Bisection Bandwidth Scaling**:
-   Explain why a 2D Torus delivers exactly twice the bisection bandwidth of a 2D Mesh of identical dimensions ($k \times k$). Under what specific traffic pattern does this $2\times$ advantage translate into a full $2\times$ improvement in saturation throughput?
+#### Question 4.1 (Tier 1: Fundamental)
+*Why does a Folded Torus interleave even and odd nodes along each dimension compared to a naive planar 2D Torus?*
 
-2. **Folded Torus Delay Invariance**:
-   Consider an $8 \times 8$ tiled processor where adjacent tile pitch is $L_0 = 1.2\text{ mm}$. Calculate the wire length of the longest link in a standard planar torus versus a folded torus. Using the Elmore delay equation $\tau = 0.5 \cdot r_{wire} \cdot c_{wire} \cdot L^2$, compute the ratio of wire propagation delays.
+- **A)** To eliminate crossbar multiplexers from edge routers.
+- **B)** Because naive wrap-around links must span (k - 1) tile widths across the entire die, introducing high RC wire delay and clock bottlenecks; folding equalizes all physical link lengths to at most 2 tile pitches.
+- **C)** To reduce router node degree from 4 down to 1.
+- **D)** To convert 2D planar silicon into 3D through-silicon vias (TSVs).
 
-3. **Strictly Non-Blocking Clos Sizing**:
-   An architect is designing an on-chip 3-stage Clos switch to connect 64 IP cores ($N = 64$) using first-stage switches with $n = 8$ inputs.
-   - (a) How many first-stage switches $r$ are required?
-   - (b) What is the minimum number of middle-stage switches $m$ required to guarantee that the network is Strictly Non-Blocking (SNB)?
-   - (c) What is the total crosspoint count of this SNB Clos network compared to a single monolithic $64 \times 64$ crossbar?
+??? success "Reveal Answer & Full Solution"
+    **Correct Answer: Option B**
 
-4. **Dragonfly UGAL Routing Decision**:
-   Why does minimal routing perform poorly on a Dragonfly topology under transpose or bit-reversal traffic? Describe the condition under which UGAL dynamically switches from minimal routing to Valiant's non-minimal routing.
+    **1. Step-by-Step Architectural & Mathematical Derivation:**
+    In a canonical 2D Torus of dimension k x k, adjacent nodes are connected by short neighbor links of length L_0 (the tile pitch). However, the boundary nodes (node 0 and node k - 1) must be connected to close the ring. In a naive planar layout, this wrap-around link must physically stretch across the entire chip, spanning a length of L_wrap = (k - 1) * L_0. For an 8x8 torus with L_0 = 1 mm, the wrap-around wire is 7 mm long. Under Elmore delay (tau ~ L^2), this single long wire exhibits (7/1)^2 = 49x the RC latency of standard neighbor links, forcing the entire network clock frequency to be throttled to accommodate the slow wrap-around path. By interleaving physical node coordinates (e.g. placing nodes in order: 0, k-1, 1, k-2, 2, k-3...), adjacent logical neighbors are separated by at most 2 tile pitches (2 * L_0). This completely eliminates long wires, ensuring all physical links have uniform, short propagation delays.
+
+    **2. Option-by-Option Breakdown & Distractor Analysis:**
+    - **Option A (Incorrect Distractor):** Folding does not alter router internal crossbar multiplexer count; all torus routers retain degree 4.
+    - **Option B (Correct):** Folding equalizes link lengths to at most 2 tile widths, eliminating the 49x RC delay penalty of chip-spanning wrap-around wires.
+    - **Option C (Incorrect Distractor):** Router node degree in a 2D torus remains 4 (+ 1 local port); folding changes only physical silicon placement.
+    - **Option D (Incorrect Distractor):** Folded Torus is a purely 2D planar layout technique; it does not require 3D TSVs.
+
+    **3. Silicon Architect's Takeaway:**
+    Layout folding equalizes interconnect lengths to 2x tile pitch, eliminating the multi-millimeter wrap-around wire delays of naive tori.
+
+    *(Reference: W. J. Dally and B. Towles, Principles and Practices of Interconnection Networks, Morgan Kaufmann, 2004.)*
+
+#### Question 4.2 (Tier 2: Core Engineering)
+*According to Charles Clos's switching network theorem (1953), what is the minimum number of middle-stage switches m required in a 3-stage Clos network with n inputs per first-stage switch to guarantee that the network is Strictly Non-Blocking (SNB)?*
+
+- **A)** m >= 2n - 1
+- **B)** m >= n / 2
+- **C)** m = log_2(n)
+- **D)** m = n^2
+
+??? success "Reveal Answer & Full Solution"
+    **Correct Answer: Option A**
+
+    **1. Step-by-Step Architectural & Mathematical Derivation:**
+    Consider a 3-stage Clos network C(n, m, r), where the first stage has r switches of size n x m, the middle stage has m switches of size r x r, and the third stage has r switches of size m x n. To establish an arbitrary new connection between an idle input on input switch I and an idle output on output switch O: (1) In the worst case, the input switch I already has (n - 1) of its other inputs actively connected through (n - 1) distinct middle switches. (2) Similarly, the destination switch O already has (n - 1) of its other outputs actively connected through another (n - 1) distinct middle switches. (3) In the absolute worst-case scenario, the set of middle switches used by switch I and switch O are completely disjoint, meaning (n - 1) + (n - 1) = 2n - 2 middle switches are currently unavailable for routing between switch I and switch O. To guarantee that there is ALWAYS at least one free middle switch available to complete the connection without rearranging existing paths (Strictly Non-Blocking), the total number of middle switches m must be at least (2n - 2) + 1 = 2n - 1. If m >= n, the network is Rearrangeably Non-Blocking (RNB), but requires rerouting existing connections.
+
+    **2. Option-by-Option Breakdown & Distractor Analysis:**
+    - **Option A (Correct):** Charles Clos proved that m >= 2n - 1 guarantees that a free middle-stage path always exists without disturbing existing active routes.
+    - **Option B (Incorrect Distractor):** m < n causes severe blocking; even rearrangeable non-blocking requires m >= n.
+    - **Option C (Incorrect Distractor):** Logarithmic scaling applies to Banyan or Omega multistage networks, not Strictly Non-Blocking Clos networks.
+    - **Option D (Incorrect Distractor):** n^2 overprovisions the middle stage enormously beyond what is mathematically necessary.
+
+    **3. Silicon Architect's Takeaway:**
+    Strictly non-blocking multi-stage Clos networks require m >= 2n - 1 middle switches, dramatically reducing crosspoint complexity compared to monolithic crossbars.
+
+    *(Reference: C. Clos, 'A Study of Non-Blocking Switching Networks,' Bell System Technical Journal, Vol. 32, No. 2, pp. 406–424, 1953.)*
+
+#### Question 4.3 (Tier 3: Silicon Mastery)
+*How did Passas, Katevenis, and Pnevmatikatos (IEEE TCAD 2012) prove that crossbars can scale efficiently to 100+ nodes in silicon? (Select all that apply)*
+
+- **A)** By replacing monolithic centralized crossbars with distributed hierarchical Clos/Crossbar matrices partitioned into localized tiles.
+- **B)** By using pipelined, segmented wire tracks that decouple long capacitive RC wire loads across stages.
+- **C)** By showing that silicon area and power scale as O(N * sqrt(N)) using a 3-stage architecture rather than O(N^2).
+- **D)** By running crossbars at negative supply voltages to cancel heat dissipation.
+
+??? success "Reveal Answer & Full Solution"
+    **Correct Answer: Option A, B, C**
+
+    **1. Step-by-Step Architectural & Mathematical Derivation:**
+    While classical textbook literature claimed that crossbars cannot scale past 16–32 nodes due to quadratic O(N^2) area and wiring congestion, Passas, Katevenis, and Pnevmatikatos (IEEE TCAD 2012) refuted this limitation for on-chip systems. They proved that a 128-node non-blocking fabric can be synthesized at 1 GHz in standard 90nm/40nm CMOS by: (1) Slicing the monolithic crossbar into a 3-stage Clos topology composed of small, high-density sub-crossbars. (2) Sizing input sub-crossbars with n = sqrt(N/2), allowing total crosspoints to scale as O(N * sqrt(N)) (e.g. ~3,600 crosspoints for 128 nodes, compared to 16,384 for a monolithic crossbar—a 78% reduction). (3) Distributing the crossbar stages physically across tiled processor columns with pipelined segment registers, preventing long wire RC degradation. (4) Operating at standard positive core voltages (0.9V–1.1V).
+
+    **2. Option-by-Option Breakdown & Distractor Analysis:**
+    - **Option A (Correct):** True. Partitioning the monolithic switch into distributed Clos sub-blocks makes physical layout modular and routable.
+    - **Option B (Correct):** True. Pipelined link segments isolate wire capacitance, maintaining high clock frequencies (>1 GHz).
+    - **Option C (Correct):** True. 3-stage Clos networks reduce crosspoint complexity from O(N^2) to O(N^(1.5)), enabling silicon scalability past 100 nodes.
+    - **Option D (Incorrect Distractor):** False. Negative voltages are not used in CMOS digital logic fabrics.
+
+    **3. Silicon Architect's Takeaway:**
+    Crossbar NoCs scale beyond 100 nodes when decomposed into distributed 3-stage Clos networks with O(N^1.5) crosspoint complexity.
+
+    *(Reference: G. Passas, M. Katevenis, and D. Pnevmatikatos, 'Crossbar NoCs Are Scalable Beyond 100 Nodes,' IEEE TCAD, Vol. 31, No. 4, pp. 573–585, Apr. 2012. DOI: 10.1109/TCAD.2011.2176730.)*
 
 ---
 
-## 4.9 References & Bibliography
+## References & Bibliography
 
-1. **G. Passas, M. Katevenis, and D. Pnevmatikatos**, "Crossbar NoCs Are Scalable Beyond 100 Nodes," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, Vol. 31, No. 4, pp. 573–585, April 2012. DOI: [10.1109/TCAD.2011.2176730](https://doi.org/10.1109/TCAD.2011.2176730).
-2. **M. Jun, S. Yoo, and E.-Y. Chung**, "Topology Synthesis of Cascaded Crossbar Switches," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, Vol. 28, No. 6, pp. 926–930, June 2009. DOI: [10.1109/TCAD.2009.2017079](https://doi.org/10.1109/TCAD.2009.2017079).
-3. **V. Dumitriu and G. N. Khan**, "Throughput-Oriented NoC Topology Generation and Analysis for High Performance SoCs," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, Vol. 17, No. 10, pp. 1433–1446, October 2009. DOI: [10.1109/TVLSI.2008.2006798](https://doi.org/10.1109/TVLSI.2008.2006798).
-4. **J. Kim, J. Balfour, and W. J. Dally**, "Flattened Butterfly Topology for On-Chip Networks," *Proceedings of the 40th Annual IEEE/ACM International Symposium on Microarchitecture (MICRO)*, pp. 172–182, 2007. DOI: [10.1109/MICRO.2007.28](https://doi.org/10.1109/MICRO.2007.28).
-5. **J. Kim, W. J. Dally, S. Scott, and D. Abts**, "Technology-Driven, Highly-Scalable Dragonfly Topology," *Proceedings of the 35th Annual International Symposium on Computer Architecture (ISCA)*, pp. 77–88, 2008. DOI: [10.1109/ISCA.2008.19](https://doi.org/10.1109/ISCA.2008.19).
-6. **C. Clos**, "A Study of Non-Blocking Switching Networks," *Bell System Technical Journal*, Vol. 32, No. 2, pp. 406–424, 1953.
-7. **C. E. Leiserson**, "Fat-Trees: Universal Networks for Hardware-Efficient Supercomputing," *IEEE Transactions on Computers*, Vol. C-34, No. 10, pp. 892–901, October 1985. DOI: [10.1109/TC.1985.1676519](https://doi.org/10.1109/TC.1985.1676519).
-8. **W. J. Dally and B. Towles**, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann, 2004.
+1. **[Passas2012]** G. Passas, M. Katevenis, and D. Pnevmatikatos, "Crossbar NoCs Are Scalable Beyond 100 Nodes," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 31, no. 4, pp. 573–585, Apr. 2012. [DOI: 10.1109/TCAD.2011.2176730](https://doi.org/10.1109/TCAD.2011.2176730).
+2. **[Jun2009]** M. Jun, S. Yoo, and E.-Y. Chung, "Topology Synthesis of Cascaded Crossbar Switches," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 28, no. 6, pp. 926–930, June 2009. [DOI: 10.1109/TCAD.2009.2017079](https://doi.org/10.1109/TCAD.2009.2017079).
+3. **[Dumitriu2009]** V. Dumitriu and G. N. Khan, "Throughput-Oriented NoC Topology Generation and Analysis for High Performance SoCs," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 17, no. 10, pp. 1433–1446, Oct. 2009. [DOI: 10.1109/TVLSI.2008.2006798](https://doi.org/10.1109/TVLSI.2008.2006798).
+4. **[Kim2007]** J. Kim, J. Balfour, and W. J. Dally, "Flattened Butterfly Topology for On-Chip Networks," in *Proceedings of the 40th Annual IEEE/ACM International Symposium on Microarchitecture (MICRO)*, 2007, pp. 172–182. [DOI: 10.1109/MICRO.2007.28](https://doi.org/10.1109/MICRO.2007.28).
+5. **[Kim2008]** J. Kim, W. J. Dally, S. Scott, and D. Abts, "Technology-Driven, Highly-Scalable Dragonfly Topology," in *Proceedings of the 35th Annual International Symposium on Computer Architecture (ISCA)*, 2008, pp. 77–88. [DOI: 10.1109/ISCA.2008.19](https://doi.org/10.1109/ISCA.2008.19).
+6. **[Besta2014]** M. Besta and T. Hoefler, "Slim Fly: A Low-Diameter Network for High-Performance Computing," in *Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis (SC)*, 2014, pp. 343–354. [DOI: 10.1109/SC.2014.34](https://doi.org/10.1109/SC.2014.34).
+7. **[Clos1953]** C. Clos, "A Study of Non-Blocking Switching Networks," *Bell System Technical Journal*, vol. 32, no. 2, pp. 406–424, 1953.
+8. **[Leiserson1985]** C. E. Leiserson, "Fat-Trees: Universal Networks for Hardware-Efficient Supercomputing," *IEEE Transactions on Computers*, vol. C-34, no. 10, pp. 892–901, Oct. 1985. [DOI: 10.1109/TC.1985.1676519](https://doi.org/10.1109/TC.1985.1676519).
+9. **[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann, San Francisco, CA, 2004.

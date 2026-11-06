@@ -761,19 +761,19 @@ function checkQ63(qNum, optIdx) {
   const isCorrect = (optIdx === q63Answers[qNum]);
   q63UserScore[qNum] = isCorrect;
 
+  const q63Explanations = {
+    1: "In XYZ DOR, turns from C_Z to C_X or C_Z to C_Y are strictly forbidden. By defining channel ranks R(C_X) < R(C_Y) < R(C_Z), every routing hop strictly increases rank, guaranteeing that the Channel Dependency Graph is acyclic.",
+    2: "A full 3D mesh forces every router to adopt a 7x7 crossbar (+96% area) and creates KOZ exclusion zones everywhere. Sparse vertical elevators preserve 2D 5-port routers across most tiles, slashing silicon overhead.",
+    3: "Heat conduction in a 3D stack is a 1D thermal resistance ladder. The bottom die must push its thermal dissipation through every inter-tier bonding layer and silicon substrate before reaching the cold plate."
+  };
+
   if (isCorrect) {
     opts[optIdx].style.background = "rgba(34,197,94,0.15)";
     opts[optIdx].style.borderColor = "#22c55e";
     fb.style.background = "rgba(34,197,94,0.1)";
     fb.style.border = "1px solid rgba(34,197,94,0.3)";
     fb.style.color = "#166534";
-    if (qNum === 1) {
-      fb.innerHTML = "<strong>✓ Correct!</strong> In XYZ DOR, turns from C_Z to C_X or C_Z to C_Y are strictly forbidden. By defining channel ranks R(C_X) < R(C_Y) < R(C_Z), every routing hop strictly increases rank, guaranteeing that the Channel Dependency Graph is acyclic.";
-    } else if (qNum === 2) {
-      fb.innerHTML = "<strong>✓ Correct!</strong> A full 3D mesh forces every router to adopt a 7x7 crossbar (+96% area) and creates KOZ exclusion zones everywhere. Sparse vertical elevators preserve 2D 5-port routers across most tiles, slashing silicon overhead.";
-    } else {
-      fb.innerHTML = "<strong>✓ Correct!</strong> Heat conduction in a 3D stack is a 1D thermal resistance ladder. The bottom die must push its thermal dissipation through every inter-tier bonding layer and silicon substrate before reaching the cold plate.";
-    }
+    fb.innerHTML = `<strong>✓ Correct!</strong><br><div style="margin-top:0.4rem; line-height:1.5;"><strong>Detailed Solution:</strong> ${q63Explanations[qNum]}</div>`;
   } else {
     opts[optIdx].style.background = "rgba(239,68,68,0.15)";
     opts[optIdx].style.borderColor = "#ef4444";
@@ -782,7 +782,7 @@ function checkQ63(qNum, optIdx) {
     fb.style.background = "rgba(239,68,68,0.1)";
     fb.style.border = "1px solid rgba(239,68,68,0.3)";
     fb.style.color = "#991b1b";
-    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q63Answers[qNum])}</strong>.`;
+    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q63Answers[qNum])}</strong>.<br><div style="margin-top:0.4rem; line-height:1.5;"><strong>Detailed Solution:</strong> ${q63Explanations[qNum]}</div>`;
   }
 
   updateQ63Score();

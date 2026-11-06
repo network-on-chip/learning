@@ -663,19 +663,19 @@ function checkQ62(qNum, optIdx) {
   const isCorrect = (optIdx === q62Answers[qNum]);
   q62UserScore[qNum] = isCorrect;
 
+  const q62Explanations = {
+    1: "In the negative binomial model, yield decreases exponentially with area. When a defect strikes an 800 mm² monolithic die, the entire $1,800 die is scrapped. With smaller chiplets, only the single struck $80 chiplet is discarded!",
+    2: "Advanced packaging leverages fine-pitch microbumps and sub-micron lithography on silicon substrates to achieve unprecedented wire routing density with sub-picojoule energy efficiency.",
+    3: "Because D2D round-trip latency spans multiple protocol, CDC, and analog PHY pipeline stages (RTT ≈ 10–16 cycles), credit replenishment takes longer. By Little's Law, buffer depth must satisfy B_min >= RTT * BW to prevent link starvation."
+  };
+
   if (isCorrect) {
     opts[optIdx].style.background = "rgba(34,197,94,0.15)";
     opts[optIdx].style.borderColor = "#22c55e";
     fb.style.background = "rgba(34,197,94,0.1)";
     fb.style.border = "1px solid rgba(34,197,94,0.3)";
     fb.style.color = "#166534";
-    if (qNum === 1) {
-      fb.innerHTML = "<strong>✓ Correct!</strong> In the negative binomial model, yield decreases exponentially with area. When a defect strikes an 800 mm² monolithic die, the entire $1,800 die is scrapped. With smaller chiplets, only the single struck $80 chiplet is discarded!";
-    } else if (qNum === 2) {
-      fb.innerHTML = "<strong>✓ Correct!</strong> Advanced packaging leverages fine-pitch microbumps and sub-micron lithography on silicon substrates to achieve unprecedented wire routing density with sub-picojoule energy efficiency.";
-    } else {
-      fb.innerHTML = "<strong>✓ Correct!</strong> Because D2D round-trip latency spans multiple protocol, CDC, and analog PHY pipeline stages (RTT ≈ 10–16 cycles), credit replenishment takes longer. By Little's Law, buffer depth must satisfy B_min >= RTT * BW to prevent link starvation.";
-    }
+    fb.innerHTML = `<strong>✓ Correct!</strong><br><div style="margin-top:0.4rem; line-height:1.5;"><strong>Detailed Solution:</strong> ${q62Explanations[qNum]}</div>`;
   } else {
     opts[optIdx].style.background = "rgba(239,68,68,0.15)";
     opts[optIdx].style.borderColor = "#ef4444";
@@ -684,7 +684,7 @@ function checkQ62(qNum, optIdx) {
     fb.style.background = "rgba(239,68,68,0.1)";
     fb.style.border = "1px solid rgba(239,68,68,0.3)";
     fb.style.color = "#991b1b";
-    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q62Answers[qNum])}</strong>.`;
+    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q62Answers[qNum])}</strong>.<br><div style="margin-top:0.4rem; line-height:1.5;"><strong>Detailed Solution:</strong> ${q62Explanations[qNum]}</div>`;
   }
 
   updateQ62Score();

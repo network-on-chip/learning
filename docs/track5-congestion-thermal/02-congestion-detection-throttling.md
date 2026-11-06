@@ -719,19 +719,19 @@ function checkQ52(qNum, optIdx) {
   const isCorrect = (optIdx === q52Answers[qNum]);
   q52UserScore[qNum] = isCorrect;
 
+  const q52Explanations = {
+    1: "Under lossless credit flow control, buffer exhaustion cascades backwards. Unrelated packets trapped behind stalled flits cannot move, causing the saturation tree to strangle innocent traffic.",
+    2: "Purely local buffer occupancy is reactive—it only warns a router when the saturation tree has already reached it. RCA transmits lightweight multi-hop telemetry upstream, allowing routers to divert traffic early before their own queues fill.",
+    3: "On-chip networks are strictly lossless. Dropping flits would require complex TCP-like end-to-end retransmissions. Source quenching cleanly regulates injection rate without wasting crossbar bandwidth."
+  };
+
   if (isCorrect) {
     opts[optIdx].style.background = "rgba(34,197,94,0.15)";
     opts[optIdx].style.borderColor = "#22c55e";
     fb.style.background = "rgba(34,197,94,0.1)";
     fb.style.border = "1px solid rgba(34,197,94,0.3)";
     fb.style.color = "#166534";
-    if (qNum === 1) {
-      fb.innerHTML = "<strong>✓ Correct!</strong> Under lossless credit flow control, buffer exhaustion cascades backwards. Unrelated packets trapped behind stalled flits cannot move, causing the saturation tree to strangle innocent traffic.";
-    } else if (qNum === 2) {
-      fb.innerHTML = "<strong>✓ Correct!</strong> Purely local buffer occupancy is reactive—it only warns a router when the saturation tree has already reached it. RCA transmits lightweight multi-hop telemetry upstream, allowing routers to divert traffic early before their own queues fill.";
-    } else {
-      fb.innerHTML = "<strong>✓ Correct!</strong> On-chip networks are strictly lossless. Dropping flits would require complex TCP-like end-to-end retransmissions. Source quenching cleanly regulates injection rate without wasting crossbar bandwidth.";
-    }
+    fb.innerHTML = `<strong>✓ Correct!</strong><br><div style="margin-top:0.4rem; line-height:1.5;"><strong>Detailed Solution:</strong> ${q52Explanations[qNum]}</div>`;
   } else {
     opts[optIdx].style.background = "rgba(239,68,68,0.15)";
     opts[optIdx].style.borderColor = "#ef4444";
@@ -740,7 +740,7 @@ function checkQ52(qNum, optIdx) {
     fb.style.background = "rgba(239,68,68,0.1)";
     fb.style.border = "1px solid rgba(239,68,68,0.3)";
     fb.style.color = "#991b1b";
-    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q52Answers[qNum])}</strong>.`;
+    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q52Answers[qNum])}</strong>.<br><div style="margin-top:0.4rem; line-height:1.5;"><strong>Detailed Solution:</strong> ${q52Explanations[qNum]}</div>`;
   }
 
   updateQ52Score();

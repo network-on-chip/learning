@@ -8,6 +8,39 @@
 
 ---
 
+## Chapter Introduction
+
+In the preceding chapters, we explored how physical wires are organized into interconnect topologies (Chapter 4) and how router switches arbitrate and buffer flits along their journey (Chapters 2 and 3). However, a physical network is inert without a **routing algorithm**—the intelligence that decides which physical and virtual channels a packet must traverse from source to destination.
+
+In on-chip networks, routing is far more than a pathfinding problem. It is governed by an existential correctness invariant: **deadlock freedom**. In wormhole-switched NoCs, packets do not reside in a single buffer; they stretch like trains across multiple routers, simultaneously holding physical channel buffers while requesting downstream resources. If a set of packets forms a closed circular waiting dependency, the network enters a catastrophic **deadlock** state: traffic freezes across entire quadrants of the chip, processor pipelines stall indefinitely, and the entire system crashes.
+
+Computer architects face a fundamental architectural dilemma:
+- **Strictly Deterministic Routing** (such as Dimension-Order XY Routing) provides simple, provably cycle-free routing with minimal logic, but it is completely rigid. It cannot route around localized thermal hotspots, congested memory controllers, or permanent silicon wire defects.
+- **Adaptive Routing** dynamically steers packets around traffic bottlenecks and faulty links, significantly boosting throughput and fault tolerance. However, permitting unrestricted turns introduces circular channel dependencies that can trigger fatal routing deadlocks.
+
+This chapter presents the definitive theoretical foundations and microarchitectural mechanisms of on-chip routing and deadlock freedom. We begin with the mathematical formalism of Dally-Seitz Channel Dependency Graphs (CDGs), examine how the Glass-Ni Turn Model and Chiu's Odd-Even routing achieve partial adaptiveness without adding virtual channels, and investigate Duato's Theorem—the breakthrough proving that adaptive networks can tolerate cycles if an acyclic escape subnetwork is preserved. Finally, we venture beyond routing-layer deadlocks to explore cache coherence **protocol-level deadlocks** (PCMT, TCAD 2026) and multi-chiplet 3D vertical routing guarantees (ScaDA-Rou, TCAS-II 2026).
+
+### Learning Objectives
+- **Understand Deadlock Formation in Wormhole Networks**: Master the distributed holding behavior of multi-flit wormhole packets and distinguish deadlock from livelock and starvation.
+- **Apply the Dally-Seitz Theorem**: Construct Channel Dependency Graphs (CDG) and prove the necessary and sufficient conditions for deadlock-free deterministic routing.
+- **Design Turn-Model Adaptive Routing**: Analyze the 8 turns of a 2D mesh, formulate prohibition sets for West-First, North-Last, and Negative-First algorithms, and implement Chiu's Odd-Even routing.
+- **Synthesize Escape-Channel Architectures (Duato's Theorem)**: Partition channel sets into fully adaptive and escape virtual channels, proving global forward progress despite cyclic adaptive paths.
+- **Prevent Protocol-Level & 3D Multi-Chiplet Deadlocks**: Analyze coherence request-response cycles, evaluate Virtual Network (VN) area overheads, and examine unified priority solutions (PCMT) alongside 3D TSV routing models (ScaDA-Rou).
+
+### Chapter Roadmap & Interactive Modules
+- **Section 5.1**: The Deadlock Problem in Packet-Switched Networks & Failure Modes.
+- **Section 5.2**: The Dally-Seitz Channel Dependency Graph Theorem & XY Proof.
+- **Section 5.3**: Glass & Ni Turn Models for Partially Adaptive Routing.
+- **Section 5.4**: Chiu's Odd-Even Turn Model: Even Turn Distribution.
+- **Section 5.5**: Duato's Theorem: Fully Adaptive Routing with Escape VCs.
+- **Section 5.6**: Protocol-Level Deadlock & Virtual Networks (PCMT Case Study).
+- **Section 5.7**: 3D Multi-Chiplet Deadlock Freedom (ScaDA-Rou Case Study).
+- **Section 5.8**: Comparative Summary Matrix of Routing Algorithms.
+- **Section 5.9**: Self-Assessment Checkpoints & Review Exercises.
+- **Section 5.10**: References & Bibliography.
+
+---
+
 ## 5.1 The Deadlock Problem in Packet-Switched Networks
 
 In packet-switched Networks-on-Chip (NoCs), **deadlock** is a catastrophic failure state wherein a set of concurrent packets are mutually blocked indefinitely, each holding one or more channel buffers while waiting for other buffers held by packets in the set. Without active deadlock avoidance or recovery, deadlocked packets freeze traffic across entire quadrants of the chip, leading to complete processor pipeline stall and system crash.
@@ -31,12 +64,11 @@ graph TD
 
 As established in Chapter 2, **Store-and-Forward (SAF)** switching requires routers to buffer entire packets before initiating forwarding. In SAF, a buffer dependency exists only between adjacent routers. 
 
-In **Wormhole Switching**, however, buffer allocation is decoupled from packet length and operates at the flit granularity. A packet spans across multiple physical links and routers simultaneously:
-- The **Head flit** carves out the route and acquires virtual channels.
-- The **Body flits** trail behind through the pipeline across multiple routers.
-- The **Tail flit** releases channel reservations.
-
-When the Head flit is blocked at a downstream router due to buffer full backpressure, the body flits remain stationary inside intermediate buffers along the entire path. Consequently, a wormhole packet simultaneously **holds multiple distributed physical and virtual channels** while requesting downstream resources. This distributed holding behavior dramatically expands the resource dependency space, creating fertile ground for cyclic dependency loops.
+In **Wormhole Switching**, however, buffer allocation is decoupled from packet length and operates at the flit granularity, drastically exacerbating deadlock vulnerability:
+- **Distributed Channel Holding**: A single packet spans across multiple physical links and routers simultaneously, with the Head flit reserving routing state, Body flits streaming through the pipeline, and the Tail flit tearing down reservations.
+- **Upstream Buffer Freezing**: When a Head flit encounters backpressure at a congested downstream router, trailing body flits freeze in place inside intermediate buffers along the entire path, blocking upstream physical channels.
+- **Interleaved Channel Dependencies**: Blocked packets hold multiple distributed physical and virtual channels while awaiting downstream allocations, turning linear paths into complex cyclic waiting webs.
+- **Exponential State Growth**: The multi-node footprint of wormhole packets dramatically multiplies the number of active dependencies in the network, creating fertile ground for circular dependency loops.
 
 ### 5.1.2 Classifying Anomaly States: Deadlock, Livelock & Starvation
 
@@ -86,10 +118,15 @@ graph LR
 > A deterministic routing function $R$ for an interconnection network $I$ is **deadlock-free** if and only if there are **no cycles** in its Channel Dependency Graph $D = (C, E_{CDG})$.
 
 #### Proof
-1. **Sufficiency ($\Leftarrow$)**:  
-   Assume $D$ has no directed cycles. Because $D$ is a finite directed acyclic graph (DAG), there exists at least one channel $c_{sink} \in C$ with zero out-degree (no channels depend on it; it delivers directly to local memory). A packet occupying $c_{sink}$ can never be blocked by another packet in the network and will be consumed in finite time. By topological sorting of the DAG, every channel $c_i$ can be assigned an integer rank $\text{rank}(c_i)$ such that: $(c_i, c_j) \in E_{CDG} \implies \text{rank}(c_i) < \text{rank}(c_j)$. By induction on channel rank, flits on channels of rank $K$ are guaranteed to advance once all channels of rank $> K$ clear. Therefore, no packet can be blocked indefinitely, and the network is deadlock-free.
-2. **Necessity ($\Rightarrow$)**:  
-   Assume $D$ contains a directed cycle $c_0 \to c_1 \to \dots \to c_{M-1} \to c_0$. One can construct a configuration of $M$ packets $P_0, P_1, \dots, P_{M-1}$ such that packet $P_i$ occupies channel $c_i$ and requests channel $c_{(i+1) \bmod M}$. If all channels have finite buffer capacity and are full, no packet can advance because each packet is waiting on a channel held by another packet in the cycle. The network is permanently deadlocked. $\blacksquare$
+- **Sufficiency Proof ($\Leftarrow$)**:  
+  - Assume $D$ has no directed cycles. Because $D$ is a finite directed acyclic graph (DAG), there exists at least one channel $c_{sink} \in C$ with zero out-degree (no channels depend on it; it delivers directly to local memory).
+  - A packet occupying $c_{sink}$ can never be blocked by another packet in the network and will be consumed in finite time.
+  - By topological sorting of the DAG, every channel $c_i$ can be assigned an integer rank $\text{rank}(c_i)$ such that: $(c_i, c_j) \in E_{CDG} \implies \text{rank}(c_i) < \text{rank}(c_j)$.
+  - By induction on channel rank, flits on channels of rank $K$ are guaranteed to advance once all channels of rank $> K$ clear. Therefore, no packet can be blocked indefinitely, and the network is provably deadlock-free.
+- **Necessity Proof ($\Rightarrow$)**:  
+  - Assume $D$ contains a directed cycle $c_0 \to c_1 \to \dots \to c_{M-1} \to c_0$.
+  - One can construct a configuration of $M$ packets $P_0, P_1, \dots, P_{M-1}$ such that packet $P_i$ occupies channel $c_i$ and requests channel $c_{(i+1) \bmod M}$.
+  - If all channels have finite buffer capacity and are full, no packet can advance because each packet is waiting on a channel held by another packet in the cycle. The network is permanently deadlocked. $\blacksquare$
 
 ### 5.2.3 Application to Dimension-Order Routing (XY Routing)
 
@@ -114,8 +151,8 @@ In a 2D Mesh, a packet can travel in 4 directions: East, West, North, South. A c
 $$\{E \to N, \quad E \to S, \quad W \to N, \quad W \to S, \quad N \to E, \quad N \to W, \quad S \to E, \quad S \to W\}$$
 
 These 8 turns can form two types of simple cycles in the physical mesh:
-1. **Clockwise Cycle**: $E \to S \to W \to N \to E$ (uses turns $E \to S$, $S \to W$, $W \to N$, $N \to E$).
-2. **Counter-Clockwise Cycle**: $E \to N \to W \to S \to E$ (uses turns $E \to N$, $N \to W$, $W \to S$, $S \to E$).
+- **Clockwise Cycle**: $E \to S \to W \to N \to E$ (uses turns $E \to S$, $S \to W$, $W \to N$, $N \to E$).
+- **Counter-Clockwise Cycle**: $E \to N \to W \to S \to E$ (uses turns $E \to N$, $N \to W$, $W \to S$, $S \to E$).
 
 ```mermaid
 graph LR
@@ -185,12 +222,12 @@ graph TD
 A key limitation of the Glass & Ni turn models is **spatial asymmetry**. For example, in West-First routing, East-bound packets have multiple routing choices, but West-bound packets are strictly deterministic, causing uneven channel utilization.
 
 Ge-Ming Chiu (*IEEE Transactions on Parallel and Distributed Systems*, 2000) introduced the **Odd-Even Turn Model**, which conditions turn restrictions on the **column parity ($x$-coordinate)** of the router:
-1. **At Even Columns ($x \bmod 2 == 0$)**:
-   - Packets are **not allowed to turn from North or South onto West** ($N \to W$ and $S \to W$ prohibited).
-   - Packets are **not allowed to turn from East to North or South** ($E \to N$ and $E \to S$ prohibited).
-2. **At Odd Columns ($x \bmod 2 == 1$)**:
-   - Packets are **not allowed to turn from North or South onto East** ($N \to E$ and $S \to E$ prohibited).
-   - Packets are **not allowed to turn from West to North or South** ($W \to N$ and $W \to S$ prohibited).
+- **At Even Columns ($x \bmod 2 == 0$)**:
+  - Packets are **not allowed to turn from North or South onto West** ($N \to W$ and $S \to W$ prohibited).
+  - Packets are **not allowed to turn from East to North or South** ($E \to N$ and $E \to S$ prohibited).
+- **At Odd Columns ($x \bmod 2 == 1$)**:
+  - Packets are **not allowed to turn from North or South onto East** ($N \to E$ and $S \to E$ prohibited).
+  - Packets are **not allowed to turn from West to North or South** ($W \to N$ and $W \to S$ prohibited).
 
 By alternating turn prohibitions between even and odd columns, the Odd-Even model prevents cycles while distributing routing adaptiveness evenly across both East-bound and West-bound traffic flows.
 
@@ -206,9 +243,9 @@ In 1993, José Duato (*IEEE Transactions on Parallel and Distributed Systems*) e
 
 > **Duato's Theorem (1993)**:  
 > An adaptive routing function $R$ for an interconnection network $I$ is **deadlock-free** if and only if the channel set $C$ can be partitioned into an adaptive channel subset $C_A$ and an escape channel subset $C_E$ ($C = C_A \cup C_E$) such that:
-> 1. There exists an escape routing subfunction $R_E: C_E \times V \to \mathcal{P}(C_E)$ whose restricted Channel Dependency Graph $D_E = (C_E, E_{E})$ is **strictly acyclic**.
-> 2. Packets on any adaptive channel in $C_A$ are always permitted to transition into $C_E$.
-> 3. The escape subnetwork $C_E$ provides at least one connected path between every source and destination pair.
+> - **Acyclic Escape Subnetwork**: There exists an escape routing subfunction $R_E: C_E \times V \to \mathcal{P}(C_E)$ whose restricted Channel Dependency Graph $D_E = (C_E, E_{E})$ is **strictly acyclic**.
+> - **Unconditional Escape Transition**: Packets on any adaptive channel in $C_A$ are always permitted to transition into $C_E$ whenever congestion or contention occurs.
+> - **Connected Escape Coverage**: The escape subnetwork $C_E$ provides at least one connected path between every source and destination pair in the system.
 
 ```mermaid
 graph TD
@@ -238,9 +275,9 @@ In shared-memory multi-core processors, routing-level deadlock freedom is necess
 ### 5.6.1 The Request-Response Dependency Loop
 
 In directory-based cache coherence protocols (e.g., MESI, MOESI), processors exchange multi-step coherence messages across the NoC:
-1. Core A sends a `Request` (GetS/GetM) to Directory D.
-2. Directory D sends a `Forwarded Request` or `Invalidation` to Core B.
-3. Core B sends an `Acknowledgement` or `Response Data` back to Core A.
+- **Coherence Request Step**: Core A sends a `Request` (GetS/GetM) to Directory D.
+- **Forward / Invalidate Step**: Directory D sends a `Forwarded Request` or `Invalidation` probe to Core B.
+- **Data Response Step**: Core B sends an `Acknowledgement` or `Response Data` back to Core A.
 
 ![Protocol-Level Deadlock Cycle](figures/pcmt_fig01_protocol_deadlock.png)
 *Figure 5.1: Possible cyclic dependency causing protocol-level deadlock in a multi-core NoC. A core's incoming request queue fills up and cannot accept new requests until its outgoing response is delivered, creating a circular protocol dependence across routers. [Reproduced from: Y. Jia, Z. Zhang, C. Fu, L. Wan, and J. Han, "PCMT: Prioritizing Coherence Message Types for NoC Protocol-Level Deadlock Freedom," IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, Vol. 45, No. 4, pp. 1949–1962, April 2026, DOI: 10.1109/TCAD.2025.3524944. © 2026 IEEE]*
@@ -283,9 +320,9 @@ In heterogeneous 2.5D and 3D multi-chiplet systems, inter-chiplet communication 
 *Figure 5.4: Special consideration in multi-chiplet 2D/3D routing: (a) selection of inter-chiplet routing order; (b) corner cases in X-dimension routing; (c) corner cases in Y-dimension routing. [Reproduced from: L. Zhu, H. Gu, Y. Tan, and G. Zhang, "ScaDA-Rou: A Scalable, Deadlock-Free, and Adaptive Routing for 3-D Multi-Chiplet System," IEEE Transactions on Circuits and Systems–II: Express Briefs, Vol. 73, No. 4, pp. 433–437, April 2026, DOI: 10.1109/TCSII.2025.3526101. © 2026 IEEE]*
 
 Lijing Zhu, Huaxi Gu, Yun Tan, and Guangming Zhang (*IEEE Transactions on Circuits and Systems–II: Express Briefs*, TCAS-II 2026) introduced **ScaDA-Rou**:
-1. **In-Plane Deadlock Avoidance**: Establishes turn model prohibitions within each individual 2D chiplet layer.
-2. **Cross-Plane Deadlock Avoidance**: Partitions virtual channels based on the source and destination planes of cross-plane vertical packets, preventing vertical TSV dependency cycles.
-3. ScaDA-Rou achieved an average **89.2% latency improvement** under non-uniform multi-chiplet workloads while guaranteeing complete deadlock freedom across arbitrary 3D chiplet stacks.
+- **In-Plane Deadlock Avoidance**: Establishes turn model prohibitions within each individual 2D chiplet layer.
+- **Cross-Plane Deadlock Avoidance**: Partitions virtual channels based on the source and destination planes of cross-plane vertical packets, preventing vertical TSV dependency cycles.
+- **Throughput & Latency Acceleration**: ScaDA-Rou achieved an average **89.2% latency improvement** under non-uniform multi-chiplet workloads while guaranteeing complete deadlock freedom across arbitrary 3D chiplet stacks.
 
 ---
 
@@ -303,28 +340,95 @@ Lijing Zhu, Huaxi Gu, Yun Tan, and Guangming Zhang (*IEEE Transactions on Circui
 
 ---
 
-## 5.9 Self-Assessment Checkpoints & Review Exercises
+## 5.9 Checkpoint Assessment
 
-1. **CDG Construction & Proof**:
-   Consider a $2 \times 2$ Mesh with 4 routers $R(0,0), R(1,0), R(0,1), R(1,1)$. Draw the complete Channel Dependency Graph under fully adaptive minimal routing. Identify the exact directed cycle that causes deadlock. Which turns must be eliminated under the West-First turn model to break this cycle?
+Test your mastery of Chapter 5 concepts against the official certification questions (mirroring the 3-Tier Exam Engine in [`quiz.md`](../../quiz.md)):
 
-2. **Odd-Even Column Restrictions**:
-   In an Odd-Even routed mesh, why is a packet located at an even column prohibited from turning from North to West, while an identical packet at an odd column is allowed to make that turn? Trace a 4-hop path from $(2, 2)$ to $(0, 0)$ under Odd-Even rules.
+#### Question 5.1 (Tier 1: Fundamental)
+*What is the necessary and sufficient condition established by William Dally and Charles Seitz (1987) for a deterministic routing algorithm to be deadlock-free in a wormhole network?*
 
-3. **Duato's Theorem Validation**:
-   Explain why an adaptive subnetwork containing cycles cannot cause permanent deadlock as long as an escape virtual channel running XY routing is present. What happens if a packet on the escape subnetwork attempts to transition back into the adaptive subnetwork?
+- **A)** The network must have at least 16 virtual channels per physical link.
+- **B)** The Channel Dependency Graph (CDG) must contain no directed cycles.
+- **C)** All routers must operate with optical clock synchronization.
+- **D)** Routers must drop packets whenever a buffer is 50% full.
 
-4. **Protocol vs. Routing Deadlock**:
-   A hardware designer claims: *"Because our router microarchitecture uses provably deadlock-free XY Dimension-Order Routing, our multi-core cache coherence protocol can never deadlock."* Refute this statement using a concrete Request-Response coherence dependency scenario.
+??? success "Reveal Answer & Full Solution"
+    **Correct Answer: Option B**
+
+    **1. Step-by-Step Architectural & Mathematical Derivation:**
+    In wormhole-routed networks, packets hold buffer channels while requesting downstream channels, creating hold-and-wait resource dependencies. Dally and Seitz formalized this through the Channel Dependency Graph (CDG), D = (C, E), where: (1) Each vertex c_i in C represents a dedicated routing channel/buffer. (2) A directed edge (c_i, c_j) in E exists if a packet holding channel c_i can immediately request channel c_j under the routing algorithm R. Dally and Seitz proved: A deterministic routing function R for network N is deadlock-free IF AND ONLY IF its Channel Dependency Graph D has NO DIRECTED CYCLES. If a directed cycle exists (c_1 -> c_2 -> ... -> c_k -> c_1), a set of packets can completely fill these buffers such that each packet waits for the next to advance, creating a permanent, unresolvable circular deadlock. Establishing a strict partial order on channels (e.g. dimension order: X links before Y links) guarantees an acyclic CDG.
+
+    **2. Option-by-Option Breakdown & Distractor Analysis:**
+    - **Option A (Incorrect Distractor):** Deterministic XY routing requires only 1 virtual channel to be deadlock-free; 16 VCs are completely unnecessary.
+    - **Option B (Correct):** An acyclic Channel Dependency Graph is the mathematically proven necessary and sufficient condition for deterministic deadlock freedom.
+    - **Option C (Incorrect Distractor):** Clock synchronization does not prevent topological buffer dependency deadlocks.
+    - **Option D (Incorrect Distractor):** Wormhole flow control is strictly lossless; dropping packets violates reliable on-chip communication semantics.
+
+    **3. Silicon Architect's Takeaway:**
+    Deadlock in interconnection networks is fundamentally a directed cycle in the Channel Dependency Graph; eliminating cycles guarantees deadlock-free operation.
+
+    *(Reference: W. J. Dally and C. L. Seitz, 'Deadlock-Free Message Routing in Multiprocessor Interconnection Networks,' IEEE Transactions on Computers, Vol. C-36, No. 5, pp. 547–553, May 1987. DOI: 10.1109/TC.1987.1676939.)*
+
+#### Question 5.2 (Tier 2: Core Engineering)
+*In a 2D Mesh with 8 possible 90-degree turns, how many turns must be prohibited in the Turn Model (Glass & Ni, 1994) to eliminate deadlock while retaining maximum routing adaptivity?*
+
+- **A)** Exactly 2 turns (one from each of the two simple 4-turn cycles: clockwise and counter-clockwise).
+- **B)** Exactly 4 turns, forcing deterministic XY or YX routing.
+- **C)** All 8 turns, prohibiting any direction change.
+- **D)** 0 turns; 2D meshes cannot deadlock under any circumstances.
+
+??? success "Reveal Answer & Full Solution"
+    **Correct Answer: Option A**
+
+    **1. Step-by-Step Architectural & Mathematical Derivation:**
+    In a 2D mesh, there are 8 possible 90-degree turns: {NE, NW, SE, SW, EN, ES, WN, WS}. The simplest directed cycles in the CDG are formed by 4-turn closed loops: (1) Clockwise (CW) cycle: North -> East -> South -> West -> North. (2) Counter-Clockwise (CCW) cycle: North -> West -> South -> East -> North. Because every complex cycle in a 2D mesh must contain at least one complete CW or CCW turn loop, breaking at least one turn in the CW cycle and one turn in the CCW cycle breaks all possible cycles. To maximize remaining adaptivity, Glass and Ni proved that exactly 2 turns must be prohibited: one turn from the CW cycle and one turn from the CCW cycle. For example: - West-First: Prohibits NW (CCW) and SW (CW). - North-Last: Prohibits NE (CW) and NW (CCW). - Negative-First: Prohibits ES (CW) and WN (CCW). By contrast, deterministic XY routing eliminates 4 turns ({NW, SW, NE, SE}), unnecessarily destroying all dynamic adaptivity.
+
+    **2. Option-by-Option Breakdown & Distractor Analysis:**
+    - **Option A (Correct):** Prohibiting exactly 2 turns breaks both clockwise and counter-clockwise cycles with minimal loss of routing adaptivity.
+    - **Option B (Incorrect Distractor):** Prohibiting 4 turns describes deterministic DOR, which destroys 100% of routing adaptivity.
+    - **Option C (Incorrect Distractor):** Prohibiting all 8 turns prevents packets from changing dimension entirely.
+    - **Option D (Incorrect Distractor):** Unconstrained 2D meshes deadlock almost instantly under congestion due to cyclic channel dependencies.
+
+    **3. Silicon Architect's Takeaway:**
+    The Turn Model achieves deadlock-free partially adaptive routing without virtual channels by removing just 2 of the 8 turns.
+
+    *(Reference: C. J. Glass and L. M. Ni, 'The Turn Model for Adaptive Routing,' Journal of the ACM, Vol. 41, No. 5, pp. 874–902, Sept. 1994. DOI: 10.1145/185675.185682.)*
+
+#### Question 5.3 (Tier 3: Silicon Mastery)
+*Why does routing-level deadlock freedom (e.g. using deterministic XY DOR) fail to prevent Protocol-Level Deadlock in shared-memory multicore architectures? (Select all that apply)*
+
+- **A)** Cache coherence protocols create message dependencies where servicing an incoming Request flit requires generating and injecting an outgoing Response flit.
+- **B)** If Request and Response messages share the same physical buffers, a flood of Requests can fill all router buffers, preventing Response messages from being delivered.
+- **C)** Protocol deadlocks can be completely prevented by separating coherence message classes into distinct Virtual Networks (VNETs) mapped to independent Virtual Channels.
+- **D)** Protocol deadlocks only occur if the CPU clock speed exceeds 5 GHz.
+
+??? success "Reveal Answer & Full Solution"
+    **Correct Answer: Option A, B, C**
+
+    **1. Step-by-Step Architectural & Mathematical Derivation:**
+    Routing-level deadlock freedom ensures that packets do not form circular dependency loops within the network router buffers (assuming destination nodes always consume flits). However, in shared-memory CMPs running cache coherence (e.g. MESI / MOESI): (1) Message Dependency: When a core receives a Read Request, it cannot consume the request flit until it allocates a cache buffer, inspects directory state, and transmits a Read Response. (2) Circular Wait: If the network uses a single shared buffer class for both Requests and Responses, a flood of Request packets can saturate all router buffers. Now, a core attempting to inject a Response packet is blocked because all input buffers are filled with Requests. Meanwhile, the cores holding the Request flits cannot consume them until they receive their Responses. This creates an end-to-end circular dependency between message classes that spans outside the network into core controllers. (3) Virtual Network (VNET) Solution: CMP architectures partition coherence messages into strictly ordered message classes: VNET0 (Requests) -> VNET1 (Forwards) -> VNET2 (Responses). By dedicating independent Virtual Channels to each VNET, Responses are physically guaranteed never to be blocked behind Requests, preventing protocol deadlock.
+
+    **2. Option-by-Option Breakdown & Distractor Analysis:**
+    - **Option A (Correct):** True. Coherence transactions create application-level dependency chains: Request -> Forward -> Response.
+    - **Option B (Correct):** True. If buffers are shared, Request congestion prevents Responses from draining, deadlocking the system.
+    - **Option C (Correct):** True. Dedicating independent VNETs/VCs guarantees that higher-priority response flits cannot be blocked by request flits.
+    - **Option D (Incorrect Distractor):** False. Protocol deadlocks are logical resource dependency cycles, completely independent of clock frequency.
+
+    **3. Silicon Architect's Takeaway:**
+    Deadlock-free routing only guarantees flit delivery if nodes sink packets; protocol deadlock freedom requires independent Virtual Networks (VNETs) for Requests and Responses.
+
+    *(Reference: Y. Jia, Z. Zhang, C. Fu, L. Wan, and J. Han, 'PCMT: Prioritizing Coherence Message Types for NoC Protocol-Level Deadlock Freedom,' IEEE TCAD, Vol. 45, No. 4, pp. 1949–1962, Apr. 2026. DOI: 10.1109/TCAD.2025.3524944.)*
 
 ---
 
-## 5.10 References & Bibliography
+## References & Bibliography
 
-1. **W. J. Dally and C. L. Seitz**, "Deadlock-Free Message Routing in Multiprocessor Interconnection Networks," *IEEE Transactions on Computers*, Vol. C-36, No. 5, pp. 547–553, May 1987. DOI: [10.1109/TC.1987.1676939](https://doi.org/10.1109/TC.1987.1676939).
-2. **J. Duato**, "A New Theory of Deadlock-Free Adaptive Routing in Wormhole Networks," *IEEE Transactions on Parallel and Distributed Systems*, Vol. 4, No. 12, pp. 1320–1331, Dec. 1993. DOI: [10.1109/71.257110](https://doi.org/10.1109/71.257110).
-3. **C. J. Glass and L. M. Ni**, "The Turn Model for Adaptive Routing," *Journal of the ACM*, Vol. 41, No. 5, pp. 874–902, Sept. 1994. DOI: [10.1145/185675.185682](https://doi.org/10.1145/185675.185682).
-4. **G.-M. Chiu**, "The Odd-Even Turn Model for Adaptive Routing," *IEEE Transactions on Parallel and Distributed Systems*, Vol. 11, No. 7, pp. 729–738, July 2000. DOI: [10.1109/71.877843](https://doi.org/10.1109/71.877843).
-5. **Y. Jia, Z. Zhang, C. Fu, L. Wan, and J. Han**, "PCMT: Prioritizing Coherence Message Types for NoC Protocol-Level Deadlock Freedom," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, Vol. 45, No. 4, pp. 1949–1962, April 2026. DOI: [10.1109/TCAD.2025.3524944](https://doi.org/10.1109/TCAD.2025.3524944).
-6. **L. Zhu, H. Gu, Y. Tan, and G. Zhang**, "ScaDA-Rou: A Scalable, Deadlock-Free, and Adaptive Routing for 3-D Multi-Chiplet System," *IEEE Transactions on Circuits and Systems–II: Express Briefs*, Vol. 73, No. 4, pp. 433–437, April 2026. DOI: [10.1109/TCSII.2025.3526101](https://doi.org/10.1109/TCSII.2025.3526101).
-7. **W. J. Dally and B. Towles**, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann, 2004.
+1. **[Dally1987]** W. J. Dally and C. L. Seitz, "Deadlock-Free Message Routing in Multiprocessor Interconnection Networks," *IEEE Transactions on Computers*, vol. C-36, no. 5, pp. 547–553, May 1987. [DOI: 10.1109/TC.1987.1676939](https://doi.org/10.1109/TC.1987.1676939).
+2. **[Duato1993]** J. Duato, "A New Theory of Deadlock-Free Adaptive Routing in Wormhole Networks," *IEEE Transactions on Parallel and Distributed Systems*, vol. 4, no. 12, pp. 1320–1331, Dec. 1993. [DOI: 10.1109/71.257110](https://doi.org/10.1109/71.257110).
+3. **[Glass1994]** C. J. Glass and L. M. Ni, "The Turn Model for Adaptive Routing," *Journal of the ACM*, vol. 41, no. 5, pp. 874–902, Sept. 1994. [DOI: 10.1145/185675.185682](https://doi.org/10.1145/185675.185682).
+4. **[Chiu2000]** G.-M. Chiu, "The Odd-Even Turn Model for Adaptive Routing," *IEEE Transactions on Parallel and Distributed Systems*, vol. 11, no. 7, pp. 729–738, July 2000. [DOI: 10.1109/71.877843](https://doi.org/10.1109/71.877843).
+5. **[Jia2026]** Y. Jia, Z. Zhang, C. Fu, L. Wan, and J. Han, "PCMT: Prioritizing Coherence Message Types for NoC Protocol-Level Deadlock Freedom," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 4, pp. 1949–1962, Apr. 2026. [DOI: 10.1109/TCAD.2025.3524944](https://doi.org/10.1109/TCAD.2025.3524944).
+6. **[Zhu2026]** L. Zhu, H. Gu, Y. Tan, and G. Zhang, "ScaDA-Rou: A Scalable, Deadlock-Free, and Adaptive Routing for 3-D Multi-Chiplet System," *IEEE Transactions on Circuits and Systems–II: Express Briefs*, vol. 73, no. 4, pp. 433–437, Apr. 2026. [DOI: 10.1109/TCSII.2025.3526101](https://doi.org/10.1109/TCSII.2025.3526101).
+7. **[Schroeder1991]** M. D. Schroeder et al., "Autonet: A High-Speed, Self-Configuring Local Area Network Using Point-to-Point Links," *IEEE Journal on Selected Areas in Communications*, vol. 9, no. 8, pp. 1318–1335, Oct. 1991. [DOI: 10.1109/49.105178](https://doi.org/10.1109/49.105178).
+8. **[Mejia2006]** A. Mejia, J. Flich, J. Duato, S.-A. Reinemo, and T. Skeie, "Segment-Based Routing: An Efficient Fault-Tolerant Routing Methodology for Meshes and Tori," in *Proceedings of the 20th International Parallel and Distributed Processing Symposium (IPDPS)*, 2006. [DOI: 10.1109/IPDPS.2006.1639316](https://doi.org/10.1109/IPDPS.2006.1639316).
+9. **[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann Publishers, San Francisco, CA, 2004.

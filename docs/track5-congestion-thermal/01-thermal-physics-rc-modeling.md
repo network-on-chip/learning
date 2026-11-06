@@ -774,19 +774,19 @@ function checkQ51(qNum, optIdx) {
   const isCorrect = (optIdx === q51Answers[qNum]);
   q51UserScore[qNum] = isCorrect;
 
+  const q51Explanations = {
+    1: "Due to the large thermal capacitance of the silicon substrate and packaging (tau ~ 5–15 ms), heat accumulates over millions of clock cycles before physical sensor readings rise. By the time reactive DTM trips, severe thermal overshoot has already occurred.",
+    2: "Black's law reveals the exponential penalty of thermal surges: a 28°C rise slashes MTTF to ~14% of nominal lifetime, accelerating failure by over 7x.",
+    3: "Thermal capacitance C_th = rho * c_p * V quantifies how much thermal energy (in Joules) is required to raise the node temperature by 1 Kelvin, perfectly analogous to electrical charge storage in a capacitor."
+  };
+
   if (isCorrect) {
     opts[optIdx].style.background = "rgba(34,197,94,0.15)";
     opts[optIdx].style.borderColor = "#22c55e";
     fb.style.background = "rgba(34,197,94,0.1)";
     fb.style.border = "1px solid rgba(34,197,94,0.3)";
     fb.style.color = "#166534";
-    if (qNum === 1) {
-      fb.innerHTML = "<strong>✓ Correct!</strong> Due to the large thermal capacitance of the silicon substrate and packaging (tau ~ 5–15 ms), heat accumulates over millions of clock cycles before physical sensor readings rise. By the time reactive DTM trips, severe thermal overshoot has already occurred.";
-    } else if (qNum === 2) {
-      fb.innerHTML = "<strong>✓ Correct!</strong> Black's law reveals the exponential penalty of thermal surges: a 28°C rise slashes MTTF to ~14% of nominal lifetime, accelerating failure by over 7x.";
-    } else {
-      fb.innerHTML = "<strong>✓ Correct!</strong> Thermal capacitance C_th = rho * c_p * V quantifies how much thermal energy (in Joules) is required to raise the node temperature by 1 Kelvin, perfectly analogous to electrical charge storage in a capacitor.";
-    }
+    fb.innerHTML = `<strong>✓ Correct!</strong><br><div style="margin-top:0.4rem; line-height:1.5;"><strong>Detailed Solution:</strong> ${q51Explanations[qNum]}</div>`;
   } else {
     opts[optIdx].style.background = "rgba(239,68,68,0.15)";
     opts[optIdx].style.borderColor = "#ef4444";
@@ -795,7 +795,7 @@ function checkQ51(qNum, optIdx) {
     fb.style.background = "rgba(239,68,68,0.1)";
     fb.style.border = "1px solid rgba(239,68,68,0.3)";
     fb.style.color = "#991b1b";
-    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q51Answers[qNum])}</strong>.`;
+    fb.innerHTML = `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q51Answers[qNum])}</strong>.<br><div style="margin-top:0.4rem; line-height:1.5;"><strong>Detailed Solution:</strong> ${q51Explanations[qNum]}</div>`;
   }
 
   updateQ51Score();
