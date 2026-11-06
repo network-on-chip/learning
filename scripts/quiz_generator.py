@@ -699,6 +699,102 @@ QUESTIONS = [
         ],
         "answer": 0,
         "explanation": "Silicon has a strong positive thermo-optic coefficient, shifting MRR cavity resonance by ~0.10 nm/°C. In dense WDM systems with 50-100 GHz channel spacings, a 5°C localized chip hotspot completely detunes the resonator from its laser wavelength, causing signal extinction. Integrated microheaters must heat cooler resonators to a common baseline temperature, consuming 15-20 mW per nm of redshift."
+    },
+    {
+        "id": "q43",
+        "module": "Track 8: Hardware Security (Book Ch 11)",
+        "tier": "Tier 1: Fundamental",
+        "tier_level": 1,
+        "base_points": 100,
+        "question": "Why is software/cryptographic payload encryption ineffective against interconnect-level thermal Hardware Trojans (Hasanzadeh et al., IEEE TCAD 2026)?",
+        "options": [
+            "Payload encryption does not mask packet traffic rates, routing headers, or switching activity, allowing thermal Trojans to overheat victim router tiles and trigger DTM throttling regardless of whether payload data is encrypted.",
+            "Payload encryption causes silicon gates to physically overheat twice as fast.",
+            "Software encryption requires optical lasers that cannot transmit across copper routers.",
+            "Hardware Trojans only attack unencrypted floating-point numbers."
+        ],
+        "answer": 0,
+        "explanation": "Software payload encryption protects data confidentiality, but leaves traffic frequency, packet size, router switching activity, and physical heat dissipation unshielded. Malicious IP blocks can pump dummy flits into a targeted router to induce localized overheating and performance throttling without altering packet data."
+    },
+    {
+        "id": "q44",
+        "module": "Track 8: Hardware Security (Book Ch 11)",
+        "tier": "Tier 2: Core Engineering",
+        "tier_level": 2,
+        "base_points": 200,
+        "question": "How does the HeatSense Weighted Moving Average (WMA) anomaly detector achieve real-time thermal monitoring without silicon multipliers (IEEE TCAD 2026)?",
+        "options": [
+            "By constraining the exponential weighting parameter alpha to negative powers of two (alpha = 2^{-S}, e.g., 1/8 with S=3), multiplication reduces to single-cycle arithmetic right-shifts (>>> 3) and dynamic thresholding is computed via (D << 1) + D.",
+            "By delegating all thermal floating-point calculations to an off-chip GPU server.",
+            "By disabling router clock trees whenever temperature exceeds 50°C.",
+            "By measuring thermal gradients exclusively using analog optical waveguides."
+        ],
+        "answer": 0,
+        "explanation": "HeatSense replaces expensive multipliers with fixed-point shift-and-add arithmetic. Choosing alpha = 2^{-S} reduces exponential averaging to a simple right shift, allowing the entire anomaly detector to synthesize into under 180 standard gates running at >2.5 GHz."
+    },
+    {
+        "id": "q45",
+        "module": "Track 8: Hardware Security (Book Ch 11)",
+        "tier": "Tier 3: Silicon Mastery",
+        "tier_level": 3,
+        "base_points": 300,
+        "question": "How do NoC-based Physical Unclonable Functions (NoCiPUF) authenticate chiplets without storing secret keys in non-volatile memory (Grover et al., IEEE TCAS-I 2025)?",
+        "options": [
+            "They exploit sub-nanosecond wire propagation delay and threshold voltage variations across symmetrical router crossbar paths to produce deterministic arbiter race-condition outcomes that serve as an unclonable silicon fingerprint.",
+            "They store 256-bit AES keys inside optical microring resonators.",
+            "They read manufacturer serial numbers hardcoded into metal layer 1.",
+            "They measure radioactive decay of copper atoms inside router buffers."
+        ],
+        "answer": 0,
+        "explanation": "NoCiPUF harnesses intrinsic process variations in crossbar wires and arbiter logic. Symmetrical challenge pulses injected across router paths race to set an SR latch; microscopic physical mismatches decide the winner, producing unique, reproducible challenge-response pairs without on-chip key storage."
+    },
+    {
+        "id": "q46",
+        "module": "Track 9: AI Interconnects & LLMs (Book Ch 12)",
+        "tier": "Tier 1: Fundamental",
+        "tier_level": 1,
+        "base_points": 100,
+        "question": "What primary communication bottleneck occurs when training Large Language Models (LLMs) on conventional 2D mesh Networks-on-Chip?",
+        "options": [
+            "Tensor Parallelism requires massive synchronous All-Reduce collectives across thousands of cores; streaming unreduced tensors back and forth to central memory saturates bisection bandwidth and generates severe compute pipeline bubbles.",
+            "Large language models cannot transmit ASCII characters across electronic routers.",
+            "2D meshes cannot route packets if the matrix dimension exceeds 64.",
+            "Tensor cores require optical fiber cables to compute matrix multiplications."
+        ],
+        "answer": 0,
+        "explanation": "LLM training is communication-bound during backward multi-head attention passes. Every tensor-parallel projection requires global All-Reduce reductions. In conventional meshes, transmitting unreduced floating-point tensors across multiple hops causes severe congestion and leaves compute cores idle in pipeline bubbles."
+    },
+    {
+        "id": "q47",
+        "module": "Track 9: AI Interconnects & LLMs (Book Ch 12)",
+        "tier": "Tier 2: Core Engineering",
+        "tier_level": 2,
+        "base_points": 200,
+        "question": "How does PAC-NoC's In-Network Computing architecture reduce multi-head attention collective latency in Transformer accelerators (Ouyang et al., IEEE TVLSI 2026)?",
+        "options": [
+            "Router crossbars are augmented with tag-matching accumulator ALUs that aggregate gradient flits from competing input ports in-flight, eliminating up to 75% of collective traffic volume before it reaches memory.",
+            "Routers drop 90% of attention gradients using lossy compression.",
+            "PAC-NoC replaces electronic routers with passive analog RC filters.",
+            "It forces all attention heads to execute sequentially on a single core."
+        ],
+        "answer": 0,
+        "explanation": "PAC-NoC embeds addition reduction logic directly into router crossbars. Participating flits carrying identical collective tags are summed in-flight as they converge through a hierarchical tree, cutting network flit traffic by up to 75% and halving All-Reduce latency."
+    },
+    {
+        "id": "q48",
+        "module": "Track 9: AI Interconnects & LLMs (Book Ch 12)",
+        "tier": "Tier 3: Silicon Mastery",
+        "tier_level": 3,
+        "base_points": 300,
+        "question": "How does 3D Face-to-Face Copper-Pillar Hybrid Bonding eliminate memory silos for on-device LLM inference (SiloBreaker, IEEE TCAD 2026)?",
+        "options": [
+            "By achieving a 3 µm pitch with >110,000 vertical connections per mm², hybrid bonding delivers over 16 TB/s of vertical DRAM bandwidth directly into compute tiles without consuming dedicated device silicon area required by TSVs.",
+            "By replacing electrical copper wires with wireless radio transceivers.",
+            "By storing the entire LLM weights inside CPU L1 cache.",
+            "By cooling the processor down to liquid nitrogen temperatures."
+        ],
+        "answer": 0,
+        "explanation": "SiloBreaker leverages direct copper-to-copper hybrid bonding with 3 um pitch to achieve over 16 TB/s of vertical bandwidth directly between logic dies and DRAM, shattering the memory bandwidth wall that starves auto-regressive token generation."
     }
 ]
 

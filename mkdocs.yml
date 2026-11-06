@@ -85,12 +85,13 @@ plugins:
             "Track 6: Chiplets & 3D NoC": "第六模块：芯粒与三维片上网络"
             "Track 7: Landmark Papers": "第七模块：经典论文精读"
             "Overview": "总览"
-            "Official Textbook (10 Chapters)": "官方开源教材 (全十章)"
+            "Official Textbook (10 Chapters)": "官方开源教材 (全十二章)"
+            "Official Textbook (12 Chapters)": "官方开源教材 (全十二章)"
             "Part I: Foundations & Microarchitecture": "第一部分：互连基础与微架构"
             "Part II: Topologies & Deadlock Freedom": "第二部分：拓扑结构与无死锁路由"
             "Part III: Physical Constraints: Power & Thermal": "第三部分：物理约束：功耗与热管理"
             "Part IV: Advanced Packaging & 3D Systems": "第四部分：先进封装与三维片上系统"
-            "Part V: Emerging Frontiers": "第五部分：前沿探索：光子与无线片上网络"
+            "Part V: Emerging Frontiers": "第五部分：前沿探索：光电、安全与智能互连"
             "Chapter 1: The Interconnect Crisis & Wire Physics": "第一章：多核通信危机与物理线互连"
             "Chapter 2: Switching, Flow Control & Buffers": "第二章：交换技术、流控与缓存管理"
             "Chapter 3: Router Microarchitecture & Arbitration": "第三章：高性能路由器微架构与仲裁调度"
@@ -101,6 +102,10 @@ plugins:
             "Chapter 8: Three-Dimensional NoC (3D-NoC) & TSVs": "第八章：三维片上网络 (3D-NoC) 与硅通孔"
             "Chapter 9: Multi-Chiplet Interconnects & UCIe": "第九章：多芯粒先进互连与 UCIe 接口规范"
             "Chapter 10: Optical & Wireless Networks-on-Chip": "第十章：光子与无线片上网络前沿技术"
+            "Chapter 11: Hardware Security & Trust in On-Chip Networks": "第十一章：片上网络硬件安全与零信任防御"
+            "Chapter 12: Domain-Specific NoCs for LLMs, Transformers & SNNs": "第十二章：面向大模型与类脑计算的领域专用片上网络"
+            "Silicon Sentinel: NoC Security & Threat Defense": "硅基哨兵：硬件安全与木马防御街机"
+            "Transformer Titan: LLM & AI Collective Accelerator": "变形泰坦：大模型集体通信加速街机"
 
 markdown_extensions:
   - admonition
@@ -152,7 +157,7 @@ extra:
 
 nav:
   - Home: index.md
-  - "Official Textbook (10 Chapters)":
+  - "Official Textbook (12 Chapters)":
       - Overview: textbook/index.md
       - "Part I: Foundations & Microarchitecture":
           - "Chapter 1: The Interconnect Crisis & Wire Physics": textbook/ch01-interconnect-crisis/index.md
@@ -169,12 +174,16 @@ nav:
           - "Chapter 9: Multi-Chiplet Interconnects & UCIe": textbook/ch09-chiplets-ucie/index.md
       - "Part V: Emerging Frontiers":
           - "Chapter 10: Optical & Wireless Networks-on-Chip": textbook/ch10-optical-wireless/index.md
+          - "Chapter 11: Hardware Security & Trust in On-Chip Networks": textbook/ch11-security/index.md
+          - "Chapter 12: Domain-Specific NoCs for LLMs, Transformers & SNNs": textbook/ch12-ai-llm-snn/index.md
   - "Interactive Lab":
       - Overview: interactive/index.md
       - "Wire Wizard: Interconnect Physics": interactive/wire.md
       - "Deadlock Buster Arcade Game": interactive/game.md
       - "Packet Master: Routing Puzzle": interactive/puzzle.md
       - "Hotspot Hero: Thermal Defense": interactive/hotspot.md
+      - "Silicon Sentinel: NoC Security & Threat Defense": interactive/security.md
+      - "Transformer Titan: LLM & AI Collective Accelerator": interactive/transformer.md
       - "TSV Titan: 3D-NoC & Thermal Stacking": interactive/tsv3d.md
       - "Chiplet Tycoon: 2.5D/3D Multi-Die": interactive/chiplet.md
       - "Arbiter Arena: Crossbar Clash": interactive/arbiter.md

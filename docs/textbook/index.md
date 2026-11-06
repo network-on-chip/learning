@@ -309,6 +309,34 @@ graph TD
     </div>
     <a href="ch10-optical-wireless/" class="noc-track-link">Read Chapter 10 →</a>
   </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Chapter 11</span>
+      <div class="noc-track-title">Hardware Security &amp; Trust in On-Chip Networks</div>
+      <div class="noc-track-desc">
+        Zero-trust interconnect security, thermal Hardware Trojans, Weighted Moving Average (WMA) anomaly detection [<a href="../../papers/heatsense-intelligent-thermal-anomaly-detection-for-securing-noc-enabled-mpsocs/analysis.md">HeatSense</a>], intrinsic delay-based PUFs [<a href="../../papers/nocipuf-noc-based-intrinsic-puf-for-mpsoc-authentication/analysis.md">NoCiPUF</a>], and timing covert-channel jitter masking.
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        🎮 <code>Silicon Sentinel Arcade</code> • 💾 <code>code/wma_thermal_detector.sv</code>
+      </div>
+    </div>
+    <a href="ch11-security/" class="noc-track-link">Read Chapter 11 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Chapter 12</span>
+      <div class="noc-track-title">Domain-Specific NoCs for LLMs, Transformers &amp; SNNs</div>
+      <div class="noc-track-desc">
+        Generative AI communication collectives, in-network reduction crossbars [<a href="../../papers/pac-noc-a-hierarchical-network-on-chip-for-efficient-parallel-aggregated-communication-in/analysis.md">PAC-NoC</a>], wafer-scale defect bypass [<a href="../../papers/theseus-exploring-efficient-wafer-scale-chip-design-for-large-language-models/analysis.md">Theseus</a>], 12-nm 2048-core Ruche networks [<a href="../../papers/hammerblade-in-silicon-a-12-nm-2048-core-risc-v-manycore-soc-with-ruche-networks/analysis.md">HammerBlade</a>], 3D hybrid bonding memory silos [<a href="../../papers/silobreaker-breaking-the-resource-silo-in-hybrid-bonding-via-architecture-scheduling-co-de/analysis.md">SiloBreaker</a>], and neuromorphic spike sharing [<a href="../../papers/snncut-an-efficient-partitioning-method-for-large-scale-spiking-neural-networks-using-spik/analysis.md">SNNcut</a>].
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        🎮 <code>Transformer Titan &amp; Neuromorphic Nexus</code> • 💾 <code>code/in_network_reduction_router.sv</code>
+      </div>
+    </div>
+    <a href="ch12-ai-llm-snn/" class="noc-track-link">Read Chapter 12 →</a>
+  </div>
 </div>
 
 ---
@@ -327,6 +355,8 @@ graph TD
 | **Ch 8: 3D-NoC & TSVs** | [Track 6: Chiplets & 3D NoC](../track6-chiplets-and-3d/index.md) | [TSV Titan: 3D-NoC Architect](../interactive/tsv3d.md) | `tsv_arbiter_3d.v` |
 | **Ch 9: Multi-Chiplets & UCIe** | [Track 6: Chiplets & 3D NoC](../track6-chiplets-and-3d/index.md) | [Chiplet Tycoon: Advanced Packaging](../interactive/chiplet.md) | `chiplet_bridge_protocol.v` |
 | **Ch 10: Optical & Wireless NoC** | [Track 6: Chiplets & 3D NoC](../track6-chiplets-and-3d/index.md) | [Photon Pilot & Wireless Wave](../interactive/optical.md) | `photonic_mrr_switch.v` |
+| **Ch 11: Hardware Security & Trust** | [Track 8: Hardware Security](../interactive/security.md) | [Silicon Sentinel Arcade Game](../interactive/security.md) | `wma_thermal_detector.sv` |
+| **Ch 12: AI, LLM & Neuromorphic NoC** | [Track 9: AI Interconnects](../interactive/transformer.md) | [Transformer Titan & Neuromorphic Nexus](../interactive/transformer.md) | `in_network_reduction_router.sv` |
 
 ---
 

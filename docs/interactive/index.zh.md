@@ -1,23 +1,23 @@
 # 🎮 交互式实验与街机仿真中心
 
 <div class="noc-hero">
-  <div class="noc-track-badge">✨ 17 款纯浏览器端微架构仿真器、迷你挑战与架构工具箱</div>
+  <div class="noc-track-badge">✨ 19 款纯浏览器端微架构仿真器、迷你挑战与架构工具箱</div>
   <h1>片上网络交互式实验与街机挑战中心</h1>
   <p class="subtitle">
-    通过 17 款即开即用的实时浏览器仿真实验与街机挑战，深入探索片上网络（NoC）的核心运转机制。实时观察数据包碰撞、动态平衡芯片热分布、绕过永久硅缺陷链路，并亲手设计先进 2.5D/3D 芯粒互连网络。
+    通过 19 款即开即用的实时浏览器仿真实验与街机挑战，深入探索片上网络（NoC）的核心运转机制。实时观察数据包碰撞、动态平衡芯片热分布、拦截硬件木马与侧信道攻击、加速千亿级大模型集体通信，并亲手设计先进 2.5D/3D 芯粒互连网络。
   </p>
   <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
-    <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">🔬 17 款交互式仿真器</span>
+    <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">🔬 19 款交互式仿真器</span>
     <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: rgba(16, 185, 129, 0.2);">⚡ 100% 纯前端 Canvas 与音效</span>
     <span class="noc-track-badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2);">💾 对应可综合 Verilog RTL</span>
     <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">🏆 本地与云端排行榜同步</span>
-    <span class="noc-track-badge" style="background: rgba(236, 72, 153, 0.1); color: #ec4899; border-color: rgba(236, 72, 153, 0.2);">📖 对齐教材全部十章内容</span>
+    <span class="noc-track-badge" style="background: rgba(236, 72, 153, 0.1); color: #ec4899; border-color: rgba(236, 72, 153, 0.2);">📖 对齐教材全部 12 章内容</span>
   </div>
 </div>
 
 <div class="noc-stats-grid">
   <div class="noc-stat-card">
-    <span class="noc-stat-number">17</span>
+    <span class="noc-stat-number">19</span>
     <span class="noc-stat-label">交互式实验与挑战</span>
   </div>
   <div class="noc-stat-card">
@@ -218,6 +218,24 @@
       <p>为脉冲神经网络（SNN）路由地址事件表示（AER）脉冲数据包。测量组播扇出、脉冲抖动与突触互连路由能效。</p>
     </div>
     <a href="neuromorphic/" class="noc-track-link">联结脉冲互连 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(239, 68, 68, 0.1); color: #dc2626; border-color: rgba(239, 68, 68, 0.2);">硬件安全街机 • 第11章</span>
+      <h3>硅基哨兵：硬件木马与侧信道防御</h3>
+      <p>拦截操控动态热管理（DTM）回路的恶意硬件木马，扰乱窃取 AES 密钥的定时侧信道，并发射 PUF 认证护盾清剿 DoS 缓冲区洪泛攻击。</p>
+    </div>
+    <a href="security/" class="noc-track-link">进入硅基哨兵挑战 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(139, 92, 246, 0.1); color: #9333ea; border-color: rgba(139, 92, 246, 0.2);">AI 加速街机 • 第12章</span>
+      <h3>变形泰坦：大模型集体通信加速</h3>
+      <p>全面加速千亿参数大模型训练与推理。触发分层网内归约树（PAC-NoC），调度 3D 混合键合高密度内存孤岛（>16 TB/s 垂直 DRAM 带宽），彻底消灭流水线气泡。</p>
+    </div>
+    <a href="transformer/" class="noc-track-link">启动变形泰坦街机 →</a>
   </div>
 </div>
 

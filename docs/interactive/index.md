@@ -1,23 +1,23 @@
 # 🎮 Interactive Labs & Arcade Simulator Hub
 
 <div class="noc-hero">
-  <div class="noc-track-badge">✨ 17 Hands-On Simulators, Mini-Games &amp; Architectural Toolkits</div>
+  <div class="noc-track-badge">✨ 19 Hands-On Simulators, Mini-Games &amp; Architectural Toolkits</div>
   <h1>Interactive NoC Laboratory &amp; Arcade</h1>
   <p class="subtitle">
-    Explore the inner workings of Network-on-Chip systems through 17 real-time, browser-native simulations and arcade challenges. Experience how packet collisions occur, dynamically balance thermal dissipation across silicon floorplans, route around permanent link defects, and design multi-die 2.5D/3D chiplet interconnects.
+    Explore the inner workings of Network-on-Chip systems through 19 real-time, browser-native simulations and arcade challenges. Experience how packet collisions occur, dynamically balance thermal dissipation across silicon floorplans, defend against hardware Trojans, accelerate 100B+ LLM collective training, and design multi-die 2.5D/3D chiplet interconnects.
   </p>
   <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
-    <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">🔬 17 Interactive Simulators</span>
+    <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">🔬 19 Interactive Simulators</span>
     <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: rgba(16, 185, 129, 0.2);">⚡ 100% Client-Side Canvas &amp; Audio</span>
     <span class="noc-track-badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2);">💾 Synthesizable Verilog Mapped</span>
     <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">🏆 Local &amp; Global Leaderboard Linked</span>
-    <span class="noc-track-badge" style="background: rgba(236, 72, 153, 0.1); color: #ec4899; border-color: rgba(236, 72, 153, 0.2);">📖 10 Textbook Chapters Aligned</span>
+    <span class="noc-track-badge" style="background: rgba(236, 72, 153, 0.1); color: #ec4899; border-color: rgba(236, 72, 153, 0.2);">📖 12 Textbook Chapters Aligned</span>
   </div>
 </div>
 
 <div class="noc-stats-grid">
   <div class="noc-stat-card">
-    <span class="noc-stat-number">17</span>
+    <span class="noc-stat-number">19</span>
     <span class="noc-stat-label">Hands-On Labs &amp; Games</span>
   </div>
   <div class="noc-stat-card">
@@ -218,6 +218,24 @@ Every simulator below is paired with formal mathematical models, synthesizable S
       <p>Route Address-Event Representation (AER) neural spike packets across spiking neural networks. Measure multicast fanout, burst jitter, and synaptic routing efficiency in neuromorphic architectures.</p>
     </div>
     <a href="neuromorphic/" class="noc-track-link">Connect Neuromorphic Nexus →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(239, 68, 68, 0.1); color: #dc2626; border-color: rgba(239, 68, 68, 0.2);">Hardware Security Arcade • Chapter 11</span>
+      <h3>Silicon Sentinel: Trojan &amp; Covert Channel Defense</h3>
+      <p>Intercept malicious Hardware Trojans manipulating DTM loops, scramble timing covert channels targeting AES keys, and deploy PUF authentication shields against DoS buffer-flooding attacks.</p>
+    </div>
+    <a href="security/" class="noc-track-link">Enter Silicon Sentinel Arcade →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(139, 92, 246, 0.1); color: #9333ea; border-color: rgba(139, 92, 246, 0.2);">AI Acceleration Arcade • Chapter 12</span>
+      <h3>Transformer Titan: LLM Collective Accelerator</h3>
+      <p>Accelerate 100B+ Large Language Model training and inference. Trigger hierarchical in-network tree reductions, manage 3D hybrid bonding memory silos (>16 TB/s vertical DRAM), and eliminate pipeline bubbles.</p>
+    </div>
+    <a href="transformer/" class="noc-track-link">Launch Transformer Titan Arcade →</a>
   </div>
 </div>
 
