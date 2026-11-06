@@ -18,13 +18,13 @@ In wide-area networks (such as the Internet and Ethernet), when router buffers o
 
 In a silicon System-on-Chip, **dropping packets is strictly forbidden**. Cache coherence protocols (such as MESI or MOESI) and memory consistency models depend on guaranteed, lossless delivery. A single dropped invalidation message or memory writeback would immediately cause cache incoherence, deadlock, or silent data corruption.
 
-Therefore, an on-chip router must never transmit a flit across a physical link unless it is **100% physically guaranteed that the downstream router has an empty buffer slot ready to receive it**. This hardware guarantee is enforced by **Flow Control** [[DallyPrinciples]](#ref-dallyprinciples).
+Therefore, an on-chip router must never transmit a flit across a physical link unless it is **100% physically guaranteed that the downstream router has an empty buffer slot ready to receive it**. This hardware guarantee is enforced by **Flow Control** [[DallyPrinciples](#ref-dallyprinciples)].
 
 ---
 
 ## 1. Credit-Based Flow Control Architecture
 
-**Credit-based flow control** is the universal standard in silicon Networks-on-Chip (featured in Intel Xeon Mesh, AMD Infinity Fabric, Apple M-Series UltraFusion, and ARM CoreLink fabrics) [[DallyPrinciples]](#ref-dallyprinciples).
+**Credit-based flow control** is the universal standard in silicon Networks-on-Chip (featured in Intel Xeon Mesh, AMD Infinity Fabric, Apple M-Series UltraFusion, and ARM CoreLink fabrics) [[DallyPrinciples](#ref-dallyprinciples)].
 
 ```mermaid
 sequenceDiagram
@@ -112,7 +112,7 @@ At this moment, the upstream router has exhausted all credits! It **cannot send 
 - Credit 0 will arrive at cycle $t = RTT$.
 - If $B < RTT$, the upstream router is forced to **idle for $RTT - B$ clock cycles**, injecting artificial **pipeline bubbles** into the physical link wires!
 
-$$\text{Minimum Buffer Depth for 100\% Throughput: } \mathbf{B_{min} \ge \lceil RTT \rceil} \quad \text{[[Little1961]](#ref-little1961)}$$
+$$\text{Minimum Buffer Depth for 100\% Throughput: } \mathbf{B_{min} \ge \lceil RTT \rceil} \quad \text{[[Little1961](#ref-little1961)]}$$
 
 $$\text{Sustained Throughput Efficiency: } \eta = \min\left(100\%, \frac{B}{RTT} \times 100\%\right)$$
 
@@ -514,7 +514,7 @@ If the headroom is smaller than $RTT$, in-flight flits will overflow the buffer!
 ### B. Bufferless Deflection Routing (BLESS & CHIPPER)
 Can we eliminate router buffers altogether to save silicon area and static leakage?
 
-In **Bufferless Routing** (e.g., BLESS — Moscibroda & Mutlu, 2009 [[Moscibroda2009]](#ref-moscibroda2009); CHIPPER — Fallin et al., 2011 [[Fallin2011]](#ref-fallin2011)):
+In **Bufferless Routing** (e.g., BLESS — Moscibroda & Mutlu, 2009 [[Moscibroda2009](#ref-moscibroda2009)]; CHIPPER — Fallin et al., 2011 [[Fallin2011](#ref-fallin2011)]):
 - Routers have **zero input buffers**.
 - In every clock cycle, all incoming flits must be forwarded to an output port.
 - When two flits contend for the same optimal output port, the arbiter grants the port to one flit according to priority.

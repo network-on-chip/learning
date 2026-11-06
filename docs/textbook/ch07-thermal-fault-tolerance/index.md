@@ -598,11 +598,11 @@ Test your mastery of Chapter 7 concepts against the official certification quest
 <a id="security-waferscale"></a>
 
 Thermal management and fault resilience intersect directly with silicon hardware security and extreme-scale integration:
-- **Thermal Anomaly Detection for Hardware Trojan Defense (HeatSense)**: Hasanzadeh et al.~[[HeatSense2026](#ref-hasanzadeh2026heat)] developed HeatSense, using spatial thermal sensor correlation across the NoC grid to identify anomalous thermal signatures produced by stealthy hardware Trojans attempting side-channel exfiltration.
-- **Silicon Authentication via NoC Delay Variation (NoCiPUF)**: Grover et al.~[[NoCiPUF2025](#ref-grover2025puf)] leveraged intrinsic within-die manufacturing variations in router crossbar transit delays to construct cryptographic Physical Unclonable Functions (PUFs), providing unclonable device authentication without requiring dedicated analog PUF circuitry.
-- **Reconfigurable Real-Time Fault-Tolerant Mapping**: Li et al.~[[Li2026Reconfig](#ref-li2026reconfig)] demonstrated adaptive task migration protocols for flexible NoC architectures that guarantee hard real-time deadlines under transient fault bursts.
-- **Thermal Island Partitioning and Task Allocation**: Zheng et al.~[[Zheng2025Thermal](#ref-zheng2025thermal)] optimized dynamic voltage-frequency island (VFI) boundaries in 3D multi-core NoCs, mitigating inter-tier thermal coupling.
-- **Wafer-Scale Clustered Defect Tolerance**: Chen et al.~[[Chen2025Wafer](#ref-chen2025wafer)] established fault-tolerant deflection routing schemes capable of bypassing large-scale clustered manufacturing defects in full-wafer integration.
+- **Thermal Anomaly Detection for Hardware Trojan Defense (HeatSense)**: Hasanzadeh et al. [[HeatSense2026](#ref-hasanzadeh2026heat)] developed HeatSense, using spatial thermal sensor correlation across the NoC grid to identify anomalous thermal signatures produced by stealthy hardware Trojans attempting side-channel exfiltration.
+- **Silicon Authentication via NoC Delay Variation (NoCiPUF)**: Grover et al. [[NoCiPUF2025](#ref-grover2025puf)] leveraged intrinsic within-die manufacturing variations in router crossbar transit delays to construct cryptographic Physical Unclonable Functions (PUFs), providing unclonable device authentication without requiring dedicated analog PUF circuitry.
+- **Reconfigurable Real-Time Fault-Tolerant Mapping**: Li et al. [[Li2026Reconfig](#ref-li2026reconfig)] demonstrated adaptive task migration protocols for flexible NoC architectures that guarantee hard real-time deadlines under transient fault bursts.
+- **Thermal Island Partitioning and Task Allocation**: Zheng et al. [[Zheng2025Thermal](#ref-zheng2025thermal)] optimized dynamic voltage-frequency island (VFI) boundaries in 3D multi-core NoCs, mitigating inter-tier thermal coupling.
+- **Wafer-Scale Clustered Defect Tolerance**: Chen et al. [[Chen2025Wafer](#ref-chen2025wafer)] established fault-tolerant deflection routing schemes capable of bypassing large-scale clustered manufacturing defects in full-wafer integration.
 
 ---
 

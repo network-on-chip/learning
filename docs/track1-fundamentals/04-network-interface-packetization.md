@@ -4,7 +4,7 @@ In the previous lessons, we examined how on-chip routers switch flits and enforc
 
 Processing cores speak standard memory bus protocols—such as **ARM AMBA AXI5**, **ARM CHI (Coherent Hub Interface)**, **RISC-V TileLink**, or **Open Core Protocol (OCP)**. 
 
-The **Network Interface (NI)**—also known as the Network Adapter or Socket—is the indispensable bridge that translates high-level memory read/write transactions into low-level packetized flits, handles asynchronous clock domain crossings [[Cummings2002]](#ref-cummings2002), and prevents catastrophic protocol deadlocks [[Sorin2011]](#ref-sorin2011).
+The **Network Interface (NI)**—also known as the Network Adapter or Socket—is the indispensable bridge that translates high-level memory read/write transactions into low-level packetized flits, handles asynchronous clock domain crossings [[Cummings2002](#ref-cummings2002)], and prevents catastrophic protocol deadlocks [[Sorin2011](#ref-sorin2011)].
 
 ```
 +--------------------+         +--------------------+         +--------------------+
@@ -133,7 +133,7 @@ graph LR
 ### Why Gray Code is Mandatory:
 In a standard binary counter, transitioning from `3` (`0011`) to `4` (`0100`) causes **three bits to toggle simultaneously**. Due to tiny wire skew differences, the receiving clock domain might sample `0000`, `0111`, or `0010`, corrupting pointer comparisons!
 
-In **Gray Code** [[Cummings2002]](#ref-cummings2002), exactly **one single bit toggles** between any two consecutive values:
+In **Gray Code** [[Cummings2002](#ref-cummings2002)], exactly **one single bit toggles** between any two consecutive values:
 
 | Value | Binary Code | Gray Code | Bits Toggled |
 | :---: | :---: | :---: | :---: |
@@ -167,7 +167,7 @@ Request Queue:   [Req A→B] ===> Needs [Resp B→A] to clear!
 ```
 
 ### The Solution: Virtual Networks (VNETs)
-To prevent protocol deadlock, the Network Interface strictly enforces **Virtual Network Separation** [[Sorin2011]](#ref-sorin2011), [[DallyPrinciples]](#ref-dallyprinciples):
+To prevent protocol deadlock, the Network Interface strictly enforces **Virtual Network Separation** [[Sorin2011](#ref-sorin2011)], [[DallyPrinciples](#ref-dallyprinciples)]:
 
 ```mermaid
 graph TD

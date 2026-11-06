@@ -2,7 +2,7 @@
 
 In monolithic 2D integrated circuits, expanding a processor from $N$ to $2N$ compute cores forces the physical die footprint to grow. Because planar wire delay scales quadratically with length ($t_d \propto L^2$) without repeaters, long horizontal global interconnects quickly become the dominant bottleneck for clock frequency, memory latency, and dynamic power dissipation.
 
-**3D Integrated Circuits (3D ICs)** break this planar barrier by thinning multiple active silicon tiers to tens of micrometers, stacking them vertically, and interconnecting them with microscopic copper pillars known as **Through-Silicon Vias (TSVs)** [[Pavlidis2009]](#ref-pavlidis2009), [[Loi2011]](#ref-loi2011).
+**3D Integrated Circuits (3D ICs)** break this planar barrier by thinning multiple active silicon tiers to tens of micrometers, stacking them vertically, and interconnecting them with microscopic copper pillars known as **Through-Silicon Vias (TSVs)** [[Pavlidis2009](#ref-pavlidis2009)], [[Loi2011](#ref-loi2011)].
 
 In this lesson, you will master the physical parasitics of TSVs, quantify the thermo-mechanical stress that enforces transistor Keep-Out Zones (KOZ), analyze the microarchitecture of 7-port 3D NoC routers, and examine high-density direct hybrid bonding.
 

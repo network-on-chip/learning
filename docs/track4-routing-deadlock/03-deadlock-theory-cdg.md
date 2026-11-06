@@ -66,9 +66,9 @@ graph LR
 
 ## 3. The Dally-Seitz Theorem (1987)
 
-In their seminal 1987 paper, William J. Dally and Charles L. Seitz formulated the foundational theorem for deterministic routing [[Dally1987]](#ref-dally1987):
+In their seminal 1987 paper, William J. Dally and Charles L. Seitz formulated the foundational theorem for deterministic routing [[Dally1987](#ref-dally1987)]:
 
-> **Theorem (Dally & Seitz, 1987 [[Dally1987]](#ref-dally1987)):**  
+> **Theorem (Dally & Seitz, 1987 [[Dally1987](#ref-dally1987)]):**  
 > A deterministic routing algorithm $R$ for an interconnection network is **deadlock-free if and only if** its Channel Dependency Graph $D$ contains **no directed cycles**.
 
 ### Mathematical Proof via Topological Ordering:
@@ -97,9 +97,9 @@ Applying Dally-Seitz to adaptive networks creates "false negatives"—forbidding
 
 ## 4. Duato's Theorem: Escape Channels (1993, 1997)
 
-In 1993, Spanish computer scientist **José Duato** published a breakthrough theorem that revolutionized high-performance network design by introducing **Escape Virtual Channels** [[Duato1993]](#ref-duato1993):
+In 1993, Spanish computer scientist **José Duato** published a breakthrough theorem that revolutionized high-performance network design by introducing **Escape Virtual Channels** [[Duato1993](#ref-duato1993)]:
 
-> **Duato's Theorem (1993 [[Duato1993]](#ref-duato1993), 1997):**  
+> **Duato's Theorem (1993 [[Duato1993](#ref-duato1993)], 1997):**  
 > An adaptive routing function $R$ is **deadlock-free** if the set of virtual channels $C$ can be partitioned into two subsets:
 >
 > $$C = C_1 \cup C_0$$

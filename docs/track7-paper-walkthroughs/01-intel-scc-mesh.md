@@ -6,7 +6,7 @@
 | :--- | :--- |
 | **Title** | *A 2-TB/s 6×4 Mesh Network for a Single-Chip Cloud Computer with DVFS in 45-nm CMOS* |
 | **Authors** | P. Salihundam, S. Jain, T. Jacob, S. Kumar, V. Erraguntla, Y. Hoskote, S. Vangal, G. Ruhl, N. Borkar |
-| **Venue** | **IEEE Journal of Solid-State Circuits (JSSC)**, Vol. 46, No. 4, April 2011 [[Salihundam2011]](#ref-salihundam2011) |
+| **Venue** | **IEEE Journal of Solid-State Circuits (JSSC)**, Vol. 46, No. 4, April 2011 [[Salihundam2011](#ref-salihundam2011)] |
 | **Repository Paper** | 📂 [`papers/a-2-tb-s-6-times-4-mesh-network-for-a-single-chip-cloud-computer-with-dvfs-in-45-nm-cmos/`](https://github.com/network-on-chip/noc-lab/tree/main/papers/a-2-tb-s-6-times-4-mesh-network-for-a-single-chip-cloud-computer-with-dvfs-in-45-nm-cmos) |
 
 ---
@@ -15,7 +15,7 @@
 
 In 2009, multi-core processors were hitting a scalability brick wall. Desktop and server CPUs scaled from 2 to 4 to 8 cores using snooping buses and centralized crossbars. However, attempting to scale hardware cache coherence (MESI/MOESI directories) to **48 or 100 cores** resulted in exponential coherence traffic, directory area explosions, and catastrophic power consumption.
 
-Building on prior research from the 80-tile TeraFLOPS processor [[Vangal2008]](#ref-vangal2008), Intel Labs embarked on a landmark experimental project: the **Single-Chip Cloud Computer (SCC)** [[Howard2011]](#ref-howard2011), [[Salihundam2011]](#ref-salihundam2011).
+Building on prior research from the 80-tile TeraFLOPS processor [[Vangal2008](#ref-vangal2008)], Intel Labs embarked on a landmark experimental project: the **Single-Chip Cloud Computer (SCC)** [[Howard2011](#ref-howard2011)], [[Salihundam2011](#ref-salihundam2011)].
 Instead of treating on-chip cores as a tightly-coupled shared-memory multiprocessor with hardware cache coherence, Intel treated the chip as an **on-die datacenter cluster** (a "Cloud on a Chip"). 48 independent Pentium-class IA-32 cores communicate strictly via a high-speed **packet-switched 2D Mesh Network-on-Chip**.
 
 ```mermaid
@@ -88,7 +88,7 @@ graph LR
 
 1. **Cycle 1 (Link Traversal + Speculative Write):** Flits traverse the $5.4 \ \text{mm}$ inter-tile link and write directly into the input FIFO based on speculative write pointers, eliminating arrival dependency checks.
 2. **Cycle 2 (Route Pre-Computation):** Using Lookahead Routing ([Lesson 2.1](../track2-router-architecture/01-pipeline-stages.md)), the output port for hop $N+1$ is computed during hop $N$.
-3. **Cycle 3 (Wrapped Wave-Front Allocation - WWFA):** A specialized single-cycle 2D wave-front arbiter [[Tamir1993]](#ref-tamir1993) matches 5 input ports to 5 output ports concurrently, sustaining over **$90\%$ crossbar utilization**.
+3. **Cycle 3 (Wrapped Wave-Front Allocation - WWFA):** A specialized single-cycle 2D wave-front arbiter [[Tamir1993](#ref-tamir1993)] matches 5 input ports to 5 output ports concurrently, sustaining over **$90\%$ crossbar utilization**.
 4. **Cycle 4 (Crossbar Switch Traversal):** The 128-bit flit traverses the crossbar matrix directly into the output link driver.
 
 ---

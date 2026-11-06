@@ -11,7 +11,7 @@
 
 In the first five chapters, we examined the physical wire crisis (Chapter 1), flow control protocols (Chapter 2), router microarchitectures (Chapter 3), interconnect topologies (Chapter 4), and deadlock-free routing algorithms (Chapter 5). Yet all of these architectural constructs operate under an unyielding physical constraint in modern nanometer silicon: **the Thermal Design Power (TDP) ceiling**.
 
-Following the collapse of classical Dennard scaling (Dennard et al., IEEE JSSC 1974 [[Dennard1974]](#ref-dennard1974)), supply voltage ($V_{dd}$) cannot scale down proportionally with physical dimensions without triggering unmanageable sub-threshold leakage currents. Consequently, while transistor density continues to double with each manufacturing node, power density can no longer remain constant. This divergence has forced modern computer architecture into the era of **Dark Silicon** (Esmaeilzadeh et al., ISCA 2011 [[Esmaeilzadeh2011]](#ref-esmaeilzadeh2011); Taylor, IEEE Micro 2012 [[Taylor2012]](#ref-taylor2012)): at sub-7nm and sub-3nm process nodes, **between 50% and 80% of the transistors on a large manycore silicon die must remain unpowered ("dark") or operate at severely throttled clock frequencies** to prevent exceeding packaging heat dissipation limits (typically $100\text{--}150\text{ W/cm}^2$).
+Following the collapse of classical Dennard scaling (Dennard et al., IEEE JSSC 1974 [[Dennard1974](#ref-dennard1974)]), supply voltage ($V_{dd}$) cannot scale down proportionally with physical dimensions without triggering unmanageable sub-threshold leakage currents. Consequently, while transistor density continues to double with each manufacturing node, power density can no longer remain constant. This divergence has forced modern computer architecture into the era of **Dark Silicon** (Esmaeilzadeh et al., ISCA 2011 [[Esmaeilzadeh2011](#ref-esmaeilzadeh2011)]; Taylor, IEEE Micro 2012 [[Taylor2012](#ref-taylor2012)]): at sub-7nm and sub-3nm process nodes, **between 50% and 80% of the transistors on a large manycore silicon die must remain unpowered ("dark") or operate at severely throttled clock frequencies** to prevent exceeding packaging heat dissipation limits (typically $100\text{--}150\text{ W/cm}^2$).
 
 Within this dark silicon landscape, the on-chip interconnection network presents a critical, unique dilemma:
 - **Compute Cores Can Sleep**: An idle CPU, GPU, or NPU core can be aggressively powered down via sleep transistors, remaining completely "dark" for milliseconds at zero static leakage.
@@ -41,7 +41,7 @@ This chapter explores the comprehensive spectrum of architectural, circuit-level
 
 ## 6.1 The Power Wall & Dark Silicon in Manycore Interconnects
 
-As semiconductor fabrication scaled from planar CMOS into FinFET and nanosheet Gate-All-Around (GAA) nodes, the collapse of classical Dennard scaling forced a strict chip-wide power budget known as the **Thermal Design Power (TDP)**. Because supply voltage ($V_{dd}$) cannot scale proportionally with physical dimensions without triggering unmanageable sub-threshold leakage, modern silicon chips face the **Dark Silicon Phenomenon** (Esmaeilzadeh et al., ISCA 2011 [[Esmaeilzadeh2011]](#ref-esmaeilzadeh2011); Taylor, IEEE Micro 2012 [[Taylor2012]](#ref-taylor2012)).
+As semiconductor fabrication scaled from planar CMOS into FinFET and nanosheet Gate-All-Around (GAA) nodes, the collapse of classical Dennard scaling forced a strict chip-wide power budget known as the **Thermal Design Power (TDP)**. Because supply voltage ($V_{dd}$) cannot scale proportionally with physical dimensions without triggering unmanageable sub-threshold leakage, modern silicon chips face the **Dark Silicon Phenomenon** (Esmaeilzadeh et al., ISCA 2011 [[Esmaeilzadeh2011](#ref-esmaeilzadeh2011)]; Taylor, IEEE Micro 2012 [[Taylor2012](#ref-taylor2012)]).
 
 At sub-7nm process nodes, between **50% and 80% of the silicon area on a large manycore die must remain unpowered ("dark") or operate at severely throttled clock frequencies** to prevent exceeding thermal dissipation thresholds (typically $\le 100\text{--}150\text{ W/cm}^2$ for standard packaging).
 
@@ -64,7 +64,7 @@ graph TD
 
 While an idle processor core can simply be powered down completely via coarse-grained sleep switches, the **on-chip interconnection network cannot be casually shut down**. In a multi-hop mesh, an intermediate router must remain awake and active to forward transit traffic between other communicating nodes. 
 
-If intermediate routers are powered off without intelligent bypass mechanisms, the physical network partitions, severing communication paths. Consequently, on-chip routers frequently sit **active but idle for 70% to 90% of total application execution time** (Matsutani et al., IEEE TCAD 2011 [[Matsutani2011]](#ref-matsutani2011)), dissipating massive static leakage power while waiting for sporadic flits.
+If intermediate routers are powered off without intelligent bypass mechanisms, the physical network partitions, severing communication paths. Consequently, on-chip routers frequently sit **active but idle for 70% to 90% of total application execution time** (Matsutani et al., IEEE TCAD 2011 [[Matsutani2011](#ref-matsutani2011)]), dissipating massive static leakage power while waiting for sporadic flits.
 
 ### 6.1.2 Physical Power Breakdown in Nanoscale NoC Routers
 
@@ -385,11 +385,11 @@ Test your mastery of Chapter 6 concepts against the official certification quest
 <a id="sdram-surrogate"></a>
 
 Energy optimization spans from memory interfaces to 3D stacked dies:
-- **Application-Aware SDRAM Interface Co-Design**: Jang et al.~[[Jang2011SDRAM](#ref-jang2011sdram)] established that co-designing NoC routing with off-chip SDRAM memory controllers reduces bank conflicts and row-buffer misses, yielding a $24\\%$ reduction in system memory energy.
-- **Fast SVR-Based Latency and Power Models**: Evaluating power-performance trade-offs during early architecture phases is computationally expensive. Qian et al.~[[Qian2016SVR](#ref-qian2016svr)] developed Support Vector Regression (SVR) surrogate models that predict end-to-end packet latency and energy across diverse traffic patterns within milliseconds, accelerating design space exploration by $10^4\\times$.
-- **Energy-Efficient Neuromorphic and CIM Architectures**: SparrowSNN by Bai et al.~[[Bai2026Sparrow](#ref-bai2026sparrow)] and SERAH-CIM by Jeong et al.~[[Jeong2026SERAH](#ref-jeong2026serah)] demonstrate how sparsity-aware activation and multi-row analog-digital compute-in-memory reduce power consumption in edge AI workloads.
-- **Breaking Resource Silos in Hybrid Bonding**: SiloBreaker by Wu et al.~[[Wu2026Silo](#ref-wu2026silo)] utilizes architecture-scheduling co-design to optimize thermal and voltage headroom across 3D hybrid bonded dies.
-- **Single-Chip Cloud Computing (SCC) DVFS**: Salihundam et al.~[[Salihundam2011SCC](#ref-salihundam2011scc)] taped out the landmark Intel 48-core SCC processor in 45-nm CMOS, incorporating 24 independent voltage islands and a $2\\text{ TB/s}$ 2D mesh to demonstrate scalable multi-voltage NoC operation.
+- **Application-Aware SDRAM Interface Co-Design**: Jang et al. [[Jang2011SDRAM](#ref-jang2011sdram)] established that co-designing NoC routing with off-chip SDRAM memory controllers reduces bank conflicts and row-buffer misses, yielding a $24\\%$ reduction in system memory energy.
+- **Fast SVR-Based Latency and Power Models**: Evaluating power-performance trade-offs during early architecture phases is computationally expensive. Qian et al. [[Qian2016SVR](#ref-qian2016svr)] developed Support Vector Regression (SVR) surrogate models that predict end-to-end packet latency and energy across diverse traffic patterns within milliseconds, accelerating design space exploration by $10^4\\times$.
+- **Energy-Efficient Neuromorphic and CIM Architectures**: SparrowSNN by Bai et al. [[Bai2026Sparrow](#ref-bai2026sparrow)] and SERAH-CIM by Jeong et al. [[Jeong2026SERAH](#ref-jeong2026serah)] demonstrate how sparsity-aware activation and multi-row analog-digital compute-in-memory reduce power consumption in edge AI workloads.
+- **Breaking Resource Silos in Hybrid Bonding**: SiloBreaker by Wu et al. [[Wu2026Silo](#ref-wu2026silo)] utilizes architecture-scheduling co-design to optimize thermal and voltage headroom across 3D hybrid bonded dies.
+- **Single-Chip Cloud Computing (SCC) DVFS**: Salihundam et al. [[Salihundam2011SCC](#ref-salihundam2011scc)] taped out the landmark Intel 48-core SCC processor in 45-nm CMOS, incorporating 24 independent voltage islands and a $2\\text{ TB/s}$ 2D mesh to demonstrate scalable multi-voltage NoC operation.
 
 ---
 

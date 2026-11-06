@@ -7,7 +7,7 @@ Routing algorithms fall into three fundamental classes:
 2. **Oblivious:** The path is chosen without regard to current network state, but may incorporate randomized intermediate nodes (e.g., Valiant's algorithm).
 3. **Adaptive:** The path dynamically responds to network congestion, buffer fullness, and hardware faults in real time.
 
-The most widely deployed routing policy in commercial silicon—from Intel Xeon to AMD EPYC and Tilera TILE-Gx—is **Dimension-Order Routing (DOR)**, universally known as **XY Routing** [[Sullivan1977]](#ref-sullivan1977), [[Dally1986]](#ref-dally1986), [[Dally1987]](#ref-dally1987).
+The most widely deployed routing policy in commercial silicon—from Intel Xeon to AMD EPYC and Tilera TILE-Gx—is **Dimension-Order Routing (DOR)**, universally known as **XY Routing** [[Sullivan1977](#ref-sullivan1977)], [[Dally1986](#ref-dally1986)], [[Dally1987](#ref-dally1987)].
 
 In this lesson, we examine the algorithmic mechanics of DOR, synthesize single-cycle lookahead route computation hardware in Verilog, prove its mathematical deadlock freedom, and benchmark its strengths and limitations.
 
@@ -64,7 +64,7 @@ $$\text{Arrive} \longrightarrow [\mathbf{RC}] \longrightarrow [\text{VCA}] \long
 
 This adds a full clock cycle (or sub-cycle combinational delay) to the critical path!
 
-To eliminate this overhead, modern routers use **Lookahead Routing** (Galles, 1996 [[Galles1996]](#ref-galles1996); Peh & Dally, 2001 [[Peh2001]](#ref-peh2001)). Instead of computing its *own* output port, Router $R_i$ computes the output port for the **next downstream router ($R_{i+1}$)** and writes that direction directly into the packet header flit:
+To eliminate this overhead, modern routers use **Lookahead Routing** (Galles, 1996 [[Galles1996](#ref-galles1996)]; Peh & Dally, 2001 [[Peh2001](#ref-peh2001)]). Instead of computing its *own* output port, Router $R_i$ computes the output port for the **next downstream router ($R_{i+1}$)** and writes that direction directly into the packet header flit:
 
 ```
 +----------------------------------------------------------------------------+

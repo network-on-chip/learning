@@ -2,9 +2,9 @@
 
 In [Lesson 5.1](01-thermal-physics-rc-modeling.md), we proved that the thermal time constant of silicon packaging ($\tau_{th} \approx 5\text{–}15\text{ ms}$) is over **twenty million clock cycles slower** than transistor switching speeds.
 
-Because of this physical reality, traditional **reactive Dynamic Thermal Management (DTM)** [[Brooks2001]](#ref-brooks2001), [[Skadron2003]](#ref-skadron2003)—which waits for a physical sensor to cross a critical threshold before throttling the clock—inevitably suffers from **Thermal Overshoot**. By the time the clock slows down, junction temperatures have already spiked to dangerous levels ($>95^\circ\text{C}$), permanently accelerating electromigration and dielectric breakdown.
+Because of this physical reality, traditional **reactive Dynamic Thermal Management (DTM)** [[Brooks2001](#ref-brooks2001)], [[Skadron2003](#ref-skadron2003)]—which waits for a physical sensor to cross a critical threshold before throttling the clock—inevitably suffers from **Thermal Overshoot**. By the time the clock slows down, junction temperatures have already spiked to dangerous levels ($>95^\circ\text{C}$), permanently accelerating electromigration and dielectric breakdown.
 
-To solve this dilemma, our lab designed and verified an end-to-end **Proactive Hotspot Prediction Framework** that forecasts temperature spikes **before they occur** using real-time Network-on-Chip and microprocessor performance counters [[Huang2020]](#ref-huang2020), [[Ebi2009]](#ref-ebi2009).
+To solve this dilemma, our lab designed and verified an end-to-end **Proactive Hotspot Prediction Framework** that forecasts temperature spikes **before they occur** using real-time Network-on-Chip and microprocessor performance counters [[Huang2020](#ref-huang2020)], [[Ebi2009](#ref-ebi2009)].
 
 In this lesson, we study the mathematics of proactive thermal forecasting, inspect our verified open-source lab project, analyze **Thermal-Aware Routing (TAR)**, and contrast proactive vs. reactive control in an interactive simulator.
 

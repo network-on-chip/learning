@@ -42,9 +42,9 @@ graph TD
 ### Architectural Classification of Multistage Networks:
 1. **Butterfly Networks:**  
    A multistage interconnection network (MIN) where a single unique path connects each source to each destination. While hardware cost is minimal ($O(N \log N)$ switches), butterfly networks have **zero path diversity**—a single congested link blocks all communication sharing that path.
-2. **Clos Networks (Charles Clos, 1953 [[Clos1953]](#ref-clos1953)):**  
+2. **Clos Networks (Charles Clos, 1953 [[Clos1953](#ref-clos1953)]):**  
    Multi-stage crossbar networks that provide multiple parallel middle-stage switches. A 3-stage Clos network is strictly non-blocking if the number of middle switches $m \ge 2n - 1$ (where $n$ is the number of inputs per first-stage switch).
-3. **Fat-Trees (Charles Leiserson, 1985 [[Leiserson1985]](#ref-leiserson1985)):**  
+3. **Fat-Trees (Charles Leiserson, 1985 [[Leiserson1985](#ref-leiserson1985)]):**  
    In a conventional tree, bandwidth constricts near the root, creating a massive throughput bottleneck. In a **Fat-Tree**, channel capacity increases monotonically as you ascend toward the root switches. In a **Full Bisection Fat-Tree**, the bisection bandwidth is identical at every tier, enabling full line-rate communication across arbitrary permutations.
 
 ---
@@ -57,7 +57,7 @@ $$\text{Standard 2D Mesh: } 1\text{ Tile} = 1\text{ Router} \quad (N\text{ Cores
 
 For a 64-core CMP, this demands **64 routers**, each with input FIFO buffers, matrix arbiters, and clock distribution networks consuming silicon area and leakage power.
 
-In a **Concentrated Mesh (cMesh)** (introduced by James Balfour and William J. Dally at ICS 2006 [[Balfour2006]](#ref-balfour2006)), **$C = 4\text{ neighboring compute cores}$ share a single centralized high-radix router**:
+In a **Concentrated Mesh (cMesh)** (introduced by James Balfour and William J. Dally at ICS 2006 [[Balfour2006](#ref-balfour2006)]), **$C = 4\text{ neighboring compute cores}$ share a single centralized high-radix router**:
 
 ```mermaid
 graph TD

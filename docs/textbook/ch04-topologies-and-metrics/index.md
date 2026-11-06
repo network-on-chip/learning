@@ -279,14 +279,14 @@ The **Dragonfly** topology (Kim et al. [[Kim2008](#ref-kim2008)]) organizes high
 - **Local Groups (Intra-Group Cliques)**: Inside each group, $a$ routers are fully interconnected with high-density, low-latency local channels.
 - **Global Link Interconnect**: Each router provisions $h$ global channels connecting directly to routers situated in disparate groups, forming a virtual complete graph across groups.
 - **Node Concentration**: Each router directly multiplexes traffic from $p$ local compute nodes or cache slices.
-- **Adaptive Path Diversity via UGAL**: Under **Universal Globally-Adaptive Routing (UGAL)** [[Kim2008]](#ref-kim2008), the Dragonfly routes minimally when global channels are uncongested, but dynamically deflects packets non-minimally through a random intermediate group under adversarial traffic (such as nearest-neighbor or transpose patterns), effectively doubling saturation throughput by eliminating hot links.
+- **Adaptive Path Diversity via UGAL**: Under **Universal Globally-Adaptive Routing (UGAL)** [[Kim2008](#ref-kim2008)], the Dragonfly routes minimally when global channels are uncongested, but dynamically deflects packets non-minimally through a random intermediate group under adversarial traffic (such as nearest-neighbor or transpose patterns), effectively doubling saturation throughput by eliminating hot links.
 
 ### 4.4.3 Extremal & Industrial High-Radix Fabrics: Slim Fly, PolarFly & NVSwitch
 
 Beyond canonical butterflies and dragonflies, extremal graph constructions approach the theoretical Moore bound ($N \le k^2 + 1$ for diameter 2):
-- **Slim Fly**: Besta and Hoefler [[Besta2014]](#ref-besta2014) introduced Slim Fly based on McKay-Miller-Siran (MMS) graphs over Galois fields $\mathbb{F}_q$, achieving diameter $D = 2$ and approaching nearly 50% of the Moore bound while cutting router counts by 25% over dragonflies.
-- **PolarFly**: Besta et al. [[Besta2022]](#ref-besta2022) synthesized PolarFly using Erdős-Rényi polarity graphs from projective geometry $PG(2, q)$, eliminating bipartite constraints and achieving non-blocking diameter 2 with optimal algebraic connectivity $\lambda_2$.
-- **Industrial GPU Crossbars (NVIDIA NVSwitch)**: Modern multi-GPU fabrics employ dedicated high-radix crossbar ASICs (NVSwitch 1/2/3) delivering up to 28.8 Tb/s non-blocking aggregate bandwidth and hardware-accelerated SHARP reduction collectives across NVLink channels [[Foley2023]](#ref-foley2023).
+- **Slim Fly**: Besta and Hoefler [[Besta2014](#ref-besta2014)] introduced Slim Fly based on McKay-Miller-Siran (MMS) graphs over Galois fields $\mathbb{F}_q$, achieving diameter $D = 2$ and approaching nearly 50% of the Moore bound while cutting router counts by 25% over dragonflies.
+- **PolarFly**: Besta et al. [[Besta2022](#ref-besta2022)] synthesized PolarFly using Erdős-Rényi polarity graphs from projective geometry $PG(2, q)$, eliminating bipartite constraints and achieving non-blocking diameter 2 with optimal algebraic connectivity $\lambda_2$.
+- **Industrial GPU Crossbars (NVIDIA NVSwitch)**: Modern multi-GPU fabrics employ dedicated high-radix crossbar ASICs (NVSwitch 1/2/3) delivering up to 28.8 Tb/s non-blocking aggregate bandwidth and hardware-accelerated SHARP reduction collectives across NVLink channels [[Foley2023](#ref-foley2023)].
 
 ---
 
@@ -492,11 +492,11 @@ Test your mastery of Chapter 4 concepts against the official certification quest
 <a id="synthesis-mapping"></a>
 
 While regular topologies (Mesh, Torus, Fat-Tree) dominate general-purpose CMPs, specialized SoCs and AI inference engines demand application-specific custom interconnects:
-- **Automated Full-Chip Custom NoC Generation (CusNoC)**: Li~[[Li2013CusNoC](#ref-li2013cusnoc)] developed CusNoC, an automated synthesis framework that maps irregular task communication graphs into floorplan-aware, minimum-power custom NoC topologies in linear runtime. Automated synthesis methodologies established by Chatha et al.~[[Chatha2008](#ref-chatha2008)] further proved that tailoring router radix and link capacities to bandwidth requirements cuts router area by $40\\%$ compared to regular 2D meshes.
-- **Discrete Particle Swarm Optimization (PSO) Mapping**: Sahu et al.~[[Sahu2014](#ref-sahu2014)] demonstrated that discrete PSO meta-heuristics map IP cores onto mesh nodes with minimal communication energy, outperforming simulated annealing and genetic algorithms in convergence speed and quality.
-- **Fine-Grain Task Scheduling in MPSoCs**: Yang et al.~[[Yang2016](#ref-yang2016)] combined communication-aware task scheduling with voltage scaling, optimizing both communication latency and task makespan in multi-core SoCs.
-- **Multicast Routing Architectures**: Custom architectures with hardware multicast routing by Yan et al.~[[Yan2009Multicast](#ref-yan2009multicast)] replicate flits inside switch nodes, cutting broadcast traffic energy by over $50\\%$.
-- **Spike-Sharing Partitions and Robotics Heterogeneity**: Recent breakthroughs including SNNcut by Xing et al.~[[Xing2026SNNcut](#ref-xing2026snncut)], analytical SNN topology modeling by Yan et al.~[[Yan2026SNN](#ref-yan2026snn)], and the 19-core MAVERIC robotics SoC by Kim et al.~[[Kim2026Mav](#ref-kim2026mav)] illustrate how application-aware interconnect co-design enables ultra-dense edge intelligence.
+- **Automated Full-Chip Custom NoC Generation (CusNoC)**: Li [[Li2013CusNoC](#ref-li2013cusnoc)] developed CusNoC, an automated synthesis framework that maps irregular task communication graphs into floorplan-aware, minimum-power custom NoC topologies in linear runtime. Automated synthesis methodologies established by Chatha et al. [[Chatha2008](#ref-chatha2008)] further proved that tailoring router radix and link capacities to bandwidth requirements cuts router area by $40\\%$ compared to regular 2D meshes.
+- **Discrete Particle Swarm Optimization (PSO) Mapping**: Sahu et al. [[Sahu2014](#ref-sahu2014)] demonstrated that discrete PSO meta-heuristics map IP cores onto mesh nodes with minimal communication energy, outperforming simulated annealing and genetic algorithms in convergence speed and quality.
+- **Fine-Grain Task Scheduling in MPSoCs**: Yang et al. [[Yang2016](#ref-yang2016)] combined communication-aware task scheduling with voltage scaling, optimizing both communication latency and task makespan in multi-core SoCs.
+- **Multicast Routing Architectures**: Custom architectures with hardware multicast routing by Yan et al. [[Yan2009Multicast](#ref-yan2009multicast)] replicate flits inside switch nodes, cutting broadcast traffic energy by over $50\\%$.
+- **Spike-Sharing Partitions and Robotics Heterogeneity**: Recent breakthroughs including SNNcut by Xing et al. [[Xing2026SNNcut](#ref-xing2026snncut)], analytical SNN topology modeling by Yan et al. [[Yan2026SNN](#ref-yan2026snn)], and the 19-core MAVERIC robotics SoC by Kim et al. [[Kim2026Mav](#ref-kim2026mav)] illustrate how application-aware interconnect co-design enables ultra-dense edge intelligence.
 
 ---
 

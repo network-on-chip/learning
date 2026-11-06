@@ -14,7 +14,7 @@
   </a>
 </div>
 
-To understand how a flit navigates a silicon on-chip router, we first examine the classic **canonical 5-stage router pipeline** popularized by William J. Dally and Li-Shiuan Peh [[Peh2001]](#ref-peh2001), [[DallyPrinciples]](#ref-dallyprinciples), and then analyze how modern aggressive designs compress this pipeline down to a single clock cycle.
+To understand how a flit navigates a silicon on-chip router, we first examine the classic **canonical 5-stage router pipeline** popularized by William J. Dally and Li-Shiuan Peh [[Peh2001](#ref-peh2001)], [[DallyPrinciples](#ref-dallyprinciples)], and then analyze how modern aggressive designs compress this pipeline down to a single clock cycle.
 
 The router's core task is to move flits from input physical links to output physical links while resolving contention, managing buffer allocations, and preserving packet ordering.
 
@@ -107,20 +107,20 @@ graph TD
 ```
 
 ### A. Lookahead Routing (Eliminating RC from the Critical Path)
-In a standard router, Route Computation occurs after the flit arrives. In **Lookahead Routing** (pioneered in the SGI Spider chip [[Galles1996]](#ref-galles1996)):
+In a standard router, Route Computation occurs after the flit arrives. In **Lookahead Routing** (pioneered in the SGI Spider chip [[Galles1996](#ref-galles1996)]):
 - **Router $N-1$ computes the routing decision for Router $N$ in advance!**
 - Before transmitting the Head Flit across the physical link, Router $N-1$ evaluates the next hop's routing direction and embeds it as a pre-computed 1-hot vector into the flit header.
 - When the flit arrives at Router $N$, **its output port is already known**.
 - Route Computation (RC) is completely eliminated from the critical path, allowing **Buffer Write (BW) and Virtual Channel Allocation (VA) to execute in parallel in Cycle 1**!
 
 ### B. Speculative Switch Allocation (Parallel VA + SA)
-In a non-speculative router, a flit must win a downstream VC (**VA**) *before* it can request the crossbar (**SA**). In **Speculative Routers** (pioneered by Li-Shiuan Peh and William J. Dally in 2001 [[Peh2001]](#ref-peh2001)):
+In a non-speculative router, a flit must win a downstream VC (**VA**) *before* it can request the crossbar (**SA**). In **Speculative Routers** (pioneered by Li-Shiuan Peh and William J. Dally in 2001 [[Peh2001](#ref-peh2001)]):
 - A flit bids for a downstream VC and bids for the crossbar switch **simultaneously in the very same clock cycle**, *speculating* that it will successfully win both!
 - **If the speculation succeeds:** The flit traverses the crossbar immediately in Cycle 2, cutting an entire clock cycle.
 - **If the speculation fails:** The switch grant is annulled and awarded to a non-speculative flit. The losing flit buffers in the queue and retries non-speculatively.
 
 ### C. 1-Stage Speculative Crossbar Bypass (SMART)
-Under low-to-moderate network injection rates, the majority of router buffers are empty. In modern **1-Stage Bypass Routers** (e.g., Intel Skylake mesh, single-cycle routers [[Matsutani2011]](#ref-matsutani2011), [[Mullins2006]](#ref-mullins2006), and SMART NoC [[Krishna2013]](#ref-krishna2013)):
+Under low-to-moderate network injection rates, the majority of router buffers are empty. In modern **1-Stage Bypass Routers** (e.g., Intel Skylake mesh, single-cycle routers [[Matsutani2011](#ref-matsutani2011)], [[Mullins2006](#ref-mullins2006)], and SMART NoC [[Krishna2013](#ref-krishna2013)]):
 - When an incoming flit arrives at an input port whose buffer is empty and there is no crossbar contention, the flit **bypasses the input FIFO entirely**.
 - The flit shoots straight through the crossbar multiplexer to the output register in the **very same clock cycle ($t_r = 1\text{ cycle}$)**!
 

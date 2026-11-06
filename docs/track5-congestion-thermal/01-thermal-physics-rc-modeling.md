@@ -1,6 +1,6 @@
 # 5.1 Thermal Physics & Compact RC Modeling
 
-In modern nanometer many-core processors, transistor scaling has entered the era of **Dark Silicon** [[Esmaeilzadeh2011]](#ref-esmaeilzadeh2011), [[Taylor2012]](#ref-taylor2012). While Moore's Law continues to increase transistor density [[Moore1965]](#ref-moore1965), **Dennard scaling has ended** [[Dennard1974]](#ref-dennard1974): operating voltage ($V_{DD}$) cannot scale below $\sim 0.7\text{ V}$ without triggering catastrophic subthreshold leakage.
+In modern nanometer many-core processors, transistor scaling has entered the era of **Dark Silicon** [[Esmaeilzadeh2011](#ref-esmaeilzadeh2011)], [[Taylor2012](#ref-taylor2012)]. While Moore's Law continues to increase transistor density [[Moore1965](#ref-moore1965)], **Dennard scaling has ended** [[Dennard1974](#ref-dennard1974)]: operating voltage ($V_{DD}$) cannot scale below $\sim 0.7\text{ V}$ without triggering catastrophic subthreshold leakage.
 
 As a result, power density in high-performance SoCs routinely exceeds **$100\text{–}300\text{ W/cm}^2$**—a heat flux higher than the heating element of an electric stove, packed into a piece of silicon thinner than a human hair!
 
@@ -73,7 +73,7 @@ To make thermal analysis fast and tractable, computer architects exploit the mat
 
 ## 3. Compact RC Modeling: The HotSpot Grid Model
 
-Pioneered by Wei Huang, Mircea Stan, and Kevin Skadron (University of Virginia [[Skadron2003]](#ref-skadron2003), [[Huang2006]](#ref-huang2006)), the **HotSpot Compact Thermal Model** discretizes a multi-core die into an interconnected grid of $N \times N$ thermal cells:
+Pioneered by Wei Huang, Mircea Stan, and Kevin Skadron (University of Virginia [[Skadron2003](#ref-skadron2003)], [[Huang2006](#ref-huang2006)]), the **HotSpot Compact Thermal Model** discretizes a multi-core die into an interconnected grid of $N \times N$ thermal cells:
 
 ```mermaid
 graph TD

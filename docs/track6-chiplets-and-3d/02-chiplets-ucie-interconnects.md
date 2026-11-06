@@ -2,13 +2,13 @@
 
 > **Companion Reading:** Monograph Chapter 9 — *3D NoCs, Chiplet Architectures, and Multi-Die Interconnects*, Section 9.3 (2.5D Multi-Die Interconnects and UCIe). [Read in Companion Textbook →](/learning/textbook/ch09-chiplets-3d/)
 
-For over four decades, silicon scaling followed Moore’s Law [[Moore1965]](#ref-moore1965) and Dennard scaling [[Dennard1974]](#ref-dennard1974): every two years, transistors shrank by $30\%$, enabling monolithic System-on-Chips (SoCs) to integrate more compute cores onto a single silicon die.
+For over four decades, silicon scaling followed Moore’s Law [[Moore1965](#ref-moore1965)] and Dennard scaling [[Dennard1974](#ref-dennard1974)]: every two years, transistors shrank by $30\%$, enabling monolithic System-on-Chips (SoCs) to integrate more compute cores onto a single silicon die.
 
 Today, monolithic scaling has struck two unyielding physical walls:
-1. **The Lithographic Reticle Limit ($\approx 858 \text{ mm}^2$):** Standard deep-ultraviolet (DUV) and extreme-ultraviolet (EUV) photolithography exposure fields are bounded by $26 \text{ mm} \times 33 \text{ mm}$ [[Mack2007]](#ref-mack2007). Fabricating a monolithic die larger than $858 \text{ mm}^2$ requires complex multi-mask reticle stitching.
-2. **Defect Density & Yield Collapse:** Semiconductor defect density causes wafer yield to collapse exponentially as die area expands [[Murphy1964]](#ref-murphy1964). A monolithic $800 \text{ mm}^2$ die can yield below $15\%$, making it economically prohibitive.
+1. **The Lithographic Reticle Limit ($\approx 858 \text{ mm}^2$):** Standard deep-ultraviolet (DUV) and extreme-ultraviolet (EUV) photolithography exposure fields are bounded by $26 \text{ mm} \times 33 \text{ mm}$ [[Mack2007](#ref-mack2007)]. Fabricating a monolithic die larger than $858 \text{ mm}^2$ requires complex multi-mask reticle stitching.
+2. **Defect Density & Yield Collapse:** Semiconductor defect density causes wafer yield to collapse exponentially as die area expands [[Murphy1964](#ref-murphy1964)]. A monolithic $800 \text{ mm}^2$ die can yield below $15\%$, making it economically prohibitive.
 
-The semiconductor industry’s answer is the **Multi-Die Chiplet Architecture** [[Vivet2021]](#ref-vivet2021), [[Zimmer2020]](#ref-zimmer2020): disaggregating massive monolithic SoCs into smaller, specialized functional dies (compute, I/O, memory) bonded together on an advanced substrate and unified by high-bandwidth die-to-die (D2D) interconnects.
+The semiconductor industry’s answer is the **Multi-Die Chiplet Architecture** [[Vivet2021](#ref-vivet2021)], [[Zimmer2020](#ref-zimmer2020)]: disaggregating massive monolithic SoCs into smaller, specialized functional dies (compute, I/O, memory) bonded together on an advanced substrate and unified by high-bandwidth die-to-die (D2D) interconnects.
 
 ---
 
@@ -33,7 +33,7 @@ graph TD
 
 ### The Negative Binomial Yield Model
 
-Wafer yield is governed by the **Negative Binomial (Murphy/Seeds) model** [[Murphy1964]](#ref-murphy1964), [[Seeds1967]](#ref-seeds1967):
+Wafer yield is governed by the **Negative Binomial (Murphy/Seeds) model** [[Murphy1964](#ref-murphy1964)], [[Seeds1967](#ref-seeds1967)]:
 
 $$\text{Yield} = \left( 1 + \frac{D_0 \cdot A}{\alpha} \right)^{-\alpha}$$
 
@@ -60,7 +60,7 @@ Furthermore, chiplets enable **heterogeneous process optimization**: high-perfor
 
 ## 2. Advanced Packaging Landscape: 2.5D Interposers & Bridges
 
-To connect chiplets with high bandwidth and low latency, packaging technology has evolved beyond traditional printed circuit boards (PCBs) [[Mahajan2016]](#ref-mahajan2016), [[Vivet2021]](#ref-vivet2021):
+To connect chiplets with high bandwidth and low latency, packaging technology has evolved beyond traditional printed circuit boards (PCBs) [[Mahajan2016](#ref-mahajan2016)], [[Vivet2021](#ref-vivet2021)]:
 
 ```mermaid
 graph TD
@@ -84,7 +84,7 @@ graph TD
 
 ## 3. Universal Chiplet Interconnect Express (UCIe)
 
-Prior to 2022, chiplet interfaces were proprietary (Intel AIB/MDIO, AMD Infinity Fabric, TSMC LIPINCON). To enable a competitive open-chiplet ecosystem, the **UCIe Consortium** (founded by Intel, AMD, Arm, TSMC, Samsung, ASE, Google, Meta, Microsoft, and Qualcomm) ratified the **UCIe 1.0 and 2.0 specifications** [[UCIe2023]](#ref-ucie2023), [[Sharma2022]](#ref-sharma2022).
+Prior to 2022, chiplet interfaces were proprietary (Intel AIB/MDIO, AMD Infinity Fabric, TSMC LIPINCON). To enable a competitive open-chiplet ecosystem, the **UCIe Consortium** (founded by Intel, AMD, Arm, TSMC, Samsung, ASE, Google, Meta, Microsoft, and Qualcomm) ratified the **UCIe 1.0 and 2.0 specifications** [[UCIe2023](#ref-ucie2023)], [[Sharma2022](#ref-sharma2022)].
 
 ### The 3-Layer UCIe Protocol Stack
 

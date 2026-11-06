@@ -14,7 +14,7 @@ In a classical router, a Head Flit must sequentially complete:
 1. **Virtual Channel Allocation (VA)**: Win an available downstream VC.
 2. **Switch Allocation (SA)**: Once a VC is guaranteed, compete for the physical crossbar switch.
 
-In 2001, **Li-Shiuan Peh and William J. Dally** introduced **Speculative Switch Allocation** [[Peh2001]](#ref-peh2001):
+In 2001, **Li-Shiuan Peh and William J. Dally** introduced **Speculative Switch Allocation** [[Peh2001](#ref-peh2001)]:
 
 ```mermaid
 graph TD
@@ -57,7 +57,7 @@ If a Head Flit wins the crossbar in the switch allocator but **fails to win a do
 
 Can we eliminate buffer delays altogether under uncontended conditions?
 
-In a **1-Stage Bypass Router** (such as the Intel Skylake-SP / Ice Lake mesh architecture, and single-cycle architectures [[Matsutani2011]](#ref-matsutani2011), [[Mullins2006]](#ref-mullins2006)):
+In a **1-Stage Bypass Router** (such as the Intel Skylake-SP / Ice Lake mesh architecture, and single-cycle architectures [[Matsutani2011](#ref-matsutani2011)], [[Mullins2006](#ref-mullins2006)]):
 - When a flit arrives from an incoming inter-router link, the router checks two simple conditions:
   1. Is the local input buffer queue for this port **empty**?
   2. Is the desired output crossbar port **uncontended** (no buffered flits requesting it)?
@@ -85,7 +85,7 @@ graph LR
 
 Even with a 1-cycle router, traversing an 8-hop path requires 8 clock cycles for router logic plus 8 clock cycles for wire links ($8 + 8 = 16\text{ cycles}$). 
 
-In 2013, researchers from MIT and Stanford (Tushar Krishna et al., *HPCA 2013 / IEEE Micro Top Picks* [[Krishna2013]](#ref-krishna2013)) asked a radical question:  
+In 2013, researchers from MIT and Stanford (Tushar Krishna et al., *HPCA 2013 / IEEE Micro Top Picks* [[Krishna2013](#ref-krishna2013)]) asked a radical question:  
 **Can a packet traverse MULTIPLE routers within a SINGLE clock cycle?**
 
 The result was **SMART (Single-Cycle Multi-hop Asynchronous Repeated Traversal)**:

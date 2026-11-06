@@ -113,7 +113,7 @@ Source Node Coordinates: (x_s, y_s) in a k × k Mesh
 - **Characteristics:** Designed specifically to stress 2D Torus topologies by forcing packets to travel maximum distance along one direction without exploiting wrap-arounds.
 
 ### 5. Rent's Rule & Real-World Traffic Locality
-Real application software (e.g., parallel graph traversal, deep learning forward/backward passes) is **NOT uniform random**. Communication exhibits strong spatial locality governed by **Rent's Rule** [[Landman1971]](#ref-landman1971), [[Christie2000]](#ref-christie2000):
+Real application software (e.g., parallel graph traversal, deep learning forward/backward passes) is **NOT uniform random**. Communication exhibits strong spatial locality governed by **Rent's Rule** [[Landman1971](#ref-landman1971)], [[Christie2000](#ref-christie2000)]:
 
 $$T = c \cdot G^p$$
 

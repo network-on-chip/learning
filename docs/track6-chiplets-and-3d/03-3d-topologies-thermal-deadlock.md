@@ -2,7 +2,7 @@
 
 > **Companion Reading:** Monograph Chapter 9 — *3D NoCs, Chiplet Architectures, and Multi-Die Interconnects*, Section 9.1–9.2. [Read in Companion Textbook →](/learning/textbook/ch09-chiplets-3d/)
 
-Stacking silicon dies into the third dimension transforms the topological graph of on-chip networks [[Pavlidis2009]](#ref-pavlidis2009). By collapsing planar wire distances into microscopic vertical hops, 3D NoCs drastically reduce average network diameter and hop counts [[Loi2011]](#ref-loi2011).
+Stacking silicon dies into the third dimension transforms the topological graph of on-chip networks [[Pavlidis2009](#ref-pavlidis2009)]. By collapsing planar wire distances into microscopic vertical hops, 3D NoCs drastically reduce average network diameter and hop counts [[Loi2011](#ref-loi2011)].
 
 However, moving from 2D to 3D introduces two critical physical and algorithmic challenges:
 1. **The 3D Thermal Entrapment Nightmare:** Trapping high-power active logic tiers beneath other dies and low-thermal-conductivity bonding layers creates intense heat accumulation, with bottom tiers running $30^\circ\text{C}$ to $50^\circ\text{C}$ hotter than planar dies.
@@ -45,7 +45,7 @@ Consider connecting 64 compute cores:
     - Bisection bandwidth expands by $4\times$ because cross-tier traffic traverses 16 parallel vertical channels!
 
 ### 2. Partial / Hybrid 3D NoC (Sparse TSV Elevators)
-While full 3D meshes minimize hop counts, placing vertical TSVs at every router incurs heavy silicon penalties [[Pavlidis2009]](#ref-pavlidis2009), [[Loi2011]](#ref-loi2011):
+While full 3D meshes minimize hop counts, placing vertical TSVs at every router incurs heavy silicon penalties [[Pavlidis2009](#ref-pavlidis2009)], [[Loi2011](#ref-loi2011)]:
 - Every router requires a $7 \times 7$ crossbar switch ($+96\%$ area vs $5 \times 5$).
 - Every tile suffers Keep-Out Zone (KOZ) transistor exclusion zones for 64 to 128 TSVs.
 
@@ -90,7 +90,7 @@ graph TD
 
 Because the organic package and PCB underneath have very high thermal resistance to ambient, over **$90\%$ of the heat must escape through the top surface** into the heatsink.
 
-Using the electrical-thermal analogy ([Lesson 5.1](../track5-congestion-thermal/01-thermal-physics-rc-modeling.md)), heat flow from the bottom die to the heat sink encounters a series chain of thermal resistances [[Skadron2003]](#ref-skadron2003), [[Huang2006]](#ref-huang2006):
+Using the electrical-thermal analogy ([Lesson 5.1](../track5-congestion-thermal/01-thermal-physics-rc-modeling.md)), heat flow from the bottom die to the heat sink encounters a series chain of thermal resistances [[Skadron2003](#ref-skadron2003)], [[Huang2006](#ref-huang2006)]:
 
 $$R_{th,tier} = \frac{t_{Si}}{k_{Si} \cdot A}, \quad R_{th,bond} = \frac{t_{bond}}{k_{bond} \cdot A}$$
 
@@ -147,7 +147,7 @@ In **3D XYZ Dimension-Order Routing (3D DOR)**, packets strictly route in sequen
          (1)                         (2)                         (3)
 ```
 
-#### Formal Proof via Dally-Seitz Acyclic CDG [[Dally1987]](#ref-dally1987)
+#### Formal Proof via Dally-Seitz Acyclic CDG [[Dally1987](#ref-dally1987)]
 1. Let the set of all unidirectional network channels be partitioned into three disjoint subsets: $C_X$, $C_Y$, and $C_Z$.
 2. In 3D XYZ DOR, a packet currently occupying channel $c_i$ may only request channel $c_j$ if:
    - $c_i \in C_X$ and $c_j \in C_X$ (along monotonic $X$), or
@@ -173,7 +173,7 @@ Because bottom tiers operate near maximum junction temperature limits, determini
 **Thermal-Aware Vertical Routing (TAVR)** dynamically balances traffic:
 - Temperature sensors in each router monitor local junction temperatures.
 - When a vertical TSV column exceeds threshold temperature $T_{hot}$ ($85^\circ\text{C}$), routers bias packets to route **downward to cooler perimeter tiers** or detour horizontally around the thermal column before ascending.
-- Escape Virtual Channels ($VC_0$) enforce strict XYZ routing to ensure deadlock freedom via Duato's Theorem [[Duato1993]](#ref-duato1993), while adaptive channels ($VC_1$) bypass hotspots dynamically [[AlAlousi2026]](#ref-alalousi2026).
+- Escape Virtual Channels ($VC_0$) enforce strict XYZ routing to ensure deadlock freedom via Duato's Theorem [[Duato1993](#ref-duato1993)], while adaptive channels ($VC_1$) bypass hotspots dynamically [[AlAlousi2026](#ref-alalousi2026)].
 
 ---
 

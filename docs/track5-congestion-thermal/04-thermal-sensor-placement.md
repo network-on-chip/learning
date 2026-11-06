@@ -4,7 +4,7 @@ To implement dynamic thermal management, an on-chip controller must know the tem
 - **Silicon Area Penalty:** Precision bandgap reference diodes, thermal ring oscillators, and analog-to-digital converters (ADCs) consume significant silicon area ($\sim 10,000\ \mu\text{m}^2$ per sensor).
 - **Routing & Calibration Overhead:** Analog routing wires are vulnerable to high-frequency digital crosstalk, and per-die sensor calibration during manufacturing dramatically increases packaging test time.
 
-Instead, computer architects allocate a sparse budget of **$K$ physical sensors** (where $K \ll N$, e.g., $K = 8$ sensors on an $N = 64$ tile chip) and mathematically **reconstruct** the unobserved temperatures across the remaining $N - K$ tiles [[Srinivasan2004]](#ref-srinivasan2004), [[Lee2009]](#ref-lee2009).
+Instead, computer architects allocate a sparse budget of **$K$ physical sensors** (where $K \ll N$, e.g., $K = 8$ sensors on an $N = 64$ tile chip) and mathematically **reconstruct** the unobserved temperatures across the remaining $N - K$ tiles [[Srinivasan2004](#ref-srinivasan2004)], [[Lee2009](#ref-lee2009)].
 
 In this lesson, we study the mathematics of **Sparse Thermal Sensing**, contrast **Gaussian vs. Non-Gaussian sensor noise**, inspect our lab's open-source placement algorithms, and evaluate robust spatial reconstruction in an interactive simulator.
 
@@ -103,7 +103,7 @@ Because residuals are **squared**, a single $+15^\circ\text{C}$ sensor glitch ex
 Where should the $K$ sensors be physically located on the die?
 
 ### D-Optimal Information Criterion
-In our lab module [`src/placement.py`](https://github.com/network-on-chip/thermal-sensor-placement-and-thermal-reconstruction-under-gaussian-and-non-gaussian-sensor/blob/main/src/placement.py), optimal sensor placement is formulated as maximizing the determinant of the **Fisher Information Matrix (FIM)** [[Lee2009]](#ref-lee2009), [[Long2008]](#ref-long2008):
+In our lab module [`src/placement.py`](https://github.com/network-on-chip/thermal-sensor-placement-and-thermal-reconstruction-under-gaussian-and-non-gaussian-sensor/blob/main/src/placement.py), optimal sensor placement is formulated as maximizing the determinant of the **Fisher Information Matrix (FIM)** [[Lee2009](#ref-lee2009)], [[Long2008](#ref-long2008)]:
 
 $$\mathbf{M_{FIM} = H^T \Sigma_v^{-1} H + \Sigma_T^{-1}}$$
 
@@ -119,7 +119,7 @@ $$\mathbf{\mathcal{S}^* = \arg\max_{\mathcal{S}} \log \det\big( M_{FIM}(\mathcal
 To eliminate the vulnerability to non-Gaussian sensor glitches, our lab project implemented **Robust Huber M-Estimation** ([`src/filters.py`](https://github.com/network-on-chip/thermal-sensor-placement-and-thermal-reconstruction-under-gaussian-and-non-gaussian-sensor/blob/main/src/filters.py)).
 
 ### The Huber Loss Function
-Instead of squaring all errors, the Huber estimator [[Huber1964]](#ref-huber1964) behaves quadratically for small errors, but transitions to a **linear penalty for large outliers**:
+Instead of squaring all errors, the Huber estimator [[Huber1964](#ref-huber1964)] behaves quadratically for small errors, but transitions to a **linear penalty for large outliers**:
 
 $$\rho_\delta(r) = \begin{cases} 
 \frac{1}{2} r^2, & \text{if } |r| \le \delta \\ 

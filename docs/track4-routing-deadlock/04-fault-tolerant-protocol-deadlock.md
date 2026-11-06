@@ -23,10 +23,10 @@ Healthy 2D Mesh:                       Mesh with Hardware Faults (Irregular):
 
 If a packet targeting $(3, 1)$ blindly follows XY routing, it will attempt to traverse through the dead router $(1, 1)$ and be dropped or trapped forever!
 
-### Up\*/Down\* Spanning Tree Routing (Schroeder et al., 1991 [[Schroeder1991]](#ref-schroeder1991))
+### Up\*/Down\* Spanning Tree Routing (Schroeder et al., 1991 [[Schroeder1991](#ref-schroeder1991)])
 How can we guarantee deadlock-free, loop-free routing across an **arbitrary, irregular, or broken topology** without needing complex hardware?
 
-The industry-standard solution is **Up\*/Down\* Routing**, developed for DEC Autonet [[Schroeder1991]](#ref-schroeder1991) and widely used in PCIe, InfiniBand, and fault-tolerant NoCs:
+The industry-standard solution is **Up\*/Down\* Routing**, developed for DEC Autonet [[Schroeder1991](#ref-schroeder1991)] and widely used in PCIe, InfiniBand, and fault-tolerant NoCs:
 
 #### Step 1: Construct a Breadth-First Spanning Tree
 Select a healthy node as the **Root ($R_0$)** and build a Breadth-First Search (BFS) spanning tree encompassing all operational routers.
@@ -80,7 +80,7 @@ However, an alternative philosophy is **Deadlock Recovery**:
 | **Deadlock Avoidance** | Prevent cycles structurally (DOR, Turn Model, Duato) | Virtual channel partitions, turn restrictions | Slightly reduced peak adaptivity; zero recovery latency |
 | **Deadlock Recovery** | Detect stall timer $\tau$, flush deadlocked packets | Stall counters, central token arbiter, packet crush logic | Maximum routing freedom; penalty on timeout false-positives |
 
-### DISHA: Progressive Deadlock Recovery (Anjan & Pinkston, 1995 [[Anjan1995]](#ref-anjan1995))
+### DISHA: Progressive Deadlock Recovery (Anjan & Pinkston, 1995 [[Anjan1995](#ref-anjan1995)])
 The most elegant recovery architecture is **DISHA (Deadlock-free Interconnection routing with Sequential High-performance Allocation)**:
 1. Each router has an exclusive, 1-flit **Central Recovery Buffer**.
 2. A single **Token** circulates sequentially among all routers in the system.
@@ -93,10 +93,10 @@ The most elegant recovery architecture is **DISHA (Deadlock-free Interconnection
 ## 3. Protocol-Level Deadlock in Multi-Core SoCs
 
 Here is the most critical lesson in network architecture:
-> **A network that is 100% deadlock-free at the packet routing layer can STILL DEADLOCK at the system level due to cache coherence protocols!** [[Sorin2011]](#ref-sorin2011)
+> **A network that is 100% deadlock-free at the packet routing layer can STILL DEADLOCK at the system level due to cache coherence protocols!** [[Sorin2011](#ref-sorin2011)]
 
 ### The Request-Response Circular Dependency
-Consider a multi-core processor running a directory-based **MESI / MOESI cache coherence protocol** [[Sorin2011]](#ref-sorin2011):
+Consider a multi-core processor running a directory-based **MESI / MOESI cache coherence protocol** [[Sorin2011](#ref-sorin2011)]:
 
 ```
 Cache Coherence Message Classes:
@@ -132,7 +132,7 @@ graph TD
 
 ## 4. Hardware Solution: Virtual Networks (VNETs)
 
-To break protocol deadlock, modern SoCs (such as ARM AMBA 5 CHI, Intel UPI, and OpenSPARC) enforce strict **Virtual Network (VNET) Partitioning** [[Sorin2011]](#ref-sorin2011), [[DallyPrinciples]](#ref-dallyprinciples).
+To break protocol deadlock, modern SoCs (such as ARM AMBA 5 CHI, Intel UPI, and OpenSPARC) enforce strict **Virtual Network (VNET) Partitioning** [[Sorin2011](#ref-sorin2011)], [[DallyPrinciples](#ref-dallyprinciples)].
 
 Routers partition their physical buffer queues into **disjoint, non-overlapping Virtual Networks**:
 

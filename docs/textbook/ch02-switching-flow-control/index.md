@@ -609,10 +609,10 @@ Test your mastery of Chapter 2 concepts against the official certification quest
 <a id="advanced-buffering"></a>
 
 Buffer memory accounts for over $60\\%$ of router leakage power and silicon footprint. Consequently, optimizing buffer utilization across non-uniform workloads is a vital design imperative:
-- **Buffer Optimization Through Flow Regulation**: Jafari et al.~[[Jafari2010](#ref-jafari2010)] established that injecting traffic according to regulated flow profiles substantially reduces buffer queue depths while maintaining wire saturation throughput, eliminating transient overflow without requiring oversized per-port FIFOs.
-- **Distributed Shared-Buffer Routers**: Ramanujam et al.~[[Ramanujam2011](#ref-ramanujam2011)] proposed distributed shared-buffer architectures where dynamic pool allocation allows heavily loaded input channels to borrow empty flit slots from neighboring idle ports, boosting effective saturation throughput by up to $35\\%$ under bursty synthetic workloads.
-- **Application-Specific Buffer Sizing**: Early system-level buffer allocation frameworks developed by Hu and Marculescu~[[Hu2006Buffer](#ref-hu2006buffer)] showed that non-uniform buffer sizing mapped to specific application communication graphs saves up to $48\\%$ of total buffer memory compared to symmetric allocations.
-- **Congestion-Aware Dynamic VC Allocation**: Contemporary research by Xu et al.~[[Xu2025VC](#ref-xu2025vc)] demonstrates that runtime dynamic VC reallocation based on downstream backpressure metrics prevents head-of-line blocking while reducing active buffer leakage in high-performance CMPs.
+- **Buffer Optimization Through Flow Regulation**: Jafari et al. [[Jafari2010](#ref-jafari2010)] established that injecting traffic according to regulated flow profiles substantially reduces buffer queue depths while maintaining wire saturation throughput, eliminating transient overflow without requiring oversized per-port FIFOs.
+- **Distributed Shared-Buffer Routers**: Ramanujam et al. [[Ramanujam2011](#ref-ramanujam2011)] proposed distributed shared-buffer architectures where dynamic pool allocation allows heavily loaded input channels to borrow empty flit slots from neighboring idle ports, boosting effective saturation throughput by up to $35\\%$ under bursty synthetic workloads.
+- **Application-Specific Buffer Sizing**: Early system-level buffer allocation frameworks developed by Hu and Marculescu [[Hu2006Buffer](#ref-hu2006buffer)] showed that non-uniform buffer sizing mapped to specific application communication graphs saves up to $48\\%$ of total buffer memory compared to symmetric allocations.
+- **Congestion-Aware Dynamic VC Allocation**: Contemporary research by Xu et al. [[Xu2025VC](#ref-xu2025vc)] demonstrates that runtime dynamic VC reallocation based on downstream backpressure metrics prevents head-of-line blocking while reducing active buffer leakage in high-performance CMPs.
 
 ---
 

@@ -6,7 +6,7 @@
 | :--- | :--- |
 | **Title** | *A 1.63-pJ/SOP Neuromorphic Processor With Integrated Partial Sum Routers for In-Network Computing* |
 | **Authors** | D. Li, M. M. Wong, Y. S. Chong, J. Zhou, M. Upadhyay, A. Balaji, A. Mani, W. F. Wong, L.-S. Peh, A. T. Do, B. Wang |
-| **Venue** | **IEEE Transactions on Very Large Scale Integration (VLSI) Systems**, Vol. 32, No. 11, November 2024 [[Li2024]](#ref-li2024) |
+| **Venue** | **IEEE Transactions on Very Large Scale Integration (VLSI) Systems**, Vol. 32, No. 11, November 2024 [[Li2024](#ref-li2024)] |
 | **Repository Paper** | 📂 [`papers/1-63-pj-sop-neuromorphic-processor-with-integrated-partial-sum-routers-for-in-network-comp/`](https://github.com/network-on-chip/noc-lab/tree/main/papers/1-63-pj-sop-neuromorphic-processor-with-integrated-partial-sum-routers-for-in-network-comp) |
 
 ---
@@ -14,7 +14,7 @@
 ## 1. The Paradigm Shift: Moving Compute Into the Network
 
 For over 70 years, computer systems strictly adhered to the Von Neumann separation: **processors compute**, and **networks transport**.
-However, in modern deep learning and Neuromorphic Spiking Neural Networks (SNNs) such as IBM TrueNorth [[Merolla2014]](#ref-merolla2014) and Intel Loihi [[Davies2018]](#ref-davies2018), computing a neuron's activation requires accumulating thousands of synaptic weights:
+However, in modern deep learning and Neuromorphic Spiking Neural Networks (SNNs) such as IBM TrueNorth [[Merolla2014](#ref-merolla2014)] and Intel Loihi [[Davies2018](#ref-davies2018)], computing a neuron's activation requires accumulating thousands of synaptic weights:
 
 $$V_j = \sum_{i=1}^{M} W_{i, j} \cdot S_i$$
 
@@ -34,7 +34,7 @@ When a neural network layer exceeds the physical memory capacity of a single pro
 
 This traditional approach introduces **spike quantization error**, requires **accuracy-loss retraining**, and causes **severe NoC congestion** as merge cores become hot spots.
 
-The National University of Singapore (NUS) team challenged this fundamental assumption: **What if the NoC routers themselves computed the addition in-flight as packets traveled through the switches [[Li2024]](#ref-li2024)?**
+The National University of Singapore (NUS) team challenged this fundamental assumption: **What if the NoC routers themselves computed the addition in-flight as packets traveled through the switches [[Li2024](#ref-li2024)]?**
 
 ---
 

@@ -6,7 +6,7 @@ While deterministic Dimension-Order Routing (DOR) is simple and provably deadloc
 
 To solve these challenges, computer architects developed **Adaptive Routing**, allowing packets to dynamically select among multiple alternative paths based on local channel congestion or link health.
 
-However, arbitrary adaptivity reintroduces the risk of **circular buffer deadlock**. In 1994, Christopher J. Glass and Lionel M. Ni introduced a foundational methodology called **The Turn Model** [[Glass1994]](#ref-glass1994), proving that eliminating **just two turns** is sufficient to guarantee deadlock freedom while unlocking rich path diversity!
+However, arbitrary adaptivity reintroduces the risk of **circular buffer deadlock**. In 1994, Christopher J. Glass and Lionel M. Ni introduced a foundational methodology called **The Turn Model** [[Glass1994](#ref-glass1994)], proving that eliminating **just two turns** is sufficient to guarantee deadlock freedom while unlocking rich path diversity!
 
 <div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
   <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Textbook Reference</div>
@@ -44,7 +44,7 @@ CW Cycle Turns:                     CCW Cycle Turns:
 4. West  -> North                   4. East  -> North
 ```
 
-### The Turn Model Theorem (Glass & Ni, 1994 [[Glass1994]](#ref-glass1994))
+### The Turn Model Theorem (Glass & Ni, 1994 [[Glass1994](#ref-glass1994)])
 > **Theorem:**  
 > A routing algorithm for an $n$-dimensional mesh is deadlock-free if and only if it prohibits **at least one turn in every directed cycle** of the Channel Dependency Graph.
 
@@ -118,7 +118,7 @@ graph TD
 Notice the fundamental flaw in West-First, North-Last, and Negative-First: **Directional Asymmetry!**
 In West-First, flows traveling East enjoy dozens of alternate paths, while flows traveling West have exactly **one path**, creating severe link starvation and uneven hotspot vulnerability.
 
-In 2000, Ge-Ming Chiu solved this problem by introducing the **Odd-Even Turn Model** (IEEE Transactions on Parallel and Distributed Systems [[Chiu2000]](#ref-chiu2000)). Rather than applying static turn prohibitions everywhere, Odd-Even distributes turn restrictions across routers based on **column parity**:
+In 2000, Ge-Ming Chiu solved this problem by introducing the **Odd-Even Turn Model** (IEEE Transactions on Parallel and Distributed Systems [[Chiu2000](#ref-chiu2000)]). Rather than applying static turn prohibitions everywhere, Odd-Even distributes turn restrictions across routers based on **column parity**:
 
 ```
 Column Parity Architecture in Odd-Even:

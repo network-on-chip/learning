@@ -14,7 +14,7 @@
   </a>
 </div>
 
-As semiconductor technology scaled down following Moore's Law [[Moore1965]](#ref-moore1965) and Dennard Scaling [[Dennard1974]](#ref-dennard1974), single-core microprocessors struck the **Power Wall** in the early 2000s [[Borkar1999]](#ref-borkar1999). Chip architects could no longer drive clock frequencies higher without exceeding the thermal dissipation limits of standard packaging ($\approx 100\text{–}130\text{ W/cm}^2$). 
+As semiconductor technology scaled down following Moore's Law [[Moore1965](#ref-moore1965)] and Dennard Scaling [[Dennard1974](#ref-dennard1974)], single-core microprocessors struck the **Power Wall** in the early 2000s [[Borkar1999](#ref-borkar1999)]. Chip architects could no longer drive clock frequencies higher without exceeding the thermal dissipation limits of standard packaging ($\approx 100\text{–}130\text{ W/cm}^2$). 
 
 To sustain computing performance growth, the industry executed a paradigm shift toward **Multi-Processor Systems-on-Chip (MPSoCs)** and **Chip Multi-Processors (CMPs)**, integrating dozens to hundreds of processing elements, accelerators, and memory controllers on a single monolithic silicon die.
 
@@ -46,7 +46,7 @@ While shared buses are simple and cost-effective for small SoCs ($N \le 4\text{�
 ### A. Capacitive Loading & Elmore Wire Delay
 A shared bus consists of long physical metal traces spanning across the entire silicon die. Every connected master and slave attaches an input/output transceiver tap to the shared wire.
 
-According to the **Elmore Delay Model** [[Elmore1948]](#ref-elmore1948), the propagation delay $\tau$ of a distributed $RC$ line loaded by $N$ capacitive taps is:
+According to the **Elmore Delay Model** [[Elmore1948](#ref-elmore1948)], the propagation delay $\tau$ of a distributed $RC$ line loaded by $N$ capacitive taps is:
 
 $$\tau_{bus} \approx 0.38 \cdot R_{wire} \cdot C_{wire} + \sum_{i=1}^{N} R_{driver} \cdot C_{tap, i} + \sum_{i=1}^{N} R_{wire, i} \cdot C_{tap, i}$$
 
@@ -58,7 +58,7 @@ Where:
 As core count $N$ increases, total capacitance skyrockets ($C_{total} \propto N$). Consequently, the maximum achievable bus clock frequency ($f_{max} \approx \frac{1}{2 \tau_{bus}}$) drops precipitously. While local processor logic easily ran at 2.0–3.0 GHz, global shared buses were throttled to 200–400 MHz.
 
 ### B. Sub-10nm Interconnect Physics: Electron Scattering
-In deep-submicron processes (below 14nm, 7nm, and 3nm), interconnect resistance does not scale linearly [[Ho2001]](#ref-ho2001). Because of **electron surface scattering** (Fuchs-Sondheimer model [[Fuchs1938]](#ref-fuchs1938), [[Sondheimer1952]](#ref-sondheimer1952)) and **grain-boundary scattering** (described by the **Mayadas-Shatzkes model** [[Mayadas1970]](#ref-mayadas1970)), the effective resistivity of copper ($\rho_{eff}$) surges dramatically once the wire dimensions approach the electron mean free path ($\approx 39\text{ nm}$ in bulk Cu at room temperature).
+In deep-submicron processes (below 14nm, 7nm, and 3nm), interconnect resistance does not scale linearly [[Ho2001](#ref-ho2001)]. Because of **electron surface scattering** (Fuchs-Sondheimer model [[Fuchs1938](#ref-fuchs1938)], [[Sondheimer1952](#ref-sondheimer1952)]) and **grain-boundary scattering** (described by the **Mayadas-Shatzkes model** [[Mayadas1970](#ref-mayadas1970)]), the effective resistivity of copper ($\rho_{eff}$) surges dramatically once the wire dimensions approach the electron mean free path ($\approx 39\text{ nm}$ in bulk Cu at room temperature).
 
 Furthermore, ultra-thin barrier and liner materials (such as Tantalum/Tantalum Nitride or Cobalt/Ruthenium) required to prevent copper electromigration consume an increasingly large fraction of the wire's cross-sectional area, drastically increasing $R_{wire}$ per millimeter. Long global bus wires became unbearable thermal and delay bottlenecks.
 
@@ -79,7 +79,7 @@ $$BW_{core} = \frac{W \times f_{bus}}{N} \propto \frac{1}{N}$$
 For a 64-core CMP, each core would receive only $\approx 1.5\%$ of the bus bandwidth, leaving high-performance superscalar pipelines starved of cache lines.
 
 ### D. Repeater Insertion & Dynamic Power Waste
-To mitigate quadratic $RC$ delay, global bus lines require periodic **repeater insertion** (CMOS inverters/buffers) [[Bakoglu1990]](#ref-bakoglu1990). The optimal repeater pitch $L_{opt}$ is given by:
+To mitigate quadratic $RC$ delay, global bus lines require periodic **repeater insertion** (CMOS inverters/buffers) [[Bakoglu1990](#ref-bakoglu1990)]. The optimal repeater pitch $L_{opt}$ is given by:
 
 $$L_{opt} = \sqrt{\frac{2 \cdot R_{gate} \cdot C_{gate}}{R_{wire} \cdot C_{wire}}}$$
 
@@ -87,7 +87,7 @@ For a 20mm global bus, hundreds of large repeaters must be placed across multipl
 
 $$P_{dynamic} = \alpha \cdot C_{total} \cdot V_{DD}^2 \cdot f$$
 
-Driving long buses rapidly consumed over **30% to 40% of the entire chip's dynamic power budget** [[Borkar1999]](#ref-borkar1999), [[Keckler2011]](#ref-keckler2011), [[Dally2001]](#ref-dally2001), simply moving bits across silicon without performing any computation.
+Driving long buses rapidly consumed over **30% to 40% of the entire chip's dynamic power budget** [[Borkar1999](#ref-borkar1999)], [[Keckler2011](#ref-keckler2011)], [[Dally2001](#ref-dally2001)], simply moving bits across silicon without performing any computation.
 
 ---
 
@@ -133,8 +133,8 @@ Beyond 16 cores, the multiplexer tree fan-in and dense routing channels create u
 ## 3. The Network-on-Chip (NoC) Solution
 
 In 2001, two landmark papers fundamentally transformed on-chip computer architecture:
-1. **Luca Benini & Giovanni De Micheli** (*"Networks on Chips: A New SoC Paradigm"*, IEEE Computer, 2002 / DAC 2001 [[Benini2002]](#ref-benini2002))
-2. **William J. Dally & Brian Towles** (*"Route Packets, Not Wires: On-Chip Interconnection Networks"*, DAC 2001 [[Dally2001]](#ref-dally2001))
+1. **Luca Benini & Giovanni De Micheli** (*"Networks on Chips: A New SoC Paradigm"*, IEEE Computer, 2002 / DAC 2001 [[Benini2002](#ref-benini2002)])
+2. **William J. Dally & Brian Towles** (*"Route Packets, Not Wires: On-Chip Interconnection Networks"*, DAC 2001 [[Dally2001](#ref-dally2001)])
 
 Their central thesis was both elegant and revolutionary:
 
@@ -390,19 +390,19 @@ if (document.readyState === "loading") {
 To prove that NoCs were not merely academic concepts, pioneering semiconductor teams built silicon proof-of-concepts that established the foundations of modern multicore computing:
 
 ### A. MIT RAW Microprocessor (2002)
-Designed by Anant Agarwal and his group at MIT, the **RAW (Reconfigurable Architecture Workstation)** was one of the earliest working 2D mesh chips [[Taylor2002]](#ref-taylor2002). It featured 16 compute tiles arranged in a $4 \times 4$ grid, integrated 4 on-chip networks (two static networks for scalar operand routing and two dynamic networks for memory and I/O), and proved that pipelined 2D meshes could deliver scalar operands faster than centralized register files.
+Designed by Anant Agarwal and his group at MIT, the **RAW (Reconfigurable Architecture Workstation)** was one of the earliest working 2D mesh chips [[Taylor2002](#ref-taylor2002)]. It featured 16 compute tiles arranged in a $4 \times 4$ grid, integrated 4 on-chip networks (two static networks for scalar operand routing and two dynamic networks for memory and I/O), and proved that pipelined 2D meshes could deliver scalar operands faster than centralized register files.
 
 ### B. Intel Polaris TeraFLOPS Processor (ISSCC 2007)
-Intel fabricated an 80-tile multicore test chip on 65nm CMOS with over 100 million transistors [[Vangal2008]](#ref-vangal2008). Each tile featured two floating-point cores and a 5-port 2D mesh router.
+Intel fabricated an 80-tile multicore test chip on 65nm CMOS with over 100 million transistors [[Vangal2008](#ref-vangal2008)]. Each tile featured two floating-point cores and a 5-port 2D mesh router.
 - **Clock Frequency:** Scalable from 3.1 GHz to 5.7 GHz.
 - **Raw Throughput:** Delivered **1.0 TeraFLOPS** of compute performance while consuming just **62 Watts**.
 - **Interconnect:** 80 routers achieved 1.6 Terabits/second bisection bandwidth with a 2-cycle per-hop pipeline.
 
 ### C. Intel Single-Chip Cloud Computer (SCC - ISSCC 2010)
-Fabricated on 45nm CMOS, Intel SCC integrated 48 Pentium cores in a $6 \times 4$ 2D mesh [[Howard2011]](#ref-howard2011). It introduced **Voltage and Frequency Islands (VFIs)**, dividing the on-chip mesh routers into dynamic power domains to prove that packet-switched routing could scale efficiently with dynamic power gating.
+Fabricated on 45nm CMOS, Intel SCC integrated 48 Pentium cores in a $6 \times 4$ 2D mesh [[Howard2011](#ref-howard2011)]. It introduced **Voltage and Frequency Islands (VFIs)**, dividing the on-chip mesh routers into dynamic power domains to prove that packet-switched routing could scale efficiently with dynamic power gating.
 
 ### D. Tilera TILE64 & TILE-Gx (2007–2012)
-Tilera commercialized a 64-tile RISC processor featuring their proprietary **iMesh** architecture [[Wentzlaff2007]](#ref-wentzlaff2007). Instead of a single network, each tile was connected to **5 independent, parallel 2D mesh networks** simultaneously:
+Tilera commercialized a 64-tile RISC processor featuring their proprietary **iMesh** architecture [[Wentzlaff2007](#ref-wentzlaff2007)]. Instead of a single network, each tile was connected to **5 independent, parallel 2D mesh networks** simultaneously:
 - User Dynamic Network (UDN) for inter-thread message passing.
 - Input/Output Dynamic Network (IDN) for PCIe/Ethernet traffic.
 - Memory Dynamic Network (MDN) for L3 cache coherence.
@@ -421,12 +421,12 @@ Tilera 5-Layer iMesh:
 For over a decade, Intel server processors utilized dual concentric ring buses. At 28 cores (Skylake-SP in 2017), ring traversal latencies and bisection bandwidth bottlenecks forced Intel to replace the ring with a **2D Mesh NoC**. By organizing cores and memory controllers into a rectangular grid, worst-case hop count was reduced by over 40%, boosting multi-threaded server scaling across cloud workloads.
 
 ### F. FlooNoC: Open-Source Wide-Link NoC in 12nm (IEEE TVLSI 2025)
-Published in IEEE TVLSI 2025 by Benini et al. (ETH Zurich / University of Bologna), **FlooNoC** tackles bandwidth bottlenecks in domain-specific AI accelerators [[Fischer2025]](#ref-fischer2025):
+Published in IEEE TVLSI 2025 by Benini et al. (ETH Zurich / University of Bologna), **FlooNoC** tackles bandwidth bottlenecks in domain-specific AI accelerators [[Fischer2025](#ref-fischer2025)]:
 - **Wide Physical Links:** Leverages high-level metal tracks to achieve **645 Gb/s per link** and **103 Tb/s aggregate bandwidth** across an $8 \times 4$ cluster mesh (288 RISC-V cores).
 - **Extreme Energy Efficiency:** Achieves **0.15 pJ/bit/hop** at 0.8V supply, cutting interconnect area overhead to just 3.5% per compute tile.
 
 ### G. HammerBlade in Silicon: 2,048 RISC-V Cores in 12nm FinFET (IEEE TVLSI 2026)
-Published in IEEE TVLSI 2026 by Taylor et al. (University of Washington / Cornell), **HammerBlade (HB)** represents the pinnacle of monolithic manycore scaling [[Gao2026]](#ref-gao2026), [[Davidson2023]](#ref-davidson2023):
+Published in IEEE TVLSI 2026 by Taylor et al. (University of Washington / Cornell), **HammerBlade (HB)** represents the pinnacle of monolithic manycore scaling [[Gao2026](#ref-gao2026)], [[Davidson2023](#ref-davidson2023)]:
 - **Die Floorplan:** 2,048 custom RISC-V compute cores on a $99\text{ mm}^2$ monolithic silicon die fabricated in TSMC 12nm.
 - **Ruche Network Topology:** Overlays nearest-neighbor 2D mesh links with multi-hop long-distance bypass wires to maximize wire bandwidth utilization.
 - **Bisection Bandwidth:** Operating at **1.49 GHz at 0.8 V**, the NoC achieves **53.2 Tb/s bisection bandwidth** and **2,572.6 Tb/s peak aggregate bandwidth**, reaching a routing density of 4,289 bit/mm.

@@ -14,7 +14,7 @@
   </a>
 </div>
 
-In Network-on-Chip (NoC), data communication is divided into a rigorous structural hierarchy. This hierarchy balances routing flexibility with the microarchitectural reality that **on-chip SRAM/register buffers consume precious silicon area and power** (typically 35% to 65% of total router power and area) [[Wang2002]](#ref-wang2002), [[Kahng2009]](#ref-kahng2009).
+In Network-on-Chip (NoC), data communication is divided into a rigorous structural hierarchy. This hierarchy balances routing flexibility with the microarchitectural reality that **on-chip SRAM/register buffers consume precious silicon area and power** (typically 35% to 65% of total router power and area) [[Wang2002](#ref-wang2002)], [[Kahng2009](#ref-kahng2009)].
 
 In this lesson, we examine how application transactions are diced into **packets**, **flits**, and **phits**, and compare the three seminal switching techniques that govern how data travels across routers: **Store-and-Forward**, **Virtual Cut-Through**, and **Wormhole Switching**.
 
@@ -72,7 +72,7 @@ graph TD
 
 ## 2. Bit-Level Flit Header Architecture
 
-In high-performance silicon routers, flit encoding is engineered to minimize decoding logic delay in the critical path. Below is a standard 128-bit industry flit format (similar to OpenPiton [[Balkind2016]](#ref-balkind2016), FlooNoC [[Fischer2025]](#ref-fischer2025), TileLink NoC, and Intel AXI-Mesh [[DallyPrinciples]](#ref-dallyprinciples)):
+In high-performance silicon routers, flit encoding is engineered to minimize decoding logic delay in the critical path. Below is a standard 128-bit industry flit format (similar to OpenPiton [[Balkind2016](#ref-balkind2016)], FlooNoC [[Fischer2025](#ref-fischer2025)], TileLink NoC, and Intel AXI-Mesh [[DallyPrinciples](#ref-dallyprinciples)]):
 
 ### A. Head Flit Bit Allocation (128 bits)
 
@@ -120,7 +120,7 @@ Timeline:
 ```
 
 ### A. Store-and-Forward (SAF) Switching
-In Store-and-Forward switching [[Baran1964]](#ref-baran1964), a router must receive and store the **entire packet** in its input buffer before it can compute the route or begin forwarding the first flit to the downstream router.
+In Store-and-Forward switching [[Baran1964](#ref-baran1964)], a router must receive and store the **entire packet** in its input buffer before it can compute the route or begin forwarding the first flit to the downstream router.
 
 ```
 Router 0: [=== Packet (L flits) ===]
@@ -146,7 +146,7 @@ $$T_{SAF} = H \times \left( t_r + \frac{L}{W} \right)$$
 ---
 
 ### B. Virtual Cut-Through (VCT) Switching
-Proposed by Parviz Kermani and Leonard Kleinrock in 1979 [[Kermani1979]](#ref-kermani1979), **Virtual Cut-Through** allows a router to forward the packet header to the next hop as soon as the routing decision is computed, **without waiting for the rest of the packet to arrive**.
+Proposed by Parviz Kermani and Leonard Kleinrock in 1979 [[Kermani1979](#ref-kermani1979)], **Virtual Cut-Through** allows a router to forward the packet header to the next hop as soon as the routing decision is computed, **without waiting for the rest of the packet to arrive**.
 
 ```
 Router 0: [Head][Body 1][Body 2][Tail]
@@ -169,7 +169,7 @@ When the downstream router is busy or congested, VCT **aborts cut-through and bu
 ---
 
 ### C. Wormhole Switching (WH)
-Introduced in 1986 by **William J. Dally and Charles L. Seitz** [[Dally1986]](#ref-dally1986), [[Dally1987]](#ref-dally1987), **Wormhole Switching** revolutionized on-chip networks, multicore processors, and parallel supercomputers.
+Introduced in 1986 by **William J. Dally and Charles L. Seitz** [[Dally1986](#ref-dally1986)], [[Dally1987](#ref-dally1987)], **Wormhole Switching** revolutionized on-chip networks, multicore processors, and parallel supercomputers.
 
 In Wormhole Switching:
 1. The packet is sliced into a train of flits.
@@ -544,7 +544,7 @@ This phenomenon can cause network throughput to collapse to a fraction of peak c
 
 > [!IMPORTANT]
 > How do modern on-chip networks solve Head-of-Line blocking without abandoning the low buffer cost of Wormhole Switching?  
-> By introducing **Virtual Channels (VCs)** [[Dally1992]](#ref-dally1992)! Virtual channels multiplex multiple independent logical FIFO queues onto a single physical link, allowing unblocked packets to bypass frozen worms. We explore this in [Track 2: Router Microarchitecture](../track2-router-architecture/02-virtual-channels.md).
+> By introducing **Virtual Channels (VCs)** [[Dally1992](#ref-dally1992)]! Virtual channels multiplex multiple independent logical FIFO queues onto a single physical link, allowing unblocked packets to bypass frozen worms. We explore this in [Track 2: Router Microarchitecture](../track2-router-architecture/02-virtual-channels.md).
 
 ---
 

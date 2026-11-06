@@ -16,7 +16,7 @@
 
 When multiple input virtual channels demand the same output physical port simultaneously, the router must decide which flit gets to traverse the internal crossbar switch. 
 
-This decision must be executed in **sub-nanosecond time** (typically within a single clock period of $300\text{–}600\text{ ps}$ in modern server silicon) while guaranteeing **strict fairness**, **zero starvation**, and **maximum crossbar utilization** [[DallyPrinciples]](#ref-dallyprinciples).
+This decision must be executed in **sub-nanosecond time** (typically within a single clock period of $300\text{–}600\text{ ps}$ in modern server silicon) while guaranteeing **strict fairness**, **zero starvation**, and **maximum crossbar utilization** [[DallyPrinciples](#ref-dallyprinciples)].
 
 In this lesson, we study fast silicon arbiters—focusing on the **Matrix Arbiter (LRU)**—and analyze **Separable Switch Allocators** and the physical layout of crossbar switches.
 
@@ -34,7 +34,7 @@ As core counts and port counts grow, RRA carry chains become a timing bottleneck
 ---
 
 ### B. The Matrix Arbiter (Least Recently Used - LRU)
-The **Matrix Arbiter** is the gold standard for high-frequency on-chip routers [[DallyPrinciples]](#ref-dallyprinciples). It replaces carry chains with a parallel, triangular binary matrix evaluated using **only two levels of basic gates (AND-OR)**, achieving sub-200 picosecond evaluation in FinFET processes!
+The **Matrix Arbiter** is the gold standard for high-frequency on-chip routers [[DallyPrinciples](#ref-dallyprinciples)]. It replaces carry chains with a parallel, triangular binary matrix evaluated using **only two levels of basic gates (AND-OR)**, achieving sub-200 picosecond evaluation in FinFET processes!
 
 ```
 Matrix M for 4 Clients (C0, C1, C2, C3):
@@ -389,7 +389,7 @@ In a standard 5-port on-chip router with $V = 4$ virtual channels per port, ther
 
 Finding the globally optimal assignment of input VCs to output ports is a **Bipartite Maximum Matching problem**. The classic algorithm (Hopcroft-Karp) has time complexity $O(V^{2.5})$, which is completely impossible to execute inside a 300 picosecond clock cycle.
 
-Instead, silicon routers employ **Separable Switch Allocators** [[DallyPrinciples]](#ref-dallyprinciples), [[Tamir1993]](#ref-tamir1993):
+Instead, silicon routers employ **Separable Switch Allocators** [[DallyPrinciples](#ref-dallyprinciples)], [[Tamir1993](#ref-tamir1993)]:
 
 ```mermaid
 graph LR
@@ -412,7 +412,7 @@ graph LR
 ```
 
 ### Allocation Strategies:
-1. **Input-First Separable Allocation (iSLIP [[McKeown1999]](#ref-mckeown1999), PIM [[Anderson1993]](#ref-anderson1993)):**
+1. **Input-First Separable Allocation (iSLIP [[McKeown1999](#ref-mckeown1999)], PIM [[Anderson1993](#ref-anderson1993)]):**
    - **Phase 1 (Input Arbitration):** Each of the 5 input ports selects **one winning candidate VC** among its active queues.
    - **Phase 2 (Output Arbitration):** The 5 winning candidates send their requests to the 5 output port arbiters. Each output port awards crossbar access to one winner.
 2. **Output-First Separable Allocation:**
@@ -450,7 +450,7 @@ graph TD
 ### Physical Design Challenges:
 1. **Wiring Congestion:**  
    For a 128-bit flit width, a 5-port crossbar has $5 \times 128 = 640\text{ input wires}$ and $640\text{ output wires}$ crisscrossing the switch core. In dense layouts, this requires dedicated metal layers (e.g., Metal 4 for horizontal tracks and Metal 5 for vertical tracks).
-2. **Bit-Slicing (Area & Power Optimization) [[Passas2012]](#ref-passas2012):**  
+2. **Bit-Slicing (Area & Power Optimization) [[Passas2012](#ref-passas2012)]:**  
    Rather than building one massive monolithic 128-bit crossbar, architects partition the crossbar into **four 32-bit crossbar slices**. All 4 slices share identical control signals from the Switch Allocator, significantly reducing wire congestion and capacitive cross-talk.
 
 ### Synthesizable Verilog RTL: 5×5 Crossbar Datapath (`crossbar_5x5.v`)

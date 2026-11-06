@@ -2,7 +2,7 @@
 
 Wormhole switching delivers exceptional buffer area efficiency by allowing flits to advance as soon as a single buffer slot is free. However, as discovered in early multicore designs, unadorned wormhole switching suffers from a devastating flaw: **Head-of-Line (HoL) Blocking**.
 
-In this lesson, we explore how **Virtual Channels (VCs)**—introduced by William J. Dally in 1992 [[Dally1992]](#ref-dally1992)—eliminate Head-of-Line blocking, provide independent flow control on shared wires [[DallyPrinciples]](#ref-dallyprinciples), and establish **Virtual Networks (VNETs)** to isolate cache coherence protocols [[Sorin2011]](#ref-sorin2011).
+In this lesson, we explore how **Virtual Channels (VCs)**—introduced by William J. Dally in 1992 [[Dally1992](#ref-dally1992)]—eliminate Head-of-Line blocking, provide independent flow control on shared wires [[DallyPrinciples](#ref-dallyprinciples)], and establish **Virtual Networks (VNETs)** to isolate cache coherence protocols [[Sorin2011](#ref-sorin2011)].
 
 ---
 
@@ -514,7 +514,7 @@ $$\text{Total Router Buffer Memory} = 5\text{ ports} \times 2,048\text{ bits} = 
 $$\text{Buffer Transistors} = 10,240\text{ bits} \times 12\text{ transistors/bit} \approx \mathbf{122,880\text{ transistors}}$$
 
 ### Architectural Takeaway:
-Buffers account for **over 60% of an on-chip router's total silicon area** [[Wang2002]](#ref-wang2002), [[Kahng2009]](#ref-kahng2009)! This is why architects carefully optimize VC counts ($V = 2\text{–}4$) and evaluate dynamic buffer pooling architectures such as DAMQ [[Tamir1988]](#ref-tamir1988) and ViChaR [[Nicopoulos2006]](#ref-nicopoulos2006) to avoid silicon waste.
+Buffers account for **over 60% of an on-chip router's total silicon area** [[Wang2002](#ref-wang2002)], [[Kahng2009](#ref-kahng2009)]! This is why architects carefully optimize VC counts ($V = 2\text{–}4$) and evaluate dynamic buffer pooling architectures such as DAMQ [[Tamir1988](#ref-tamir1988)] and ViChaR [[Nicopoulos2006](#ref-nicopoulos2006)] to avoid silicon waste.
 
 ---
 

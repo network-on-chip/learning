@@ -7,7 +7,7 @@ As computer architectures scale toward exascale supercomputers and multi-thousan
 2. **Capacitive Dynamic Power Dissipation:** Every bit transition on a copper wire charges and discharges parasitic wire capacitance ($P = C V^2 f$). At high clock frequencies and massive bisection widths, interconnect charging accounts for over $30\text{–}40\%$ of total chip power.
 3. **High-Frequency Attenuation & Crosstalk:** Above $15\text{–}20 \ \text{GHz}$, skin effect and dielectric losses ($\tan \delta$) attenuate high-speed signals, while capacitive and inductive coupling generate severe inter-wire crosstalk.
 
-To shatter these copper limitations, computer architects and physicists are pioneering two radical non-electronic paradigms: **Photonic/Optical Network-on-Chip (ONoC)** [[Vantrease2008]](#ref-vantrease2008), [[Kurian2010]](#ref-kurian2010), [[Ye2013]](#ref-ye2013) and **Millimeter-Wave / Terahertz Wireless Network-on-Chip (WNoC)** [[Deb2012]](#ref-deb2012), [[Abadal2018]](#ref-abadal2018).
+To shatter these copper limitations, computer architects and physicists are pioneering two radical non-electronic paradigms: **Photonic/Optical Network-on-Chip (ONoC)** [[Vantrease2008](#ref-vantrease2008)], [[Kurian2010](#ref-kurian2010)], [[Ye2013](#ref-ye2013)] and **Millimeter-Wave / Terahertz Wireless Network-on-Chip (WNoC)** [[Deb2012](#ref-deb2012)], [[Abadal2018](#ref-abadal2018)].
 
 ---
 
@@ -41,7 +41,7 @@ graph LR
 Silicon has a very high refractive index ($n_{Si} \approx 3.48$) compared to silicon dioxide cladding ($n_{SiO2} \approx 1.44$). This massive refractive index contrast ($\Delta n \approx 2.04$) creates total internal reflection within sub-micron cross-sections ($\approx 450 \ \text{nm} \times 220 \ \text{nm}$), guiding infrared light ($\lambda \approx 1310 \ \text{nm}$ or $1550 \ \text{nm}$) with low propagation loss ($< 1.0\text{–}1.5 \ \text{dB/cm}$).
 
 #### 2. Silicon Micro-Ring Resonators (MRRs)
-A Micro-Ring Resonator [[Little1997]](#ref-little1997) consists of a circular optical loop of radius $R$ placed adjacent to a straight bus waveguide:
+A Micro-Ring Resonator [[Little1997](#ref-little1997)] consists of a circular optical loop of radius $R$ placed adjacent to a straight bus waveguide:
 
 ```
         Straight Waveguide (Input) ---------------> Through Port
@@ -129,7 +129,7 @@ To counteract thermal drift, every micro-ring must be equipped with an integrate
 
 ## 4. Wireless Network-on-Chip (WNoC): Millimeter-Wave Shortcuts
 
-Instead of guiding signals along silicon waveguides or copper wires, **Wireless Network-on-Chip (WNoC)** broadcasts electromagnetic waves across the silicon substrate using on-chip antennas [[Deb2012]](#ref-deb2012), [[Abadal2018]](#ref-abadal2018)!
+Instead of guiding signals along silicon waveguides or copper wires, **Wireless Network-on-Chip (WNoC)** broadcasts electromagnetic waves across the silicon substrate using on-chip antennas [[Deb2012](#ref-deb2012)], [[Abadal2018](#ref-abadal2018)]!
 
 ```mermaid
 graph TD

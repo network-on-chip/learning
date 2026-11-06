@@ -70,7 +70,7 @@ Measured directly at the local router:
 *Limitation:* Local metrics are purely **reactive**. By the time a local buffer fills up, the saturation tree has already reached the router!
 
 ### 2. Regional Congestion Awareness (RCA)
-Introduced by Paul Gratz, Stephen Keckler, and William Dally (HPCA 2008 [[Gratz2008]](#ref-gratz2008)), **RCA** aggregates congestion telemetry from multi-hop neighborhoods.
+Introduced by Paul Gratz, Stephen Keckler, and William Dally (HPCA 2008 [[Gratz2008](#ref-gratz2008)]), **RCA** aggregates congestion telemetry from multi-hop neighborhoods.
 
 Routers broadcast a small scalar congestion status (e.g., 2–3 bits) along coordinate wires to adjacent routers:
 
@@ -115,7 +115,7 @@ Core L1/L2 Cache --------> [NI Token Bucket] ======== NoC Mesh Links ========> H
 ```
 
 ### Mechanism B: Congestion-Aware Adaptive Routing (DyAD)
-In **Dynamic Adaptive/Deterministic (DyAD)** routing (Hu & Marculescu, DAC 2004 [[Hu2004]](#ref-hu2004)):
+In **Dynamic Adaptive/Deterministic (DyAD)** routing (Hu & Marculescu, DAC 2004 [[Hu2004](#ref-hu2004)]):
 1. **In Cold / Low-Stress Regions ($S < S_{thresh}$):** Packets follow deterministic XY routing.
    - *Benefits:* Ultra-low router delay, zero virtual channel arbitration conflicts, guaranteed in-order flit arrival.
 2. **In Hot / Congested Regions ($S \ge S_{thresh}$):** Routers dynamically switch to adaptive routing (e.g., West-First or Odd-Even), steering flits onto alternate, empty parallel channels around the hotspot.

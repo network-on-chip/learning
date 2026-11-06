@@ -6,7 +6,7 @@
 | :--- | :--- |
 | **Title** | *3-D Mesh-Based Optical Network-on-Chip for Multiprocessor System-on-Chip* |
 | **Authors** | Y. Ye, J. Xu, X. Wu, W. Zhang, W. Liu, M. Nikdast |
-| **Venue** | **IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems (TCAD)**, Vol. 32, No. 4, April 2013 [[Ye2013]](#ref-ye2013) |
+| **Venue** | **IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems (TCAD)**, Vol. 32, No. 4, April 2013 [[Ye2013](#ref-ye2013)] |
 | **Repository Paper** | 📂 [`papers/3-d-mesh-based-optical-network-on-chip-for-multiprocessor-system-on-chip/`](https://github.com/network-on-chip/noc-lab/tree/main/papers/3-d-mesh-based-optical-network-on-chip-for-multiprocessor-system-on-chip) |
 
 ---
@@ -14,12 +14,12 @@
 ## 1. The Vision: Uniting 3D Stacking and Silicon Photonics
 
 By 2013, two revolutionary interconnect paradigms had emerged independently:
-1. **3D Integrated Circuits (3D ICs):** Stacking dies vertically with Through-Silicon Vias (TSVs) to reduce average planar wire distance [[Pavlidis2009]](#ref-pavlidis2009).
-2. **Optical Networks-on-Chip (ONoCs):** Guiding photons along silicon waveguides to achieve speed-of-light propagation with zero capacitive in-flight power [[Vantrease2008]](#ref-vantrease2008).
+1. **3D Integrated Circuits (3D ICs):** Stacking dies vertically with Through-Silicon Vias (TSVs) to reduce average planar wire distance [[Pavlidis2009](#ref-pavlidis2009)].
+2. **Optical Networks-on-Chip (ONoCs):** Guiding photons along silicon waveguides to achieve speed-of-light propagation with zero capacitive in-flight power [[Vantrease2008](#ref-vantrease2008)].
 
 However, prior optical networks were purely 2D planar meshes. When mapped onto multi-layer 3D chips, fabricating multiple optical waveguide layers proved prohibitively expensive and introduced massive thermal cross-talk.
 
-In this landmark IEEE TCAD paper, researchers from the Hong Kong University of Science and Technology (HKUST) proposed a unified architecture: **a 3D Mesh-Based Optical Network-on-Chip** [[Ye2013]](#ref-ye2013).
+In this landmark IEEE TCAD paper, researchers from the Hong Kong University of Science and Technology (HKUST) proposed a unified architecture: **a 3D Mesh-Based Optical Network-on-Chip** [[Ye2013](#ref-ye2013)].
 By stacking two active CMOS electrical computing tiers using vertical TSVs and dedicating a single top optical layer for high-speed photonic routing, they demonstrated that multi-terabit bisection bandwidth could be achieved with unprecedented energy efficiency.
 
 ```mermaid
@@ -44,7 +44,7 @@ graph TD
 In a 3D mesh network, each optical router must switch light across 7 spatial directions: $\{Local, East, West, North, South, Up, Down\}$.
 
 ### The Crossbar Crisis in Optics
-A traditional non-blocking optical crossbar requires $7 \times 7 = \mathbf{49 \ \text{Micro-Ring Resonators (MRRs)}}$ [[Little1997]](#ref-little1997) and generates **$67 \ \text{waveguide crossings}$**.
+A traditional non-blocking optical crossbar requires $7 \times 7 = \mathbf{49 \ \text{Micro-Ring Resonators (MRRs)}}$ [[Little1997](#ref-little1997)] and generates **$67 \ \text{waveguide crossings}$**.
 Because every waveguide crossing scatters light and introduces an optical insertion loss ($\approx 0.12 \ \text{dB/crossing}$), an optical signal passing through multiple cascaded crossbars loses over $80\%$ of its optical power to crossing attenuation alone!
 
 ### The Authors' Breakthrough: The Passive-Routing 7×7 Router
