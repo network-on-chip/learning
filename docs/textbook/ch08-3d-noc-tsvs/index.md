@@ -334,10 +334,10 @@ Self-test passed successfully!
     </div>
   </div>
   <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-    <a href="../../interactive/tsv3d.md" style="display: inline-flex; align-items: center; gap: 6px; background: #8b5cf6; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+    <a href="../../interactive/tsv3d/" style="display: inline-flex; align-items: center; gap: 6px; background: #8b5cf6; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
       <span>Launch TSV Titan →</span>
     </a>
-    <a href="../../interactive/chiplet.md" style="display: inline-flex; align-items: center; gap: 6px; background: #0284c7; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+    <a href="../../interactive/chiplet/" style="display: inline-flex; align-items: center; gap: 6px; background: #0284c7; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
       <span>Chiplet Tycoon →</span>
     </a>
   </div>

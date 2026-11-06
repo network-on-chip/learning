@@ -1,6 +1,6 @@
 # 6.3 3D NoC Topologies, Thermal Stacking & Vertical Deadlock
 
-> **Companion Reading:** Monograph Chapter 9 — *3D NoCs, Chiplet Architectures, and Multi-Die Interconnects*, Section 9.1–9.2. [Read in Companion Textbook →](/learning/textbook/ch09-chiplets-3d/)
+> **Companion Reading:** Monograph Chapter 9 — *3D NoCs, Chiplet Architectures, and Multi-Die Interconnects*, Section 9.1–9.2. [Read in Companion Textbook →](/learning/textbook/ch09-chiplets-ucie/)
 
 Stacking silicon dies into the third dimension transforms the topological graph of on-chip networks [[Pavlidis2009](#ref-pavlidis2009)]. By collapsing planar wire distances into microscopic vertical hops, 3D NoCs drastically reduce average network diameter and hop counts [[Loi2011](#ref-loi2011)].
 

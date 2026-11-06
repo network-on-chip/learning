@@ -485,10 +485,10 @@ A major advance in low-power flow control is **Token Flow Control**, introduced 
     </div>
   </div>
   <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-    <a href="../../interactive/credits.md" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+    <a href="../../interactive/credits/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
       <span>Launch Credit Commander →</span>
     </a>
-    <a href="../../interactive/puzzle.md" style="display: inline-flex; align-items: center; gap: 6px; background: #8b5cf6; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+    <a href="../../interactive/puzzle/" style="display: inline-flex; align-items: center; gap: 6px; background: #8b5cf6; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
       <span>Packet Master Puzzle →</span>
     </a>
   </div>

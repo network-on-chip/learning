@@ -1,6 +1,6 @@
 # 7.3 Stacking the 3rd Dimension: 3D Optical NoC for MPSoCs
 
-> **Companion Reading:** Monograph Chapter 10 — *Emerging Frontiers: Optical, Wireless, and Neuromorphic NoCs*, Section 10.1 (Silicon Nanophotonics and Optical NoCs). [Read in Companion Textbook →](/learning/textbook/ch10-emerging-frontiers/)
+> **Companion Reading:** Monograph Chapter 10 — *Emerging Frontiers: Optical, Wireless, and Neuromorphic NoCs*, Section 10.1 (Silicon Nanophotonics and Optical NoCs). [Read in Companion Textbook →](/learning/textbook/ch10-optical-wireless/)
 
 | Paper Details | Primary Reference |
 | :--- | :--- |

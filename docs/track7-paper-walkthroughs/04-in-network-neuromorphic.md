@@ -1,6 +1,6 @@
 # 7.4 In-Network Computing: Neuromorphic Partial-Sum Routers
 
-> **Companion Reading:** Monograph Chapter 10 — *Emerging Frontiers: Optical, Wireless, and Neuromorphic NoCs*, Section 10.3 (In-Network Computing and Neuromorphic Interconnects). [Read in Companion Textbook →](/learning/textbook/ch10-emerging-frontiers/)
+> **Companion Reading:** Monograph Chapter 10 — *Emerging Frontiers: Optical, Wireless, and Neuromorphic NoCs*, Section 10.3 (In-Network Computing and Neuromorphic Interconnects). [Read in Companion Textbook →](/learning/textbook/ch10-optical-wireless/)
 
 | Paper Details | Primary Reference |
 | :--- | :--- |

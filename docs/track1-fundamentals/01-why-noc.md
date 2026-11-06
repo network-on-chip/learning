@@ -9,7 +9,7 @@
       Read <strong>Chapter 1: The Multi-Core Communication Crisis & Interconnect Physics</strong> in our open textbook, featuring full Elmore delay derivations, sub-10nm Mayadas-Shatzkes scattering models, and 2,048-core HammerBlade silicon case studies.
     </div>
   </div>
-  <a href="../textbook/ch01-interconnect-crisis/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
+  <a href="../../textbook/ch01-interconnect-crisis/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
     <span>Explore Chapter 1 →</span>
   </a>
 </div>

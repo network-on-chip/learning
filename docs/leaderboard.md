@@ -602,7 +602,7 @@ function renderLeaderboardTable() {
       '<td><span class="noc-track-badge" style="' + badgeStyle + '">' + escapeHtml(e.track) + '</span></td>',
       '<td style="text-align:right; font-weight:800; color:var(--tcl-blue-600);">' + escapeHtml(e.score) + ' pts</td>',
       '<td style="text-align:right; font-size:13px;">' + metricLabel + '</td>',
-      '<td style="text-align:center;"><code style="cursor:pointer;" onclick="populateVerify(\'' + safeCertId + '\')">' + safeCertId + '</code></td>',
+      '<td style="text-align:center;"><code style="cursor:pointer;" onclick="populateVerify('' + safeCertId + '')">' + safeCertId + '</code></td>',
       '<td style="text-align:right; font-size:12px; color:var(--md-default-fg-color--lighter);">' + escapeHtml(e.date) + '</td>'
     ].join("");
 

@@ -1,6 +1,6 @@
 # 6.4 Emerging Interconnect Frontiers: Optical (ONoC) & Wireless NoC (WNoC)
 
-> **Companion Reading:** Monograph Chapter 10 — *Emerging Frontiers: Optical, Wireless, and Neuromorphic NoCs*, Section 10.1 (Optical NoCs) and Section 10.2 (Wireless NoCs). [Read in Companion Textbook →](/learning/textbook/ch10-emerging-frontiers/)
+> **Companion Reading:** Monograph Chapter 10 — *Emerging Frontiers: Optical, Wireless, and Neuromorphic NoCs*, Section 10.1 (Optical NoCs) and Section 10.2 (Wireless NoCs). [Read in Companion Textbook →](/learning/textbook/ch10-optical-wireless/)
 
 As computer architectures scale toward exascale supercomputers and multi-thousand-core AI accelerators, conventional electrical copper interconnects encounter fundamental physics barriers:
 1. **The RC Delay Wall:** Planar wire delay scales quadratically with distance ($t_d \propto L^2$) without repeaters. Even with optimal repeater insertion, signal propagation is constrained by the speed of electrons in resistive copper ($\approx 0.1\text{ to } 0.2 \cdot c$).

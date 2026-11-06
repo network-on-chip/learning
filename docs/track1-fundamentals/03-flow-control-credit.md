@@ -9,7 +9,7 @@
       Read <strong>Chapter 2: Switching Techniques, Flow Control & Buffer Management</strong> in our open textbook, featuring full credit turnaround RTT equations, minimum buffer sizing proofs ($B_{min} \ge RTT$), and SWIFT Token Flow Control (TVLSI 2013).
     </div>
   </div>
-  <a href="../textbook/ch02-switching-flow-control/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
+  <a href="../../textbook/ch02-switching-flow-control/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
     <span>Explore Chapter 2 →</span>
   </a>
 </div>
@@ -110,9 +110,9 @@ Consider a continuous stream of flits attempting to utilize 100% of the channel 
 
 At this moment, the upstream router has exhausted all credits! It **cannot send another flit until Credit 0 returns**.
 - Credit 0 will arrive at cycle $t = RTT$.
-- If $B < RTT$, the upstream router is forced to **idle for $RTT - B$ clock cycles**, injecting artificial **pipeline bubbles** into the physical link wires!
+- If $B < RTT$, the upstream router is forced to **idle for $RTT - B$ clock cycles**, injecting artificial **pipeline bubbles** into the physical link wires! Under Little's Law [[Little1961](#ref-little1961)]:
 
-$$\text{Minimum Buffer Depth for 100\% Throughput: } \mathbf{B_{min} \ge \lceil RTT \rceil} \quad \text{[[Little1961](#ref-little1961)]}$$
+$$\text{Minimum Buffer Depth for 100\% Throughput: } \mathbf{B_{min} \ge \lceil RTT \rceil}$$
 
 $$\text{Sustained Throughput Efficiency: } \eta = \min\left(100\%, \frac{B}{RTT} \times 100\%\right)$$
 

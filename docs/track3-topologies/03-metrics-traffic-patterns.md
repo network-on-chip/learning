@@ -9,7 +9,7 @@ In this lesson, we derive the mathematical laws of network throughput, analyze t
 <div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
   <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Textbook Reference</div>
   <div style="color: #334155; font-size: 0.95rem;">
-    Access the complete traffic sensitivity matrix and maximum channel load bounds ($\gamma_{max}$) in <strong><a href="../textbook/ch04-topologies-and-metrics/">Chapter 4: Network Topologies &amp; Performance Metrics</a></strong> of the companion textbook.
+    Access the complete traffic sensitivity matrix and maximum channel load bounds ($\gamma_{max}$) in <strong><a href="../../textbook/ch04-topologies-and-metrics/">Chapter 4: Network Topologies &amp; Performance Metrics</a></strong> of the companion textbook.
   </div>
 </div>
 

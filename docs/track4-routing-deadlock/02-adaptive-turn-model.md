@@ -11,7 +11,7 @@ However, arbitrary adaptivity reintroduces the risk of **circular buffer deadloc
 <div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
   <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Textbook Reference</div>
   <div style="color: #334155; font-size: 0.95rem;">
-    Explore formal proofs of West-First, North-Last, and Negative-First turn models alongside synthesizable Verilog RTL in <strong><a href="../textbook/ch05-routing-deadlock-theory/">Chapter 5: Routing Algorithms &amp; Deadlock Theory</a></strong>.
+    Explore formal proofs of West-First, North-Last, and Negative-First turn models alongside synthesizable Verilog RTL in <strong><a href="../../textbook/ch05-routing-deadlock-theory/">Chapter 5: Routing Algorithms &amp; Deadlock Theory</a></strong>.
   </div>
 </div>
 

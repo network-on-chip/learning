@@ -421,10 +421,10 @@ The experimental data confirms that proactive thermal throttling quenches locali
     </div>
   </div>
   <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-    <a href="../../interactive/hotspot.md" style="display: inline-flex; align-items: center; gap: 6px; background: #ef4444; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+    <a href="../../interactive/hotspot/" style="display: inline-flex; align-items: center; gap: 6px; background: #ef4444; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
       <span>Launch Hotspot Hero →</span>
     </a>
-    <a href="../../interactive/faults.md" style="display: inline-flex; align-items: center; gap: 6px; background: #f59e0b; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+    <a href="../../interactive/faults/" style="display: inline-flex; align-items: center; gap: 6px; background: #f59e0b; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
       <span>Launch Fault Defender →</span>
     </a>
   </div>

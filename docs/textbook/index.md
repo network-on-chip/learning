@@ -48,7 +48,7 @@ This textbook bridges **rigorous physical equations** (Elmore RC delays [[Elmore
       <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">🍕 Chapter 9: Yield Economics</span>
       <div class="noc-track-title">The Giant Pizza Problem</div>
       <div class="noc-track-desc">
-        Baking an 800 mm² giant pizza (nearing the $858\text{ mm}^2$ lithographic reticle limit [[Mack2007](#ref-mack2007)]) means a single falling fly ruins the whole dinner (zero yield under Murphy's yield model [[Murphy1964](#ref-murphy1964)]). Baking four smaller personal pizzas connected on a wooden tray (2.5D silicon interposer / bridge [[Chen2026](#ref-chen2026)]) means one fly only loses 25%—saving millions of dollars in silicon manufacturing.
+        Baking an 800 mm² giant pizza (nearing the 858 mm<sup>2</sup> lithographic reticle limit [<a href="#ref-mack2007">Mack2007</a>]) means a single falling fly ruins the whole dinner (zero yield under Murphy's yield model [<a href="#ref-murphy1964">Murphy1964</a>]). Baking four smaller personal pizzas connected on a wooden tray (2.5D silicon interposer / bridge [<a href="#ref-chen2026">Chen2026</a>]) means one fly only loses 25%—saving millions of dollars in silicon manufacturing.
       </div>
     </div>
   </div>
@@ -58,7 +58,7 @@ This textbook bridges **rigorous physical equations** (Elmore RC delays [[Elmore
       <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">🌉 Chapter 9: Advanced Packaging</span>
       <div class="noc-track-title">Dirt Roads vs. 16-Lane Glass Bridges</div>
       <div class="noc-track-desc">
-        Connecting chips with traditional printed circuit board (PCB) traces is like bumping down a muddy dirt road at 20 mph with high resistance. 2.5D silicon interposers (CoWoS, EMIB) and die-to-die standards like UCIe [[UCIe2023](#ref-ucie2023)] build a smooth 16-lane glass highway with sub-picosecond transit times and sub-picojoule per bit energy efficiency [[Zimmer2020](#ref-zimmer2020)].
+        Connecting chips with traditional printed circuit board (PCB) traces is like bumping down a muddy dirt road at 20 mph with high resistance. 2.5D silicon interposers (CoWoS, EMIB) and die-to-die standards like UCIe [<a href="#ref-ucie2023">UCIe2023</a>] build a smooth 16-lane glass highway with sub-picosecond transit times and sub-picojoule per bit energy efficiency [<a href="#ref-zimmer2020">Zimmer2020</a>].
       </div>
     </div>
   </div>
@@ -68,7 +68,7 @@ This textbook bridges **rigorous physical equations** (Elmore RC delays [[Elmore
       <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2);">⚾ Chapter 2 &amp; 9: Flow Control</span>
       <div class="noc-track-title">Playing Catch with Baseballs</div>
       <div class="noc-track-desc">
-        Little's Law ($B_{min} \ge RTT \times BW$ [[Little1961](#ref-little1961)]) explained through a game of catch: if it takes 5 seconds for a thrown baseball to arrive and 5 seconds for your friend to wave back, you must have at least 10 baseballs in hand to keep throwing without ever pausing!
+        Little's Law (<i>B</i><sub>min</sub> ≥ <i>RTT</i> × <i>BW</i> [<a href="#ref-little1961">Little1961</a>]) explained through a game of catch: if it takes 5 seconds for a thrown baseball to arrive and 5 seconds for your friend to wave back, you must have at least 10 baseballs in hand to keep throwing without ever pausing!
       </div>
     </div>
   </div>
@@ -78,7 +78,7 @@ This textbook bridges **rigorous physical equations** (Elmore RC delays [[Elmore
       <span class="noc-track-badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2);">🚦 Chapter 5 &amp; 9: Deadlock Freedom</span>
       <div class="noc-track-title">The 4-Way Traffic Jam &amp; The Traffic Cop</div>
       <div class="noc-track-desc">
-        Four cars enter a four-way intersection simultaneously, each blocking the person behind them (a circular dependency cycle [[Dally1987](#ref-dally1987)]). The In/Outbound Swap protocol [[Wang2026](#ref-wang2026)] acts as a smart traffic cop that asks one car to back up into an empty driveway, instantly unjamming the entire city.
+        Four cars enter a four-way intersection simultaneously, each blocking the person behind them (a circular dependency cycle [<a href="#ref-dally1987">Dally1987</a>]). The In/Outbound Swap protocol [<a href="#ref-wang2026">Wang2026</a>] acts as a smart traffic cop that asks one car to back up into an empty driveway, instantly unjamming the entire city.
       </div>
     </div>
   </div>
@@ -88,7 +88,7 @@ This textbook bridges **rigorous physical equations** (Elmore RC delays [[Elmore
       <span class="noc-track-badge" style="background: rgba(236, 72, 153, 0.1); color: #ec4899; border-color: rgba(236, 72, 153, 0.2);">🔦 Chapter 1 &amp; 10: Optical Physics</span>
       <div class="noc-track-title">Garden Hoses vs. Laser Pointers</div>
       <div class="noc-track-desc">
-        Copper wires act like long, heavy garden hoses that must be filled with water before a single drop squirts out (charging wire capacitance under electron scattering [[Mayadas1970](#ref-mayadas1970), [Ho2001](#ref-ho2001)]). Optical silicon waveguides act like laser pointers: shine the light, and photons strike the target at the speed of light with zero capacitive drag [[Little1997](#ref-little1997)].
+        Copper wires act like long, heavy garden hoses that must be filled with water before a single drop squirts out (charging wire capacitance under electron scattering [<a href="#ref-mayadas1970">Mayadas1970</a>, <a href="#ref-ho2001">Ho2001</a>]). Optical silicon waveguides act like laser pointers: shine the light, and photons strike the target at the speed of light with zero capacitive drag [<a href="#ref-little1997">Little1997</a>].
       </div>
     </div>
   </div>
@@ -98,7 +98,7 @@ This textbook bridges **rigorous physical equations** (Elmore RC delays [[Elmore
       <span class="noc-track-badge" style="background: rgba(234, 179, 8, 0.1); color: #ca8a04; border-color: rgba(234, 179, 8, 0.2);">🎸 Chapter 10: Silicon Photonics</span>
       <div class="noc-track-title">The Out-of-Tune Guitar</div>
       <div class="noc-track-desc">
-        Micro-ring resonators (MRRs [[Little1997](#ref-little1997)]) are tiny optical tuning forks tuned to an exact light frequency. When nearby CPU cores heat the silicon, the ring expands by $0.10\text{ nm/}^\circ\text{C}$ [[Ye2013](#ref-ye2013), [Kao2026](#ref-kao2026)]—just like a guitar string going out of tune in the hot sun—requiring active micro-heaters to re-tune.
+        Micro-ring resonators (MRRs [<a href="#ref-little1997">Little1997</a>]) are tiny optical tuning forks tuned to an exact light frequency. When nearby CPU cores heat the silicon, the ring expands by 0.10 nm/°C [<a href="#ref-ye2013">Ye2013</a>, <a href="#ref-kao2026">Kao2026</a>]—just like a guitar string going out of tune in the hot sun—requiring active micro-heaters to re-tune.
       </div>
     </div>
   </div>
@@ -151,7 +151,7 @@ graph TD
       <span class="noc-track-badge">Chapter 1</span>
       <div class="noc-track-title">The Multi-Core Communication Crisis &amp; Interconnect Physics</div>
       <div class="noc-track-desc">
-        Dennard scaling breakdown [[Dennard1974](#ref-dennard1974)], Moore's Law [[Moore1965](#ref-moore1965)], power wall [[Borkar1999](#ref-borkar1999)], failure of shared multi-drop buses, Elmore RC wire delay scaling [[Elmore1948](#ref-elmore1948)], Mayadas-Shatzkes copper grain boundary scattering [[Mayadas1970](#ref-mayadas1970)], Fuchs-Sondheimer surface scattering [[Fuchs1938](#ref-fuchs1938)], optimal Bakoglu repeater insertion [[Bakoglu1990](#ref-bakoglu1990)], and the 2,048-core HammerBlade SoC [[Gao2026](#ref-gao2026)].
+        Dennard scaling breakdown [<a href="#ref-dennard1974">Dennard1974</a>], Moore's Law [<a href="#ref-moore1965">Moore1965</a>], power wall [<a href="#ref-borkar1999">Borkar1999</a>], failure of shared multi-drop buses, Elmore RC wire delay scaling [<a href="#ref-elmore1948">Elmore1948</a>], Mayadas-Shatzkes copper grain boundary scattering [<a href="#ref-mayadas1970">Mayadas1970</a>], Fuchs-Sondheimer surface scattering [<a href="#ref-fuchs1938">Fuchs1938</a>], optimal Bakoglu repeater insertion [<a href="#ref-bakoglu1990">Bakoglu1990</a>], and the 2,048-core HammerBlade SoC [<a href="#ref-gao2026">Gao2026</a>].
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
         🐍 <code>code/wire_elmore_rc_sim.py</code> • 💾 <code>code/bus_arbiter_contention.v</code>
@@ -165,7 +165,7 @@ graph TD
       <span class="noc-track-badge">Chapter 2</span>
       <div class="noc-track-title">Switching Techniques, Flow Control &amp; Buffer Management</div>
       <div class="noc-track-desc">
-        Store-and-Forward [[Baran1964](#ref-baran1964)] vs. Virtual Cut-Through [[Kermani1979](#ref-kermani1979)] vs. Wormhole switching [[Dally1987](#ref-dally1987)], flit serialization, credit-based flow control [[DallyPrinciples](#ref-dallyprinciples)], Little's Law buffer sizing [[Little1961](#ref-little1961)], Virtual Channel (VC) Head-of-Line blocking mitigation [[Dally1992](#ref-dally1992)], and the FlooNoC 512-bit AXI4 architecture [[Fischer2025](#ref-fischer2025)].
+        Store-and-Forward [<a href="#ref-baran1964">Baran1964</a>] vs. Virtual Cut-Through [<a href="#ref-kermani1979">Kermani1979</a>] vs. Wormhole switching [<a href="#ref-dally1987">Dally1987</a>], flit serialization, credit-based flow control [<a href="#ref-dallyprinciples">DallyPrinciples</a>], Little's Law buffer sizing [<a href="#ref-little1961">Little1961</a>], Virtual Channel (VC) Head-of-Line blocking mitigation [<a href="#ref-dally1992">Dally1992</a>], and the FlooNoC 512-bit AXI4 architecture [<a href="#ref-fischer2025">Fischer2025</a>].
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
         🐍 <code>code/credit_flow_control_sim.py</code> • 💾 <code>code/credit_counter.v</code>
@@ -179,7 +179,7 @@ graph TD
       <span class="noc-track-badge">Chapter 3</span>
       <div class="noc-track-title">High-Performance Router Microarchitecture &amp; Arbitration</div>
       <div class="noc-track-desc">
-        Canonical 4-stage pipelined router [[Peh2001](#ref-peh2001)], speculative VA-SA parallel allocation, matrix arbiters [[McKeown1999](#ref-mckeown1999)], wavefront arbiters [[Tamir1993](#ref-tamir1993)], crossbar switch fabrics [[Passas2012](#ref-passas2012)], SMART single-cycle bypass [[Krishna2013](#ref-krishna2013)], and BuffeRS buffer reservation [[Liu2026](#ref-liu2026)].
+        Canonical 4-stage pipelined router [<a href="#ref-peh2001">Peh2001</a>], speculative VA-SA parallel allocation, matrix arbiters [<a href="#ref-mckeown1999">McKeown1999</a>], wavefront arbiters [<a href="#ref-tamir1993">Tamir1993</a>], crossbar switch fabrics [<a href="#ref-passas2012">Passas2012</a>], SMART single-cycle bypass [<a href="#ref-krishna2013">Krishna2013</a>], and BuffeRS buffer reservation [<a href="#ref-liu2026">Liu2026</a>].
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
         🐍 <code>code/router_pipeline_sim.py</code> • 💾 <code>code/matrix_arbiter_4x4.v</code>
@@ -199,7 +199,7 @@ graph TD
       <span class="noc-track-badge">Chapter 4</span>
       <div class="noc-track-title">Direct, Indirect &amp; High-Radix Topologies</div>
       <div class="noc-track-desc">
-        Graph-theoretic interconnect evaluation: degree, diameter, bisection bandwidth $\mathcal{B}$, average hop count $\bar{D}$, path diversity. 2D Mesh, 2D Torus, Concentrated Mesh, Clos networks [[Clos1953](#ref-clos1953)], Fat-Trees [[Leiserson1985](#ref-leiserson1985)], Flattened Butterfly [[Kim2007](#ref-kim2007)], Dragonfly [[Kim2008](#ref-kim2008)], and Slim Fly [[Besta2014](#ref-besta2014)].
+        Graph-theoretic interconnect evaluation: degree, diameter, bisection bandwidth <span class="arithmatex">\(\mathcal{B}\)</span>, average hop count <span class="arithmatex">\(\bar{D}\)</span>, path diversity. 2D Mesh, 2D Torus, Concentrated Mesh, Clos networks [<a href="#ref-clos1953">Clos1953</a>], Fat-Trees [<a href="#ref-leiserson1985">Leiserson1985</a>], Flattened Butterfly [<a href="#ref-kim2007">Kim2007</a>], Dragonfly [<a href="#ref-kim2008">Kim2008</a>], and Slim Fly [<a href="#ref-besta2014">Besta2014</a>].
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
         🐍 <code>code/topology_throughput_latency_sim.py</code> • 💾 <code>code/topology_graph_metrics.v</code>
@@ -213,7 +213,7 @@ graph TD
       <span class="noc-track-badge">Chapter 5</span>
       <div class="noc-track-title">Deadlock Theory, Turn Models &amp; Adaptive Routing</div>
       <div class="noc-track-desc">
-        Channel Dependency Graphs (CDG) and Dally-Seitz cycle-free theorem [[Dally1987](#ref-dally1987)], Dimension-Order Routing (DOR) [[Sullivan1977](#ref-sullivan1977)], Glass-Ni Turn Model [[Glass1994](#ref-glass1994)], Chiu's Odd-Even routing [[Chiu2000](#ref-chiu2000)], Duato's Theorem with escape VCs [[Duato1993](#ref-duato1993)], and coherence virtual networks [[Sorin2011](#ref-sorin2011)].
+        Channel Dependency Graphs (CDG) and Dally-Seitz cycle-free theorem [<a href="#ref-dally1987">Dally1987</a>], Dimension-Order Routing (DOR) [<a href="#ref-sullivan1977">Sullivan1977</a>], Glass-Ni Turn Model [<a href="#ref-glass1994">Glass1994</a>], Chiu's Odd-Even routing [<a href="#ref-chiu2000">Chiu2000</a>], Duato's Theorem with escape VCs [<a href="#ref-duato1993">Duato1993</a>], and coherence virtual networks [<a href="#ref-sorin2011">Sorin2011</a>].
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
         🐍 <code>code/turn_model_deadlock_sim.py</code> • 💾 <code>code/escape_vc_router.v</code>
@@ -233,7 +233,7 @@ graph TD
       <span class="noc-track-badge">Chapter 6</span>
       <div class="noc-track-title">Low-Power Architectures &amp; Dark Silicon Dynamics</div>
       <div class="noc-track-desc">
-        Energy breakdown: link dynamic energy ($P_{dyn} = \alpha C V_{dd}^2 f$), crossbar capacitance [[Wang2002](#ref-wang2002), [Kahng2009](#ref-kahng2009)], dark silicon dynamics [[Esmaeilzadeh2011](#ref-esmaeilzadeh2011), [Taylor2012](#ref-taylor2012)], Voltage-Frequency Islands (VFIs) [[Brooks2001](#ref-brooks2001)], power-gated routers [[Matsutani2011](#ref-matsutani2011)], LAURA [[Yadav2013](#ref-yadav2013)], and LPCR [[Adelkhani2025](#ref-adelkhani2025)].
+        Energy breakdown: link dynamic energy (<i>P</i><sub>dyn</sub> = α<i>C</i><i>V</i><sub>dd</sub><sup>2</sup><i>f</i>), crossbar capacitance [<a href="#ref-wang2002">Wang2002</a>, <a href="#ref-kahng2009">Kahng2009</a>], dark silicon dynamics [<a href="#ref-esmaeilzadeh2011">Esmaeilzadeh2011</a>, <a href="#ref-taylor2012">Taylor2012</a>], Voltage-Frequency Islands (VFIs) [<a href="#ref-brooks2001">Brooks2001</a>], power-gated routers [<a href="#ref-matsutani2011">Matsutani2011</a>], LAURA [<a href="#ref-yadav2013">Yadav2013</a>], and LPCR [<a href="#ref-adelkhani2025">Adelkhani2025</a>].
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
         🐍 <code>code/dvfs_vfi_power_sim.py</code> • 💾 <code>code/power_gating_router_fsm.v</code>
@@ -247,7 +247,7 @@ graph TD
       <span class="noc-track-badge">Chapter 7</span>
       <div class="noc-track-title">Thermal Modeling, Hotspots &amp; Fault-Tolerant Resilience</div>
       <div class="noc-track-desc">
-        Fourier heat equation, compact thermal RC equivalent circuits (HotSpot) [[Huang2006](#ref-huang2006), [Skadron2003](#ref-skadron2003)], thermal runaway, thermal throttling, online temperature estimation via Gaussian-Sum Filtering (GSF) [[Fu2017](#ref-fu2017)], electromigration (Black's equation) [[Black1969](#ref-black1969)], and ZoneDefense fault tolerance [[Fu2014](#ref-fu2014), [Fu2019](#ref-fu2019)].
+        Fourier heat equation, compact thermal RC equivalent circuits (HotSpot) [<a href="#ref-huang2006">Huang2006</a>, <a href="#ref-skadron2003">Skadron2003</a>], thermal runaway, thermal throttling, online temperature estimation via Gaussian-Sum Filtering (GSF) [<a href="#ref-fu2017">Fu2017</a>], electromigration (Black's equation) [<a href="#ref-black1969">Black1969</a>], and ZoneDefense fault tolerance [<a href="#ref-fu2014">Fu2014</a>, <a href="#ref-fu2019">Fu2019</a>].
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
         🐍 <code>code/thermal_rc_mesh_sim.py</code> • 💾 <code>code/fault_tolerant_router_bypass.v</code>
@@ -267,7 +267,7 @@ graph TD
       <span class="noc-track-badge">Chapter 8</span>
       <div class="noc-track-title">Three-Dimensional Networks-on-Chip (3D-NoC) &amp; TSVs</div>
       <div class="noc-track-desc">
-        Vertical scaling physics, Through-Silicon Vias (TSVs) [[Pavlidis2009](#ref-pavlidis2009), [Loi2011](#ref-loi2011)], capacitive parasitics, Keep-Out Zones (KOZ), 7-port 3D crossbars, arbitration-free vertical fast-paths [[More2018](#ref-more2018)], vertical heat trapping, and Hypergraph-GA exploration [[AlAlousi2026](#ref-alalousi2026)].
+        Vertical scaling physics, Through-Silicon Vias (TSVs) [<a href="#ref-pavlidis2009">Pavlidis2009</a>, <a href="#ref-loi2011">Loi2011</a>], capacitive parasitics, Keep-Out Zones (KOZ), 7-port 3D crossbars, arbitration-free vertical fast-paths [<a href="#ref-more2018">More2018</a>], vertical heat trapping, and Hypergraph-GA exploration [<a href="#ref-alalousi2026">AlAlousi2026</a>].
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
         🐍 <code>code/tsv_vertical_mesh_sim.py</code> • 💾 <code>code/tsv_arbiter_3d.v</code>
@@ -281,7 +281,7 @@ graph TD
       <span class="noc-track-badge">Chapter 9</span>
       <div class="noc-track-title">Multi-Chiplet Interconnects, 2.5D Systems &amp; UCIe</div>
       <div class="noc-track-desc">
-        Optical reticle limit ($858\text{ mm}^2$) [[Mack2007](#ref-mack2007)], Murphy yield model economics [[Murphy1964](#ref-murphy1964)], 2.5D packaging taxonomy [[Chen2026](#ref-chen2026)], NVIDIA Simba MCM accelerator [[Zimmer2020](#ref-zimmer2020)], Universal Chiplet Interconnect Express (UCIe) specification [[UCIe2023](#ref-ucie2023)], and In/Outbound Swap deadlock recovery [[Wang2026](#ref-wang2026)].
+        Optical reticle limit (858 mm<sup>2</sup>) [<a href="#ref-mack2007">Mack2007</a>], Murphy yield model economics [<a href="#ref-murphy1964">Murphy1964</a>], 2.5D packaging taxonomy [<a href="#ref-chen2026">Chen2026</a>], NVIDIA Simba MCM accelerator [<a href="#ref-zimmer2020">Zimmer2020</a>], Universal Chiplet Interconnect Express (UCIe) specification [<a href="#ref-ucie2023">UCIe2023</a>], and In/Outbound Swap deadlock recovery [<a href="#ref-wang2026">Wang2026</a>].
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
         🐍 <code>code/ucie_d2d_latency_model.py</code> • 💾 <code>code/chiplet_bridge_protocol.v</code>
@@ -301,7 +301,7 @@ graph TD
       <span class="noc-track-badge">Chapter 10</span>
       <div class="noc-track-title">Optical &amp; Wireless Networks-on-Chip (ONoC / WNoC)</div>
       <div class="noc-track-desc">
-        Silicon nanophotonics, micro-ring resonators (MRRs) [[Little1997](#ref-little1997)], thermo-optic drift ($0.10\text{ nm/}^\circ\text{C}$) [[Ye2013](#ref-ye2013), [Kao2026](#ref-kao2026)], on-chip mmWave/THz wireless antennas [[Deb2012](#ref-deb2012), [Abadal2018](#ref-abadal2018)], and low-power transceiver modeling [[Shahmoradi2026](#ref-shahmoradi2026)].
+        Silicon nanophotonics, micro-ring resonators (MRRs) [<a href="#ref-little1997">Little1997</a>], thermo-optic drift (0.10 nm/°C) [<a href="#ref-ye2013">Ye2013</a>, <a href="#ref-kao2026">Kao2026</a>], on-chip mmWave/THz wireless antennas [<a href="#ref-deb2012">Deb2012</a>, <a href="#ref-abadal2018">Abadal2018</a>], and low-power transceiver modeling [<a href="#ref-shahmoradi2026">Shahmoradi2026</a>].
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
         🐍 <code>code/onoc_optical_loss_sim.py</code> • 💾 <code>code/photonic_mrr_switch.v</code>
@@ -451,6 +451,69 @@ Every empirical measurement, architectural trade-off, physical constant, equatio
 113. <a id="ref-liu2025energy"></a>**[Liu2025Energy]** H. Liu et al., "Energy-Efficient Optical Network-on-Chip With Dynamic Wavelength and Power Allocation," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 33, no. 8, pp. 1920–1933, Aug. 2025. [DOI: 10.1109/TVLSI.2025.3562210](https://doi.org/10.1109/TVLSI.2025.3562210).
 114. <a id="ref-gu2025radix"></a>**[Gu2025Radix]** F. Gu et al., "High-Radix Optical Router Architecture for Low-Latency and High-Throughput Interconnection," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 33, no. 9, pp. 2150–2163, Sept. 2025. [DOI: 10.1109/TVLSI.2025.3571120](https://doi.org/10.1109/TVLSI.2025.3571120).
 115. <a id="ref-zhang2025wireless"></a>**[Zhang2025Wireless]** L. Zhang et al., "Reconfigurable Wireless Network-on-Chip Architecture for Millimeter-Wave Interconnects," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 33, no. 11, pp. 2580–2593, Nov. 2025. [DOI: 10.1109/TVLSI.2025.3592210](https://doi.org/10.1109/TVLSI.2025.3592210).
+116. <a id="ref-anderson1993"></a>**[Anderson1993]** T. E. Anderson, S. S. Owicki, J. B. Saxe, and C. P. Thacker, "High-Speed Switch Scheduling for Local-Area Networks," *ACM Transactions on Computer Systems*, vol. 11, no. 4, pp. 319–352, Nov. 1993. [DOI: 10.1145/161541.161736](https://doi.org/10.1145/161541.161736).
+117. <a id="ref-anjan1995"></a>**[Anjan1995]** K. V. Anjan and T. M. Pinkston, "DISHA: A Novel Framework for Deadlock Recovery," in *Proceedings of the 22nd Annual International Symposium on Computer Architecture (ISCA)*, 1995, pp. 129–138. [DOI: 10.1145/223982.224424](https://doi.org/10.1145/223982.224424).
+118. <a id="ref-balfour2006"></a>**[Balfour2006]** J. Balfour and W. J. Dally, "Design Tradeoffs for Tiled CMP On-Chip Networks," in *Proceedings of the 20th Annual International Conference on Supercomputing (ICS)*, 2006, pp. 187–198. [DOI: 10.1145/1183401.1183430](https://doi.org/10.1145/1183401.1183430).
+119. <a id="ref-balkind2016"></a>**[Balkind2016]** J. Balkind et al., "OpenPiton: An Open Source Manycore Research Platform," in *Proceedings of the 21st International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS)*, 2016, pp. 217–232. [DOI: 10.1145/2872362.2872414](https://doi.org/10.1145/2872362.2872414).
+120. <a id="ref-besta2022"></a>**[Besta2022]** M. Besta, E. Peter, R. Kanakagiri, R. B. H., L. John, and T. Hoefler, "PolarFly: A Cost-Effective and Scalable Low-Diameter Topology," in *Proceedings of the 49th Annual International Symposium on Computer Architecture (ISCA)*, 2022, pp. 709–724. [DOI: 10.1145/3470496.3527415](https://doi.org/10.1145/3470496.3527415).
+121. <a id="ref-brooks2001"></a>**[Brooks2001]** D. Brooks and M. Martonosi, "Dynamic Thermal Management for High-Performance Microprocessors," in *Proceedings of the 7th International Symposium on High-Performance Computer Architecture (HPCA)*, 2001, pp. 171–182. [DOI: 10.1109/HPCA.2001.903261](https://doi.org/10.1109/HPCA.2001.903261).
+122. <a id="ref-chao2013"></a>**[Chao2013]** C.-H. Chao, K.-C. Chen, and A.-Y. Wu, "Routing-Based Traffic Migration and Buffer Allocation Schemes for 3-D Network-on-Chip Systems With Thermal Limit," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 21, no. 11, pp. 2118–2131, Nov. 2013. [DOI: 10.1109/TVLSI.2012.2227852](https://doi.org/10.1109/TVLSI.2012.2227852).
+123. <a id="ref-christie2000"></a>**[Christie2000]** P. Christie and D. Stroobandt, "The Interpretation and Application of Rent's Rule," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 8, no. 6, pp. 639–648, Dec. 2000. [DOI: 10.1109/92.902258](https://doi.org/10.1109/92.902258).
+124. <a id="ref-cummings2002"></a>**[Cummings2002]** C. E. Cummings, "Simulation and Synthesis Techniques for Asynchronous FIFO Design," in *Proceedings of the Synopsys Users Group (SNUG)*, San Jose, 2002, pp. 1–21.
+125. <a id="ref-dally1986"></a>**[Dally1986]** W. J. Dally and C. L. Seitz, "The Torus Routing Chip," *Distributed Computing*, vol. 1, no. 4, pp. 187–196, Oct. 1986. [DOI: 10.1007/BF01660031](https://doi.org/10.1007/BF01660031).
+126. <a id="ref-dally1990"></a>**[Dally1990]** W. J. Dally, "Performance Analysis of $k$-ary $n$-cube Interconnection Networks," *IEEE Transactions on Computers*, vol. 39, no. 6, pp. 775–785, Jun. 1990. [DOI: 10.1109/12.53599](https://doi.org/10.1109/12.53599).
+127. <a id="ref-dallypoulton1998"></a>**[DallyPoulton1998]** W. J. Dally and J. W. Poulton, *Digital Systems Engineering*, Cambridge, UK: Cambridge University Press, 1998. ISBN: 978-0521592925. [DOI: 10.1017/CBO9780511805172](https://doi.org/10.1017/CBO9780511805172).
+128. <a id="ref-dassharma2022"></a>**[DasSharma2022]** D. Das Sharma et al., "Universal Chiplet Interconnect Express (UCIe): Building an Open Chiplet Ecosystem," *IEEE Micro*, vol. 42, no. 5, pp. 63–71, Sept.–Oct. 2022. [DOI: 10.1109/MM.2022.3195973](https://doi.org/10.1109/MM.2022.3195973).
+129. <a id="ref-davidson2023"></a>**[Davidson2023]** S. Davidson et al., "The Bespoke Silicon Group HammerBlade Manycore Architecture," *IEEE Micro*, vol. 43, no. 2, pp. 78–89, Mar./Apr. 2023. [DOI: 10.1109/MM.2023.3242412](https://doi.org/10.1109/MM.2023.3242412).
+130. <a id="ref-dinechin2013"></a>**[Dinechin2013]** B. D. de Dinechin et al., "A Distributed Run-Time Environment for the Kalray MPPA-256 Manycore Processor," in *Proceedings of the IEEE High Performance Extreme Computing Conference (HPEC)*, 2013, pp. 1–6. [DOI: 10.1109/HPEC.2013.6670342](https://doi.org/10.1109/HPEC.2013.6670342).
+131. <a id="ref-dumitriu2009"></a>**[Dumitriu2009]** V. Dumitriu and G. N. Khan, "Throughput-Oriented NoC Topology Generation and Analysis for High Performance SoCs," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 17, no. 10, pp. 1433–1446, Oct. 2009. [DOI: 10.1109/TVLSI.2008.2006798](https://doi.org/10.1109/TVLSI.2008.2006798).
+132. <a id="ref-ebi2009"></a>**[Ebi2009]** T. Ebi, M. A. Faruque, and J. Henkel, "TAPE: Thermal-Aware Agent-Based Power Economy for Multi/Many-Core Architectures," in *Proceedings of the 2009 IEEE/ACM International Conference on Computer-Aided Design (ICCAD)*, 2009, pp. 802–809. [DOI: 10.1145/1687399.1687547](https://doi.org/10.1145/1687399.1687547).
+133. <a id="ref-ernst2003"></a>**[Ernst2003]** D. Ernst et al., "Razor: A Low-Power Pipeline Based on Dynamic-Detection and Correction of Circuit Timing Errors," in *Proceedings of the 36th Annual IEEE/ACM International Symposium on Microarchitecture (MICRO)*, 2003, pp. 7–18. [DOI: 10.1109/MICRO.2003.1253179](https://doi.org/10.1109/MICRO.2003.1253179).
+134. <a id="ref-fallin2011"></a>**[Fallin2011]** C. Fallin, C. Craik, and O. Mutlu, "CHIPPER: A Low-Complexity Bufferless Deflection Router," in *Proceedings of the 17th IEEE International Symposium on High Performance Computer Architecture (HPCA)*, 2011, pp. 144–155. [DOI: 10.1109/HPCA.2011.5749724](https://doi.org/10.1109/HPCA.2011.5749724).
+135. <a id="ref-foley2023"></a>**[Foley2023]** D. Foley, B. Khailany, and J. Dally, "Ultra-High-Speed NVLink Interconnects for Modern Scalable GPU Computing," *IEEE Micro*, vol. 43, no. 4, pp. 45–54, 2023. [DOI: 10.1109/MM.2023.3275811](https://doi.org/10.1109/MM.2023.3275811).
+136. <a id="ref-galles1996"></a>**[Galles1996]** M. Galles, "Spider: A High-Speed Network Interconnect," *IEEE Micro*, vol. 17, no. 1, pp. 34–39, Jan./Feb. 1997. [DOI: 10.1109/40.566164](https://doi.org/10.1109/40.566164).
+137. <a id="ref-gratz2008"></a>**[Gratz2008]** P. Gratz, B. Grot, and S. W. Keckler, "Regional Congestion Awareness for Load Balancing in Networks-on-Chip," in *Proceedings of the 14th IEEE International Symposium on High-Performance Computer Architecture (HPCA)*, 2008, pp. 203–214. [DOI: 10.1109/HPCA.2008.4658639](https://doi.org/10.1109/HPCA.2008.4658639).
+138. <a id="ref-grot2011"></a>**[Grot2011]** B. Grot, S. W. Keckler, and O. Mutlu, "Pre-Computed Route Allocation for High-Throughput Low-Latency On-Chip Networks," in *Proceedings of the 44th Annual IEEE/ACM International Symposium on Microarchitecture (MICRO)*, 2011. [DOI: 10.1145/2155620.2155653](https://doi.org/10.1145/2155620.2155653).
+139. <a id="ref-hu2004"></a>**[Hu2004]** J. Hu and R. Marculescu, "DyAD: Smart Routing for Networks-on-Chip," in *Proceedings of the 41st Design Automation Conference (DAC)*, 2004, pp. 260–263. [DOI: 10.1145/996566.996638](https://doi.org/10.1145/996566.996638).
+140. <a id="ref-huang2020"></a>**[Huang2020]** P.-Y. Huang et al., "Machine Learning-Based Thermal Prediction and Management for Many-Core Systems," *IEEE Transactions on Computers*, vol. 69, no. 11, pp. 1656–1669, Nov. 2020. [DOI: 10.1109/TC.2020.3013898](https://doi.org/10.1109/TC.2020.3013898).
+141. <a id="ref-huber1964"></a>**[Huber1964]** P. J. Huber, "Robust Estimation of a Location Parameter," *The Annals of Mathematical Statistics*, vol. 35, no. 1, pp. 73–101, Mar. 1964. [DOI: 10.1214/aoms/1177703732](https://doi.org/10.1214/aoms/1177703732).
+142. <a id="ref-ieee1500"></a>**[IEEE1500]** IEEE, "IEEE Standard Testability Method for Embedded Core-Based Integrated Circuits," *IEEE Std 1500-2005*, 2005. [DOI: 10.1109/IEEESTD.2005.97445](https://doi.org/10.1109/IEEESTD.2005.97445).
+143. <a id="ref-jia2026"></a>**[Jia2026]** Y. Jia, Z. Zhang, C. Fu, L. Wan, and J. Han, "PCMT: Prioritizing Coherence Message Types for NoC Protocol-Level Deadlock Freedom," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 4, pp. 1949–1962, Apr. 2026. [DOI: 10.1109/TCAD.2025.3524944](https://doi.org/10.1109/TCAD.2025.3524944).
+144. <a id="ref-jun2009"></a>**[Jun2009]** M. Jun, S. Yoo, and E.-Y. Chung, "Topology Synthesis of Cascaded Crossbar Switches," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 28, no. 6, pp. 926–930, June 2009. [DOI: 10.1109/TCAD.2009.2017079](https://doi.org/10.1109/TCAD.2009.2017079).
+145. <a id="ref-kakoulli2012"></a>**[Kakoulli2012]** E. Kakoulli, V. Soteriou, and T. Theocharides, "Intelligent Hotspot Prediction for Network-on-Chip-Based Multicore Systems," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 31, no. 3, pp. 418–431, Mar. 2012. [DOI: 10.1109/TCAD.2011.2170568](https://doi.org/10.1109/TCAD.2011.2170568).
+146. <a id="ref-kumar2007"></a>**[Kumar2007]** A. Kumar, L.-S. Peh, P. Kundu, and N. K. Jha, "Express Virtual Channels: Towards the Ideal Interconnection Fabric," in *Proceedings of the 34th Annual International Symposium on Computer Architecture (ISCA)*, 2007, pp. 150–161. [DOI: 10.1145/1250662.1250681](https://doi.org/10.1145/1250662.1250681).
+147. <a id="ref-kurian2010"></a>**[Kurian2010]** G. Kurian et al., "ATAC: A 1000-Core Heterogeneous Optically-Interconnected Routerless Chip Multiprocessor," in *Proceedings of the 19th International Conference on Parallel Architectures and Compilation Techniques (PACT)*, 2010, pp. 477–488. [DOI: 10.1145/1854273.1854332](https://doi.org/10.1145/1854273.1854332).
+148. <a id="ref-landman1971"></a>**[Landman1971]** B. S. Landman and R. L. Russo, "On a Pin Versus Block Relationship for Partitions of Logic Graphs," *IEEE Transactions on Computers*, vol. C-20, no. 12, pp. 1469–1479, Dec. 1971. [DOI: 10.1109/T-C.1971.223159](https://doi.org/10.1109/T-C.1971.223159).
+149. <a id="ref-lee2009"></a>**[Lee2009]** S. Lee, H. S. Lee, and N. Dutt, "Thermal-Aware Sensor Allocation and Placement for System-on-Chip," in *Proceedings of the 2009 International Conference on Compilers, Architecture, and Synthesis for Embedded Systems (CASES)*, 2009, pp. 107–116. [DOI: 10.1145/1629395.1629412](https://doi.org/10.1145/1629395.1629412).
+150. <a id="ref-lie2022"></a>**[Lie2022]** S. Lie, "Cerebras Architecture Deep Dive: First-Principles Wafer-Scale AI Acceleration," *IEEE Micro*, vol. 43, no. 3, pp. 18–30, May/June 2023. [DOI: 10.1109/MM.2023.3259837](https://doi.org/10.1109/MM.2023.3259837).
+151. <a id="ref-long2008"></a>**[Long2008]** J. Long, E. Choi, and S. O. Memik, "Thermal Sensor Allocation and Placement for MPSoCs," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 18, no. 6, pp. 977–987, Jun. 2010. [DOI: 10.1109/TVLSI.2009.2019088](https://doi.org/10.1109/TVLSI.2009.2019088).
+152. <a id="ref-mahajan2016"></a>**[Mahajan2016]** R. Mahajan, R. Sankman, N. Patel, D. Kim, K. Aygun, Z. Qian, Y. Mekonnen, I. Salama, S. Sharan, and D. Mallik, "Embedded Multi-die Interconnect Bridge (EMIB) Packaging Technology," *Proceedings of the IEEE 66th Electronic Components and Technology Conference (ECTC)*, pp. 1097–1105, 2016. [DOI: 10.1109/ECTC.2016.147](https://doi.org/10.1109/ECTC.2016.147).
+153. <a id="ref-mejia2006"></a>**[Mejia2006]** A. Mejia, J. Flich, J. Duato, S.-A. Reinemo, and T. Skeie, "Segment-Based Routing: An Efficient Fault-Tolerant Routing Methodology for Meshes and Tori," in *Proceedings of the 20th International Parallel and Distributed Processing Symposium (IPDPS)*, 2006. [DOI: 10.1109/IPDPS.2006.1639316](https://doi.org/10.1109/IPDPS.2006.1639316).
+154. <a id="ref-moscibroda2009"></a>**[Moscibroda2009]** T. Moscibroda and O. Mutlu, "A Case for Bufferless Routing in On-Chip Networks," in *Proceedings of the 36th Annual International Symposium on Computer Architecture (ISCA)*, 2009, pp. 196–207. [DOI: 10.1145/1555754.1555780](https://doi.org/10.1145/1555754.1555780).
+155. <a id="ref-mullins2006"></a>**[Mullins2006]** R. D. Mullins, A. West, and S. W. Moore, "Low-Latency Virtual-Channel Routers for On-Chip Networks," in *Proceedings of the 31st Annual International Symposium on Computer Architecture (ISCA)*, 2004, pp. 188–197. [DOI: 10.1109/ISCA.2004.1310773](https://doi.org/10.1109/ISCA.2004.1310773).
+156. <a id="ref-nicopoulos2006"></a>**[Nicopoulos2006]** C. A. Nicopoulos, D. Park, J. Kim, N. Vijaykrishnan, M. S. Yousif, and C. R. Das, "ViChaR: A Dynamic Virtual Channel Architecture for On-Chip Networks," in *Proceedings of the 39th Annual IEEE/ACM International Symposium on Microarchitecture (MICRO)*, 2006, pp. 211–222. [DOI: 10.1109/MICRO.2006.47](https://doi.org/10.1109/MICRO.2006.47).
+157. <a id="ref-postman2013"></a>**[Postman2013]** J. Postman, T. Krishna, C. Edmonds, L.-S. Peh, and P. Chiang, "SWIFT: A Low-Power Network-On-Chip Implementing the Token Flow Control Router Architecture With Swing-Reduced Interconnects," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 21, no. 8, pp. 1432–1446, Aug. 2013. [DOI: 10.1109/TVLSI.2012.2211904](https://doi.org/10.1109/TVLSI.2012.2211904).
+158. <a id="ref-sakurai1990"></a>**[Sakurai1990]** T. Sakurai and A. R. Newton, "Alpha-Power Law MOSFET Model and Its Applications to CMOS Inverter Delay and Other Formulas," *IEEE Journal of Solid-State Circuits*, vol. 25, no. 2, pp. 584–594, Apr. 1990. [DOI: 10.1109/4.52187](https://doi.org/10.1109/4.52187).
+159. <a id="ref-saranya2026"></a>**[Saranya2026]** M. N. Saranya, C. T. Avinash, and R. Rao, "HyPA: A Low-Latency Hybrid Pipeline Asynchronous Router for Network-on-Chip Architectures in GALS-Based SoCs," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 34, 2026. [DOI: 10.1109/TVLSI.2026.3716692](https://doi.org/10.1109/TVLSI.2026.3716692).
+160. <a id="ref-schroeder1991"></a>**[Schroeder1991]** M. D. Schroeder et al., "Autonet: A High-Speed, Self-Configuring Local Area Network Using Point-to-Point Links," *IEEE Journal on Selected Areas in Communications*, vol. 9, no. 8, pp. 1318–1335, Oct. 1991. [DOI: 10.1109/49.105178](https://doi.org/10.1109/49.105178).
+161. <a id="ref-seiculescu2010"></a>**[Seiculescu2010]** C. Seiculescu, S. Murali, L. Benini, and G. De Micheli, "SunFloor 3D: A Tool for Networks on Chip Topology Synthesis for 3-D Systems on Chips," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 29, no. 12, pp. 1987–2000, Dec. 2010. [DOI: 10.1109/TCAD.2010.2061610](https://doi.org/10.1109/TCAD.2010.2061610).
+162. <a id="ref-sharp2023"></a>**[SHARP2023]** "Reduced Worst-Case Communication Latency Using Single-Cycle Multihop Traversal Network-on-Chip," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 31, no. 10, pp. 1560–1572, Oct. 2023. [DOI: 10.1109/TVLSI.2023.3298101](https://doi.org/10.1109/TVLSI.2023.3298101).
+163. <a id="ref-singh2004"></a>**[Singh2004]** A. Singh, W. J. Dally, B. Towles, and A. K. Gupta, "Globally Adaptive Load-Balanced Routing on k-ary n-cubes," in *Proceedings of the 18th International Parallel and Distributed Processing Symposium (IPDPS)*, 2004. [DOI: 10.1109/IPDPS.2004.1302949](https://doi.org/10.1109/IPDPS.2004.1302949).
+164. <a id="ref-smith1999"></a>**[Smith1999]** L. D. Smith, R. E. Anderson, D. W. Forehand, T. J. Pelc, and T. Roy, "Power Distribution System Design Methodology and Capacitor Selection for Modern CMOS Technology," *IEEE Transactions on Advanced Packaging*, vol. 22, no. 3, pp. 284–291, Aug. 1999. [DOI: 10.1109/6040.784478](https://doi.org/10.1109/6040.784478).
+165. <a id="ref-sondheimer1952"></a>**[Sondheimer1952]** E. H. Sondheimer, "The Mean Free Path of Electrons in Metals," *Advances in Physics*, vol. 1, no. 1, pp. 1–42, 1952. [DOI: 10.1080/00018735200101151](https://doi.org/10.1080/00018735200101151).
+166. <a id="ref-srinivasan2004"></a>**[Srinivasan2004]** J. Srinivasan, S. V. Adve, P. Bose, and J. A. Rivers, "The Impact of Technology Scaling on Lifetime Reliability," in *Proceedings of the 33rd Annual International Conference on Dependable Systems and Networks (DSN)*, 2004, pp. 177–186. [DOI: 10.1109/DSN.2004.1311888](https://doi.org/10.1109/DSN.2004.1311888).
+167. <a id="ref-stan1995"></a>**[Stan1995]** M. R. Stan and W. P. Burleson, "Bus-Invert Coding for Low-Power I/O," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 3, no. 1, pp. 49–58, Mar. 1995. [DOI: 10.1109/92.365453](https://doi.org/10.1109/92.365453).
+168. <a id="ref-taghvaee2022"></a>**[Taghvaee2022]** M. Taghvaee et al., "Fault-Tolerant Wireless Network-on-Chip Architecture for Multi-Core Systems," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 41, no. 10, pp. 3478–3491, Oct. 2022. [DOI: 10.1109/TCAD.2021.3131580](https://doi.org/10.1109/TCAD.2021.3131580).
+169. <a id="ref-tamir1988"></a>**[Tamir1988]** Y. Tamir and G. L. Frazier, "High-Performance Multi-Queue Buffers for VLSI Communication Switches," in *Proceedings of the 15th Annual International Symposium on Computer Architecture (ISCA)*, 1988, pp. 343–354. [DOI: 10.1145/52400.52440](https://doi.org/10.1145/52400.52440).
+170. <a id="ref-taylor2002"></a>**[Taylor2002]** M. B. Taylor et al., "The Raw Microprocessor: A Diverse Multiprocessor Architecture Cycle for Modern VLSI," *IEEE Micro*, vol. 22, no. 2, pp. 25–35, Mar./Apr. 2002. [DOI: 10.1109/MM.2002.997877](https://doi.org/10.1109/MM.2002.997877).
+171. <a id="ref-tuckerman1981"></a>**[Tuckerman1981]** D. B. Tuckerman and R. F. W. Pease, "High-Performance Heat Sinking for VLSI," *IEEE Electron Device Letters*, vol. 2, no. 5, pp. 126–129, May 1981. [DOI: 10.1109/EDL.1981.25367](https://doi.org/10.1109/EDL.1981.25367).
+172. <a id="ref-valiant1982"></a>**[Valiant1982]** L. G. Valiant, "A Scheme for Fast Parallel Communication," *SIAM Journal on Computing*, vol. 11, no. 2, pp. 350–361, May 1982. [DOI: 10.1137/0211027](https://doi.org/10.1137/0211027).
+173. <a id="ref-vangal2008"></a>**[Vangal2008]** S. R. Vangal et al., "An 80-Tile Sub-100-W TeraFLOPS Processor in 65-nm CMOS," *IEEE Journal of Solid-State Circuits*, vol. 43, no. 1, pp. 29–41, Jan. 2008. [DOI: 10.1109/JSSC.2007.910957](https://doi.org/10.1109/JSSC.2007.910957).
+174. <a id="ref-vantrease2008"></a>**[Vantrease2008]** D. Vantrease et al., "Corona: System Implications of Emerging Nanophotonic Technology," in *Proceedings of the 35th Annual International Symposium on Computer Architecture (ISCA)*, 2008, pp. 153–164. [DOI: 10.1145/1382119.1382137](https://doi.org/10.1145/1382119.1382137).
+175. <a id="ref-vivet2021"></a>**[Vivet2021]** P. Vivet et al., "IntAct: A 96-Core Processor With Six Chiplets 3D-Stacked on an Active Interposer With Distributed Interconnects and Integrated Power Management," *IEEE Journal of Solid-State Circuits*, vol. 56, no. 1, pp. 79–97, Jan. 2021. [DOI: 10.1109/JSSC.2020.3036341](https://doi.org/10.1109/JSSC.2020.3036341).
+176. <a id="ref-wentzlaff2007"></a>**[Wentzlaff2007]** D. Wentzlaff et al., "On-Chip Interconnection Architecture of the Tile Processor," *IEEE Micro*, vol. 27, no. 5, pp. 15–31, Sept./Oct. 2007. [DOI: 10.1109/MM.2007.89](https://doi.org/10.1109/MM.2007.89).
+177. <a id="ref-zhu2025"></a>**[Zhu2025]** J. Zhu et al., "Theseus: Exploring Efficient Wafer-Scale Chip Design for Large Language Models," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 44, no. 11, pp. 3810–3823, Nov. 2025. [DOI: 10.1109/TCAD.2024.3496321](https://doi.org/10.1109/TCAD.2024.3496321).
+178. <a id="ref-zhu2026"></a>**[Zhu2026]** L. Zhu, H. Gu, Y. Tan, and G. Zhang, "ScaDA-Rou: A Scalable, Deadlock-Free, and Adaptive Routing for 3-D Multi-Chiplet System," *IEEE Transactions on Circuits and Systems–II: Express Briefs*, vol. 73, no. 4, pp. 433–437, Apr. 2026. [DOI: 10.1109/TCSII.2025.3526101](https://doi.org/10.1109/TCSII.2025.3526101).
 
 </div>
 

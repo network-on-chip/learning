@@ -1,6 +1,6 @@
 # 6.2 Multi-Chiplet Interconnects, 2.5D Packaging & UCIe
 
-> **Companion Reading:** Monograph Chapter 9 — *3D NoCs, Chiplet Architectures, and Multi-Die Interconnects*, Section 9.3 (2.5D Multi-Die Interconnects and UCIe). [Read in Companion Textbook →](/learning/textbook/ch09-chiplets-3d/)
+> **Companion Reading:** Monograph Chapter 9 — *3D NoCs, Chiplet Architectures, and Multi-Die Interconnects*, Section 9.3 (2.5D Multi-Die Interconnects and UCIe). [Read in Companion Textbook →](/learning/textbook/ch09-chiplets-ucie/)
 
 For over four decades, silicon scaling followed Moore’s Law [[Moore1965](#ref-moore1965)] and Dennard scaling [[Dennard1974](#ref-dennard1974)]: every two years, transistors shrank by $30\%$, enabling monolithic System-on-Chips (SoCs) to integrate more compute cores onto a single silicon die.
 
