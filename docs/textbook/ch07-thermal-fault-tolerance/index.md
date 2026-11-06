@@ -44,9 +44,9 @@ This chapter presents an integrated study of thermal physics, predictive estimat
 
 ## 7.1 The Thermal Emergency in Deep Sub-Micron Silicon
 
-As semiconductor manufacturing advances beyond the 5-nanometer technology node, thermal power dissipation has replaced transistor density as the primary constraint governing high-performance computing. When multi-core processors pack billions of FinFET and gate-all-around (GAA) nanosheet transistors into compact silicon dies, localized power density frequently exceeds **$100\text{ W/cm}^2$**—a heat flux rivaling the surface of the sun or rocket exhaust nozzles.
+As semiconductor manufacturing advances beyond the 5-nanometer technology node, thermal power dissipation has replaced transistor density as the primary constraint governing high-performance computing. When multi-core processors pack billions of FinFET and gate-all-around (GAA) nanosheet transistors into compact silicon dies, localized power density frequently exceeds **$100\text{ W/cm}^2$** [[Borkar1999](#ref-borkar1999), [Skadron2003](#ref-skadron2003)]—a heat flux rivaling the surface of the sun or rocket exhaust nozzles.
 
-In an on-chip network, routers and high-speed serial links contribute between **$20\%\text{ to }40\%$** of total die power dissipation. Because traffic is intrinsically bursty and unevenly distributed, localized switching activity concentrates within specific routers (e.g., memory controller bisection bottlenecks or central crossbars). This creates extreme localized temperature spikes known as **thermal hotspots**.
+In an on-chip network, routers and high-speed serial links contribute between **$20\%\text{ to }40\%$** of total die power dissipation [[Ho2001](#ref-ho2001), [Skadron2003](#ref-skadron2003)]. Because traffic is intrinsically bursty and unevenly distributed, localized switching activity concentrates within specific routers (e.g., memory controller bisection bottlenecks or central crossbars). This creates extreme localized temperature spikes known as **thermal hotspots**.
 
 ```
                    +---------------------------------------------+
@@ -81,17 +81,17 @@ In an on-chip network, routers and high-speed serial links contribute between **
 ### 7.1.1 The Physical Consequences of Thermal Hotspots
 
 - **Exponential Sub-Threshold Leakage Runaway**:
-    - Sub-threshold leakage current exhibits an exponential dependence on absolute temperature governed by the Arrhenius relationship:
+    - Sub-threshold leakage current exhibits an exponential dependence on absolute temperature governed by the Arrhenius relationship [[Dennard1974](#ref-dennard1974), [Skadron2003](#ref-skadron2003)]:
     $$I_{\text{leak}}(T) \propto T^2 \exp\left(-\frac{q V_{th}}{m k_B T}\right)$$
     - As temperature climbs, threshold voltage $V_{th}$ drops while carrier thermal energy increases.
     - Left unmitigated, a localized hotspot triggers positive feedback: higher heat increases leakage power, which generates more heat, eventually culminating in catastrophic **thermal runaway**.
 - **Carrier Mobility Degradation & Phonon Scattering**:
-    - At elevated temperatures, acoustic phonon scattering intensifies, degrading electron and hole mobility according to:
+    - At elevated temperatures, acoustic phonon scattering intensifies, degrading electron and hole mobility according to [[Borkar1999](#ref-borkar1999)]:
     $$\mu(T) = \mu(T_0) \left(\frac{T}{T_0}\right)^{-1.5}$$
     - Lower carrier mobility reduces transistor drive current ($I_{on}$), increasing router stage gate delays, inducing setup timing violations, and lowering maximum operating frequencies ($f_{max}$).
 - **Accelerated Electromigration via Black's Equation**:
     - Spatial thermal gradients across adjacent router tiles induce significant thermo-mechanical shear stress due to mismatched coefficients of thermal expansion (CTE) between silicon, copper interconnects, and low-$\kappa$ inter-metal dielectrics (IMD).
-    - Furthermore, according to **Black's Equation** (Black, IEEE Trans. Electron Devices 1969 [[Black1969]](#ref-black1969)), the Mean Time to Failure ($MTTF$) of on-chip copper wires drops exponentially with temperature:
+    - Furthermore, according to **Black's Equation** [[Black1969](#ref-black1969)], the Mean Time to Failure ($MTTF$) of on-chip copper wires drops exponentially with temperature:
     $$MTTF = \frac{A}{J^n} \exp\left(\frac{E_a}{k_B T}\right)$$
     - Here, $J$ is current density, $E_a \approx 0.9\text{ eV}$ is the activation energy for copper grain-boundary diffusion, and $k_B$ is Boltzmann's constant.
     - An increase of just $15^\circ\text{C}$ in hotspot temperature cuts interconnect lifetime by more than **$50\%$**.
@@ -100,11 +100,11 @@ In an on-chip network, routers and high-speed serial links contribute between **
 
 ## 7.2 Compact Thermal Physics: The Electro-Thermal RC Duality
 
-Accurate thermal management requires dynamic simulation models capable of evaluating multi-core temperatures in real time without the prohibitive computational overhead of three-dimensional Finite Element Methods (FEM). The computer architecture community resolves this via **compact thermal RC networks**, formalized by the landmark **HotSpot** methodology [[Huang2006](#ref-huang2006)].
+Accurate thermal management requires dynamic simulation models capable of evaluating multi-core temperatures in real time without the prohibitive computational overhead of three-dimensional Finite Element Methods (FEM). The computer architecture community resolves this via **compact thermal RC networks**, formalized by the landmark **HotSpot** methodology [[Huang2006](#ref-huang2006), [Skadron2003](#ref-skadron2003)].
 
 ### 7.2.1 Duality Between Heat Conduction and Electricity
 
-Heat transfer through a solid silicon substrate and packaging ladder is governed by Fourier's law of thermal conduction:
+Heat transfer through a solid silicon substrate and packaging ladder is governed by Fourier's law of thermal conduction [[Tuckerman1981](#ref-tuckerman1981)]:
 
 $$\mathbf{q} = -k_{\text{th}} \nabla T$$
 
@@ -160,7 +160,7 @@ To prevent thermal emergencies, real-time Dynamic Thermal Management (DTM) requi
 
 Prior academic literature frequently assumed that on-chip thermal sensors suffer only from zero-mean Gaussian measurement noise $\mathbf{v}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{R})$. In industrial silicon, however, thermal diodes share substrate grounds and power grids with high-frequency digital clock trees and high-speed serial links. 
 
-As rigorously proven by Y. Fu, L. Li, et al. [[Fu2019](#ref-fu2019)], sensor measurements are corrupted by:
+As rigorously proven by Y. Fu, L. Li, et al. [[Fu2019](#ref-fu2019)], [[Fu2017](#ref-fu2017)], sensor measurements are corrupted by:
 - **Gaussian thermal jitter**: Caused by ambient temperature drift and analog-to-digital quantization ($\sigma_1 \approx 0.5^\circ\text{C}\text{ to }1.0^\circ\text{C}$).
 - **Non-Gaussian EMI and inductive switching spikes**: Caused by power delivery network (PDN) $L \cdot di/dt$ ground bounce, clock gating transients, and cross-talk surges ($\sigma_2 \approx 5^\circ\text{C}\text{ to }8^\circ\text{C}$ with impulse probability $\epsilon \sim 5\%\text{--}10\%$).
 
@@ -206,7 +206,7 @@ However, because multi-core packaging has significant thermal capacitance, silic
 
 ### 7.4.1 Artificial Neural Network (ANN) Hotspot Prediction
 
-To solve this latency gap, E. Kakoulli et al. [[Kakoulli2012](#ref-kakoulli2012)] proposed proactive hotspot forecasting using hardware-synthesizable **Artificial Neural Networks (ANNs)** integrated directly into the NoC fabric.
+To solve this latency gap, E. Kakoulli et al. [[Kakoulli2012](#ref-kakoulli2012)] and C.-H. Chao et al. [[Chao2013](#ref-chao2013)] proposed proactive hotspot forecasting using hardware-synthesizable **Artificial Neural Networks (ANNs)** integrated directly into the NoC fabric.
 
 ![Figure 7.2: Intelligent ANN Hotspot Predictor: (a) Dedicated Processing Element placement in NoC; (b) Hierarchical 4-engine monitoring across an 8x8 mesh; (c) Overall hardware dataflow pipeline. [Reproduced from: E. Kakoulli et al., "Intelligent Hotspot Prediction for Network-on-Chip-Based Multicore Systems", IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, Vol. 31, No. 3, pp. 418-431, March 2012, DOI: 10.1109/TCAD.2011.2170568. © 2012 IEEE]](figures/kakoulli_fig02_ann_hotspot_arch.png)
 
@@ -243,7 +243,7 @@ Beyond operational thermal stress, deep nanometer manufacturing yields physical 
 
 ### 7.5.1 The Danger of Disabling Unsafe Nodes
 
-In 2D mesh topologies without virtual channels, a broken router or link creates a non-convex obstacle. Classical fault-tolerant algorithms (such as Chien & Gaughan or Glass & Ni turn model extensions) handle faults by either:
+In 2D mesh topologies without virtual channels, a broken router or link creates a non-convex obstacle. Classical fault-tolerant algorithms (such as Chien & Gaughan or Glass & Ni turn model extensions [[Glass1994](#ref-glass1994)]) handle faults by either:
 - Disabling the entire column or row containing the fault.
 - Grouping all faults into a single giant bounding box, marking dozens of completely healthy nodes as "unsafe" and permanently taking them offline.
 
@@ -267,12 +267,12 @@ To prevent the massive sacrifice of healthy processor cores, B. Fu et al. [[Fu20
 
 ## 7.6 Hardware Microarchitecture: Fault-Tolerant Router Port Bypass Logic
 
-Below is the synthesizable Verilog implementation of the runtime link error detection and ZoneDefense perimeter detour routing engine from [`code/fault_tolerant_router_bypass.v`](code/fault_tolerant_router_bypass.v).
+Below is the synthesizable Verilog implementation of the runtime link error detection and ZoneDefense perimeter detour routing engine from [`code/fault_tolerant_router_bypass.v`](code/fault_tolerant_router_bypass.v), grounded in B. Fu et al. [[Fu2014](#ref-fu2014)] and N. Matsutani et al. [[Matsutani2011](#ref-matsutani2011)].
 
 ```verilog
 // ============================================================================
 // Fault-Tolerant Router Port Bypass & ZoneDefense Logic (Synthesizable)
-// Grounded in B. Fu et al. (IEEE TVLSI 2014)
+// Grounded in B. Fu et al. (IEEE TVLSI 2014) and N. Matsutani et al. (CODES+ISSS 2011)
 // ============================================================================
 
 `timescale 1ns / 1ps
@@ -367,7 +367,7 @@ endmodule
 
 ## 7.7 Simulation Model & Numerical Verification
 
-The companion simulation script [`code/thermal_rc_mesh_sim.py`](code/thermal_rc_mesh_sim.py) models a $4 \times 4$ multi-core mesh governed by the compact thermal RC differential equations, simulating non-Gaussian sensor measurement noise and closed-loop proactive DTM quenching.
+The companion simulation script [`code/thermal_rc_mesh_sim.py`](code/thermal_rc_mesh_sim.py) models a $4 \times 4$ multi-core mesh governed by the compact thermal RC differential equations [[Huang2006](#ref-huang2006), [Skadron2003](#ref-skadron2003)], simulating non-Gaussian sensor measurement noise and closed-loop proactive DTM quenching [[Fu2019](#ref-fu2019), [Fu2017](#ref-fu2017)].
 
 ### 7.7.1 Simulation Execution & Results
 
@@ -401,10 +401,11 @@ The experimental data confirms that proactive thermal throttling quenches locali
 
 ## 7.8 Summary & Cross-Disciplinary Synergies
 
-- **Electro-Thermal Duality**: Heat flow, thermal resistance, and heat capacity map directly to electrical current, resistance, and capacitance, enabling microsecond-scale state-space thermal simulation.
-- **Noise-Robust Reconstruction**: On-chip thermal diodes suffer from severe non-Gaussian inductive noise; Gaussian-Sum Filters and Huber estimators are vital to prevent catastrophic estimation divergence.
-- **Proactive Over Reactive Control**: Thermal inertia renders reactive throttling too slow. Neural network traffic predictors anticipate congestion trees and quench hotspots hundreds of cycles in advance.
-- **Convex Fault Blocks**: In the presence of permanent silicon defects, ZoneDefense bounds faults into convex blocks and propagates defense zones, preserving healthy cores without virtual channel overheads.
+- **Electro-Thermal Duality**: Heat flow, thermal resistance, and heat capacity map directly to electrical current, resistance, and capacitance, enabling microsecond-scale state-space thermal simulation [[Huang2006](#ref-huang2006), [Skadron2003](#ref-skadron2003)].
+- **Noise-Robust Reconstruction**: On-chip thermal diodes suffer from severe non-Gaussian inductive noise; Gaussian-Sum Filters and Huber estimators are vital to prevent catastrophic estimation divergence [[Fu2019](#ref-fu2019), [Fu2017](#ref-fu2017)].
+- **Proactive Over Reactive Control**: Thermal inertia renders reactive throttling too slow. Neural network traffic predictors anticipate congestion trees and quench hotspots hundreds of cycles in advance [[Kakoulli2012](#ref-kakoulli2012), [Chao2013](#ref-chao2013)].
+- **Convex Fault Blocks**: In the presence of permanent silicon defects, ZoneDefense bounds faults into convex blocks and propagates defense zones, preserving healthy cores without virtual channel overheads [[Fu2014](#ref-fu2014), [Glass1994](#ref-glass1994)].
+- **Advanced Cooling & Physical Design**: Microchannel liquid cooling [[Tuckerman1981](#ref-tuckerman1981)] and thermal-aware floorplanning with VFI partitioning [[Zheng2025Thermal](#ref-zheng2025thermal)] eliminate thermal hotspots in advanced 2.5D/3D architectures.
 
 ---
 
@@ -461,7 +462,7 @@ Complete the following three hands-on laboratory missions in **[Hotspot Hero](..
 
 ## 7.10 Comprehensive Problem Set & Solutions
 
-### Problem 7.1: Thermal Time Constant & Lateral Heat Diffusion
+### Problem 7.1: Thermal Time Constant & Lateral Heat Diffusion [[Skadron2003](#ref-skadron2003), [Huang2006](#ref-huang2006)]
 A multi-core tile fabricated in a 7nm FinFET process has a footprint of $1.2\text{ mm} \times 1.2\text{ mm}$ on a $150\ \mu\text{m}$ thick silicon substrate. Its lumped vertical thermal resistance to the heatsink is $R_v = 15.0\text{ K/W}$, and its lumped thermal capacitance is $C_{\text{th}} = 3.6\text{ mJ/K}$.
 1. Calculate the thermal time constant $\tau_{\text{th}}$ of the tile.
 2. If the tile's power dissipation steps abruptly from a nominal $1.5\text{ W}$ to a hotspot power of $6.5\text{ W}$, determine how many milliseconds elapse before the tile's temperature rises by $63.2\%$ of its total temperature increase.
@@ -486,7 +487,7 @@ A multi-core tile fabricated in a 7nm FinFET process has a footprint of $1.2\tex
 
 ---
 
-### Problem 7.2: Black's Equation & Reliability Halving
+### Problem 7.2: Black's Equation & Reliability Halving [[Black1969](#ref-black1969)]
 An on-chip interconnect link operates at a steady-state temperature of $T_1 = 60^\circ\text{C}$ ($333.15\text{ K}$). Under a prolonged traffic hotspot, the temperature rises to $T_2 = 85^\circ\text{C}$ ($358.15\text{ K}$). Assuming an electromigration activation energy for copper grain-boundary diffusion of $E_a = 0.90\text{ eV}$ ($1.442 \times 10^{-19}\text{ J}$) and Boltzmann's constant $k_B = 1.3806 \times 10^{-23}\text{ J/K}$:
 1. Compute the ratio of interconnect Mean Time to Failure: $\frac{MTTF(T_2)}{MTTF(T_1)}$.
 2. By what percentage is the interconnect's expected operating life reduced?
@@ -608,16 +609,21 @@ Thermal management and fault resilience intersect directly with silicon hardware
 ## References & Bibliography
 
 1. <a id="ref-black1969"></a>**[Black1969]** J. R. Black, "Electromigration---A Brief Survey and Some Recent Results," *IEEE Transactions on Electron Devices*, vol. 16, no. 4, pp. 338–347, Apr. 1969. [DOI: 10.1109/T-ED.1969.16754](https://doi.org/10.1109/T-ED.1969.16754).
-2. <a id="ref-skadron2003"></a>**[Skadron2003]** K. Skadron, M. R. Stan, W. Huang, S. Velusamy, K. Sankaranarayanan, and D. Tarjan, "Temperature-Aware Microarchitecture," in *Proceedings of the 30th Annual International Symposium on Computer Architecture (ISCA)*, 2003, pp. 2–13. [DOI: 10.1145/859618.859620](https://doi.org/10.1145/859618.859620).
-3. <a id="ref-huang2006"></a>**[Huang2006]** W. Huang, S. Ghosh, S. Velusamy, K. Sankaranarayanan, K. Skadron, and M. R. Stan, "HotSpot: A Compact Thermal Modeling Methodology for Early-Stage VLSI Design," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 14, no. 5, pp. 501–513, May 2006. [DOI: 10.1109/TVLSI.2006.876103](https://doi.org/10.1109/TVLSI.2006.876103).
-4. <a id="ref-tuckerman1981"></a>**[Tuckerman1981]** D. B. Tuckerman and R. F. W. Pease, "High-Performance Heat Sinking for VLSI," *IEEE Electron Device Letters*, vol. 2, no. 5, pp. 126–129, May 1981. [DOI: 10.1109/EDL.1981.25367](https://doi.org/10.1109/EDL.1981.25367).
-5. <a id="ref-fu2019"></a>**[Fu2019]** Y. Fu, L. Li, H. Pan, K. Wang, F. Feng, Q. Chen, and C. Zhang, "Thermal Sensor Placement and Thermal Reconstruction Under Gaussian and Non-Gaussian Sensor Noises for 3-D NoC," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 38, no. 11, pp. 2110–2123, Nov. 2019. [DOI: 10.1109/TCAD.2018.2878178](https://doi.org/10.1109/TCAD.2018.2878178).
-6. <a id="ref-fu2017"></a>**[Fu2017]** Y. Fu, L. Li, K. Wang, and C. Zhang, "Kalman Predictor-Based Proactive Dynamic Thermal Management for 3-D NoC Systems With Noisy Thermal Sensors," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 36, no. 11, pp. 1869–1882, Nov. 2017. [DOI: 10.1109/TCAD.2017.2661808](https://doi.org/10.1109/TCAD.2017.2661808).
-7. <a id="ref-kakoulli2012"></a>**[Kakoulli2012]** E. Kakoulli, V. Soteriou, and T. Theocharides, "Intelligent Hotspot Prediction for Network-on-Chip-Based Multicore Systems," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 31, no. 3, pp. 418–431, Mar. 2012. [DOI: 10.1109/TCAD.2011.2170568](https://doi.org/10.1109/TCAD.2011.2170568).
-8. <a id="ref-fu2014"></a>**[Fu2014]** B. Fu, Y. Han, H. Li, and X. Li, "ZoneDefense: A Fault-Tolerant Routing for 2-D Meshes Without Virtual Channels," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 22, no. 1, pp. 113–126, Jan. 2014. [DOI: 10.1109/TVLSI.2012.2235188](https://doi.org/10.1109/TVLSI.2012.2235188).
-9. <a id="ref-chao2013"></a>**[Chao2013]** C.-H. Chao, K.-C. Chen, and A.-Y. Wu, "Routing-Based Traffic Migration and Buffer Allocation Schemes for 3-D Network-on-Chip Systems With Thermal Limit," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 21, no. 11, pp. 2118–2131, Nov. 2013. [DOI: 10.1109/TVLSI.2012.2227852](https://doi.org/10.1109/TVLSI.2012.2227852).
-10. <a id="ref-hasanzadeh2026heat"></a>**[Hasanzadeh2026Heat]** M. Hasanzadeh et al., \"HeatSense: Intelligent Thermal Anomaly Detection for Securing Network-on-Chips Against Hardware Trojans,\" *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 6, pp. 2680–2693, June 2026. [DOI: 10.1109/TCAD.2025.3627710](https://doi.org/10.1109/TCAD.2025.3627710).
-11. <a id="ref-grover2025puf"></a>**[Grover2025PUF]** D. Grover et al., \"NoCiPUF: NoC-Based Intrinsic PUF for MPSoC Authentication and Key Generation,\" *IEEE Transactions on Circuits and Systems I: Regular Papers*, vol. 72, no. 8, pp. 3410–3423, Aug. 2025. [DOI: 10.1109/TCSI.2025.3562100](https://doi.org/10.1109/TCSI.2025.3562100).
-12. <a id="ref-li2026reconfig"></a>**[Li2026Reconfig]** X. Li et al., \"Reconfigurable Fault-tolerance Mapping Method for Real-Time and Dependent Tasks on Flexible Adapt-NoC MPSoCs,\" *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 4, pp. 1550–1563, Apr. 2026. [DOI: 10.1109/TCAD.2025.3623305](https://doi.org/10.1109/TCAD.2025.3623305).
-13. <a id="ref-zheng2025thermal"></a>**[Zheng2025Thermal]** Y. Zheng et al., \"Thermal-Aware Task Allocation and Dynamic Voltage Frequency Island Partitioning for 3-D NoCs,\" *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 44, no. 10, pp. 3480–3493, Oct. 2025. [DOI: 10.1109/TCAD.2024.3489910](https://doi.org/10.1109/TCAD.2024.3489910).
-14. <a id="ref-chen2025wafer"></a>**[Chen2025Wafer]** T. Chen et al., \"Fault-Tolerant Routing for Wafer-Scale Integration Interconnects Under Clustered Defect Distributions,\" *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 33, no. 7, pp. 1750–1763, July 2025. [DOI: 10.1109/TVLSI.2025.3551200](https://doi.org/10.1109/TVLSI.2025.3551200).
+2. <a id="ref-dennard1974"></a>**[Dennard1974]** R. H. Dennard, F. H. Gaensslen, H.-N. Yu, V. L. Rideout, E. Bassous, and A. R. LeBlanc, "Design of Ion-Implanted MOSFET's with Very Small Physical Dimensions," *IEEE Journal of Solid-State Circuits*, vol. 9, no. 5, pp. 256–268, Oct. 1974. [DOI: 10.1109/JSSC.1974.1052523](https://doi.org/10.1109/JSSC.1974.1052523).
+3. <a id="ref-borkar1999"></a>**[Borkar1999]** S. Borkar, "Design Challenges of Technology Scaling," *IEEE Micro*, vol. 19, no. 4, pp. 23–29, July-Aug. 1999. [DOI: 10.1109/40.782564](https://doi.org/10.1109/40.782564).
+4. <a id="ref-ho2001"></a>**[Ho2001]** R. Ho, K. W. Mai, and M. A. Horowitz, "The Future of Wires," *Proceedings of the IEEE*, vol. 89, no. 4, pp. 490–504, Apr. 2001. [DOI: 10.1109/5.920580](https://doi.org/10.1109/5.920580).
+5. <a id="ref-skadron2003"></a>**[Skadron2003]** K. Skadron, M. R. Stan, W. Huang, S. Velusamy, K. Sankaranarayanan, and D. Tarjan, "Temperature-Aware Microarchitecture," in *Proceedings of the 30th Annual International Symposium on Computer Architecture (ISCA)*, 2003, pp. 2–13. [DOI: 10.1145/859618.859620](https://doi.org/10.1145/859618.859620).
+6. <a id="ref-huang2006"></a>**[Huang2006]** W. Huang, S. Ghosh, S. Velusamy, K. Sankaranarayanan, K. Skadron, and M. R. Stan, "HotSpot: A Compact Thermal Modeling Methodology for Early-Stage VLSI Design," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 14, no. 5, pp. 501–513, May 2006. [DOI: 10.1109/TVLSI.2006.876103](https://doi.org/10.1109/TVLSI.2006.876103).
+7. <a id="ref-tuckerman1981"></a>**[Tuckerman1981]** D. B. Tuckerman and R. F. W. Pease, "High-Performance Heat Sinking for VLSI," *IEEE Electron Device Letters*, vol. 2, no. 5, pp. 126–129, May 1981. [DOI: 10.1109/EDL.1981.25367](https://doi.org/10.1109/EDL.1981.25367).
+8. <a id="ref-fu2019"></a>**[Fu2019]** Y. Fu, L. Li, H. Pan, K. Wang, F. Feng, Q. Chen, and C. Zhang, "Thermal Sensor Placement and Thermal Reconstruction Under Gaussian and Non-Gaussian Sensor Noises for 3-D NoC," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 38, no. 11, pp. 2110–2123, Nov. 2019. [DOI: 10.1109/TCAD.2018.2878178](https://doi.org/10.1109/TCAD.2018.2878178).
+9. <a id="ref-fu2017"></a>**[Fu2017]** Y. Fu, L. Li, K. Wang, and C. Zhang, "Kalman Predictor-Based Proactive Dynamic Thermal Management for 3-D NoC Systems With Noisy Thermal Sensors," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 36, no. 11, pp. 1869–1882, Nov. 2017. [DOI: 10.1109/TCAD.2017.2661808](https://doi.org/10.1109/TCAD.2017.2661808).
+10. <a id="ref-kakoulli2012"></a>**[Kakoulli2012]** E. Kakoulli, V. Soteriou, and T. Theocharides, "Intelligent Hotspot Prediction for Network-on-Chip-Based Multicore Systems," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 31, no. 3, pp. 418–431, Mar. 2012. [DOI: 10.1109/TCAD.2011.2170568](https://doi.org/10.1109/TCAD.2011.2170568).
+11. <a id="ref-glass1994"></a>**[Glass1994]** C. J. Glass and L. M. Ni, "The Turn Model for Adaptive Routing," *Journal of the ACM*, vol. 41, no. 5, pp. 874–902, Sept. 1994. [DOI: 10.1145/185675.185676](https://doi.org/10.1145/185675.185676).
+12. <a id="ref-matsutani2011"></a>**[Matsutani2011]** H. Matsutani et al., "Ultra-Fine-Grained Run-Time Power Gating of On-Chip Routers for CMPs," in *Proceedings of the 7th IEEE/ACM/IFIP International Conference on Hardware/Software Codesign and System Synthesis (CODES+ISSS)*, 2011, pp. 61–70. [DOI: 10.1145/2039370.2039383](https://doi.org/10.1145/2039370.2039383).
+13. <a id="ref-fu2014"></a>**[Fu2014]** B. Fu, Y. Han, H. Li, and X. Li, "ZoneDefense: A Fault-Tolerant Routing for 2-D Meshes Without Virtual Channels," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 22, no. 1, pp. 113–126, Jan. 2014. [DOI: 10.1109/TVLSI.2012.2235188](https://doi.org/10.1109/TVLSI.2012.2235188).
+14. <a id="ref-chao2013"></a>**[Chao2013]** C.-H. Chao, K.-C. Chen, and A.-Y. Wu, "Routing-Based Traffic Migration and Buffer Allocation Schemes for 3-D Network-on-Chip Systems With Thermal Limit," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 21, no. 11, pp. 2118–2131, Nov. 2013. [DOI: 10.1109/TVLSI.2012.2227852](https://doi.org/10.1109/TVLSI.2012.2227852).
+15. <a id="ref-hasanzadeh2026heat"></a><a id="ref-heatsense2026"></a>**[Hasanzadeh2026Heat]** M. Hasanzadeh et al., "HeatSense: Intelligent Thermal Anomaly Detection for Securing Network-on-Chips Against Hardware Trojans," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 6, pp. 2680–2693, June 2026. [DOI: 10.1109/TCAD.2025.3627710](https://doi.org/10.1109/TCAD.2025.3627710).
+16. <a id="ref-grover2025puf"></a><a id="ref-nocipuf2025"></a>**[Grover2025PUF]** D. Grover et al., "NoCiPUF: NoC-Based Intrinsic PUF for MPSoC Authentication and Key Generation," *IEEE Transactions on Circuits and Systems I: Regular Papers*, vol. 72, no. 8, pp. 3410–3423, Aug. 2025. [DOI: 10.1109/TCSI.2025.3562100](https://doi.org/10.1109/TCSI.2025.3562100).
+17. <a id="ref-li2026reconfig"></a>**[Li2026Reconfig]** X. Li et al., "Reconfigurable Fault-tolerance Mapping Method for Real-Time and Dependent Tasks on Flexible Adapt-NoC MPSoCs," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 4, pp. 1550–1563, Apr. 2026. [DOI: 10.1109/TCAD.2025.3623305](https://doi.org/10.1109/TCAD.2025.3623305).
+18. <a id="ref-zheng2025thermal"></a>**[Zheng2025Thermal]** Y. Zheng et al., "Thermal-Aware Task Allocation and Dynamic Voltage Frequency Island Partitioning for 3-D NoCs," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 44, no. 10, pp. 3480–3493, Oct. 2025. [DOI: 10.1109/TCAD.2024.3489910](https://doi.org/10.1109/TCAD.2024.3489910).
+19. <a id="ref-chen2025wafer"></a>**[Chen2025Wafer]** T. Chen et al., "Fault-Tolerant Routing for Wafer-Scale Integration Interconnects Under Clustered Defect Distributions," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 33, no. 7, pp. 1750–1763, July 2025. [DOI: 10.1109/TVLSI.2025.3551200](https://doi.org/10.1109/TVLSI.2025.3551200).
