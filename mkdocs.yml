@@ -233,3 +233,4 @@ nav:
       - "7.2 NVIDIA Simba Multi-Chiplet NoC (JSSC)": track7-paper-walkthroughs/02-nvidia-simba-mcm.md
       - "7.3 3D Optical NoC for MPSoCs (TCAD)": track7-paper-walkthroughs/03-3d-optical-noc.md
       - "7.4 In-Network Computing Router (TVLSI)": track7-paper-walkthroughs/04-in-network-neuromorphic.md
+  - "Reproduced Research (22 Papers)": reproductions/index.md

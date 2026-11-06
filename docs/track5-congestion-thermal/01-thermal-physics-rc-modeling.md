@@ -1,6 +1,6 @@
 # 5.1 Thermal Physics & Compact RC Modeling
 
-In modern nanometer many-core processors, transistor scaling has entered the era of **Dark Silicon**. While Moore's Law continues to increase transistor density, **Dennard scaling has ended**: operating voltage ($V_{DD}$) cannot scale below $\sim 0.7\text{ V}$ without triggering catastrophic subthreshold leakage.
+In modern nanometer many-core processors, transistor scaling has entered the era of **Dark Silicon** [[Esmaeilzadeh2011]](#ref-esmaeilzadeh2011), [[Taylor2012]](#ref-taylor2012). While Moore's Law continues to increase transistor density [[Moore1965]](#ref-moore1965), **Dennard scaling has ended** [[Dennard1974]](#ref-dennard1974): operating voltage ($V_{DD}$) cannot scale below $\sim 0.7\text{ V}$ without triggering catastrophic subthreshold leakage.
 
 As a result, power density in high-performance SoCs routinely exceeds **$100\text{–}300\text{ W/cm}^2$**—a heat flux higher than the heating element of an electric stove, packed into a piece of silicon thinner than a human hair!
 
@@ -73,7 +73,7 @@ To make thermal analysis fast and tractable, computer architects exploit the mat
 
 ## 3. Compact RC Modeling: The HotSpot Grid Model
 
-Pioneered by Wei Huang, Mircea Stan, and Kevin Skadron (University of Virginia, 2004), the **HotSpot Compact Thermal Model** discretizes a multi-core die into an interconnected grid of $N \times N$ thermal cells:
+Pioneered by Wei Huang, Mircea Stan, and Kevin Skadron (University of Virginia [[Skadron2003]](#ref-skadron2003), [[Huang2006]](#ref-huang2006)), the **HotSpot Compact Thermal Model** discretizes a multi-core die into an interconnected grid of $N \times N$ thermal cells:
 
 ```mermaid
 graph TD
@@ -833,6 +833,17 @@ function resetQuiz51() {
   badge.style.color = "#2563eb";
 }
 </script>
+
+---
+
+## References & Further Reading
+
+1. <a id="ref-skadron2003"></a>**[Skadron2003]** K. Skadron, M. R. Stan, W. Huang, S. Velusamy, K. Sankaranarayanan, and D. Tarjan, "Temperature-Aware Microarchitecture," in *Proceedings of the 30th Annual International Symposium on Computer Architecture (ISCA)*, 2003, pp. 2–13. [DOI: 10.1145/859618.859620](https://doi.org/10.1145/859618.859620).
+2. <a id="ref-huang2006"></a>**[Huang2006]** W. Huang et al., "HotSpot: A Compact Multiprocessor Thermal Model for Runtime Temperature Tracking," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 14, no. 5, pp. 501–513, May 2006. [DOI: 10.1109/TVLSI.2006.876103](https://doi.org/10.1109/TVLSI.2006.876103).
+3. <a id="ref-esmaeilzadeh2011"></a>**[Esmaeilzadeh2011]** H. Esmaeilzadeh, E. Blem, R. St. Amant, K. Sankaralingam, and D. Burger, "Dark Silicon and the End of Multicore Scaling," in *Proceedings of the 38th Annual International Symposium on Computer Architecture (ISCA)*, 2011, pp. 365–376. [DOI: 10.1145/2000064.2000108](https://doi.org/10.1145/2000064.2000108).
+4. <a id="ref-taylor2012"></a>**[Taylor2012]** M. B. Taylor, "Is Dark Silicon Useful? Harnessing the Four Horsemen of the Apocalypse," in *Proceedings of the 49th Annual Design Automation Conference (DAC)*, 2012, pp. 1131–1136. [DOI: 10.1145/2228360.2228567](https://doi.org/10.1145/2228360.2228567).
+5. <a id="ref-moore1965"></a>**[Moore1965]** G. E. Moore, "Cramming More Components onto Integrated Circuits," *Electronics*, vol. 38, no. 8, pp. 114–117, Apr. 1965. [DOI: 10.1109/JPROC.1998.658762](https://doi.org/10.1109/JPROC.1998.658762).
+6. <a id="ref-dennard1974"></a>**[Dennard1974]** R. H. Dennard et al., "Design of Ion-Implanted MOSFET's with Very Small Physical Dimensions for Digital Integrated Circuits," *IEEE Journal of Solid-State Circuits*, vol. 9, no. 5, pp. 256–268, Oct. 1974. [DOI: 10.1109/JSSC.1974.1050511](https://doi.org/10.1109/JSSC.1974.1050511).
 
 ---
 

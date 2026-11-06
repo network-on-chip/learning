@@ -11,7 +11,7 @@ In this lesson, we examine the mathematical foundations of network deadlock, con
 <div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
   <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Textbook Reference</div>
   <div style="color: #334155; font-size: 0.95rem;">
-    Access the formal mathematical proofs for the Dally-Seitz and Duato theorems along with the open-source CDG cycle detector in <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch05-routing-deadlock-theory/index.md#52-the-dally-seitz-channel-dependency-graph-theorem-1987" target="_blank" rel="noopener">Chapter 5.2: The Dally-Seitz CDG Theorem</a></strong> and <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch05-routing-deadlock-theory/index.md#55-duatos-theorem-for-fully-adaptive-routing-1993" target="_blank" rel="noopener">Chapter 5.5: Duato's Theorem</a></strong>.
+    Access the formal mathematical proofs for the Dally-Seitz and Duato theorems along with the open-source CDG cycle detector in <strong><a href="../textbook/ch05-routing-deadlock-theory/">Chapter 5: Routing Algorithms &amp; Deadlock Theory</a></strong>.
   </div>
 </div>
 
@@ -66,9 +66,9 @@ graph LR
 
 ## 3. The Dally-Seitz Theorem (1987)
 
-In their seminal 1987 paper, William J. Dally and Charles L. Seitz formulated the foundational theorem for deterministic routing:
+In their seminal 1987 paper, William J. Dally and Charles L. Seitz formulated the foundational theorem for deterministic routing [[Dally1987]](#ref-dally1987):
 
-> **Theorem (Dally & Seitz, 1987):**  
+> **Theorem (Dally & Seitz, 1987 [[Dally1987]](#ref-dally1987)):**  
 > A deterministic routing algorithm $R$ for an interconnection network is **deadlock-free if and only if** its Channel Dependency Graph $D$ contains **no directed cycles**.
 
 ### Mathematical Proof via Topological Ordering:
@@ -97,9 +97,9 @@ Applying Dally-Seitz to adaptive networks creates "false negatives"—forbidding
 
 ## 4. Duato's Theorem: Escape Channels (1993, 1997)
 
-In 1993, Spanish computer scientist **José Duato** published a breakthrough theorem that revolutionized high-performance network design by introducing **Escape Virtual Channels**:
+In 1993, Spanish computer scientist **José Duato** published a breakthrough theorem that revolutionized high-performance network design by introducing **Escape Virtual Channels** [[Duato1993]](#ref-duato1993):
 
-> **Duato's Theorem (1993, 1997):**  
+> **Duato's Theorem (1993 [[Duato1993]](#ref-duato1993), 1997):**  
 > An adaptive routing function $R$ is **deadlock-free** if the set of virtual channels $C$ can be partitioned into two subsets:
 >
 > $$C = C_1 \cup C_0$$
@@ -716,6 +716,14 @@ function getQ43Explanation(qNum, wasCorrect) {
   }
 }
 </script>
+
+---
+
+## References & Further Reading
+
+1. <a id="ref-dally1987"></a>**[Dally1987]** W. J. Dally and C. L. Seitz, "Deadlock-Free Message Routing in Multiprocessor Interconnection Networks," *IEEE Transactions on Computers*, vol. C-36, no. 5, pp. 547–553, May 1987. [DOI: 10.1109/TC.1987.1676939](https://doi.org/10.1109/TC.1987.1676939).
+2. <a id="ref-duato1993"></a>**[Duato1993]** J. Duato, "A New Theory of Deadlock-Free Adaptive Routing in Wormhole Networks," *IEEE Transactions on Parallel and Distributed Systems*, vol. 4, no. 12, pp. 1320–1331, Dec. 1993. [DOI: 10.1109/71.250114](https://doi.org/10.1109/71.250114).
+3. <a id="ref-dallyprinciples"></a>**[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann, 2004.
 
 ---
 

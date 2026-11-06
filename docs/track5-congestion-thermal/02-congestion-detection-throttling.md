@@ -70,7 +70,7 @@ Measured directly at the local router:
 *Limitation:* Local metrics are purely **reactive**. By the time a local buffer fills up, the saturation tree has already reached the router!
 
 ### 2. Regional Congestion Awareness (RCA)
-Introduced by Paul Gratz, Stephen Keckler, and William Dally (HPCA 2008), **RCA** aggregates congestion telemetry from multi-hop neighborhoods.
+Introduced by Paul Gratz, Stephen Keckler, and William Dally (HPCA 2008 [[Gratz2008]](#ref-gratz2008)), **RCA** aggregates congestion telemetry from multi-hop neighborhoods.
 
 Routers broadcast a small scalar congestion status (e.g., 2–3 bits) along coordinate wires to adjacent routers:
 
@@ -115,7 +115,7 @@ Core L1/L2 Cache --------> [NI Token Bucket] ======== NoC Mesh Links ========> H
 ```
 
 ### Mechanism B: Congestion-Aware Adaptive Routing (DyAD)
-In **Dynamic Adaptive/Deterministic (DyAD)** routing:
+In **Dynamic Adaptive/Deterministic (DyAD)** routing (Hu & Marculescu, DAC 2004 [[Hu2004]](#ref-hu2004)):
 1. **In Cold / Low-Stress Regions ($S < S_{thresh}$):** Packets follow deterministic XY routing.
    - *Benefits:* Ultra-low router delay, zero virtual channel arbitration conflicts, guaranteed in-order flit arrival.
 2. **In Hot / Congested Regions ($S \ge S_{thresh}$):** Routers dynamically switch to adaptive routing (e.g., West-First or Odd-Even), steering flits onto alternate, empty parallel channels around the hotspot.
@@ -778,6 +778,15 @@ function resetQuiz52() {
   badge.style.color = "#2563eb";
 }
 </script>
+
+---
+
+## References & Further Reading
+
+1. <a id="ref-gratz2008"></a>**[Gratz2008]** P. Gratz, B. Grot, and S. W. Keckler, "Regional Congestion Awareness for Load Balancing in Networks-on-Chip," in *Proceedings of the 14th IEEE International Symposium on High-Performance Computer Architecture (HPCA)*, 2008, pp. 203–214. [DOI: 10.1109/HPCA.2008.4658639](https://doi.org/10.1109/HPCA.2008.4658639).
+2. <a id="ref-hu2004"></a>**[Hu2004]** J. Hu and R. Marculescu, "DyAD: Smart Routing for Networks-on-Chip," in *Proceedings of the 41st Design Automation Conference (DAC)*, 2004, pp. 260–263. [DOI: 10.1145/996566.996638](https://doi.org/10.1145/996566.996638).
+3. <a id="ref-brooks2001"></a>**[Brooks2001]** D. Brooks and M. Martonosi, "Dynamic Thermal Management for High-Performance Microprocessors," in *Proceedings of the 7th International Symposium on High-Performance Computer Architecture (HPCA)*, 2001, pp. 171–182. [DOI: 10.1109/HPCA.2001.903261](https://doi.org/10.1109/HPCA.2001.903261).
+4. <a id="ref-dallyprinciples"></a>**[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann, 2004.
 
 ---
 
