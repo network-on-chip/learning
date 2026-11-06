@@ -733,6 +733,14 @@ function getQ42Explanation(qNum, wasCorrect) {
 
 ---
 
+## References & Further Reading
+
+1. <a id="ref-glass1994"></a>**[Glass1994]** C. J. Glass and L. M. Ni, "The Turn Model for Adaptive Routing," *Journal of the ACM*, vol. 41, no. 5, pp. 874–902, Sep. 1994. [DOI: 10.1145/185675.185678](https://doi.org/10.1145/185675.185678).
+2. <a id="ref-chiu2000"></a>**[Chiu2000]** G.-M. Chiu, "The Odd-Even Turn Model for Adaptive Routing," *IEEE Transactions on Parallel and Distributed Systems*, vol. 11, no. 7, pp. 729–738, Jul. 2000. [DOI: 10.1109/71.877831](https://doi.org/10.1109/71.877831).
+3. <a id="ref-dallyprinciples"></a>**[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann, 2004.
+
+---
+
 ## Summary & Next Steps
 
 In this lesson, we established:
