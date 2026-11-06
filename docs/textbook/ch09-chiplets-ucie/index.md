@@ -402,8 +402,12 @@ Test your mastery of Chapter 9 concepts against the official certification quest
 
 ---
 
-## 9.10 References & Bibliography
+## References & Bibliography
 
-1. **D. Das Sharma et al.**, "Universal Chiplet Interconnect Express (UCIe): Building an Open Chiplet Ecosystem," *IEEE Micro*, Vol. 42, No. 5, pp. 63–71, Sept.–Oct. 2022. DOI: [10.1109/MM.2022.3195973](https://doi.org/10.1109/MM.2022.3195973).
-2. **L. Zhu, H. Gu, Y. Tan, and G. Zhang**, "ScaDA-Rou: A Scalable, Deadlock-Free, and Adaptive Routing for 3-D Multi-Chiplet System," *IEEE TCS-II*, Vol. 73, No. 4, pp. 433–437, Apr. 2026. DOI: [10.1109/TCSII.2025.3526101](https://doi.org/10.1109/TCSII.2025.3526101).
-3. **J. Zhu et al.**, "Theseus: Exploring Efficient Wafer-Scale Chip Design for Large Language Models," *IEEE TCAD*, Vol. 44, No. 11, pp. 3810–3823, Nov. 2025. DOI: [10.1109/TCAD.2024.3496321](https://doi.org/10.1109/TCAD.2024.3496321).
+1. **[Vivet2021]** P. Vivet et al., "IntAct: A 96-Core Processor With Six Chiplets 3D-Stacked on an Active Interposer With Distributed Interconnects and Integrated Power Management," *IEEE Journal of Solid-State Circuits*, vol. 56, no. 1, pp. 79–97, Jan. 2021. [DOI: 10.1109/JSSC.2020.3036341](https://doi.org/10.1109/JSSC.2020.3036341).
+2. **[Chen2026]** Z. Chen, J. Zhang, D. Lyu, H. Chen, J. Jiang, W. Sheng, C. Zhang, and G. He, "HiRe: A Hierarchical Reconfigurable Architecture for Large-Scale Multichiplet DNN Accelerators," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 34, no. 4, pp. 880–893, Apr. 2026. [DOI: 10.1109/TVLSI.2026.3676552](https://doi.org/10.1109/TVLSI.2026.3676552).
+3. **[Wang2026]** P. Wang, M. Wang, Z. Ye, T. Lu, and Z. Yu, "In/Outbound Swap: A Backtracking-based Deadlock Recovery Mechanism for Multi-Chiplet Networks," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 5, pp. 2100–2114, May 2026. [DOI: 10.1109/TCAD.2026.3688573](https://doi.org/10.1109/TCAD.2026.3688573).
+4. **[DasSharma2022]** D. Das Sharma et al., "Universal Chiplet Interconnect Express (UCIe): Building an Open Chiplet Ecosystem," *IEEE Micro*, vol. 42, no. 5, pp. 63–71, Sept.–Oct. 2022. [DOI: 10.1109/MM.2022.3195973](https://doi.org/10.1109/MM.2022.3195973).
+5. **[UCIe2023]** UCIe Consortium, "Universal Chiplet Interconnect Express (UCIe) Specification Rev 1.1," Industry Standard Specification, Aug. 2023. [Online: https://www.uciexpress.org](https://www.uciexpress.org).
+6. **[Zhu2026]** L. Zhu, H. Gu, Y. Tan, and G. Zhang, "ScaDA-Rou: A Scalable, Deadlock-Free, and Adaptive Routing for 3-D Multi-Chiplet System," *IEEE Transactions on Circuits and Systems–II: Express Briefs*, vol. 73, no. 4, pp. 433–437, Apr. 2026. [DOI: 10.1109/TCSII.2025.3526101](https://doi.org/10.1109/TCSII.2025.3526101).
+7. **[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann Publishers, San Francisco, CA, 2004.

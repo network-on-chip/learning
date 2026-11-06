@@ -403,17 +403,7 @@ A 3-tier 3D-IC stack dissipates power uniformly across each layer: $P_0 = P_1 = 
 
 ---
 
-## References & Bibliography
-
-1. **[Pavlidis2009]** V. F. Pavlidis and E. G. Friedman, *Three-Dimensional Integrated Circuit Design*, Morgan Kaufmann, Burlington, MA, 2009. ISBN: 978-0-12-374343-5.
-2. **[Loi2011]** I. Loi, F. Angiolini, S. Fujita, S. Mitra, and L. Benini, "Characterization and Implementation of Fault-Tolerant Vertical Links for 3-D Networks-on-Chip," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 30, no. 1, pp. 124–134, Jan. 2011. [DOI: 10.1109/TCAD.2010.2065990](https://doi.org/10.1109/TCAD.2010.2065990).
-3. **[Seiculescu2010]** C. Seiculescu, S. Murali, L. Benini, and G. De Micheli, "SunFloor 3D: A Tool for Networks on Chip Topology Synthesis for 3-D Systems on Chips," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 29, no. 12, pp. 1987–2000, Dec. 2010. [DOI: 10.1109/TCAD.2010.2061610](https://doi.org/10.1109/TCAD.2010.2061610).
-4. **[More2018]** A. More, V. Pano, and B. Taskin, "Vertical Arbitration-Free 3-D NoCs," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 37, no. 9, pp. 1853–1866, Sept. 2018. [DOI: 10.1109/TCAD.2017.2768415](https://doi.org/10.1109/TCAD.2017.2768415).
-5. **[AlAlousi2026]** A. Al-Alousi, M. Li, and H. Meng, "Vendor-Independent Design Space Exploration and Resource Optimization Framework for 3-D Networks-on-Chip Using Hypergraph-Genetic Algorithm Integration," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 5, pp. 2236–2248, May 2026. [DOI: 10.1109/TCAD.2025.3616073](https://doi.org/10.1109/TCAD.2025.3616073).
-
----
-
-## 8.8 Checkpoint Assessment
+## 8.10 Checkpoint Assessment
 
 Test your mastery of Chapter 8 concepts against the official certification questions (mirroring the 3-Tier Exam Engine in [`quiz.md`](../../quiz.md)):
 
@@ -494,8 +484,11 @@ Test your mastery of Chapter 8 concepts against the official certification quest
 
 ---
 
-## 8.10 References & Bibliography
+## References & Bibliography
 
-1. **A. Al-Alousi, M. Li, and H. Meng**, "Vendor-Independent Design Space Exploration and Resource Optimization Framework for 3-D Networks-on-Chip Using Hypergraph-Genetic Algorithm Integration," *IEEE TCAD*, Vol. 45, No. 5, pp. 2236–2248, May 2026. DOI: [10.1109/TCAD.2025.3616073](https://doi.org/10.1109/TCAD.2025.3616073).
-2. **C.-H. Chao, K.-C. Chen, and A.-Y. Wu**, "Routing-Based Traffic Migration and Buffer Allocation Schemes for 3-D Network-on-Chip Systems With Thermal Limit," *IEEE TVLSI*, Vol. 21, No. 11, pp. 2118–2131, Nov. 2013. DOI: [10.1109/TVLSI.2012.2227852](https://doi.org/10.1109/TVLSI.2012.2227852).
-3. **P. Gao et al.**, "HammerBlade in Silicon: A 12-nm 2048-Core RISC-V Manycore SoC With Ruche Networks," *IEEE TVLSI*, Vol. 34, No. 7, pp. 2306–2310, July 2026. DOI: [10.1109/TVLSI.2026.3684311](https://doi.org/10.1109/TVLSI.2026.3684311).
+1. **[Pavlidis2009]** V. F. Pavlidis and E. G. Friedman, *Three-Dimensional Integrated Circuit Design*, Morgan Kaufmann, Burlington, MA, 2009. ISBN: 978-0-12-374343-5.
+2. **[Loi2011]** I. Loi, F. Angiolini, S. Fujita, S. Mitra, and L. Benini, "Characterization and Implementation of Fault-Tolerant Vertical Links for 3-D Networks-on-Chip," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 30, no. 1, pp. 124–134, Jan. 2011. [DOI: 10.1109/TCAD.2010.2065990](https://doi.org/10.1109/TCAD.2010.2065990).
+3. **[Seiculescu2010]** C. Seiculescu, S. Murali, L. Benini, and G. De Micheli, "SunFloor 3D: A Tool for Networks on Chip Topology Synthesis for 3-D Systems on Chips," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 29, no. 12, pp. 1987–2000, Dec. 2010. [DOI: 10.1109/TCAD.2010.2061610](https://doi.org/10.1109/TCAD.2010.2061610).
+4. **[More2018]** A. More, V. Pano, and B. Taskin, "Vertical Arbitration-Free 3-D NoCs," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 37, no. 9, pp. 1853–1866, Sept. 2018. [DOI: 10.1109/TCAD.2017.2768415](https://doi.org/10.1109/TCAD.2017.2768415).
+5. **[AlAlousi2026]** A. Al-Alousi, M. Li, and H. Meng, "Vendor-Independent Design Space Exploration and Resource Optimization Framework for 3-D Networks-on-Chip Using Hypergraph-Genetic Algorithm Integration," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 5, pp. 2236–2248, May 2026. [DOI: 10.1109/TCAD.2025.3616073](https://doi.org/10.1109/TCAD.2025.3616073).
+6. **[Chao2013]** C.-H. Chao, K.-C. Chen, and A.-Y. Wu, "Routing-Based Traffic Migration and Buffer Allocation Schemes for 3-D Network-on-Chip Systems With Thermal Limit," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 21, no. 11, pp. 2118–2131, Nov. 2013. [DOI: 10.1109/TVLSI.2012.2227852](https://doi.org/10.1109/TVLSI.2012.2227852).
