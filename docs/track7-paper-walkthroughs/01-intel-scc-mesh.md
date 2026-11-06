@@ -1,10 +1,12 @@
 # 7.1 The Manycore Milestone: Intel 48-Core Single-Chip Cloud Computer (SCC)
 
+> **Companion Reading:** Monograph Chapter 1 — *The On-Chip Interconnect Crisis*, Section 1.3 (Landmark Silicon Implementations: Intel SCC). [Read in Companion Textbook →](/learning/textbook/ch01-interconnect-crisis/)
+
 | Paper Details | Primary Reference |
 | :--- | :--- |
 | **Title** | *A 2-TB/s 6×4 Mesh Network for a Single-Chip Cloud Computer with DVFS in 45-nm CMOS* |
 | **Authors** | P. Salihundam, S. Jain, T. Jacob, S. Kumar, V. Erraguntla, Y. Hoskote, S. Vangal, G. Ruhl, N. Borkar |
-| **Venue** | **IEEE Journal of Solid-State Circuits (JSSC)**, Vol. 46, No. 4, April 2011 |
+| **Venue** | **IEEE Journal of Solid-State Circuits (JSSC)**, Vol. 46, No. 4, April 2011 [[Salihundam2011]](#ref-salihundam2011) |
 | **Repository Paper** | 📂 [`papers/a-2-tb-s-6-times-4-mesh-network-for-a-single-chip-cloud-computer-with-dvfs-in-45-nm-cmos/`](https://github.com/network-on-chip/noc-lab/tree/main/papers/a-2-tb-s-6-times-4-mesh-network-for-a-single-chip-cloud-computer-with-dvfs-in-45-nm-cmos) |
 
 ---
@@ -13,7 +15,7 @@
 
 In 2009, multi-core processors were hitting a scalability brick wall. Desktop and server CPUs scaled from 2 to 4 to 8 cores using snooping buses and centralized crossbars. However, attempting to scale hardware cache coherence (MESI/MOESI directories) to **48 or 100 cores** resulted in exponential coherence traffic, directory area explosions, and catastrophic power consumption.
 
-Intel Labs embarked on a landmark experimental project: the **Single-Chip Cloud Computer (SCC)**.
+Building on prior research from the 80-tile TeraFLOPS processor [[Vangal2008]](#ref-vangal2008), Intel Labs embarked on a landmark experimental project: the **Single-Chip Cloud Computer (SCC)** [[Howard2011]](#ref-howard2011), [[Salihundam2011]](#ref-salihundam2011).
 Instead of treating on-chip cores as a tightly-coupled shared-memory multiprocessor with hardware cache coherence, Intel treated the chip as an **on-die datacenter cluster** (a "Cloud on a Chip"). 48 independent Pentium-class IA-32 cores communicate strictly via a high-speed **packet-switched 2D Mesh Network-on-Chip**.
 
 ```mermaid
@@ -86,7 +88,7 @@ graph LR
 
 1. **Cycle 1 (Link Traversal + Speculative Write):** Flits traverse the $5.4 \ \text{mm}$ inter-tile link and write directly into the input FIFO based on speculative write pointers, eliminating arrival dependency checks.
 2. **Cycle 2 (Route Pre-Computation):** Using Lookahead Routing ([Lesson 2.1](../track2-router-architecture/01-pipeline-stages.md)), the output port for hop $N+1$ is computed during hop $N$.
-3. **Cycle 3 (Wrapped Wave-Front Allocation - WWFA):** A specialized single-cycle 2D wave-front arbiter matches 5 input ports to 5 output ports concurrently, sustaining over **$90\%$ crossbar utilization**.
+3. **Cycle 3 (Wrapped Wave-Front Allocation - WWFA):** A specialized single-cycle 2D wave-front arbiter [[Tamir1993]](#ref-tamir1993) matches 5 input ports to 5 output ports concurrently, sustaining over **$90\%$ crossbar utilization**.
 4. **Cycle 4 (Crossbar Switch Traversal):** The 128-bit flit traverses the crossbar matrix directly into the output link driver.
 
 ---
@@ -752,4 +754,17 @@ function resetQuiz71() {
 Intel’s 48-Core Single-Chip Cloud Computer demonstrated that a packet-switched 2D mesh combined with tile-level DVFS and message passing can scale manycore architectures to commercial reality.
 
 In **[Lesson 7.2: The Multi-Chiplet Revolution: NVIDIA Simba](02-nvidia-simba-mcm.md)**, we examine how NVIDIA scaled deep learning acceleration across **36 chiplets** using Ground-Referenced Signaling (GRS) and hierarchical on-package networks!
+
+---
+
+## References & Primary Sources
+
+<a id="ref-salihundam2011"></a>**[Salihundam2011]** P. Salihundam, S. Jain, T. Jacob, S. Kumar, V. Erraguntla, Y. Hoskote, S. Vangal, G. Ruhl, and N. Borkar, "A 2-TB/s $6 \times 4$ Mesh Network for a Single-Chip Cloud Computer with DVFS in 45-nm CMOS," *IEEE Journal of Solid-State Circuits*, vol. 46, no. 4, pp. 757–766, 2011. [DOI: 10.1109/JSSC.2011.2108121](https://doi.org/10.1109/JSSC.2011.2108121)
+
+<a id="ref-howard2011"></a>**[Howard2011]** J. Howard, S. Dighe, S. R. Vangal, G. Ruhl, N. Borkar, S. Jain, V. Erraguntla, M. Konow, M. Riepen, M. Gries, G. Droege, T. Lund-Larsen, S. Steibl, S. Borkar, V. K. De, and R. Van Der Wijngaart, "A 48-core IA-32 message-passing processor with DVFS in 45nm CMOS," *IEEE Micro*, vol. 31, no. 3, pp. 44–53, 2011. [DOI: 10.1109/MM.2011.48](https://doi.org/10.1109/MM.2011.48)
+
+<a id="ref-vangal2008"></a>**[Vangal2008]** S. R. Vangal, J. Howard, G. Ruhl, S. Dighe, H. Wilson, J. Tschanz, D. Finan, A. Singh, T. Jacob, S. Jain, V. Erraguntla, C. Roberts, Y. Hoskote, N. Borkar, and S. Borkar, "An 80-tile sub-100-W TeraFLOPS processor in 65-nm CMOS," *IEEE Journal of Solid-State Circuits*, vol. 43, no. 1, pp. 29–41, 2008. [DOI: 10.1109/JSSC.2007.910957](https://doi.org/10.1109/JSSC.2007.910957)
+
+<a id="ref-tamir1993"></a>**[Tamir1993]** Y. Tamir and H.-C. Chi, "Symmetric bipartite matchers for high-performance packet switches," *IEEE Transactions on Parallel and Distributed Systems*, vol. 4, no. 1, pp. 91–98, 1993. [DOI: 10.1109/71.205655](https://doi.org/10.1109/71.205655)
+
 

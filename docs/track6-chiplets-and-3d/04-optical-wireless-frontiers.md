@@ -1,11 +1,13 @@
 # 6.4 Emerging Interconnect Frontiers: Optical (ONoC) & Wireless NoC (WNoC)
 
+> **Companion Reading:** Monograph Chapter 10 — *Emerging Frontiers: Optical, Wireless, and Neuromorphic NoCs*, Section 10.1 (Optical NoCs) and Section 10.2 (Wireless NoCs). [Read in Companion Textbook →](/learning/textbook/ch10-emerging-frontiers/)
+
 As computer architectures scale toward exascale supercomputers and multi-thousand-core AI accelerators, conventional electrical copper interconnects encounter fundamental physics barriers:
 1. **The RC Delay Wall:** Planar wire delay scales quadratically with distance ($t_d \propto L^2$) without repeaters. Even with optimal repeater insertion, signal propagation is constrained by the speed of electrons in resistive copper ($\approx 0.1\text{ to } 0.2 \cdot c$).
 2. **Capacitive Dynamic Power Dissipation:** Every bit transition on a copper wire charges and discharges parasitic wire capacitance ($P = C V^2 f$). At high clock frequencies and massive bisection widths, interconnect charging accounts for over $30\text{–}40\%$ of total chip power.
 3. **High-Frequency Attenuation & Crosstalk:** Above $15\text{–}20 \ \text{GHz}$, skin effect and dielectric losses ($\tan \delta$) attenuate high-speed signals, while capacitive and inductive coupling generate severe inter-wire crosstalk.
 
-To shatter these copper limitations, computer architects and physicists are pioneering two radical non-electronic paradigms: **Photonic/Optical Network-on-Chip (ONoC)** and **Millimeter-Wave / Terahertz Wireless Network-on-Chip (WNoC)**.
+To shatter these copper limitations, computer architects and physicists are pioneering two radical non-electronic paradigms: **Photonic/Optical Network-on-Chip (ONoC)** [[Vantrease2008]](#ref-vantrease2008), [[Kurian2010]](#ref-kurian2010), [[Ye2013]](#ref-ye2013) and **Millimeter-Wave / Terahertz Wireless Network-on-Chip (WNoC)** [[Deb2012]](#ref-deb2012), [[Abadal2018]](#ref-abadal2018).
 
 ---
 
@@ -39,7 +41,7 @@ graph LR
 Silicon has a very high refractive index ($n_{Si} \approx 3.48$) compared to silicon dioxide cladding ($n_{SiO2} \approx 1.44$). This massive refractive index contrast ($\Delta n \approx 2.04$) creates total internal reflection within sub-micron cross-sections ($\approx 450 \ \text{nm} \times 220 \ \text{nm}$), guiding infrared light ($\lambda \approx 1310 \ \text{nm}$ or $1550 \ \text{nm}$) with low propagation loss ($< 1.0\text{–}1.5 \ \text{dB/cm}$).
 
 #### 2. Silicon Micro-Ring Resonators (MRRs)
-A Micro-Ring Resonator consists of a circular optical loop of radius $R$ placed adjacent to a straight bus waveguide:
+A Micro-Ring Resonator [[Little1997]](#ref-little1997) consists of a circular optical loop of radius $R$ placed adjacent to a straight bus waveguide:
 
 ```
         Straight Waveguide (Input) ---------------> Through Port
@@ -127,7 +129,7 @@ To counteract thermal drift, every micro-ring must be equipped with an integrate
 
 ## 4. Wireless Network-on-Chip (WNoC): Millimeter-Wave Shortcuts
 
-Instead of guiding signals along silicon waveguides or copper wires, **Wireless Network-on-Chip (WNoC)** broadcasts electromagnetic waves across the silicon substrate using on-chip antennas!
+Instead of guiding signals along silicon waveguides or copper wires, **Wireless Network-on-Chip (WNoC)** broadcasts electromagnetic waves across the silicon substrate using on-chip antennas [[Deb2012]](#ref-deb2012), [[Abadal2018]](#ref-abadal2018)!
 
 ```mermaid
 graph TD
@@ -774,4 +776,21 @@ Across this track, you have mastered:
 
 ### Continue Your Journey:
 Proceed to **[Track 7: Landmark Papers](../track7-paper-walkthroughs/index.md)** to analyze classic, award-winning research literature that defined the foundations of modern Network-on-Chip architecture!
+
+---
+
+## References & Further Reading
+
+<a id="ref-little1997"></a>**[Little1997]** B. E. Little, J. S. Foresi, G. Steinmeyer, E. R. Thoen, S. T. Chu, H. A. Haus, E. P. Ippen, and J. L. Greene, "Ultra-compact $\text{Si-SiO}_2$ microring resonator optical channel dropping filters," *IEEE Photonics Technology Letters*, vol. 10, no. 4, pp. 549–551, 1998. [DOI: 10.1109/68.662590](https://doi.org/10.1109/68.662590)
+
+<a id="ref-vantrease2008"></a>**[Vantrease2008]** D. Vantrease, R. Schreiber, M. Monchiero, M. McLaren, N. P. Jouppi, M. Fiorentino, A. Davis, N. Binkert, R. G. Beausoleil, and J. H. Ahn, "Corona: System implications of emerging nanophotonic technology," in *Proceedings of the 35th Annual International Symposium on Computer Architecture (ISCA)*, pp. 153–164, 2008. [DOI: 10.1109/ISCA.2008.35](https://doi.org/10.1109/ISCA.2008.35)
+
+<a id="ref-kurian2010"></a>**[Kurian2010]** G. Kurian, C. H. O. Chen, J. Sun, C. S. Choi, J. LeBeane, A. Joshi, V. Stojanovic, and S. Amarasinghe, "ATAC: A 1000-core cache-coherent processor with on-chip optical network," in *Proceedings of the 19th International Conference on Parallel Architectures and Compilation Techniques (PACT)*, pp. 477–488, 2010. [DOI: 10.1145/1854273.1854332](https://doi.org/10.1145/1854273.1854332)
+
+<a id="ref-ye2013"></a>**[Ye2013]** Y. Ye, L. Xu, X. Wu, W. Zhang, X. Wang, M. Nikdast, and Z. Wang, "A 3D hybrid optical-electronic network-on-chip for multiprocessor system-on-chip," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 32, no. 8, pp. 1250–1263, 2013. [DOI: 10.1109/TCAD.2013.2255745](https://doi.org/10.1109/TCAD.2013.2255745)
+
+<a id="ref-deb2012"></a>**[Deb2012]** S. Deb, A. Ganguly, P. P. Pande, B. Belzer, and D. Heo, "Wireless NoC as interconnection backbone for multicore chips: Promises and challenges," *IEEE Journal on Emerging and Selected Topics in Circuits and Systems*, vol. 2, no. 2, pp. 228–239, 2012. [DOI: 10.1109/JETCAS.2012.2193835](https://doi.org/10.1109/JETCAS.2012.2193835)
+
+<a id="ref-abadal2018"></a>**[Abadal2018]** S. Abadal, A. Mestres, J. Torrellas, E. Alarcón, and A. Cabellos-Aparicio, "Medium access control in wireless Network-on-Chip: A survey," *ACM Computing Surveys*, vol. 51, no. 6, pp. 1–35, 2018. [DOI: 10.1145/3281446](https://doi.org/10.1145/3281446)
+
 

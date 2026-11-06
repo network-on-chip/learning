@@ -1,10 +1,12 @@
 # 7.3 Stacking the 3rd Dimension: 3D Optical NoC for MPSoCs
 
+> **Companion Reading:** Monograph Chapter 10 — *Emerging Frontiers: Optical, Wireless, and Neuromorphic NoCs*, Section 10.1 (Silicon Nanophotonics and Optical NoCs). [Read in Companion Textbook →](/learning/textbook/ch10-emerging-frontiers/)
+
 | Paper Details | Primary Reference |
 | :--- | :--- |
 | **Title** | *3-D Mesh-Based Optical Network-on-Chip for Multiprocessor System-on-Chip* |
 | **Authors** | Y. Ye, J. Xu, X. Wu, W. Zhang, W. Liu, M. Nikdast |
-| **Venue** | **IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems (TCAD)**, Vol. 32, No. 4, April 2013 |
+| **Venue** | **IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems (TCAD)**, Vol. 32, No. 4, April 2013 [[Ye2013]](#ref-ye2013) |
 | **Repository Paper** | 📂 [`papers/3-d-mesh-based-optical-network-on-chip-for-multiprocessor-system-on-chip/`](https://github.com/network-on-chip/noc-lab/tree/main/papers/3-d-mesh-based-optical-network-on-chip-for-multiprocessor-system-on-chip) |
 
 ---
@@ -12,12 +14,12 @@
 ## 1. The Vision: Uniting 3D Stacking and Silicon Photonics
 
 By 2013, two revolutionary interconnect paradigms had emerged independently:
-1. **3D Integrated Circuits (3D ICs):** Stacking dies vertically with Through-Silicon Vias (TSVs) to reduce average planar wire distance.
-2. **Optical Networks-on-Chip (ONoCs):** Guiding photons along silicon waveguides to achieve speed-of-light propagation with zero capacitive in-flight power.
+1. **3D Integrated Circuits (3D ICs):** Stacking dies vertically with Through-Silicon Vias (TSVs) to reduce average planar wire distance [[Pavlidis2009]](#ref-pavlidis2009).
+2. **Optical Networks-on-Chip (ONoCs):** Guiding photons along silicon waveguides to achieve speed-of-light propagation with zero capacitive in-flight power [[Vantrease2008]](#ref-vantrease2008).
 
 However, prior optical networks were purely 2D planar meshes. When mapped onto multi-layer 3D chips, fabricating multiple optical waveguide layers proved prohibitively expensive and introduced massive thermal cross-talk.
 
-In this landmark IEEE TCAD paper, researchers from the Hong Kong University of Science and Technology (HKUST) proposed a unified architecture: **a 3D Mesh-Based Optical Network-on-Chip**.
+In this landmark IEEE TCAD paper, researchers from the Hong Kong University of Science and Technology (HKUST) proposed a unified architecture: **a 3D Mesh-Based Optical Network-on-Chip** [[Ye2013]](#ref-ye2013).
 By stacking two active CMOS electrical computing tiers using vertical TSVs and dedicating a single top optical layer for high-speed photonic routing, they demonstrated that multi-terabit bisection bandwidth could be achieved with unprecedented energy efficiency.
 
 ```mermaid
@@ -42,7 +44,7 @@ graph TD
 In a 3D mesh network, each optical router must switch light across 7 spatial directions: $\{Local, East, West, North, South, Up, Down\}$.
 
 ### The Crossbar Crisis in Optics
-A traditional non-blocking optical crossbar requires $7 \times 7 = \mathbf{49 \ \text{Micro-Ring Resonators (MRRs)}}$ and generates **$67 \ \text{waveguide crossings}$**.
+A traditional non-blocking optical crossbar requires $7 \times 7 = \mathbf{49 \ \text{Micro-Ring Resonators (MRRs)}}$ [[Little1997]](#ref-little1997) and generates **$67 \ \text{waveguide crossings}$**.
 Because every waveguide crossing scatters light and introduces an optical insertion loss ($\approx 0.12 \ \text{dB/crossing}$), an optical signal passing through multiple cascaded crossbars loses over $80\%$ of its optical power to crossing attenuation alone!
 
 ### The Authors' Breakthrough: The Passive-Routing 7×7 Router
@@ -670,4 +672,17 @@ function resetQuiz73() {
 This IEEE TCAD landmark proved that 3D vertical integration and silicon nanophotonics are natural partners: TSVs provide compact vertical electronic control, while a dedicated top optical layer delivers speed-of-light photonic routing with low-loss passive crossbars.
 
 In **[Lesson 7.4: In-Network Computing Neuromorphic Router](04-in-network-neuromorphic.md)**, we examine how the communication fabric itself becomes the compute engine by performing **in-flight partial-sum reductions inside router crossbars**!
+
+---
+
+## References & Primary Sources
+
+<a id="ref-ye2013"></a>**[Ye2013]** Y. Ye, J. Xu, X. Wu, W. Zhang, W. Liu, and M. Nikdast, "3-D Mesh-Based Optical Network-on-Chip for Multiprocessor System-on-Chip," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 32, no. 4, pp. 584–596, 2013. [DOI: 10.1109/TCAD.2012.2227483](https://doi.org/10.1109/TCAD.2012.2227483)
+
+<a id="ref-pavlidis2009"></a>**[Pavlidis2009]** V. F. Pavlidis and E. G. Friedman, *Three-Dimensional Integrated Circuit Design*, Morgan Kaufmann, 2009. [DOI: 10.1016/B978-0-12-374389-3.X0001-4](https://doi.org/10.1016/B978-0-12-374389-3.X0001-4)
+
+<a id="ref-vantrease2008"></a>**[Vantrease2008]** D. Vantrease, R. Schreiber, M. Monchiero, M. McLaren, N. P. Jouppi, M. Fiorentino, A. Davis, N. Binkert, R. G. Beausoleil, and J. H. Ahn, "Corona: System implications of emerging nanophotonic technology," in *Proceedings of the 35th Annual International Symposium on Computer Architecture (ISCA)*, pp. 153–164, 2008. [DOI: 10.1109/ISCA.2008.35](https://doi.org/10.1109/ISCA.2008.35)
+
+<a id="ref-little1997"></a>**[Little1997]** B. E. Little, J. S. Foresi, G. Steinmeyer, E. R. Thoen, S. T. Chu, H. A. Haus, E. P. Ippen, and J. L. Greene, "Ultra-compact $\text{Si-SiO}_2$ microring resonator optical channel dropping filters," *IEEE Photonics Technology Letters*, vol. 10, no. 4, pp. 549–551, 1998. [DOI: 10.1109/68.662590](https://doi.org/10.1109/68.662590)
+
 

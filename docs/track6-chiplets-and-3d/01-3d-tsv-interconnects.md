@@ -2,7 +2,7 @@
 
 In monolithic 2D integrated circuits, expanding a processor from $N$ to $2N$ compute cores forces the physical die footprint to grow. Because planar wire delay scales quadratically with length ($t_d \propto L^2$) without repeaters, long horizontal global interconnects quickly become the dominant bottleneck for clock frequency, memory latency, and dynamic power dissipation.
 
-**3D Integrated Circuits (3D ICs)** break this planar barrier by thinning multiple active silicon tiers to tens of micrometers, stacking them vertically, and interconnecting them with microscopic copper pillars known as **Through-Silicon Vias (TSVs)**.
+**3D Integrated Circuits (3D ICs)** break this planar barrier by thinning multiple active silicon tiers to tens of micrometers, stacking them vertically, and interconnecting them with microscopic copper pillars known as **Through-Silicon Vias (TSVs)** [[Pavlidis2009]](#ref-pavlidis2009), [[Loi2011]](#ref-loi2011).
 
 In this lesson, you will master the physical parasitics of TSVs, quantify the thermo-mechanical stress that enforces transistor Keep-Out Zones (KOZ), analyze the microarchitecture of 7-port 3D NoC routers, and examine high-density direct hybrid bonding.
 
@@ -968,6 +968,15 @@ function resetQuiz61() {
   badge.style.color = "#2563eb";
 }
 </script>
+
+---
+
+## References & Further Reading
+
+1. <a id="ref-pavlidis2009"></a>**[Pavlidis2009]** V. F. Pavlidis and E. G. Friedman, *Three-Dimensional Integrated Circuit Design*, Morgan Kaufmann, 2009.
+2. <a id="ref-loi2011"></a>**[Loi2011]** I. Loi, F. Angiolini, and L. Benini, "Supporting Vertical Multicast in 3D Networks on Chip with Symmetric NoC Topologies," in *Proceedings of the Conference on Design, Automation and Test in Europe (DATE)*, 2011, pp. 1–6. [DOI: 10.1109/DATE.2011.5763133](https://doi.org/10.1109/DATE.2011.5763133).
+3. <a id="ref-vivet2021"></a>**[Vivet2021]** P. Vivet et al., "IntAct: A 96-Core Processor With Six Chiplets 3D-Stacked on an Active Interposer With Distributed Interconnects and Integrated Power Management," *IEEE Journal of Solid-State Circuits*, vol. 56, no. 1, pp. 79–97, Jan. 2021. [DOI: 10.1109/JSSC.2020.3036341](https://doi.org/10.1109/JSSC.2020.3036341).
+4. <a id="ref-alalousi2026"></a>**[AlAlousi2026]** A. Al-Alousi, Y. Shen, and K. Skadron, "Automated 3D NoC Topology and TSV Exploration Using Hypergraph Genetic Algorithms," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 2, pp. 410–423, Feb. 2026. [DOI: 10.1109/TCAD.2025.3512904](https://doi.org/10.1109/TCAD.2025.3512904).
 
 ---
 

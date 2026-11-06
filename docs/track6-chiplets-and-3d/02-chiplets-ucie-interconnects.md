@@ -1,12 +1,14 @@
 # 6.2 Multi-Chiplet Interconnects, 2.5D Packaging & UCIe
 
-For over four decades, silicon scaling followed Moore’s Law and Dennard scaling: every two years, transistors shrank by $30\%$, enabling monolithic System-on-Chips (SoCs) to integrate more compute cores onto a single silicon die.
+> **Companion Reading:** Monograph Chapter 9 — *3D NoCs, Chiplet Architectures, and Multi-Die Interconnects*, Section 9.3 (2.5D Multi-Die Interconnects and UCIe). [Read in Companion Textbook →](/learning/textbook/ch09-chiplets-3d/)
+
+For over four decades, silicon scaling followed Moore’s Law [[Moore1965]](#ref-moore1965) and Dennard scaling [[Dennard1974]](#ref-dennard1974): every two years, transistors shrank by $30\%$, enabling monolithic System-on-Chips (SoCs) to integrate more compute cores onto a single silicon die.
 
 Today, monolithic scaling has struck two unyielding physical walls:
-1. **The Lithographic Reticle Limit ($\approx 858 \text{ mm}^2$):** Standard deep-ultraviolet (DUV) and extreme-ultraviolet (EUV) photolithography exposure fields are bounded by $26 \text{ mm} \times 33 \text{ mm}$. Fabricating a monolithic die larger than $858 \text{ mm}^2$ requires complex multi-mask reticle stitching.
-2. **Defect Density & Yield Collapse:** Semiconductor defect density causes wafer yield to collapse exponentially as die area expands. A monolithic $800 \text{ mm}^2$ die can yield below $15\%$, making it economically prohibitive.
+1. **The Lithographic Reticle Limit ($\approx 858 \text{ mm}^2$):** Standard deep-ultraviolet (DUV) and extreme-ultraviolet (EUV) photolithography exposure fields are bounded by $26 \text{ mm} \times 33 \text{ mm}$ [[Mack2007]](#ref-mack2007). Fabricating a monolithic die larger than $858 \text{ mm}^2$ requires complex multi-mask reticle stitching.
+2. **Defect Density & Yield Collapse:** Semiconductor defect density causes wafer yield to collapse exponentially as die area expands [[Murphy1964]](#ref-murphy1964). A monolithic $800 \text{ mm}^2$ die can yield below $15\%$, making it economically prohibitive.
 
-The semiconductor industry’s answer is the **Multi-Die Chiplet Architecture**: disaggregating massive monolithic SoCs into smaller, specialized functional dies (compute, I/O, memory) bonded together on an advanced substrate and unified by high-bandwidth die-to-die (D2D) interconnects.
+The semiconductor industry’s answer is the **Multi-Die Chiplet Architecture** [[Vivet2021]](#ref-vivet2021), [[Zimmer2020]](#ref-zimmer2020): disaggregating massive monolithic SoCs into smaller, specialized functional dies (compute, I/O, memory) bonded together on an advanced substrate and unified by high-bandwidth die-to-die (D2D) interconnects.
 
 ---
 
@@ -31,7 +33,7 @@ graph TD
 
 ### The Negative Binomial Yield Model
 
-Wafer yield is governed by the **Negative Binomial (Murphy/Seeds) model**:
+Wafer yield is governed by the **Negative Binomial (Murphy/Seeds) model** [[Murphy1964]](#ref-murphy1964), [[Seeds1967]](#ref-seeds1967):
 
 $$\text{Yield} = \left( 1 + \frac{D_0 \cdot A}{\alpha} \right)^{-\alpha}$$
 
@@ -58,7 +60,7 @@ Furthermore, chiplets enable **heterogeneous process optimization**: high-perfor
 
 ## 2. Advanced Packaging Landscape: 2.5D Interposers & Bridges
 
-To connect chiplets with high bandwidth and low latency, packaging technology has evolved beyond traditional printed circuit boards (PCBs):
+To connect chiplets with high bandwidth and low latency, packaging technology has evolved beyond traditional printed circuit boards (PCBs) [[Mahajan2016]](#ref-mahajan2016), [[Vivet2021]](#ref-vivet2021):
 
 ```mermaid
 graph TD
@@ -82,7 +84,7 @@ graph TD
 
 ## 3. Universal Chiplet Interconnect Express (UCIe)
 
-Prior to 2022, chiplet interfaces were proprietary (Intel AIB/MDIO, AMD Infinity Fabric, TSMC LIPINCON). To enable a competitive open-chiplet ecosystem, the **UCIe Consortium** (founded by Intel, AMD, Arm, TSMC, Samsung, ASE, Google, Meta, Microsoft, and Qualcomm) ratified the **UCIe 1.0 and 2.0 specifications**.
+Prior to 2022, chiplet interfaces were proprietary (Intel AIB/MDIO, AMD Infinity Fabric, TSMC LIPINCON). To enable a competitive open-chiplet ecosystem, the **UCIe Consortium** (founded by Intel, AMD, Arm, TSMC, Samsung, ASE, Google, Meta, Microsoft, and Qualcomm) ratified the **UCIe 1.0 and 2.0 specifications** [[UCIe2023]](#ref-ucie2023), [[Sharma2022]](#ref-sharma2022).
 
 ### The 3-Layer UCIe Protocol Stack
 
@@ -730,3 +732,28 @@ function resetQuiz62() {
 Disaggregating monolithic processors into multi-die chiplets circumvents the $858\text{ mm}^2$ reticle limit and saves $50\text{–}70\%$ in manufacturing costs. Advanced packaging (CoWoS, EMIB) and the open UCIe standard deliver shoreline bandwidth exceeding $1.3\text{ Tbps/mm}$ at sub-picojoule energy efficiency.
 
 In **[Lesson 6.3: 3D NoC Topologies, Thermal Stacking & Vertical Deadlock](03-3d-topologies-thermal-deadlock.md)**, we examine 3D network topologies, analyze the severe thermal entrapment of vertical die stacking, and prove deadlock avoidance in 3D space.
+
+---
+
+## References & Further Reading
+
+<a id="ref-moore1965"></a>**[Moore1965]** G. E. Moore, "Cramming more components onto integrated circuits," *Electronics*, vol. 38, no. 8, pp. 114–117, 1965. [DOI: 10.1109/jproc.1998.658762](https://doi.org/10.1109/jproc.1998.658762)
+
+<a id="ref-dennard1974"></a>**[Dennard1974]** R. H. Dennard, F. H. Gaensslen, H.-N. Yu, V. L. Rideout, E. Bassous, and A. R. LeBlanc, "Design of ion-implanted MOSFET's with very small physical dimensions," *IEEE Journal of Solid-State Circuits*, vol. 9, no. 5, pp. 256–268, 1974. [DOI: 10.1109/JSSC.1974.1050511](https://doi.org/10.1109/JSSC.1974.1050511)
+
+<a id="ref-mack2007"></a>**[Mack2007]** C. Mack, *Fundamental Principles of Optical Lithography: The Science of Microfabrication*, John Wiley & Sons, 2007. [DOI: 10.1002/9780470723876](https://doi.org/10.1002/9780470723876)
+
+<a id="ref-murphy1964"></a>**[Murphy1964]** B. T. Murphy, "Cost-size optima of monolithic integrated circuits," *Proceedings of the IEEE*, vol. 52, no. 12, pp. 1537–1545, 1964. [DOI: 10.1109/PROC.1964.3442](https://doi.org/10.1109/PROC.1964.3442)
+
+<a id="ref-seeds1967"></a>**[Seeds1967]** R. B. Seeds, "Yield, economic, and logistic models for complex digital arrays," in *IEEE International Electron Devices Meeting (IEDM)*, vol. 13, pp. 12–12, 1967. [DOI: 10.1109/IEDM.1967.187834](https://doi.org/10.1109/IEDM.1967.187834)
+
+<a id="ref-vivet2021"></a>**[Vivet2021]** P. Vivet et al., "Intact: A 96-core processor with six chiplets 3D-stacked on an active interposer with distributed interconnects and integrated power management," *IEEE Journal of Solid-State Circuits*, vol. 56, no. 1, pp. 79–97, 2021. [DOI: 10.1109/JSSC.2020.3036341](https://doi.org/10.1109/JSSC.2020.3036341)
+
+<a id="ref-mahajan2016"></a>**[Mahajan2016]** R. Mahajan, R. Sankman, N. Patel, D. Kim, K. Aygun, Z. Qian, Y. Mekonnen, I. Salama, S. Sharan, D. Iyengar, and D. Mallik, "Embedded multi-die interconnect bridge (EMIB) - A high-density, high-bandwidth packaging solution," in *IEEE 66th Electronic Components and Technology Conference (ECTC)*, pp. 832–839, 2016. [DOI: 10.1109/ECTC.2016.143](https://doi.org/10.1109/ECTC.2016.143)
+
+<a id="ref-zimmer2020"></a>**[Zimmer2020]** B. Zimmer et al., "A 0.11-pJ/Op, 0.32-to-128-TOPS, Scalable Multi-Chip-Module-Based Deep Neural Network Accelerator with Ground-Reference Signaling in 16-nm," *IEEE Journal of Solid-State Circuits*, vol. 55, no. 4, pp. 920–932, 2020. [DOI: 10.1109/JSSC.2019.2960488](https://doi.org/10.1109/JSSC.2019.2960488)
+
+<a id="ref-ucie2023"></a>**[UCIe2023]** UCIe Consortium, "Universal Chiplet Interconnect Express (UCIe) Specification Revision 1.1," *UCIe Consortium Technical Specification*, Aug. 2023. [Online: https://www.uciexpress.org](https://www.uciexpress.org)
+
+<a id="ref-sharma2022"></a>**[Sharma2022]** D. D. Sharma, "Universal Chiplet Interconnect Express (UCIe): Building an open chiplet ecosystem," in *IEEE Hot Interconnects (HOTI)*, pp. 1–6, 2022. [DOI: 10.1109/HOTI56247.2022.00015](https://doi.org/10.1109/HOTI56247.2022.00015)
+

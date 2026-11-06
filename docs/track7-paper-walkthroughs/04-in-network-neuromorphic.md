@@ -1,10 +1,12 @@
 # 7.4 In-Network Computing: Neuromorphic Partial-Sum Routers
 
+> **Companion Reading:** Monograph Chapter 10 — *Emerging Frontiers: Optical, Wireless, and Neuromorphic NoCs*, Section 10.3 (In-Network Computing and Neuromorphic Interconnects). [Read in Companion Textbook →](/learning/textbook/ch10-emerging-frontiers/)
+
 | Paper Details | Primary Reference |
 | :--- | :--- |
 | **Title** | *A 1.63-pJ/SOP Neuromorphic Processor With Integrated Partial Sum Routers for In-Network Computing* |
 | **Authors** | D. Li, M. M. Wong, Y. S. Chong, J. Zhou, M. Upadhyay, A. Balaji, A. Mani, W. F. Wong, L.-S. Peh, A. T. Do, B. Wang |
-| **Venue** | **IEEE Transactions on Very Large Scale Integration (VLSI) Systems**, Vol. 32, No. 11, November 2024 |
+| **Venue** | **IEEE Transactions on Very Large Scale Integration (VLSI) Systems**, Vol. 32, No. 11, November 2024 [[Li2024]](#ref-li2024) |
 | **Repository Paper** | 📂 [`papers/1-63-pj-sop-neuromorphic-processor-with-integrated-partial-sum-routers-for-in-network-comp/`](https://github.com/network-on-chip/noc-lab/tree/main/papers/1-63-pj-sop-neuromorphic-processor-with-integrated-partial-sum-routers-for-in-network-comp) |
 
 ---
@@ -12,7 +14,7 @@
 ## 1. The Paradigm Shift: Moving Compute Into the Network
 
 For over 70 years, computer systems strictly adhered to the Von Neumann separation: **processors compute**, and **networks transport**.
-However, in modern deep learning and Neuromorphic Spiking Neural Networks (SNNs), computing a neuron's activation requires accumulating thousands of synaptic weights:
+However, in modern deep learning and Neuromorphic Spiking Neural Networks (SNNs) such as IBM TrueNorth [[Merolla2014]](#ref-merolla2014) and Intel Loihi [[Davies2018]](#ref-davies2018), computing a neuron's activation requires accumulating thousands of synaptic weights:
 
 $$V_j = \sum_{i=1}^{M} W_{i, j} \cdot S_i$$
 
@@ -32,7 +34,7 @@ When a neural network layer exceeds the physical memory capacity of a single pro
 
 This traditional approach introduces **spike quantization error**, requires **accuracy-loss retraining**, and causes **severe NoC congestion** as merge cores become hot spots.
 
-The National University of Singapore (NUS) team challenged this fundamental assumption: **What if the NoC routers themselves computed the addition in-flight as packets traveled through the switches?**
+The National University of Singapore (NUS) team challenged this fundamental assumption: **What if the NoC routers themselves computed the addition in-flight as packets traveled through the switches [[Li2024]](#ref-li2024)?**
 
 ---
 
@@ -633,4 +635,15 @@ Congratulations on mastering all seven learning tracks:
 7. **[Track 7: Landmark Papers](index.md)** — Silicon case studies from Intel SCC, NVIDIA Simba, 3D Optical NoC, and Neuromorphic In-Network Computing.
 
 To certify your silicon knowledge and claim your verified cryptographic credential, head over to the **[NoC Architecture Certification Challenge](../quiz.md)** or compete on the global **[Leaderboard](../leaderboard.md)**!
+
+---
+
+## References & Primary Sources
+
+<a id="ref-li2024"></a>**[Li2024]** D. Li, M. M. Wong, Y. S. Chong, J. Zhou, M. Upadhyay, A. Balaji, A. Mani, W. F. Wong, L.-S. Peh, A. T. Do, and B. Wang, "A 1.63-pJ/SOP Neuromorphic Processor With Integrated Partial Sum Routers for In-Network Computing," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 32, no. 11, pp. 2097–2110, 2024. [DOI: 10.1109/TVLSI.2024.3444474](https://doi.org/10.1109/TVLSI.2024.3444474)
+
+<a id="ref-merolla2014"></a>**[Merolla2014]** P. A. Merolla, J. V. Arthur, R. Alvarez-Icaza, A. S. Cassidy, J. Sawada, F. Akopyan, B. L. Jackson, N. Imam, C. Guo, Y. Nakamura, B. Brezzo, I. Vo, S. K. Esser, R. Appuswamy, B. Taba, A. Amir, M. D. Flickner, W. P. Risk, R. Manohar, and D. S. Modha, "A million spiking-neuron integrated circuit with a scalable communication network and interface," *Science*, vol. 345, no. 6197, pp. 668–673, 2014. [DOI: 10.1126/science.1254642](https://doi.org/10.1126/science.1254642)
+
+<a id="ref-davies2018"></a>**[Davies2018]** M. Davies, N. Srinivasa, T.-H. Lin, G. Chinya, Y. Cao, S. H. Choday, G. Dimou, P. Joshi, N. Imam, S. Jain, Y. Liao, C.-K. Lin, A. Lines, R. Liu, D. Mathaikutty, S. McCoy, A. Paul, J. Tse, G. Venkataramanan, Y.-H. Weng, A. Wild, Y. Yang, and H. Wang, "Loihi: A neuromorphic manycore processor with on-chip learning," *IEEE Micro*, vol. 38, no. 1, pp. 82–99, 2018. [DOI: 10.1109/MM.2018.112130359](https://doi.org/10.1109/MM.2018.112130359)
+
 

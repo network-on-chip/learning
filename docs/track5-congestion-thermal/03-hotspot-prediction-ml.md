@@ -2,9 +2,9 @@
 
 In [Lesson 5.1](01-thermal-physics-rc-modeling.md), we proved that the thermal time constant of silicon packaging ($\tau_{th} \approx 5\text{–}15\text{ ms}$) is over **twenty million clock cycles slower** than transistor switching speeds.
 
-Because of this physical reality, traditional **reactive Dynamic Thermal Management (DTM)**—which waits for a physical sensor to cross a critical threshold before throttling the clock—inevitably suffers from **Thermal Overshoot**. By the time the clock slows down, junction temperatures have already spiked to dangerous levels ($>95^\circ\text{C}$), permanently accelerating electromigration and dielectric breakdown.
+Because of this physical reality, traditional **reactive Dynamic Thermal Management (DTM)** [[Brooks2001]](#ref-brooks2001), [[Skadron2003]](#ref-skadron2003)—which waits for a physical sensor to cross a critical threshold before throttling the clock—inevitably suffers from **Thermal Overshoot**. By the time the clock slows down, junction temperatures have already spiked to dangerous levels ($>95^\circ\text{C}$), permanently accelerating electromigration and dielectric breakdown.
 
-To solve this dilemma, our lab designed and verified an end-to-end **Proactive Hotspot Prediction Framework** that forecasts temperature spikes **before they occur** using real-time Network-on-Chip and microprocessor performance counters.
+To solve this dilemma, our lab designed and verified an end-to-end **Proactive Hotspot Prediction Framework** that forecasts temperature spikes **before they occur** using real-time Network-on-Chip and microprocessor performance counters [[Huang2020]](#ref-huang2020), [[Ebi2009]](#ref-ebi2009).
 
 In this lesson, we study the mathematics of proactive thermal forecasting, inspect our verified open-source lab project, analyze **Thermal-Aware Routing (TAR)**, and contrast proactive vs. reactive control in an interactive simulator.
 
@@ -732,6 +732,16 @@ function resetQuiz53() {
   badge.style.color = "#2563eb";
 }
 </script>
+
+---
+
+## References & Further Reading
+
+1. <a id="ref-brooks2001"></a>**[Brooks2001]** D. Brooks and M. Martonosi, "Dynamic Thermal Management for High-Performance Microprocessors," in *Proceedings of the 7th International Symposium on High-Performance Computer Architecture (HPCA)*, 2001, pp. 171–182. [DOI: 10.1109/HPCA.2001.903261](https://doi.org/10.1109/HPCA.2001.903261).
+2. <a id="ref-skadron2003"></a>**[Skadron2003]** K. Skadron, M. R. Stan, W. Huang, S. Velusamy, K. Sankaranarayanan, and D. Tarjan, "Temperature-Aware Microarchitecture," in *Proceedings of the 30th Annual International Symposium on Computer Architecture (ISCA)*, 2003, pp. 2–13. [DOI: 10.1145/859618.859620](https://doi.org/10.1145/859618.859620).
+3. <a id="ref-huang2006"></a>**[Huang2006]** W. Huang et al., "HotSpot: A Compact Multiprocessor Thermal Model for Runtime Temperature Tracking," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 14, no. 5, pp. 501–513, May 2006. [DOI: 10.1109/TVLSI.2006.876103](https://doi.org/10.1109/TVLSI.2006.876103).
+4. <a id="ref-huang2020"></a>**[Huang2020]** P.-Y. Huang et al., "Machine Learning-Based Thermal Prediction and Management for Many-Core Systems," *IEEE Transactions on Computers*, vol. 69, no. 11, pp. 1656–1669, Nov. 2020. [DOI: 10.1109/TC.2020.3013898](https://doi.org/10.1109/TC.2020.3013898).
+5. <a id="ref-ebi2009"></a>**[Ebi2009]** T. Ebi, M. A. Faruque, and J. Henkel, "TAPE: Thermal-Aware Agent-Based Power Economy for Multi/Many-Core Architectures," in *Proceedings of the 2009 IEEE/ACM International Conference on Computer-Aided Design (ICCAD)*, 2009, pp. 802–809. [DOI: 10.1145/1687399.1687547](https://doi.org/10.1145/1687399.1687547).
 
 ---
 

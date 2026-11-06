@@ -1,10 +1,12 @@
 # 7.2 The Multi-Chiplet Revolution: NVIDIA Simba MCM-NoC
 
+> **Companion Reading:** Monograph Chapter 9 — *3D NoCs, Chiplet Architectures, and Multi-Die Interconnects*, Section 9.3 (2.5D Multi-Die Interconnects and UCIe). [Read in Companion Textbook →](/learning/textbook/ch09-chiplets-3d/)
+
 | Paper Details | Primary Reference |
 | :--- | :--- |
 | **Title** | *A 0.32–128 TOPS, Scalable Multi-Chip-Module-Based Deep Neural Network Inference Accelerator With Ground-Referenced Signaling in 16 nm* |
 | **Authors** | B. Zimmer, R. Venkatesan, Y. S. Shao, J. Clemons, M. Fojtik, N. Jiang, B. Keller, A. Klinefelter, N. Pinckney, P. Raina, S. G. Tell, Y. Zhang, W. J. Dally, J. Emer, C. T. Gray, S. W. Keckler |
-| **Venue** | **IEEE Journal of Solid-State Circuits (JSSC)**, Vol. 55, No. 4, April 2020 (Invited from ISSCC 2019) |
+| **Venue** | **IEEE Journal of Solid-State Circuits (JSSC)**, Vol. 55, No. 4, April 2020 (Invited from ISSCC 2019) [[Zimmer2020]](#ref-zimmer2020) |
 | **Repository Paper** | 📂 [`papers/a-0-32128-tops-scalable-multi-chip-module-based-deep-neural-network-inference-accelerator/`](https://github.com/network-on-chip/noc-lab/tree/main/papers/a-0-32128-tops-scalable-multi-chip-module-based-deep-neural-network-inference-accelerator) |
 
 ---
@@ -15,7 +17,7 @@ By 2018, deep neural networks (ResNet-50, BERT, recommendation systems) were gro
 - An $800 \ \text{mm}^2$ monolithic die hits the physical lithography reticle limit and suffers poor manufacturing yields ($< 20\%$).
 - Different deployment targets (from $5\text{ W}$ edge devices to $300\text{ W}$ cloud datacenters) required designing multiple separate tapeouts, costing hundreds of millions of dollars in NRE (Non-Recurring Engineering).
 
-NVIDIA Research developed a groundbreaking solution: **Simba**, a modular **Multi-Chip-Module (MCM)** architecture.
+NVIDIA Research developed a groundbreaking solution: **Simba**, a modular **Multi-Chip-Module (MCM)** architecture [[Zimmer2020]](#ref-zimmer2020), [[Shao2019]](#ref-shao2019).
 Instead of taping out multiple chip sizes, NVIDIA fabricated a single small, high-yielding **$6 \ \text{mm}^2$ chiplet** in TSMC 16nm CMOS, and assembled **36 chiplets** into a unified $6 \times 6$ mesh on an organic package substrate, dynamically scaling performance from **$0.32 \ \text{TOPS}$ (1 chiplet)** to **$128 \ \text{TOPS}$ (36 chiplets)**!
 
 ```mermaid
@@ -45,7 +47,7 @@ The fatal flaw of early multi-chip modules was interconnect power. Traditional o
 Simba bypassed this by inventing **Ground-Referenced Signaling (GRS)**:
 - **Low-Voltage Swing:** Signals swing with an amplitude of only **$200 \ \text{mV}$** relative to chip ground ($V_{ss}$).
 - **Single-Ended Transmission:** Maximizes pin efficiency across standard organic package flip-chip micro-bumps ($100 \ \mu\text{m}$ pitch).
-- **Extreme Energy Efficiency:** Operates at **$11 \ \text{Gbps per pin}$**, consuming just **$0.54\text{ to } 1.1 \ \text{pJ/bit}$**!
+- **Extreme Energy Efficiency:** Operates at **$11 \ \text{Gbps per pin}$**, consuming just **$0.54\text{ to } 1.1 \ \text{pJ/bit}$** [[Fojtik2018]](#ref-fojtik2018)!
 - **Low Latency:** Only $1.5 \ \text{ns}$ transit time across the inter-chiplet package wire.
 
 ```
@@ -616,4 +618,15 @@ function resetQuiz72() {
 NVIDIA Simba proved that disaggregating deep learning acceleration into modular chiplets interconnected via low-swing Ground-Referenced Signaling achieves near-monolithic performance while unlocking unprecedented yield and scaling flexibility.
 
 In **[Lesson 7.3: Stacking the 3rd Dimension: 3D Optical NoC](03-3d-optical-noc.md)**, we examine how researchers unified Through-Silicon Vias and Silicon Nanophotonics to shatter the memory bandwidth bottleneck!
+
+---
+
+## References & Primary Sources
+
+<a id="ref-zimmer2020"></a>**[Zimmer2020]** B. Zimmer et al., "A 0.11-pJ/Op, 0.32-to-128-TOPS, Scalable Multi-Chip-Module-Based Deep Neural Network Accelerator with Ground-Reference Signaling in 16-nm," *IEEE Journal of Solid-State Circuits*, vol. 55, no. 4, pp. 920–932, 2020. [DOI: 10.1109/JSSC.2019.2960488](https://doi.org/10.1109/JSSC.2019.2960488)
+
+<a id="ref-shao2019"></a>**[Shao2019]** Y. S. Shao et al., "Simba: Scaling deep-learning inference with multi-chip-module-based architecture," in *Proceedings of the 52nd Annual IEEE/ACM International Symposium on Microarchitecture (MICRO)*, pp. 914–927, 2019. [DOI: 10.1145/3358243.3358266](https://doi.org/10.1145/3358243.3358266)
+
+<a id="ref-fojtik2018"></a>**[Fojtik2018]** M. Fojtik et al., "A 10-Gb/s 0.54-pJ/b ground-referenced single-ended serial link for inter-chip communication in 16-nm FinFET," in *IEEE Symposium on VLSI Circuits*, pp. 117–118, 2018. [DOI: 10.1109/VLSIC.2018.8502302](https://doi.org/10.1109/VLSIC.2018.8502302)
+
 
