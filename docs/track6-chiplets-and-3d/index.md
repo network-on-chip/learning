@@ -45,24 +45,24 @@ The roadmap below visualizes how physical scaling limits in monolithic silicon d
 graph TD
   subgraph Moore ["1. Monolithic Scaling Bottlenecks"]
     A["Reticle Limit (858 mm²)<br/>Defect Density & Yield Collapse"]
-    B["RC Copper Delay Wall<br/>Capacitive Charging & Attenuation Limits"]
+    B["RC Copper Delay Wall<br/>(Capacitive Charging & Attenuation)"]
   end
 
   subgraph Stacking ["2. 3D Integration & Vertical TSVs"]
     C["Through-Silicon Vias (TSVs)<br/>Sub-10 ps Vertical Latency"]
     D["7-Port 3D Switch Allocator<br/>XYZ Dimension-Order Routing"]
-    E["3D Thermal Stacking Dilemma<br/>Dielectric Adhesive Resistance Chains"]
+    E["3D Thermal Dilemma<br/>(Adhesive Resistance Chains)"]
   end
 
   subgraph Chiplets ["3. 2.5D Packaging & Open Protocols"]
     F["Advanced Packaging<br/>CoWoS, EMIB & Microbumps"]
-    G["UCIe 1.0/2.0 Protocol Stack<br/>D2D Adapter, RDI, PHY (>1300 Gbps/mm)"]
-    H["Sliding Window Link Retransmission<br/>Credit Queue Latency-Bandwidth Sizing"]
+    G["UCIe Protocol Stack<br/>(D2D Adapter, RDI, PHY)"]
+    H["Link Retransmission<br/>(Credit Latency-Bandwidth Sizing)"]
   end
 
   subgraph Frontiers ["4. Emerging Physical Frontiers"]
-    I["Photonic NoC (ONoC)<br/>Waveguides, Micro-Ring Resonators, WDM"]
-    J["Wireless NoC (WNoC)<br/>On-Chip Antennas & Sub-THz Shortcuts"]
+    I["Photonic NoC (ONoC)<br/>(Waveguides, MRRs & WDM)"]
+    J["Wireless NoC (WNoC)<br/>(Antennas & Sub-THz Shortcuts)"]
   end
 
   A --> C

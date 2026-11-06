@@ -39,7 +39,7 @@ The diagram below illustrates how flit datapaths and control logic interact with
 ```mermaid
 graph TD
   subgraph Input_Unit ["1. Input Buffering & Routing"]
-    InLink["Incoming Physical Link (North, South, East, West, Local)"] --> BW["Buffer Write (BW)<br/>Demux to Virtual Channel FIFOs"]
+    InLink["Incoming Physical Links<br/>(North, South, East, West, Local)"] --> BW["Buffer Write (BW)<br/>Demux to Virtual Channel FIFOs"]
     BW --> VCFIFO["Virtual Channel FIFOs (VC 0 .. VC V-1)"]
     VCFIFO --> RC["Route Computation (RC)<br/>XY / Lookahead Pre-routing"]
   end
@@ -60,7 +60,7 @@ graph TD
   end
 
   subgraph Bypass_Path ["4. Ultra-Low-Latency Optimizations"]
-    BW -.->|"Empty Queue & No Conflict"| SpecBypass["1-Cycle Speculative Crossbar Bypass (SMART)"]
+    BW -.->|"Empty Queue & No Conflict"| SpecBypass["1-Cycle Speculative Crossbar<br/>Bypass (SMART)"]
     SpecBypass -.-> OutLatch
   end
 

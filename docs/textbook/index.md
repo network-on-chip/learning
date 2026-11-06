@@ -110,28 +110,28 @@ This textbook bridges **rigorous physical equations** (Elmore RC delays, Murphy 
 
 ```mermaid
 graph TD
-  subgraph Part1 ["Part I: Foundations & Microarchitecture (Ch 1-3)"]
-    Ch1["Ch 1: Interconnect Crisis & Wire Physics"] --> Ch2["Ch 2: Switching, Flow Control & Buffers"]
-    Ch2 --> Ch3["Ch 3: Router Microarchitecture & Arbitration"]
+  subgraph Part1 ["Part I: Foundations & Microarchitecture (Ch 1–3)"]
+    Ch1["Ch 1: Interconnect Crisis<br/>& Wire Physics"] --> Ch2["Ch 2: Switching, Flow Control<br/>& Buffers"]
+    Ch2 --> Ch3["Ch 3: Router Microarchitecture<br/>& Arbitration"]
   end
 
-  subgraph Part2 ["Part II: Topologies & Deadlock Freedom (Ch 4-5)"]
-    Ch3 --> Ch4["Ch 4: Direct, Indirect & High-Radix Topologies"]
-    Ch4 --> Ch5["Ch 5: Deadlock Theory, Turn Models & Adaptive Routing"]
+  subgraph Part2 ["Part II: Topologies & Deadlock Freedom (Ch 4–5)"]
+    Ch3 --> Ch4["Ch 4: Direct, Indirect<br/>& High-Radix Topologies"]
+    Ch4 --> Ch5["Ch 5: Deadlock Theory, Turn Models<br/>& Adaptive Routing"]
   end
 
-  subgraph Part3 ["Part III: Physical Constraints: Power & Thermal (Ch 6-7)"]
-    Ch5 --> Ch6["Ch 6: Low-Power Architectures & Dark Silicon"]
-    Ch6 --> Ch7["Ch 7: Thermal Modeling, Hotspots & Fault Tolerance"]
+  subgraph Part3 ["Part III: Physical Constraints: Power & Thermal (Ch 6–7)"]
+    Ch5 --> Ch6["Ch 6: Low-Power Architectures<br/>& Dark Silicon"]
+    Ch6 --> Ch7["Ch 7: Thermal Modeling, Hotspots<br/>& Fault Tolerance"]
   end
 
-  subgraph Part4 ["Part IV: Advanced Packaging & 3D Systems (Ch 8-9)"]
-    Ch7 --> Ch8["Ch 8: Three-Dimensional NoC (3D-NoC) & TSVs"]
-    Ch8 --> Ch9["Ch 9: Multi-Chiplet Interconnects & UCIe"]
+  subgraph Part4 ["Part IV: Advanced Packaging & 3D Systems (Ch 8–9)"]
+    Ch7 --> Ch8["Ch 8: Three-Dimensional NoC<br/>(3D-NoC) & TSVs"]
+    Ch8 --> Ch9["Ch 9: Multi-Chiplet Interconnects<br/>& UCIe"]
   end
 
   subgraph Part5 ["Part V: Emerging Frontiers (Ch 10)"]
-    Ch9 --> Ch10["Ch 10: Optical & Wireless Networks-on-Chip"]
+    Ch9 --> Ch10["Ch 10: Optical & Wireless<br/>Networks-on-Chip"]
   end
 
   style Part1 fill:#eff6ff,stroke:#3b82f6,stroke-width:2px;

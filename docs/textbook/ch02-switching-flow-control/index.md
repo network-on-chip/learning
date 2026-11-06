@@ -13,9 +13,9 @@ In on-chip networks, transmitting arbitrary software data structures across sili
 
 ```mermaid
 graph TD
-  Msg["1. Application Message<br/>(Cache Line: 64B, Coherence Read/Write, DMA Burst: 4KB)"] --> Pkt["2. Packet<br/>(Addressing Header + Sequenced Payload Data + CRC Tail)"]
-  Pkt --> Flit["3. Flow Control Unit (Flit)<br/>(Atomic Buffer Allocation Unit: Head, Body, Tail)"]
-  Flit --> Phit["4. Physical Unit (Phit)<br/>(Physical Link Width: 32b, 64b, 128b, 512b Transmitted per Cycle)"]
+  Msg["1. Application Message<br/>(Cache Line: 64B, Coherence,<br/>DMA Burst: 4KB)"] --> Pkt["2. Packet<br/>(Addressing Header + Payload<br/>Data + CRC Tail)"]
+  Pkt --> Flit["3. Flow Control Unit (Flit)<br/>(Atomic Buffer Allocation Unit:<br/>Head, Body, Tail)"]
+  Flit --> Phit["4. Physical Unit (Phit)<br/>(Physical Link Width: 32b/64b/128b/512b<br/>Transmitted per Cycle)"]
 
   style Msg fill:#dbeafe,stroke:#3b82f6,stroke-width:2px;
   style Pkt fill:#e0e7ff,stroke:#6366f1,stroke-width:2px;
@@ -266,7 +266,7 @@ Deepen your understanding of flow control dynamics on the **Companion Learning P
 
 ## 2.7 Checkpoint Assessment
 
-Test your understanding against the 3-Tier Exam Engine in [`share/learning/quiz.md`](https://network-on-chip.github.io/learning/quiz/):
+Test your understanding against the 3-Tier Exam Engine in [`quiz.md`](../../quiz.md):
 
 #### Question 2.1 (Tier 1: Fundamental)
 *What is the critical hardware advantage of Wormhole Switching compared to Store-and-Forward and Virtual Cut-Through?*

@@ -9,6 +9,16 @@
       fill: var(--md-mermaid-label-fg-color, #0f172a) !important;
       font-family: 'Inter', -apple-system, sans-serif !important;
       font-weight: 600 !important;
+      font-size: 13.5px !important;
+      line-height: 1.35 !important;
+    }
+
+    .nodeLabel, .label, foreignObject div {
+      text-align: center !important;
+      word-wrap: break-word !important;
+      white-space: normal !important;
+      box-sizing: border-box !important;
+      padding: 2px 4px !important;
     }
 
     /* Node shapes */

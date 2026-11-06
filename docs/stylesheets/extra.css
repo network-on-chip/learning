@@ -214,6 +214,18 @@ body, .md-typeset {
   fill: #0f172a !important;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
   font-weight: 600 !important;
+  font-size: 13.5px !important;
+  line-height: 1.35 !important;
+}
+
+.md-typeset .mermaid .nodeLabel,
+.md-typeset .mermaid .label,
+.md-typeset .mermaid foreignObject div {
+  text-align: center !important;
+  word-wrap: break-word !important;
+  white-space: normal !important;
+  box-sizing: border-box !important;
+  padding: 2px 4px !important;
 }
 
 /* Flowchart Nodes in Light Mode: Clean White Surface with Royal Blue Stroke */
@@ -288,6 +300,18 @@ body, .md-typeset {
   fill: #f8fafc !important;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
   font-weight: 600 !important;
+  font-size: 13.5px !important;
+  line-height: 1.35 !important;
+}
+
+.md-typeset .mermaid .nodeLabel,
+.md-typeset .mermaid .label,
+.md-typeset .mermaid foreignObject div {
+  text-align: center !important;
+  word-wrap: break-word !important;
+  white-space: normal !important;
+  box-sizing: border-box !important;
+  padding: 2px 4px !important;
 }
 
 /* Flowchart Nodes in Dark Mode: Slate 800 Surface with Electric Cyan Stroke */

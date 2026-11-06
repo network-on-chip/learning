@@ -280,7 +280,7 @@ Test your arbitration and router pipeline expertise on the **Companion Learning 
 
 ## 3.8 Checkpoint Assessment
 
-Test your understanding against the 3-Tier Exam Engine in [`share/learning/quiz.md`](https://network-on-chip.github.io/learning/quiz/):
+Test your understanding against the 3-Tier Exam Engine in [`quiz.md`](../../quiz.md):
 
 #### Question 3.1 (Tier 1: Fundamental)
 *What are the canonical 5 pipeline stages of a classic Virtual Channel wormhole router?*

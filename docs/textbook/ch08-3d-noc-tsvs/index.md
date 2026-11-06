@@ -228,7 +228,7 @@ The companion simulation script [`code/tsv_vertical_mesh_sim.py`](code/tsv_verti
 ### 8.7.1 Simulation Execution & Results
 
 ```bash
-$ python3 share/book/chapters/ch08-3d-noc-tsvs/code/tsv_vertical_mesh_sim.py
+$ python3 code/tsv_vertical_mesh_sim.py
 === 3D Network-on-Chip (3D-NoC) Simulation Results ===
 Topology: 4x4x3 Mesh (48 Router Tiles across 3 Silicon Tiers)
 

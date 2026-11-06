@@ -40,7 +40,7 @@ graph TD
     Root["Routing Algorithm"] --> Det["Deterministic<br/>(Single fixed path per flow)"]
     Root --> Obl["Oblivious<br/>(Path independent of network state)"]
     Root --> Adapt["Adaptive<br/>(Path responds to real-time congestion)"]
-    Root --> Fault["Fault-Tolerant & Protocol<br/>(Resilient to hardware failure & protocol stalls)"]
+    Root --> Fault["Fault-Tolerant & Protocol<br/>(Resilient to Failures & Stalls)"]
 
     Det --> DOR["Dimension-Order Routing (DOR)<br/>XY, YX & e-cube"]
     Det --> Lookup["ROM / Table-Driven<br/>Arbitrary static topologies"]
@@ -48,7 +48,7 @@ graph TD
     Obl --> VAL["Valiant's Algorithm (VAL)<br/>Random intermediate hop"]
     Obl --> ROMM["ROMM<br/>Randomized Minimal Paths"]
 
-    Adapt --> TurnModel["The Turn Model (Glass & Ni)<br/>West-First, North-Last, Negative-First"]
+    Adapt --> TurnModel["The Turn Model (Glass & Ni)<br/>(West-First / North-Last / Neg-First)"]
     Adapt --> OddEven["Odd-Even Routing (Chiu)<br/>Column parity turn restriction"]
     Adapt --> Duato["Escape Channels (Duato)<br/>Acyclic C0 escape + adaptive C1"]
 

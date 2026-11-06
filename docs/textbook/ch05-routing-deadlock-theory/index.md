@@ -157,7 +157,7 @@ graph TD
   end
 
   subgraph NegativeFirst ["Negative-First Turn Model"]
-    NF_Desc["Prohibit: E->S and N->W<br/>Rule: Negative directions (-X, -Y: West, South)<br/>must precede positive directions (+X, +Y: East, North)."]
+    NF_Desc["Prohibit: E->S and N->W<br/>Rule: Negative directions (-X, -Y: West, South)<br/>must precede positive directions<br/>(+X, +Y: East, North)."]
   end
 
   style WestFirst fill:#f0fdf4,stroke:#22c55e,stroke-width:2px;

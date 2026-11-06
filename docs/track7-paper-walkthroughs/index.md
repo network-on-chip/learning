@@ -37,19 +37,19 @@ The diagram below maps the historical evolution of interconnect architecture bre
 ```mermaid
 graph TD
   subgraph Manycore ["1. The Manycore Milestone"]
-    SCC["Intel 48-Core SCC (JSSC 2011)<br/>6x4 2D Mesh | 2-TB/s | Per-Tile DVFS | WWFA"]
+    SCC["Intel 48-Core SCC (JSSC 2011)<br/>6x4 2D Mesh (2 TB/s)<br/>(Per-Tile DVFS & WWFA)"]
   end
 
   subgraph Chiplet ["2. The Multi-Chiplet Revolution"]
-    Simba["NVIDIA Simba (JSSC 2020)<br/>36-Chiplet MCM-NoC | GRS Links | Hardware Multicast"]
+    Simba["NVIDIA Simba (JSSC 2020)<br/>36-Chiplet MCM-NoC<br/>(GRS Links & Multicast)"]
   end
 
   subgraph Stacking ["3. Stacking the 3rd Dimension"]
-    ONoC3D["3D Optical NoC (TCAD 2013)<br/>Through-Silicon Vias + 26-MRR Crossbar + APC"]
+    ONoC3D["3D Optical NoC (TCAD 2013)<br/>3D TSVs + 26-MRR Crossbar<br/>(APC Thermal Compensation)"]
   end
 
   subgraph InNetwork ["4. In-Network Computing"]
-    Neuro["Neuromorphic P-Sum Router (JSSC 2023)<br/>1.63 pJ/SOP | In-Flight Arithmetic Reduction"]
+    Neuro["Neuromorphic Router (JSSC 2023)<br/>1.63 pJ/SOP Processing<br/>(In-Flight Reduction)"]
   end
 
   SCC --> Simba

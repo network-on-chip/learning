@@ -323,7 +323,7 @@ The companion simulation script [`code/thermal_rc_mesh_sim.py`](code/thermal_rc_
 ### 7.7.1 Simulation Execution & Results
 
 ```bash
-$ python3 share/book/chapters/ch07-thermal-fault-tolerance/code/thermal_rc_mesh_sim.py
+$ python3 code/thermal_rc_mesh_sim.py
 === Thermal RC & Kalman Estimation Simulation Results ===
 Grid Scale: 4x4 Mesh (16 Router-Tile Nodes)
 Ambient Temp: 45.0 °C

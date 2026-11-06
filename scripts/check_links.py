@@ -56,5 +56,5 @@ def check_site(site_dir: Path):
         return 0
 
 if __name__ == "__main__":
-    site = Path("/home/yongfu/proj/noc-lab/share/learning/site")
+    site = Path(__file__).resolve().parent.parent / "site"
     sys.exit(check_site(site))

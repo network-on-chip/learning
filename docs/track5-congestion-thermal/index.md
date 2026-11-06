@@ -41,20 +41,20 @@ The diagram below outlines how heat dissipation physics, network telemetry, pred
 ```mermaid
 graph TD
   subgraph Physical_Thermal_Layer ["1. Thermal & Network Physics Layer"]
-    Power["Tile Dynamic & Static Power Dissipation"] --> RC["RC Thermal Ladder Model<br/>(Silicon substrate + TIM + Heat Sink)"]
-    Traffic["High Injection Workload"] --> Saturation["Buffer Saturation & Congestion Trees"]
+    Power["Tile Dynamic & Static<br/>Power Dissipation"] --> RC["RC Thermal Ladder Model<br/>(Substrate + TIM + Heatsink)"]
+    Traffic["High Injection<br/>Workload"] --> Saturation["Buffer Saturation<br/>& Congestion Trees"]
   end
 
   subgraph Telemetry_Sensing_Layer ["2. Telemetry & Sensor Layer"]
-    RC --> Sensors["Sparse Physical Thermal Diodes<br/>(Noise: Gaussian EMI + Non-Gaussian Glitches)"]
-    Saturation --> RCA_Telemetry["Regional Congestion Awareness (RCA)<br/>(Buffer fullness & credit turnaround)"]
+    RC --> Sensors["Sparse Thermal Diodes<br/>(EMI & Glitch Noise)"]
+    Saturation --> RCA_Telemetry["Regional Congestion (RCA)<br/>(Buffer Fullness & RTT)"]
   end
 
   subgraph Control_Mitigation_Layer ["3. Intelligent Control & Mitigation Layer"]
-    Sensors --> Recon["Robust Spatial Reconstruction<br/>(Huber M-Estimation & Kalman Filter)"]
-    RCA_Telemetry --> Quench["Closed-Loop Source Quenching<br/>(Token bucket injection throttling)"]
-    Recon --> ML_Predict["Proactive ML Hotspot Predictor<br/>(Predicts T at t + Δt using IPC & NoC counters)"]
-    ML_Predict --> DTM["Proactive DVFS & Thermal-Aware Routing (TAR)<br/>(Deflects flits around hot routers)"]
+    Sensors --> Recon["Spatial Reconstruction<br/>(Huber M-Est. & Kalman)"]
+    RCA_Telemetry --> Quench["Closed-Loop Quenching<br/>(Token Bucket Throttling)"]
+    Recon --> ML_Predict["Proactive ML Predictor<br/>(Predicts T at t+Δt)"]
+    ML_Predict --> DTM["Proactive DVFS & TAR<br/>(Hotspot Deflection)"]
   end
 
   classDef physStyle fill:#fee2e2,stroke:#ef4444,stroke-width:1.5px,color:#991b1b;

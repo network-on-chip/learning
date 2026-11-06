@@ -20,15 +20,15 @@ The selection of a topology establishes the absolute performance upper bounds an
 ```mermaid
 graph TD
   subgraph MetricsHierarchy ["Interconnect Metric Interdependencies"]
-    Deg["Node Degree / Radix (k)"] --> RouterArea["Router Switch Area (O(k^2))"]
-    Deg --> WireDensity["Bisection Metal Tracks (W_total)"]
+    Deg["Node Degree / Radix (k)"] --> RouterArea["Router Switch Area<br/>(O(k²))"]
+    Deg --> WireDensity["Bisection Metal Tracks<br/>(W_total)"]
     
     Diam["Network Diameter (D)"] --> T0["Zero-Load Latency (T0)"]
-    AvgHop["Average Hop Count (h_bar)"] --> T0
-    AvgHop --> DynPower["Dynamic Power (E_flit = h_bar * E_router)"]
+    AvgHop["Average Hop Count (h̄)"] --> T0
+    AvgHop --> DynPower["Dynamic Power<br/>(E_flit = h̄ · E_router)"]
     
-    Bisect["Bisection Bandwidth (B_C)"] --> Throughput["Saturation Throughput (Theta_sat <= 2*B_C / N)"]
-    Traffic["Traffic Distribution (gamma_max)"] --> Throughput
+    Bisect["Bisection Bandwidth (B_C)"] --> Throughput["Saturation Throughput<br/>(Θ_sat ≤ 2·B_C / N)"]
+    Traffic["Traffic Distribution<br/>(γ_max)"] --> Throughput
   end
 
   style Deg fill:#fee2e2,stroke:#ef4444,stroke-width:2px;

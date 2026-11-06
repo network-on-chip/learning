@@ -47,7 +47,7 @@ In early Systems-on-Chip, intellectual property (IP) blocks (CPUs, DSPs, DMA eng
 
 ```mermaid
 graph TD
-  Core0["Master 0<br/>(CPU Core 0)"] --- Bus["Shared Multi-Drop Bus (e.g. ARM AMBA AHB - 128-bit)"]
+  Core0["Master 0<br/>(CPU Core 0)"] --- Bus["Shared Multi-Drop Bus<br/>(e.g., ARM AMBA AHB 128-bit)"]
   Core1["Master 1<br/>(CPU Core 1)"] --- Bus
   Core2["Master 2<br/>(GPU Vector Unit)"] --- Bus
   CoreN["Master N-1<br/>(DMA Engine)"] --- Bus
@@ -277,7 +277,7 @@ To build an intuitive and experimental understanding of interconnect trade-offs,
 
 ## 1.8 Checkpoint Assessment
 
-Test your mastery of Chapter 1 concepts. (These questions mirror the 3-Tier Exam Engine in [`share/learning/quiz.md`](https://network-on-chip.github.io/learning/quiz/)):
+Test your mastery of Chapter 1 concepts. (These questions mirror the 3-Tier Exam Engine in [`quiz.md`](../../quiz.md)):
 
 #### Question 1.1 (Tier 1: Fundamental)
 *Why does the propagation delay of a shared multi-drop bus grow as $O(N^{3/2})$ to $O(N^2)$ as core count $N$ scales, rather than remaining constant?*
