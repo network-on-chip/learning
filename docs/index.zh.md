@@ -2,11 +2,11 @@
   <div class="noc-track-badge">✨ 开源片上网络学术体系与实验平台</div>
   <h1>片上网络学习与研究中心</h1>
   <p class="subtitle">
-    连接理论体系、硅基微架构与可复现工程的交互式片上网络（Network-on-Chip, NoC）学习平台。基于 10 章官方开源教材、端到端硬件仿真基准与可复现工程构建。
+    连接理论体系、硅基微架构与可复现工程的交互式片上网络（Network-on-Chip, NoC）学习平台。基于 12 章官方开源教材、端到端硬件仿真基准与可复现工程构建。
   </p>
   <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-    <a href="textbook/" class="noc-sim-btn" style="text-decoration: none; background: #2563eb;">📖 阅读官方教材 (全十章)</a>
-    <a href="../assets/book.pdf" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 下载教材 PDF (236页)</a>
+    <a href="textbook/" class="noc-sim-btn" style="text-decoration: none; background: #2563eb;">📖 阅读官方教材 (全十二章)</a>
+    <a href="../assets/book.pdf" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 下载教材 PDF (262页)</a>
     <a href="track1-fundamentals/" class="noc-sim-btn secondary" style="text-decoration: none;">🚀 开始系统学习</a>
     <a href="quiz/" class="noc-sim-btn secondary" style="text-decoration: none;">🎯 架构认证考核</a>
     <a href="interactive/game/" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 死锁大作战</a>
@@ -17,15 +17,15 @@
 
 <div class="noc-stats-grid">
   <div class="noc-stat-card">
-    <span class="noc-stat-number">10</span>
+    <span class="noc-stat-number">12</span>
     <span class="noc-stat-label">教材核心章节</span>
   </div>
   <div class="noc-stat-card">
-    <span class="noc-stat-number">236</span>
+    <span class="noc-stat-number">262</span>
     <span class="noc-stat-label">教材出版总页数</span>
   </div>
   <div class="noc-stat-card">
-    <span class="noc-stat-number">17</span>
+    <span class="noc-stat-number">19</span>
     <span class="noc-stat-label">交互式实验与游戏</span>
   </div>
   <div class="noc-stat-card">
@@ -36,9 +36,9 @@
 
 ---
 
-## 📖 官方开源教材 (全十章)
+## 📖 官方开源教材 (全十二章)
 
-探索《片上网络与先进互连：架构、协同设计与前沿探索》（*Network-on-Chip and Advanced Interconnects*），全书涵盖五大部分共十章，专为从初学者到芯片科研人员打造的高可读性教材：
+探索《片上网络与先进互连：架构、协同设计与前沿探索》（*Network-on-Chip and Advanced Interconnects*），全书涵盖五大部分共十二章，专为从初学者到芯片科研人员打造的高可读性教材：
 
 <div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.65)); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
   <div>
@@ -46,7 +46,7 @@
       <span>📘 完整出版排版 PDF 现已开放下载</span>
     </div>
     <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 800px; line-height: 1.5;">
-      采用施普林格·自然（Springer Nature）<code>svmono</code> 专著版式编译（共 236 页），系统涵盖线物理延时、路由器微架构、高基数拓扑、转向模型死锁证明、暗硅低功耗、热敏建模、3D 硅通孔、UCIe 芯粒互连与纳米光子学。
+      采用施普林格·自然（Springer Nature）<code>svmono</code> 专著版式编译（共 262 页），系统涵盖线物理延时、路由器微架构、高基数拓扑、转向模型死锁证明、暗硅低功耗、热敏建模、3D 硅通孔、UCIe 芯粒互连、纳米光子学、零信任硬件安全与面向大模型/类脑计算的领域专用互连。
     </div>
   </div>
   <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -54,7 +54,7 @@
       <span>在线阅读教材 →</span>
     </a>
     <a href="../assets/book.pdf" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #0284c7; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
-      <span>下载 PDF 电子书 (236页) ↓</span>
+      <span>下载 PDF 电子书 (262页) ↓</span>
     </a>
   </div>
 </div>
@@ -168,6 +168,28 @@
       </div>
     </div>
     <a href="textbook/ch10-optical-wireless/" class="noc-track-link">阅读第 10 章 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(225, 29, 72, 0.1); color: #e11d48; border-color: rgba(225, 29, 72, 0.2);">第五部分 • 第11章</span>
+      <div class="noc-track-title">片上网络硬件安全与零信任防御</div>
+      <div class="noc-track-desc">
+        零信任互连威胁模型、热敏硬件木马防御、加权移动平均（WMA）异常过滤、纳秒级线延时物理不可克隆函数（PUF）与定时侧信道相位抖动掩蔽。
+      </div>
+    </div>
+    <a href="textbook/ch11-security/" class="noc-track-link">阅读第 11 章 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(2, 132, 199, 0.1); color: #0284c7; border-color: rgba(2, 132, 199, 0.2);">第五部分 • 第12章</span>
+      <div class="noc-track-title">大模型与类脑计算领域专用互连</div>
+      <div class="noc-track-desc">
+        生成式 AI 全归约集合通信、网内计算归约交叉开关（PAC-NoC）、晶圆级缺陷旁路路由、2048 核 Ruche 极速快线、3D 混合键合垂直高密内存与类脑脉冲组播。
+      </div>
+    </div>
+    <a href="textbook/ch12-ai-llm-snn/" class="noc-track-link">阅读第 12 章 →</a>
   </div>
 </div>
 

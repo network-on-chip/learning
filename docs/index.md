@@ -2,11 +2,11 @@
   <div class="noc-track-badge">✨ Open-Source Curriculum & Research Lab</div>
   <h1>Network-on-Chip Learning Hub</h1>
   <p class="subtitle">
-    An interactive, scholarly curriculum bridging theoretical computer architecture, silicon router microarchitecture, and open-source reproducible research. Grounded in 10 definitive textbook chapters, hands-on hardware simulations, and verified silicon research.
+    An interactive, scholarly curriculum bridging theoretical computer architecture, silicon router microarchitecture, and open-source reproducible research. Grounded in 12 definitive textbook chapters, hands-on hardware simulations, and verified silicon research.
   </p>
   <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-    <a href="textbook/" class="noc-sim-btn" style="text-decoration: none; background: #2563eb;">📖 Read Official Textbook (10 Chaps)</a>
-    <a href="assets/book.pdf" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 Download PDF (236 Pages)</a>
+    <a href="textbook/" class="noc-sim-btn" style="text-decoration: none; background: #2563eb;">📖 Read Official Textbook (12 Chaps)</a>
+    <a href="assets/book.pdf" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 Download PDF (262 Pages)</a>
     <a href="track1-fundamentals/" class="noc-sim-btn secondary" style="text-decoration: none;">🚀 Start Curriculum</a>
     <a href="quiz/" class="noc-sim-btn secondary" style="text-decoration: none;">🎯 Certification Quiz</a>
     <a href="interactive/game/" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 Deadlock Buster</a>
@@ -18,15 +18,15 @@
 
 <div class="noc-stats-grid">
   <div class="noc-stat-card">
-    <span class="noc-stat-number">10</span>
+    <span class="noc-stat-number">12</span>
     <span class="noc-stat-label">Core Textbook Chapters</span>
   </div>
   <div class="noc-stat-card">
-    <span class="noc-stat-number">236</span>
+    <span class="noc-stat-number">262</span>
     <span class="noc-stat-label">Monograph Pages</span>
   </div>
   <div class="noc-stat-card">
-    <span class="noc-stat-number">17</span>
+    <span class="noc-stat-number">19</span>
     <span class="noc-stat-label">Interactive Labs &amp; Games</span>
   </div>
   <div class="noc-stat-card">
@@ -37,9 +37,9 @@
 
 ---
 
-## 📖 Official Open Textbook (10 Chapters)
+## 📖 Official Open Textbook (12 Chapters)
 
-Explore the definitive 10-chapter textbook **"Network-on-Chip and Advanced Interconnects: Architecture, Co-Design & Emerging Frontiers"**, published under open access and designed to be accessible from engineering students to research architects.
+Explore the definitive 12-chapter textbook **"Network-on-Chip and Advanced Interconnects: Architecture, Co-Design & Emerging Frontiers"**, published under open access and designed to be accessible from engineering students to research architects.
 
 <div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.65)); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
   <div>
@@ -47,7 +47,7 @@ Explore the definitive 10-chapter textbook **"Network-on-Chip and Advanced Inter
       <span>📘 Camera-Ready Monograph PDF Available</span>
     </div>
     <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 800px; line-height: 1.5;">
-      Formatted in Springer Nature <code>svmono</code> layout (236 camera-ready pages). Covers Elmore RC wire delays, router pipelines, high-radix topologies, turn model deadlock freedom, dark silicon DVFS, HotSpot thermal models, 3D TSVs, UCIe chiplets, and silicon nanophotonics.
+      Formatted in Springer Nature <code>svmono</code> layout (262 camera-ready pages). Covers Elmore RC wire delays, router pipelines, high-radix topologies, turn model deadlock freedom, dark silicon DVFS, HotSpot thermal models, 3D TSVs, UCIe chiplets, silicon nanophotonics, zero-trust hardware security, and AI/LLM collective accelerators.
     </div>
   </div>
   <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -55,7 +55,7 @@ Explore the definitive 10-chapter textbook **"Network-on-Chip and Advanced Inter
       <span>Read Online Hub →</span>
     </a>
     <a href="assets/book.pdf" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #0284c7; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
-      <span>Download PDF (236 Pages) ↓</span>
+      <span>Download PDF (262 Pages) ↓</span>
     </a>
   </div>
 </div>
@@ -169,6 +169,28 @@ Explore the definitive 10-chapter textbook **"Network-on-Chip and Advanced Inter
       </div>
     </div>
     <a href="textbook/ch10-optical-wireless/" class="noc-track-link">Read Chapter 10 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(225, 29, 72, 0.1); color: #e11d48; border-color: rgba(225, 29, 72, 0.2);">Part V • Ch 11</span>
+      <div class="noc-track-title">Hardware Security &amp; Trust in NoCs</div>
+      <div class="noc-track-desc">
+        Zero-trust interconnect security, thermal Hardware Trojans, Weighted Moving Average (WMA) anomaly detection, intrinsic delay PUFs, and timing covert channel jitter masking.
+      </div>
+    </div>
+    <a href="textbook/ch11-security/" class="noc-track-link">Read Chapter 11 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(2, 132, 199, 0.1); color: #0284c7; border-color: rgba(2, 132, 199, 0.2);">Part V • Ch 12</span>
+      <div class="noc-track-title">Domain-Specific NoCs for LLMs &amp; SNNs</div>
+      <div class="noc-track-desc">
+        Generative AI communication collectives, in-network reduction crossbars, wafer-scale defect bypass, 2,048-core Ruche express links, 3D hybrid bonding memory silos, and SNN spike multicasting.
+      </div>
+    </div>
+    <a href="textbook/ch12-ai-llm-snn/" class="noc-track-link">Read Chapter 12 →</a>
   </div>
 </div>
 

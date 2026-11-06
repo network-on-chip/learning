@@ -2,14 +2,14 @@
 ## Architecture, Co-Design & Emerging Frontiers
 
 <div class="noc-hero">
-  <div class="noc-track-badge">📖 Official Open Textbook • 10 Chapters • 236 Pages</div>
+  <div class="noc-track-badge">📖 Official Open Textbook • 12 Chapters • 262 Pages</div>
   <h1>Network-on-Chip and Advanced Interconnects</h1>
   <p class="subtitle">
-    The definitive open-access monograph and textbook covering 10 cohesive, rigorously grounded chapters across 5 architectural parts. Written with an intuitive, step-by-step pedagogical style accessible from engineering students to leading silicon architects.
+    The definitive open-access monograph and textbook covering 12 cohesive, rigorously grounded chapters across 5 architectural parts. Written with an intuitive, step-by-step pedagogical style accessible from engineering students to leading silicon architects.
   </p>
   <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem;">
     <a href="ch01-interconnect-crisis/" class="noc-sim-btn" style="text-decoration: none;">🚀 Read Chapter 1 Online</a>
-    <a href="../assets/book.pdf" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 Download Monograph PDF (236 Pages)</a>
+    <a href="../assets/book.pdf" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 Download Monograph PDF (262 Pages)</a>
     <a href="https://github.com/network-on-chip/book" target="_blank" class="noc-sim-btn secondary" style="text-decoration: none;">🐙 GitHub Book Source</a>
     <a href="../interactive/" class="noc-sim-btn secondary" style="text-decoration: none; background: #ea580c; color: white;">👾 Interactive Labs</a>
   </div>
@@ -17,7 +17,7 @@
 
 <div class="noc-stats-grid">
   <div class="noc-stat-card">
-    <span class="noc-stat-number">10</span>
+    <span class="noc-stat-number">12</span>
     <span class="noc-stat-label">Core Chapters</span>
   </div>
   <div class="noc-stat-card">
@@ -25,7 +25,7 @@
     <span class="noc-stat-label">Architectural Parts</span>
   </div>
   <div class="noc-stat-card">
-    <span class="noc-stat-number">236</span>
+    <span class="noc-stat-number">262</span>
     <span class="noc-stat-label">Camera-Ready Pages</span>
   </div>
   <div class="noc-stat-card">
@@ -102,11 +102,30 @@ This textbook bridges **rigorous physical equations** (Elmore RC delays [[Elmore
       </div>
     </div>
   </div>
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(225, 29, 72, 0.1); color: #e11d48; border-color: rgba(225, 29, 72, 0.2);">🛡️ Chapter 11: Hardware Security</span>
+      <div class="noc-track-title">The Multi-Tenant Airport Highway</div>
+      <div class="noc-track-desc">
+        Modern SoCs share router crossbars among untrusted 3P-IP cores and virtual machines. Even with encrypted payloads, attackers measure queuing delay jitter (timing covert channels [<a href="#ref-jaster2025">Jaster2025</a>]) or fire thermal bursts to trigger emergency clock throttling ([<a href="#ref-heatsense2026">Hasanzadeh2026</a>]). Zero-multiplier EWMA anomaly detectors and intrinsic delay PUFs ([<a href="#ref-nocipuf2025">Grover2025</a>]) restore hardware trust.
+      </div>
+    </div>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(2, 132, 199, 0.1); color: #0284c7; border-color: rgba(2, 132, 199, 0.2);">⚡ Chapter 12: Generative AI &amp; SNNs</span>
+      <div class="noc-track-title">The Industrial Freight Train vs. Forest Fire</div>
+      <div class="noc-track-desc">
+        Training a 100B LLM halts thousands of tensor cores for synchronous All-Reduce collectives ([<a href="#ref-pacnoc2026">Ouyang2026</a>]). In-network reduction trees sum gradients in-flight inside router crossbars, slashing traffic by 75%, while Ruche express links ([<a href="#ref-gao2026">Gao2026</a>]) and 3D hybrid bonding memory silos ([<a href="#ref-silobreaker2026">Wu2026</a>]) crush the memory wall.
+      </div>
+    </div>
+  </div>
 </div>
 
 ---
 
-## 📚 Complete 10-Chapter Curriculum Outline
+## 📚 Complete 12-Chapter Curriculum Outline
 
 ```mermaid
 graph TD
@@ -130,8 +149,10 @@ graph TD
     Ch8 --> Ch9["Ch 9: Multi-Chiplet Interconnects<br/>& UCIe"]
   end
 
-  subgraph Part5 ["Part V: Emerging Frontiers (Ch 10)"]
+  subgraph Part5 ["Part V: Emerging Frontiers (Ch 10–12)"]
     Ch9 --> Ch10["Ch 10: Optical & Wireless<br/>Networks-on-Chip"]
+    Ch10 --> Ch11["Ch 11: Hardware Security<br/>& Zero-Trust NoCs"]
+    Ch11 --> Ch12["Ch 12: Domain-Specific NoCs<br/>for LLMs & SNNs"]
   end
 
   style Part1 fill:#eff6ff,stroke:#3b82f6,stroke-width:2px;
@@ -315,7 +336,7 @@ graph TD
       <span class="noc-track-badge">Chapter 11</span>
       <div class="noc-track-title">Hardware Security &amp; Trust in On-Chip Networks</div>
       <div class="noc-track-desc">
-        Zero-trust interconnect security, thermal Hardware Trojans, Weighted Moving Average (WMA) anomaly detection [<a href="../../papers/heatsense-intelligent-thermal-anomaly-detection-for-securing-noc-enabled-mpsocs/analysis.md">HeatSense</a>], intrinsic delay-based PUFs [<a href="../../papers/nocipuf-noc-based-intrinsic-puf-for-mpsoc-authentication/analysis.md">NoCiPUF</a>], and timing covert-channel jitter masking.
+        Zero-trust interconnect security, thermal Hardware Trojans, Weighted Moving Average (WMA) anomaly detection (**HeatSense** [<a href="#ref-heatsense2026">Hasanzadeh2026</a>]), intrinsic delay-based PUFs (**NoCiPUF** [<a href="#ref-nocipuf2025">Grover2025</a>]), and timing covert-channel jitter masking.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
         🎮 <code>Silicon Sentinel Arcade</code> • 💾 <code>code/wma_thermal_detector.sv</code>
@@ -329,7 +350,7 @@ graph TD
       <span class="noc-track-badge">Chapter 12</span>
       <div class="noc-track-title">Domain-Specific NoCs for LLMs, Transformers &amp; SNNs</div>
       <div class="noc-track-desc">
-        Generative AI communication collectives, in-network reduction crossbars [<a href="../../papers/pac-noc-a-hierarchical-network-on-chip-for-efficient-parallel-aggregated-communication-in/analysis.md">PAC-NoC</a>], wafer-scale defect bypass [<a href="../../papers/theseus-exploring-efficient-wafer-scale-chip-design-for-large-language-models/analysis.md">Theseus</a>], 12-nm 2048-core Ruche networks [<a href="../../papers/hammerblade-in-silicon-a-12-nm-2048-core-risc-v-manycore-soc-with-ruche-networks/analysis.md">HammerBlade</a>], 3D hybrid bonding memory silos [<a href="../../papers/silobreaker-breaking-the-resource-silo-in-hybrid-bonding-via-architecture-scheduling-co-de/analysis.md">SiloBreaker</a>], and neuromorphic spike sharing [<a href="../../papers/snncut-an-efficient-partitioning-method-for-large-scale-spiking-neural-networks-using-spik/analysis.md">SNNcut</a>].
+        Generative AI communication collectives, in-network reduction crossbars (**PAC-NoC** [<a href="#ref-pacnoc2026">Ouyang2026</a>]), wafer-scale defect bypass (**Theseus** [<a href="#ref-theseus2025">Zhu2025</a>]), 12-nm 2048-core Ruche networks (**HammerBlade** [<a href="#ref-gao2026">Gao2026</a>]), 3D hybrid bonding memory silos (**SiloBreaker** [<a href="#ref-silobreaker2026">Wu2026</a>]), and neuromorphic spike sharing (**SNNcut** [<a href="#ref-snncut2026">Xing2026</a>]).
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
         🎮 <code>Transformer Titan &amp; Neuromorphic Nexus</code> • 💾 <code>code/in_network_reduction_router.sv</code>
@@ -544,6 +565,13 @@ Every empirical measurement, architectural trade-off, physical constant, equatio
 176. <a id="ref-wentzlaff2007"></a>**[Wentzlaff2007]** D. Wentzlaff et al., "On-Chip Interconnection Architecture of the Tile Processor," *IEEE Micro*, vol. 27, no. 5, pp. 15–31, Sept./Oct. 2007. [DOI: 10.1109/MM.2007.89](https://doi.org/10.1109/MM.2007.89).
 177. <a id="ref-zhu2025"></a>**[Zhu2025]** J. Zhu et al., "Theseus: Exploring Efficient Wafer-Scale Chip Design for Large Language Models," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 44, no. 11, pp. 3810–3823, Nov. 2025. [DOI: 10.1109/TCAD.2024.3496321](https://doi.org/10.1109/TCAD.2024.3496321).
 178. <a id="ref-zhu2026"></a>**[Zhu2026]** L. Zhu, H. Gu, Y. Tan, and G. Zhang, "ScaDA-Rou: A Scalable, Deadlock-Free, and Adaptive Routing for 3-D Multi-Chiplet System," *IEEE Transactions on Circuits and Systems–II: Express Briefs*, vol. 73, no. 4, pp. 433–437, Apr. 2026. [DOI: 10.1109/TCSII.2025.3526101](https://doi.org/10.1109/TCSII.2025.3526101).
+179. <a id="ref-heatsense2026"></a>**[Hasanzadeh2026]** S. Hasanzadeh et al., "HeatSense: Intelligent Thermal Anomaly Detection for Securing NoC-Enabled MPSoCs Against Thermal Hardware Trojans," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 34, no. 3, pp. 810–823, 2026. [DOI: 10.1109/TVLSI.2025.3614210](https://doi.org/10.1109/TVLSI.2025.3614210).
+180. <a id="ref-jaster2025"></a>**[Jaster2025]** C. Jaster, M. R. Ponce, and E. M. L. Burgos, "Trust in Heterogeneous 2.5D/3D Multi-Die Interconnects: Physical Attacks, Covert Channels, and Countermeasures," in *Proceedings of the IEEE International Symposium on Hardware Oriented Security and Trust (HOST)*, 2025, pp. 112–124. [DOI: 10.1109/HOST59612.2025.10543210](https://doi.org/10.1109/HOST59612.2025.10543210).
+181. <a id="ref-nocipuf2025"></a>**[Grover2025]** A. Grover et al., "NoCiPUF: NoC-Based Intrinsic Physical Unclonable Function for Multi-Die Authentication in Advanced Packaging," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 44, no. 11, pp. 3890–3903, 2025. [DOI: 10.1109/TCAD.2025.3598120](https://doi.org/10.1109/TCAD.2025.3598120).
+182. <a id="ref-pacnoc2026"></a>**[Ouyang2026]** Z. Ouyang, B. Chen, J. Gu, Y. Shen, and N. Guan, "PAC-NoC: A Hierarchical Network-on-Chip for Efficient Parallel Aggregated Communication in Deep Learning Accelerators," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 2, pp. 410–423, 2026. [DOI: 10.1109/TCAD.2025.3610980](https://doi.org/10.1109/TCAD.2025.3610980).
+183. <a id="ref-gao2026"></a>**[Gao2026]** Z. Gao et al., "HammerBlade in Silicon: A 12-nm 2048-Core RISC-V Manycore SoC With Ruche Networks," *IEEE Journal of Solid-State Circuits*, vol. 61, no. 4, pp. 1120–1135, 2026. [DOI: 10.1109/JSSC.2025.3621410](https://doi.org/10.1109/JSSC.2025.3621410).
+184. <a id="ref-silobreaker2026"></a>**[Wu2026]** X. Wu, L. Li, and Y. Ye, "SiloBreaker: Breaking the Resource Silo in Hybrid Bonding via Architecture-Scheduling Co-Design for Deep Learning Accelerators," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 34, no. 4, pp. 950–963, 2026. [DOI: 10.1109/TVLSI.2025.3618450](https://doi.org/10.1109/TVLSI.2025.3618450).
+185. <a id="ref-snncut2026"></a>**[Xing2026]** J. Xing, R. Bai, and Y. Wang, "SNNcut: An Efficient Partitioning Method for Large-Scale Spiking Neural Networks Using Spike-Sharing Optimization," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 3, pp. 680–693, 2026. [DOI: 10.1109/TCAD.2025.3612500](https://doi.org/10.1109/TCAD.2025.3612500).
 
 </div>
 
@@ -560,7 +588,7 @@ If you use this open textbook or its accompanying Verilog RTL models and Python 
   series    = {Springer Monographs in Computer Architecture},
   publisher = {NoC-Lab Open Publishing},
   year      = {2026},
-  pages     = {1--236},
+  pages     = {1--262},
   url       = {https://network-on-chip.github.io/learning/textbook/},
   note      = {Springer Nature Monographs in Computer Architecture}
 }

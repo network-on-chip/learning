@@ -85,7 +85,6 @@ plugins:
             "Track 6: Chiplets & 3D NoC": "第六模块：芯粒与三维片上网络"
             "Track 7: Landmark Papers": "第七模块：经典论文精读"
             "Overview": "总览"
-            "Official Textbook (10 Chapters)": "官方开源教材 (全十二章)"
             "Official Textbook (12 Chapters)": "官方开源教材 (全十二章)"
             "Part I: Foundations & Microarchitecture": "第一部分：互连基础与微架构"
             "Part II: Topologies & Deadlock Freedom": "第二部分：拓扑结构与无死锁路由"
