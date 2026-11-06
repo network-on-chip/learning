@@ -1,13 +1,14 @@
-# 🏆 Public Leaderboard & Certificate Registry
+# 🏆 Public Leaderboard & Reference Architecture Registry
 
 <div class="noc-hero">
-  <div class="noc-track-badge">✨ Community Hall of Fame · Automated Live Sync</div>
-  <h1>Verified NoC Architects Leaderboard</h1>
+  <div class="noc-track-badge">✨ Architectural Baselines · Verified Assessments · Automated Sync</div>
+  <h1>Verified NoC Architects &amp; Benchmark Leaderboard</h1>
   <p class="subtitle">
-    Automatic public rankings synchronized with GitHub Issues and real-time assessments across our 3-tier architecture assessment and Deadlock Buster arcade challenge. Authenticate any credential using our cryptographic certificate verification engine.
+    Verified public rankings and ground-truth architectural reference baselines across our 3-tier architecture certification exam and 15 interactive laboratory challenges. Authenticate any credential or compare your score against canonical textbook reference models.
   </p>
   <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
     <a href="../quiz/" class="noc-sim-btn" style="text-decoration:none;">🎯 Take Certification Exam</a>
+    <a href="../interactive/" class="noc-sim-btn" style="text-decoration:none; background:#2563eb;">🔬 Explore 15 Interactive Labs</a>
     <a href="../interactive/game/" class="noc-sim-btn" style="text-decoration:none; background:#ea580c;">👾 Play Deadlock Buster</a>
     <a href="../interactive/puzzle/" class="noc-sim-btn" style="text-decoration:none; background:#8b5cf6;">🧩 Packet Master Puzzle</a>
     <a href="../interactive/hotspot/" class="noc-sim-btn" style="text-decoration:none; background:#ef4444;">🔥 Hotspot Hero</a>
@@ -27,7 +28,7 @@ Verify any candidate's digital certificate hash against our public registry:
 
 <div class="noc-sim-container" style="max-width:680px; margin:1.5rem auto;">
   <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-    <input type="text" id="verifyInput" class="noc-sim-select" style="flex-grow:1; min-width:260px;" placeholder="Enter Certificate Hash (e.g. NOC-CERT-2026-A109)...">
+    <input type="text" id="verifyInput" class="noc-sim-select" style="flex-grow:1; min-width:260px;" placeholder="Enter Certificate Hash (e.g. NOC-CERT-... or REF-GOLDEN-EXAM-100)...">
     <button class="noc-sim-btn" onclick="verifyHash()">Verify Credential</button>
   </div>
   <div id="verifyResult" style="margin-top:1rem; display:none; padding:1rem; border-radius:8px; font-size:0.9rem; line-height:1.5;"></div>
@@ -35,12 +36,12 @@ Verify any candidate's digital certificate hash against our public registry:
 
 ---
 
-## 🌟 Hall of Fame Rankings
+## 🌟 Hall of Fame &amp; Reference Baselines
 
 <div style="display:flex; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap; align-items:center;">
   <label style="font-size:0.85rem; font-weight:700; color:var(--tcl-heading);">Filter Category:</label>
   <select id="leaderboardCategoryFilter" class="noc-sim-select" onchange="renderLeaderboardTable()">
-    <option value="all">All Submissions (Quiz, Arcade &amp; Tycoon)</option>
+    <option value="all">All Submissions &amp; Reference Baselines</option>
     <option value="quiz">Architecture Certification (Quiz Only)</option>
     <option value="game">Deadlock Buster Arcade (Game Only)</option>
     <option value="hotspot">Hotspot Hero (Thermal Defense)</option>
@@ -71,11 +72,11 @@ Verify any candidate's digital certificate hash against our public registry:
     <thead>
       <tr style="border-bottom:2px solid var(--tcl-border); text-align:left; font-size:0.85rem; text-transform:uppercase; color:var(--md-default-fg-color--lighter);">
         <th style="padding:10px; text-align:center;">Rank</th>
-        <th style="padding:10px;">Candidate &amp; Institution</th>
+        <th style="padding:10px;">Candidate / Architecture Baseline</th>
         <th style="padding:10px;">Track / Event</th>
         <th style="padding:10px; text-align:right;">Score</th>
         <th style="padding:10px; text-align:right;">Metric</th>
-        <th style="padding:10px; text-align:center;">Credential ID</th>
+        <th style="padding:10px; text-align:center;">Verification ID / Ref Key</th>
         <th style="padding:10px; text-align:right;">Date</th>
       </tr>
     </thead>
@@ -84,207 +85,174 @@ Verify any candidate's digital certificate hash against our public registry:
 </div>
 
 <p style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-top:0.75rem; text-align:right;">
-  Automatically synchronized via GitHub Issues API &amp; static CDN cache · Modeled after <code>quiz_challenge_platform</code>.
+  Automatically synchronized via browser local storage &amp; verified reference architecture baseline models.
 </p>
 
 <script>
 const DEFAULT_REGISTRY = [
   {
     "rank": 1,
-    "name": "Dr. Elena Rostova",
-    "org": "Stanford VLSI Group",
+    "name": "Golden Key: Architecture Exam",
+    "org": "NoC-Lab Golden Model Verifier",
     "track": "Comprehensive Exam",
-    "score": 2180,
+    "score": 2200,
     "accuracy": 100,
-    "date": "2026-10-28",
-    "certId": "NOC-CERT-2026-A109",
+    "date": "2026-11-01",
+    "certId": "REF-GOLDEN-EXAM-100",
     "type": "quiz"
   },
   {
     "rank": 2,
-    "name": "Marcus Vance",
-    "org": "MIT CSAIL",
-    "track": "Comprehensive Exam",
-    "score": 2140,
+    "name": "DOR-XY Deterministic Baseline",
+    "org": "Reference Microarchitecture Model",
+    "track": "Deadlock Buster (Wave 10)",
+    "score": 2000,
     "accuracy": 100,
-    "date": "2026-10-31",
-    "certId": "NOC-CERT-2026-B441",
-    "type": "quiz"
+    "date": "2026-11-01",
+    "certId": "REF-DOR-XY-W10",
+    "type": "game"
   },
   {
     "rank": 3,
-    "name": "Prof. Wei Chen",
-    "org": "SJTU NoC-Lab",
-    "track": "Comprehensive Exam",
-    "score": 2110,
+    "name": "Odd-Even Adaptive Router Baseline",
+    "org": "Reference Turn Model Engine",
+    "track": "Deadlock Buster (Wave 8)",
+    "score": 1850,
     "accuracy": 100,
     "date": "2026-11-01",
-    "certId": "NOC-CERT-2026-C883",
-    "type": "quiz"
+    "certId": "REF-ODD-EVEN-W8",
+    "type": "game"
   },
   {
     "rank": 4,
-    "name": "Sophia Lin",
-    "org": "Intel Architecture Labs",
-    "track": "Deadlock Buster (Wave 7)",
-    "score": 2040,
-    "accuracy": 14,
-    "date": "2026-11-02",
-    "certId": "GAME-WAVE-7",
-    "type": "game"
-  },
-  {
-    "rank": 5,
-    "name": "Rajiv Patel",
-    "org": "AMD Infinity Fabric Team",
-    "track": "Comprehensive Exam",
-    "score": 1990,
-    "accuracy": 92,
-    "date": "2026-11-03",
-    "certId": "NOC-CERT-2026-E774",
-    "type": "quiz"
-  },
-  {
-    "rank": 6,
-    "name": "Lucas Dubois",
-    "org": "EPFL Parallel Systems",
-    "track": "Deadlock Buster (Wave 5)",
-    "score": 1480,
-    "accuracy": 8,
-    "date": "2026-11-04",
-    "certId": "GAME-WAVE-5",
-    "type": "game"
-  },
-  {
-    "rank": 7,
-    "name": "Dr. Alexei Morozov",
-    "org": "ETH Zurich Microelectronics",
+    "name": "HotSpot 7.0 3D Thermal Baseline",
+    "org": "Compact RC Thermal Engine",
     "track": "Hotspot Hero (Wave 8)",
-    "score": 1850,
-    "accuracy": 78.5,
-    "date": "2026-11-04",
-    "certId": "HOTSPOT-WAVE-8",
+    "score": 1800,
+    "accuracy": 82.4,
+    "date": "2026-11-01",
+    "certId": "REF-HOTSPOT-7.0",
     "type": "hotspot"
   },
   {
-    "rank": 8,
-    "name": "Ananya Sharma",
-    "org": "TSMC Advanced Packaging Lab",
+    "rank": 5,
+    "name": "UCIe 1.1 Standard Retimer Baseline",
+    "org": "UCIe Consortium Specification",
     "track": "Chiplet Tycoon (Mission 5)",
-    "score": 1720,
-    "accuracy": 3.45,
-    "date": "2026-11-04",
-    "certId": "CHIPLET-M5-35",
+    "score": 1750,
+    "accuracy": 100,
+    "date": "2026-11-01",
+    "certId": "REF-UCIE-1.1",
     "type": "chiplet"
   },
   {
-    "rank": 9,
-    "name": "Kavita Rao",
-    "org": "NVIDIA Networking Research",
+    "rank": 6,
+    "name": "iSLIP Canonical 4x4 Arbiter Baseline",
+    "org": "McKeown Reference Scheduler",
     "track": "Arbiter Arena (Wave 7)",
-    "score": 1680,
-    "accuracy": 38,
-    "date": "2026-11-04",
-    "certId": "ARBITER-WAVE-7",
+    "score": 1700,
+    "accuracy": 100,
+    "date": "2026-11-01",
+    "certId": "REF-ISLIP-4X4",
     "type": "arbiter"
   },
   {
-    "rank": 10,
-    "name": "Prof. Kenji Takahashi",
-    "org": "Tokyo Tech Exascale Lab",
+    "rank": 7,
+    "name": "Slim Fly MMS Extremal Graph Baseline",
+    "org": "ETH Zurich Reference Topology",
     "track": "Topology Titans (Mission 5)",
-    "score": 1590,
-    "accuracy": 3,
-    "date": "2026-11-04",
-    "certId": "TOPO-M5-D3",
+    "score": 1650,
+    "accuracy": 100,
+    "date": "2026-11-01",
+    "certId": "REF-SLIM-FLY",
     "type": "topology"
   },
   {
-    "rank": 11,
-    "name": "Dr. Lucian Vance",
-    "org": "Columbia Lightwave Research",
+    "rank": 8,
+    "name": "Corona MWSR Photonic Crossbar Baseline",
+    "org": "HP Labs Photonic Reference",
     "track": "Photon Pilot (Wave 6)",
-    "score": 1540,
-    "accuracy": 8.4,
-    "date": "2026-11-04",
-    "certId": "OPTICAL-WAVE-6",
+    "score": 1600,
+    "accuracy": 64,
+    "date": "2026-11-01",
+    "certId": "REF-CORONA-MWSR",
     "type": "optical"
   },
   {
-    "rank": 12,
-    "name": "Sarah Jenkins",
-    "org": "Intel On-Chip Interconnects",
+    "rank": 9,
+    "name": "Dally-Seitz Credit VC Flow Control Baseline",
+    "org": "Canonical VC Credit Engine",
     "track": "Credit Commander (Wave 7)",
-    "score": 1490,
-    "accuracy": 96,
-    "date": "2026-11-04",
-    "certId": "CREDIT-WAVE-7",
+    "score": 1550,
+    "accuracy": 100,
+    "date": "2026-11-01",
+    "certId": "REF-CREDIT-VC",
     "type": "credit"
   },
   {
-    "rank": 13,
-    "name": "Dr. Elena Rostova",
-    "org": "CMU SAFARI Research Group",
+    "rank": 10,
+    "name": "BLESS Bufferless Deflection Router Baseline",
+    "org": "SAFARI Reference Engine",
     "track": "Deflection Duel (Wave 6)",
-    "score": 1450,
-    "accuracy": 36,
-    "date": "2026-11-04",
-    "certId": "DEFLECT-WAVE-6",
+    "score": 1500,
+    "accuracy": 100,
+    "date": "2026-11-01",
+    "certId": "REF-BLESS-DEFLECTION",
     "type": "deflection"
   },
   {
-    "rank": 14,
-    "name": "Marcus Aurelius Vance",
-    "org": "NASA JPL Deep Space Microelectronics",
+    "rank": 11,
+    "name": "Vicman Fault-Tolerant Reconfiguration Baseline",
+    "org": "Fault-Resilient Architecture Model",
     "track": "Fault Defender (Wave 6)",
-    "score": 1420,
-    "accuracy": 41,
-    "date": "2026-11-04",
-    "certId": "FAULT-WAVE-6",
+    "score": 1450,
+    "accuracy": 100,
+    "date": "2026-11-01",
+    "certId": "REF-VICMAN-FAULT",
     "type": "fault"
   },
   {
-    "rank": 15,
-    "name": "Prof. Toshiro Mifune",
-    "org": "Nagoya Automotive Microelectronics",
+    "rank": 12,
+    "name": "Multi-VNET Coherence QoS Baseline",
+    "org": "MOESI Directory Reference",
     "track": "QoS Gladiator (Wave 6)",
-    "score": 1390,
-    "accuracy": 38,
-    "date": "2026-11-04",
-    "certId": "QOS-WAVE-6",
+    "score": 1400,
+    "accuracy": 100,
+    "date": "2026-11-01",
+    "certId": "REF-MOESI-QOS",
     "type": "qos"
   },
   {
-    "rank": 16,
-    "name": "Clara Oswald",
-    "org": "Qualcomm Low-Power Architecture",
+    "rank": 13,
+    "name": "Autonomous VFI PID DVFS Controller Baseline",
+    "org": "Dark Silicon DVFS Reference",
     "track": "Volt Vortex (Wave 6)",
-    "score": 1360,
-    "accuracy": 28.4,
-    "date": "2026-11-04",
-    "certId": "POWER-WAVE-6",
+    "score": 1380,
+    "accuracy": 45,
+    "date": "2026-11-01",
+    "certId": "REF-DVFS-PID",
     "type": "power"
   },
   {
-    "rank": 17,
-    "name": "Dr. Zachary Sterling",
-    "org": "Georgia Tech RF Silicon Group",
+    "rank": 14,
+    "name": "Sub-THz 140 GHz Wireless Transceiver Baseline",
+    "org": "Shahmoradi Transceiver Model",
     "track": "Wireless Wave (Wave 6)",
-    "score": 1340,
-    "accuracy": 3.4,
-    "date": "2026-11-04",
-    "certId": "WIRELESS-WAVE-6",
+    "score": 1350,
+    "accuracy": 7,
+    "date": "2026-11-01",
+    "certId": "REF-140GHZ-TRX",
     "type": "wireless"
   },
   {
-    "rank": 18,
-    "name": "Dr. Mei-Ling Zhou",
-    "org": "Tsinghua Brain-Inspired Computing Lab",
+    "rank": 15,
+    "name": "AER Multicast SNN NoC Baseline",
+    "org": "In-Network Computing Reference",
     "track": "Neuromorphic Nexus (Wave 6)",
-    "score": 1310,
-    "accuracy": 46,
-    "date": "2026-11-04",
-    "certId": "SNN-WAVE-6",
+    "score": 1320,
+    "accuracy": 99.8,
+    "date": "2026-11-01",
+    "certId": "REF-SNN-NEXUS",
     "type": "neuromorphic"
   }
 ];

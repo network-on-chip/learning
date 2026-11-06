@@ -10,69 +10,69 @@ from pathlib import Path
 LEADERBOARD_ENTRIES = [
     {
         "rank": 1,
-        "name": "Dr. Elena Rostova",
-        "org": "Stanford VLSI Group",
+        "name": "Golden Key: Architecture Exam",
+        "org": "NoC-Lab Golden Model Verifier",
         "track": "Comprehensive Exam",
-        "score": 2180,
+        "score": 2200,
         "accuracy": 100,
-        "date": "2026-10-28",
-        "certId": "NOC-CERT-2026-A109",
+        "date": "2026-11-01",
+        "certId": "REF-GOLDEN-EXAM-100",
         "type": "quiz"
     },
     {
         "rank": 2,
-        "name": "Marcus Vance",
-        "org": "MIT CSAIL",
-        "track": "Comprehensive Exam",
-        "score": 2140,
+        "name": "DOR-XY Deterministic Baseline",
+        "org": "Reference Microarchitecture Model",
+        "track": "Deadlock Buster (Wave 10)",
+        "score": 2000,
         "accuracy": 100,
-        "date": "2026-10-31",
-        "certId": "NOC-CERT-2026-B441",
-        "type": "quiz"
+        "date": "2026-11-01",
+        "certId": "REF-DOR-XY-W10",
+        "type": "game"
     },
     {
         "rank": 3,
-        "name": "Prof. Wei Chen",
-        "org": "SJTU NoC-Lab",
-        "track": "Comprehensive Exam",
-        "score": 2110,
+        "name": "Odd-Even Adaptive Router Baseline",
+        "org": "Reference Turn Model Engine",
+        "track": "Deadlock Buster (Wave 8)",
+        "score": 1850,
         "accuracy": 100,
         "date": "2026-11-01",
-        "certId": "NOC-CERT-2026-C883",
-        "type": "quiz"
+        "certId": "REF-ODD-EVEN-W8",
+        "type": "game"
     },
     {
         "rank": 4,
-        "name": "Sophia Lin",
-        "org": "Intel Architecture Labs",
-        "track": "Deadlock Buster (Wave 7)",
-        "score": 2040,
-        "accuracy": 14,
-        "date": "2026-11-02",
-        "certId": "GAME-WAVE-7",
-        "type": "game"
+        "name": "HotSpot 7.0 3D Thermal Baseline",
+        "org": "Compact RC Thermal Engine",
+        "track": "Hotspot Hero (Wave 8)",
+        "score": 1800,
+        "accuracy": 82.4,
+        "date": "2026-11-01",
+        "certId": "REF-HOTSPOT-7.0",
+        "type": "hotspot"
     },
     {
         "rank": 5,
-        "name": "Rajiv Patel",
-        "org": "AMD Infinity Fabric Team",
-        "track": "Comprehensive Exam",
-        "score": 1990,
-        "accuracy": 92,
-        "date": "2026-11-03",
-        "certId": "NOC-CERT-2026-E774",
-        "type": "quiz"
+        "name": "UCIe 1.1 Standard Retimer Baseline",
+        "org": "UCIe Consortium Specification",
+        "track": "Chiplet Tycoon (Mission 5)",
+        "score": 1750,
+        "accuracy": 100,
+        "date": "2026-11-01",
+        "certId": "REF-UCIE-1.1",
+        "type": "chiplet"
     },
     {
         "rank": 6,
-        "name": "Lucas Dubois",
-        "org": "EPFL Parallel Systems",
-        "track": "Deadlock Buster (Wave 5)",
-        "score": 1480,
-        "accuracy": 8,
-        "date": "2026-11-04",
-        "certId": "GAME-WAVE-5",
-        "type": "game"
+        "name": "iSLIP Canonical 4x4 Arbiter Baseline",
+        "org": "McKeown Reference Scheduler",
+        "track": "Arbiter Arena (Wave 7)",
+        "score": 1700,
+        "accuracy": 100,
+        "date": "2026-11-01",
+        "certId": "REF-ISLIP-4X4",
+        "type": "arbiter"
     }
 ]
 

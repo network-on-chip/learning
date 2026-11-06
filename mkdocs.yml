@@ -168,6 +168,7 @@ nav:
       - "Part V: Emerging Frontiers":
           - "Chapter 10: Optical & Wireless Networks-on-Chip": textbook/ch10-optical-wireless/index.md
   - "Interactive Lab":
+      - Overview: interactive/index.md
       - "Deadlock Buster Arcade Game": interactive/game.md
       - "Packet Master: Routing Puzzle": interactive/puzzle.md
       - "Hotspot Hero: Thermal Defense": interactive/hotspot.md
