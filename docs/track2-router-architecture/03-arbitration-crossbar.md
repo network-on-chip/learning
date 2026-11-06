@@ -9,14 +9,14 @@
       Read <strong>Chapter 3: High-Performance Router Microarchitecture & Arbitration</strong> in our open textbook, featuring complete mathematical derivations of Matrix Arbiter triangular updates, iSLIP iterative matching proofs, and synthesizable Verilog modules.
     </div>
   </div>
-  <a href="https://github.com/network-on-chip/book/blob/main/chapters/ch03-router-microarchitecture/index.md" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
+  <a href="../textbook/ch03-router-microarchitecture/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
     <span>Explore Chapter 3 →</span>
   </a>
 </div>
 
 When multiple input virtual channels demand the same output physical port simultaneously, the router must decide which flit gets to traverse the internal crossbar switch. 
 
-This decision must be executed in **sub-nanosecond time** (typically within a single clock period of $300\text{–}600\text{ ps}$ in modern server silicon) while guaranteeing **strict fairness**, **zero starvation**, and **maximum crossbar utilization**.
+This decision must be executed in **sub-nanosecond time** (typically within a single clock period of $300\text{–}600\text{ ps}$ in modern server silicon) while guaranteeing **strict fairness**, **zero starvation**, and **maximum crossbar utilization** [[DallyPrinciples]](#ref-dallyprinciples).
 
 In this lesson, we study fast silicon arbiters—focusing on the **Matrix Arbiter (LRU)**—and analyze **Separable Switch Allocators** and the physical layout of crossbar switches.
 
@@ -34,7 +34,7 @@ As core counts and port counts grow, RRA carry chains become a timing bottleneck
 ---
 
 ### B. The Matrix Arbiter (Least Recently Used - LRU)
-The **Matrix Arbiter** is the gold standard for high-frequency on-chip routers. It replaces carry chains with a parallel, triangular binary matrix evaluated using **only two levels of basic gates (AND-OR)**, achieving sub-200 picosecond evaluation in FinFET processes!
+The **Matrix Arbiter** is the gold standard for high-frequency on-chip routers [[DallyPrinciples]](#ref-dallyprinciples). It replaces carry chains with a parallel, triangular binary matrix evaluated using **only two levels of basic gates (AND-OR)**, achieving sub-200 picosecond evaluation in FinFET processes!
 
 ```
 Matrix M for 4 Clients (C0, C1, C2, C3):
@@ -389,7 +389,7 @@ In a standard 5-port on-chip router with $V = 4$ virtual channels per port, ther
 
 Finding the globally optimal assignment of input VCs to output ports is a **Bipartite Maximum Matching problem**. The classic algorithm (Hopcroft-Karp) has time complexity $O(V^{2.5})$, which is completely impossible to execute inside a 300 picosecond clock cycle.
 
-Instead, silicon routers employ **Separable Switch Allocators**:
+Instead, silicon routers employ **Separable Switch Allocators** [[DallyPrinciples]](#ref-dallyprinciples), [[Tamir1993]](#ref-tamir1993):
 
 ```mermaid
 graph LR
@@ -412,7 +412,7 @@ graph LR
 ```
 
 ### Allocation Strategies:
-1. **Input-First Separable Allocation (iSLIP):**
+1. **Input-First Separable Allocation (iSLIP [[McKeown1999]](#ref-mckeown1999), PIM [[Anderson1993]](#ref-anderson1993)):**
    - **Phase 1 (Input Arbitration):** Each of the 5 input ports selects **one winning candidate VC** among its active queues.
    - **Phase 2 (Output Arbitration):** The 5 winning candidates send their requests to the 5 output port arbiters. Each output port awards crossbar access to one winner.
 2. **Output-First Separable Allocation:**
@@ -450,7 +450,7 @@ graph TD
 ### Physical Design Challenges:
 1. **Wiring Congestion:**  
    For a 128-bit flit width, a 5-port crossbar has $5 \times 128 = 640\text{ input wires}$ and $640\text{ output wires}$ crisscrossing the switch core. In dense layouts, this requires dedicated metal layers (e.g., Metal 4 for horizontal tracks and Metal 5 for vertical tracks).
-2. **Bit-Slicing (Area & Power Optimization):**  
+2. **Bit-Slicing (Area & Power Optimization) [[Passas2012]](#ref-passas2012):**  
    Rather than building one massive monolithic 128-bit crossbar, architects partition the crossbar into **four 32-bit crossbar slices**. All 4 slices share identical control signals from the Switch Allocator, significantly reducing wire congestion and capacitive cross-talk.
 
 ### Synthesizable Verilog RTL: 5×5 Crossbar Datapath (`crossbar_5x5.v`)
@@ -697,6 +697,16 @@ function checkQuiz23_Q3(idx) {
 Test your crossbar scheduling and arbitration reflexes:
 - ⚔️ **[Arbiter Arena: Crossbar Clash](../interactive/arbiter.md):** Test matrix arbitration and iSLIP scheduling under high injection rates and adversarial burst traffic.
 - 🏭 **[Chiplet Tycoon: Multi-Die Architect](../interactive/chiplet.md):** Route crossbar links across high-density packaging substrates and UCIe D2D interfaces.
+
+---
+
+## References & Further Reading
+
+1. <a id="ref-dallyprinciples"></a>**[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann, 2004.
+2. <a id="ref-mckeown1999"></a>**[McKeown1999]** N. McKeown, "The iSLIP Scheduling Algorithm for Input-Queued Switches," *IEEE/ACM Transactions on Networking*, vol. 7, no. 2, pp. 188–201, Apr. 1999. [DOI: 10.1109/90.769767](https://doi.org/10.1109/90.769767).
+3. <a id="ref-tamir1993"></a>**[Tamir1993]** Y. Tamir and H.-C. Chi, "Symmetric Biconnected Networks: Low-Cost Interconnection for Shared-Memory Multiprocessors," *IEEE Transactions on Computers*, vol. 42, no. 1, pp. 31–47, Jan. 1993. [DOI: 10.1109/12.192213](https://doi.org/10.1109/12.192213).
+4. <a id="ref-anderson1993"></a>**[Anderson1993]** T. E. Anderson, S. S. Owicki, J. B. Saxe, and C. P. Thacker, "High-Speed Switch Scheduling for Local-Area Networks," *ACM Transactions on Computer Systems*, vol. 11, no. 4, pp. 319–352, Nov. 1993. [DOI: 10.1145/161541.161736](https://doi.org/10.1145/161541.161736).
+5. <a id="ref-passas2012"></a>**[Passas2012]** S. Passas, M. Katevenis, and D. Pnevmatikatos, "Crossbar Switch Fabric Architectures for Efficient On-Chip Interconnects," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 20, no. 9, pp. 1563–1576, Sep. 2012. [DOI: 10.1109/TVLSI.2011.2162649](https://doi.org/10.1109/TVLSI.2011.2162649).
 
 ---
 

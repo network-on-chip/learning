@@ -9,12 +9,12 @@
       Read <strong>Chapter 2: Switching Techniques, Flow Control & Buffer Management</strong> in our open textbook, featuring mathematical latency derivations for SAF vs VCT vs Wormhole, FlooNoC AXI4 NI architectures, and synthesizable credit flow RTL.
     </div>
   </div>
-  <a href="https://github.com/network-on-chip/book/blob/main/chapters/ch02-switching-flow-control/index.md" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
+  <a href="../textbook/ch02-switching-flow-control/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
     <span>Explore Chapter 2 →</span>
   </a>
 </div>
 
-In Network-on-Chip (NoC), data communication is divided into a rigorous structural hierarchy. This hierarchy balances routing flexibility with the microarchitectural reality that **on-chip SRAM/register buffers consume precious silicon area and power**.
+In Network-on-Chip (NoC), data communication is divided into a rigorous structural hierarchy. This hierarchy balances routing flexibility with the microarchitectural reality that **on-chip SRAM/register buffers consume precious silicon area and power** (typically 35% to 65% of total router power and area) [[Wang2002]](#ref-wang2002), [[Kahng2009]](#ref-kahng2009).
 
 In this lesson, we examine how application transactions are diced into **packets**, **flits**, and **phits**, and compare the three seminal switching techniques that govern how data travels across routers: **Store-and-Forward**, **Virtual Cut-Through**, and **Wormhole Switching**.
 
@@ -72,7 +72,7 @@ graph TD
 
 ## 2. Bit-Level Flit Header Architecture
 
-In high-performance silicon routers, flit encoding is engineered to minimize decoding logic delay in the critical path. Below is a standard 128-bit industry flit format (similar to OpenPiton, TileLink NoC, and Intel AXI-Mesh):
+In high-performance silicon routers, flit encoding is engineered to minimize decoding logic delay in the critical path. Below is a standard 128-bit industry flit format (similar to OpenPiton [[Balkind2016]](#ref-balkind2016), FlooNoC [[Fischer2025]](#ref-fischer2025), TileLink NoC, and Intel AXI-Mesh [[DallyPrinciples]](#ref-dallyprinciples)):
 
 ### A. Head Flit Bit Allocation (128 bits)
 
@@ -120,7 +120,7 @@ Timeline:
 ```
 
 ### A. Store-and-Forward (SAF) Switching
-In Store-and-Forward switching, a router must receive and store the **entire packet** in its input buffer before it can compute the route or begin forwarding the first flit to the downstream router.
+In Store-and-Forward switching [[Baran1964]](#ref-baran1964), a router must receive and store the **entire packet** in its input buffer before it can compute the route or begin forwarding the first flit to the downstream router.
 
 ```
 Router 0: [=== Packet (L flits) ===]
@@ -146,7 +146,7 @@ $$T_{SAF} = H \times \left( t_r + \frac{L}{W} \right)$$
 ---
 
 ### B. Virtual Cut-Through (VCT) Switching
-Proposed by Parviz Kermani and Leonard Kleinrock in 1979, **Virtual Cut-Through** allows a router to forward the packet header to the next hop as soon as the routing decision is computed, **without waiting for the rest of the packet to arrive**.
+Proposed by Parviz Kermani and Leonard Kleinrock in 1979 [[Kermani1979]](#ref-kermani1979), **Virtual Cut-Through** allows a router to forward the packet header to the next hop as soon as the routing decision is computed, **without waiting for the rest of the packet to arrive**.
 
 ```
 Router 0: [Head][Body 1][Body 2][Tail]
@@ -169,7 +169,7 @@ When the downstream router is busy or congested, VCT **aborts cut-through and bu
 ---
 
 ### C. Wormhole Switching (WH)
-Introduced in 1986 by **William J. Dally and Charles L. Seitz**, **Wormhole Switching** revolutionized on-chip networks, multicore processors, and parallel supercomputers.
+Introduced in 1986 by **William J. Dally and Charles L. Seitz** [[Dally1986]](#ref-dally1986), [[Dally1987]](#ref-dally1987), **Wormhole Switching** revolutionized on-chip networks, multicore processors, and parallel supercomputers.
 
 In Wormhole Switching:
 1. The packet is sliced into a train of flits.
@@ -544,7 +544,7 @@ This phenomenon can cause network throughput to collapse to a fraction of peak c
 
 > [!IMPORTANT]
 > How do modern on-chip networks solve Head-of-Line blocking without abandoning the low buffer cost of Wormhole Switching?  
-> By introducing **Virtual Channels (VCs)**! Virtual channels multiplex multiple independent logical FIFO queues onto a single physical link, allowing unblocked packets to bypass frozen worms. We explore this in [Track 2: Router Microarchitecture](../track2-router-architecture/02-virtual-channels.md).
+> By introducing **Virtual Channels (VCs)** [[Dally1992]](#ref-dally1992)! Virtual channels multiplex multiple independent logical FIFO queues onto a single physical link, allowing unblocked packets to bypass frozen worms. We explore this in [Track 2: Router Microarchitecture](../track2-router-architecture/02-virtual-channels.md).
 
 ---
 
@@ -728,6 +728,21 @@ Test your flit scheduling and switching expertise with interactive challenges:
 - 🎮 **[Packet Master: Flit Routing Puzzle](../interactive/puzzle.md):** Navigate flit trains through multi-hop mesh routers, avoiding buffer contention and pipeline deadlocks.
 - ⚔️ **[Deflection Duel: Bufferless Routing](../interactive/deflection.md):** Experience zero-buffer hot-potato deflection routing and discover when deflection collapses under load.
 - ⚖️ **[Arbiter Arena: Crossbar Scheduling](../interactive/arbiter.md):** Master matrix and round-robin arbitration to eliminate Head-of-Line stalls across crossbar ports.
+
+---
+
+## References & Further Reading
+
+1. <a id="ref-baran1964"></a>**[Baran1964]** P. Baran, "On Distributed Communications Networks," *IEEE Transactions on Communications Systems*, vol. 12, no. 1, pp. 1–9, Mar. 1964. [DOI: 10.1109/TCOM.1964.1088883](https://doi.org/10.1109/TCOM.1964.1088883).
+2. <a id="ref-kermani1979"></a>**[Kermani1979]** P. Kermani and L. Kleinrock, "Virtual Cut-Through: A New Computer Communication Switching Technique," *Computer Networks*, vol. 3, no. 4, pp. 267–286, Sep. 1979. [DOI: 10.1016/0376-5075(79)90032-1](https://doi.org/10.1016/0376-5075(79)90032-1).
+3. <a id="ref-dally1986"></a>**[Dally1986]** W. J. Dally and C. L. Seitz, "The Torus Routing Chip," *Distributed Computing*, vol. 1, no. 4, pp. 187–196, Oct. 1986. [DOI: 10.1007/BF01660031](https://doi.org/10.1007/BF01660031).
+4. <a id="ref-dally1987"></a>**[Dally1987]** W. J. Dally and C. L. Seitz, "Deadlock-Free Message Routing in Multiprocessor Interconnection Networks," *IEEE Transactions on Computers*, vol. C-36, no. 5, pp. 547–553, May 1987. [DOI: 10.1109/TC.1987.1676939](https://doi.org/10.1109/TC.1987.1676939).
+5. <a id="ref-dally1992"></a>**[Dally1992]** W. J. Dally, "Virtual-Channel Flow Control," *IEEE Transactions on Parallel and Distributed Systems*, vol. 3, no. 2, pp. 194–205, Mar. 1992. [DOI: 10.1109/71.127260](https://doi.org/10.1109/71.127260).
+6. <a id="ref-wang2002"></a>**[Wang2002]** H.-S. Wang, X. Zhu, L.-S. Peh, and S. Malik, "Orion: A Power-Performance Simulator for Interconnection Networks," in *Proceedings of the 35th Annual IEEE/ACM International Symposium on Microarchitecture (MICRO)*, 2002, pp. 294–305. [DOI: 10.1109/MICRO.2002.1176258](https://doi.org/10.1109/MICRO.2002.1176258).
+7. <a id="ref-kahng2009"></a>**[Kahng2009]** A. B. Kahng, B. Lin, and S. Nath, "ORION 2.0: A Power-Area Simulator for Interconnection Networks," in *Proceedings of the Conference on Design, Automation and Test in Europe (DATE)*, 2009, pp. 423–428. [DOI: 10.1109/DATE.2009.5090710](https://doi.org/10.1109/DATE.2009.5090710).
+8. <a id="ref-balkind2016"></a>**[Balkind2016]** J. Balkind et al., "OpenPiton: An Open Source Manycore Research Platform," in *Proceedings of the 21st International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS)*, 2016, pp. 217–232. [DOI: 10.1145/2872362.2872414](https://doi.org/10.1145/2872362.2872414).
+9. <a id="ref-fischer2025"></a>**[Fischer2025]** T. Fischer, M. Rogenmoser, T. Benz, F. K. Gürkaynak, and L. Benini, "FlooNoC: A 645-Gb/s/link 0.15-pJ/B/hop Open-Source NoC With Wide Physical Links and End-to-End AXI4 Parallel Multistream Support," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 33, no. 4, pp. 1094–1107, Apr. 2025. [DOI: 10.1109/TVLSI.2024.3524673](https://doi.org/10.1109/TVLSI.2024.3524673).
+10. <a id="ref-dallyprinciples"></a>**[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann, 2004.
 
 ---
 

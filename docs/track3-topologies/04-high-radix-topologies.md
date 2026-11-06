@@ -4,14 +4,14 @@ For decades, on-chip and supercomputing interconnects were dominated by **low-ra
 
 However, as systems scaled from dozens to thousands of cores, low-radix networks hit a brick wall: **network diameter and average hop count exploded ($\mathcal{O}(\sqrt{N})$)**. Packets spent dozens of cycles waiting in router FIFO queues, burning dynamic power on repeated buffer reads, arbitration cycles, and crossbar traversals.
 
-The **High-Radix Revolution** (pioneered by John Dally, Changho Choi, and Steve Scott in the late 2000s) fundamentally altered network architecture: **trade router crossbar port count ($k_r \ge 16\text{–}64$) to compress network diameter down to just $2\text{–}3$ hops!**
+The **High-Radix Revolution** (pioneered by John Dally, Changho Choi, and Steve Scott in the late 2000s [[Kim2007]](#ref-kim2007), [[Kim2008]](#ref-kim2008)) fundamentally altered network architecture: **trade router crossbar port count ($k_r \ge 16\text{–}64$) to compress network diameter down to just $2\text{–}3$ hops!**
 
 In this lesson, we analyze the mathematics of high-radix architectures, examine the **Flattened Butterfly** and **Dragonfly** topologies, explore **UGAL adaptive routing**, and inspect modern silicon implementations from **NVIDIA NVSwitch** to **Cray Slingshot**.
 
 <div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
   <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Textbook Reference</div>
   <div style="color: #334155; font-size: 0.95rem;">
-    Review the Passas-Katevenis radix-128 silicon proofs and non-blocking Clos theorems in <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch04-topologies-and-metrics/index.md#44-high-radix-interconnects-flattened-butterfly--dragonfly" target="_blank" rel="noopener">Chapter 4.4: High-Radix Interconnects</a></strong>.
+    Review the Passas-Katevenis radix-128 silicon proofs and non-blocking Clos theorems in <strong><a href="../textbook/ch04-topologies-and-metrics/">Chapter 4: Network Topologies &amp; Performance Metrics</a></strong>.
   </div>
 </div>
 
@@ -64,7 +64,7 @@ Architects realized that **spending silicon area on a large router crossbar to s
 
 ## 2. The Flattened Butterfly Topology
 
-The **Flattened Butterfly (FBfly)** (Kim, Dally et al., ISCA 2007) is derived by "flattening" the switching stages of a conventional multistage Bidirectional Butterfly (Clos network) into a single tier of high-radix routers.
+The **Flattened Butterfly (FBfly)** (Kim, Dally et al., ISCA 2007 [[Kim2007]](#ref-kim2007)) is derived by "flattening" the switching stages of a conventional multistage Bidirectional Butterfly (Clos network) into a single tier of high-radix routers.
 
 ```mermaid
 graph LR
@@ -108,7 +108,7 @@ In a $k$-ary 2-flat network:
 
 While the Flattened Butterfly works well on a single chip or backplane, scaling it across thousands of server racks requires millions of long, expensive cables.
 
-To solve this, Kim, Dally, Scott, and Abts (ISCA 2008) introduced the **Dragonfly Topology**. The fundamental insight of Dragonfly is:
+To solve this, Kim, Dally, Scott, and Abts (ISCA 2008 [[Kim2008]](#ref-kim2008)) introduced the **Dragonfly Topology**. The fundamental insight of Dragonfly is:
 > **Cables have non-uniform cost.** Short electrical PCB traces within a router board are virtually free. Long optical cables across server racks are expensive and bulky. Dragonfly maximizes the utilization of long optical links by arranging routers into tightly connected local groups!
 
 ```
@@ -192,7 +192,7 @@ To eliminate worst-case bottlenecks, Valiant's algorithm picks a **uniform rando
 - **Penalty:** **Doubles global link usage!** Every packet now traverses $2$ global links instead of $1$, cutting network saturation throughput under benign Uniform Random traffic by $50\%$.
 
 ### UGAL: Universal Globally-Adaptive Link Routing
-To get the best of both worlds, John Dally proposed **UGAL (Universal Globally-Adaptive Link)**:
+To get the best of both worlds, John Dally proposed **UGAL (Universal Globally-Adaptive Load-balanced)** routing [[Singh2004]](#ref-singh2004):
 For each packet, the source router estimates queue congestion along both the **Minimal path (MIN)** and the **Non-minimal path (VAL)**:
 
 $$\text{Decision Rule: If } \mathbf{q_{MIN} \le 2 \cdot q_{VAL} + \Delta} \implies \text{Route Minimal (MIN)}$$
@@ -405,7 +405,7 @@ Powers the world's top exascale supercomputers (**Frontier** at ORNL and **El Ca
 +----------------------------------------------------------------------------+
 ```
 
-### Case 2: NVIDIA NVLink & NVSwitch (AI High-Radix Fabric)
+### Case 2: NVIDIA NVLink & NVSwitch (AI High-Radix Fabric) [[Foley2023]](#ref-foley2023)
 In AI model training (e.g., GPT-4, Llama 3), all GPUs must exchange tensor activations simultaneously:
 - **NVSwitch 3 (Hopper H100):** 64 ports of 400 Gbps NVLink 4 ($3.2\text{ TB/s}$ bisection).
 - **NVSwitch 4 (Blackwell B200 / GB200 NVL72):** Connects 72 GPUs in a single liquid-cooled rack into a **single-hop high-radix crossbar domain ($D = 1$)**!
@@ -718,6 +718,16 @@ function getQ34Explanation(qNum, wasCorrect) {
   }
 }
 </script>
+
+---
+
+## References & Further Reading
+
+1. <a id="ref-kim2007"></a>**[Kim2007]** J. Kim, J. Balfour, and W. J. Dally, "Flattened Butterfly Topology for On-Chip Networks," in *Proceedings of the 40th Annual IEEE/ACM International Symposium on Microarchitecture (MICRO)*, 2007, pp. 172–182. [DOI: 10.1109/MICRO.2007.24](https://doi.org/10.1109/MICRO.2007.24).
+2. <a id="ref-kim2008"></a>**[Kim2008]** J. Kim, W. J. Dally, S. Scott, and D. Abts, "Technology-Driven, Highly-Scalable Dragonfly Topology," in *Proceedings of the 35th International Symposium on Computer Architecture (ISCA)*, 2008, pp. 77–88. [DOI: 10.1109/ISCA.2008.19](https://doi.org/10.1109/ISCA.2008.19).
+3. <a id="ref-singh2004"></a>**[Singh2004]** A. Singh, W. J. Dally, B. Towles, and A. K. Gupta, "Globally Adaptive Load-Balanced Routing on k-ary n-cubes," in *Proceedings of the 18th International Parallel and Distributed Processing Symposium (IPDPS)*, 2004. [DOI: 10.1109/IPDPS.2004.1302949](https://doi.org/10.1109/IPDPS.2004.1302949).
+4. <a id="ref-foley2023"></a>**[Foley2023]** D. Foley and J. Danskin, "Ultra-High Bandwidth Interconnects for AI: NVIDIA NVLink and NVSwitch," *IEEE Micro*, vol. 43, no. 3, pp. 84–94, May/Jun. 2023. [DOI: 10.1109/MM.2023.3259837](https://doi.org/10.1109/MM.2023.3259837).
+5. <a id="ref-dallyprinciples"></a>**[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann, 2004.
 
 ---
 

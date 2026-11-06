@@ -9,7 +9,7 @@
       Read <strong>Chapter 2: Switching Techniques, Flow Control & Buffer Management</strong> in our open textbook, featuring full credit turnaround RTT equations, minimum buffer sizing proofs ($B_{min} \ge RTT$), and SWIFT Token Flow Control (TVLSI 2013).
     </div>
   </div>
-  <a href="https://github.com/network-on-chip/book/blob/main/chapters/ch02-switching-flow-control/index.md" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
+  <a href="../textbook/ch02-switching-flow-control/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
     <span>Explore Chapter 2 →</span>
   </a>
 </div>
@@ -18,13 +18,13 @@ In wide-area networks (such as the Internet and Ethernet), when router buffers o
 
 In a silicon System-on-Chip, **dropping packets is strictly forbidden**. Cache coherence protocols (such as MESI or MOESI) and memory consistency models depend on guaranteed, lossless delivery. A single dropped invalidation message or memory writeback would immediately cause cache incoherence, deadlock, or silent data corruption.
 
-Therefore, an on-chip router must never transmit a flit across a physical link unless it is **100% physically guaranteed that the downstream router has an empty buffer slot ready to receive it**. This hardware guarantee is enforced by **Flow Control**.
+Therefore, an on-chip router must never transmit a flit across a physical link unless it is **100% physically guaranteed that the downstream router has an empty buffer slot ready to receive it**. This hardware guarantee is enforced by **Flow Control** [[DallyPrinciples]](#ref-dallyprinciples).
 
 ---
 
 ## 1. Credit-Based Flow Control Architecture
 
-**Credit-based flow control** is the universal standard in silicon Networks-on-Chip (featured in Intel Xeon Mesh, AMD Infinity Fabric, Apple M-Series UltraFusion, and ARM CoreLink fabrics).
+**Credit-based flow control** is the universal standard in silicon Networks-on-Chip (featured in Intel Xeon Mesh, AMD Infinity Fabric, Apple M-Series UltraFusion, and ARM CoreLink fabrics) [[DallyPrinciples]](#ref-dallyprinciples).
 
 ```mermaid
 sequenceDiagram
@@ -112,7 +112,7 @@ At this moment, the upstream router has exhausted all credits! It **cannot send 
 - Credit 0 will arrive at cycle $t = RTT$.
 - If $B < RTT$, the upstream router is forced to **idle for $RTT - B$ clock cycles**, injecting artificial **pipeline bubbles** into the physical link wires!
 
-$$\text{Minimum Buffer Depth for 100\% Throughput: } \mathbf{B_{min} \ge \lceil RTT \rceil}$$
+$$\text{Minimum Buffer Depth for 100\% Throughput: } \mathbf{B_{min} \ge \lceil RTT \rceil} \quad \text{[[Little1961]](#ref-little1961)}$$
 
 $$\text{Sustained Throughput Efficiency: } \eta = \min\left(100\%, \frac{B}{RTT} \times 100\%\right)$$
 
@@ -514,7 +514,7 @@ If the headroom is smaller than $RTT$, in-flight flits will overflow the buffer!
 ### B. Bufferless Deflection Routing (BLESS & CHIPPER)
 Can we eliminate router buffers altogether to save silicon area and static leakage?
 
-In **Bufferless Routing** (e.g., BLESS - Moscibroda & Mutlu, 2009; CHIPPER - Fallin et al., 2011):
+In **Bufferless Routing** (e.g., BLESS — Moscibroda & Mutlu, 2009 [[Moscibroda2009]](#ref-moscibroda2009); CHIPPER — Fallin et al., 2011 [[Fallin2011]](#ref-fallin2011)):
 - Routers have **zero input buffers**.
 - In every clock cycle, all incoming flits must be forwarded to an output port.
 - When two flits contend for the same optimal output port, the arbiter grants the port to one flit according to priority.
@@ -795,6 +795,17 @@ function checkQuiz13_Q3(idx) {
 Test your credit budgeting and buffer management in arcade simulations:
 - 🎮 **[Credit Commander: Flow Control Defense](../interactive/credits.md):** Defend router buffers against sudden traffic surges by managing credit limits, preventing buffer overflows, and eliminating credit-exhaustion bubbles.
 - 🔬 **[2D Mesh Routing Visualizer](../interactive/visualizer.md):** Track real-time credit decrements and backward pulse returns across all 5 router ports simultaneously.
+
+---
+
+## References & Further Reading
+
+1. <a id="ref-dallyprinciples"></a>**[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann, 2004.
+2. <a id="ref-little1961"></a>**[Little1961]** J. D. C. Little, "A Proof for the Queuing Formula: $L = \lambda W$," *Operations Research*, vol. 9, no. 3, pp. 383–387, May/Jun. 1961. [DOI: 10.1287/opre.9.3.383](https://doi.org/10.1287/opre.9.3.383).
+3. <a id="ref-moscibroda2009"></a>**[Moscibroda2009]** T. Moscibroda and O. Mutlu, "A Case for Bufferless Routing in On-Chip Networks," in *Proceedings of the 36th Annual International Symposium on Computer Architecture (ISCA)*, 2009, pp. 196–207. [DOI: 10.1145/1555754.1555780](https://doi.org/10.1145/1555754.1555780).
+4. <a id="ref-fallin2011"></a>**[Fallin2011]** C. Fallin, C. Craik, and O. Mutlu, "CHIPPER: A Low-Complexity Bufferless Deflection Router," in *Proceedings of the 17th IEEE International Symposium on High-Performance Computer Architecture (HPCA)*, 2011, pp. 144–155. [DOI: 10.1109/HPCA.2011.5749724](https://doi.org/10.1109/HPCA.2011.5749724).
+5. <a id="ref-grot2011"></a>**[Grot2011]** B. Grot, S. W. Keckler, and O. Mutlu, "Pre-Computed Route Allocation for High-Throughput Low-Latency On-Chip Networks," in *Proceedings of the 44th Annual IEEE/ACM International Symposium on Microarchitecture (MICRO)*, 2011. [DOI: 10.1145/2155620.2155653](https://doi.org/10.1145/2155620.2155653).
+6. <a id="ref-dally1992"></a>**[Dally1992]** W. J. Dally, "Virtual-Channel Flow Control," *IEEE Transactions on Parallel and Distributed Systems*, vol. 3, no. 2, pp. 194–205, Mar. 1992. [DOI: 10.1109/71.127260](https://doi.org/10.1109/71.127260).
 
 ---
 

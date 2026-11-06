@@ -9,7 +9,7 @@ In this lesson, we derive the mathematical laws of network throughput, analyze t
 <div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
   <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Textbook Reference</div>
   <div style="color: #334155; font-size: 0.95rem;">
-    Access the complete traffic sensitivity matrix and maximum channel load bounds ($\gamma_{max}$) in <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch04-topologies-and-metrics/index.md#41-fundamentals-of-interconnect-graph-theory--quantitative-metrics" target="_blank" rel="noopener">Chapter 4.1: Fundamentals of Interconnect Graph Theory</a></strong>.
+    Access the complete traffic sensitivity matrix and maximum channel load bounds ($\gamma_{max}$) in <strong><a href="../textbook/ch04-topologies-and-metrics/">Chapter 4: Network Topologies &amp; Performance Metrics</a></strong> of the companion textbook.
   </div>
 </div>
 
@@ -113,7 +113,7 @@ Source Node Coordinates: (x_s, y_s) in a k × k Mesh
 - **Characteristics:** Designed specifically to stress 2D Torus topologies by forcing packets to travel maximum distance along one direction without exploiting wrap-arounds.
 
 ### 5. Rent's Rule & Real-World Traffic Locality
-Real application software (e.g., parallel graph traversal, deep learning forward/backward passes) is **NOT uniform random**. Communication exhibits strong spatial locality governed by **Rent's Rule**:
+Real application software (e.g., parallel graph traversal, deep learning forward/backward passes) is **NOT uniform random**. Communication exhibits strong spatial locality governed by **Rent's Rule** [[Landman1971]](#ref-landman1971), [[Christie2000]](#ref-christie2000):
 
 $$T = c \cdot G^p$$
 
@@ -737,6 +737,14 @@ function getQ33Explanation(qNum, wasCorrect) {
   }
 }
 </script>
+
+---
+
+## References & Further Reading
+
+1. <a id="ref-dallyprinciples"></a>**[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann, 2004.
+2. <a id="ref-landman1971"></a>**[Landman1971]** B. S. Landman and R. L. Russo, "On a Pin Versus Block Relationship for Partitions of Logic Graphs," *IEEE Transactions on Computers*, vol. C-20, no. 12, pp. 1469–1479, Dec. 1971. [DOI: 10.1109/T-C.1971.223159](https://doi.org/10.1109/T-C.1971.223159).
+3. <a id="ref-christie2000"></a>**[Christie2000]** P. Christie and D. Stroobandt, "The Interpretation and Application of Rent's Rule," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 8, no. 6, pp. 639–648, Dec. 2000. [DOI: 10.1109/92.902258](https://doi.org/10.1109/92.902258).
 
 ---
 

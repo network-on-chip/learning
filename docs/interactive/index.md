@@ -1,13 +1,13 @@
 # 🎮 Interactive Labs & Arcade Simulator Hub
 
 <div class="noc-hero">
-  <div class="noc-track-badge">✨ 15 Hands-On Simulators, Mini-Games & Architectural Toolkits</div>
-  <h1>Interactive NoC Laboratory & Arcade</h1>
+  <div class="noc-track-badge">✨ 17 Hands-On Simulators, Mini-Games &amp; Architectural Toolkits</div>
+  <h1>Interactive NoC Laboratory &amp; Arcade</h1>
   <p class="subtitle">
-    Explore the inner workings of Network-on-Chip systems through 15 real-time, browser-native simulations and arcade challenges. Experience how packet collisions occur, dynamically balance thermal dissipation across silicon floorplans, route around permanent link defects, and design multi-die 2.5D/3D chiplet interconnects.
+    Explore the inner workings of Network-on-Chip systems through 17 real-time, browser-native simulations and arcade challenges. Experience how packet collisions occur, dynamically balance thermal dissipation across silicon floorplans, route around permanent link defects, and design multi-die 2.5D/3D chiplet interconnects.
   </p>
   <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
-    <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">🔬 15 Interactive Simulators</span>
+    <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">🔬 17 Interactive Simulators</span>
     <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: rgba(16, 185, 129, 0.2);">⚡ 100% Client-Side Canvas &amp; Audio</span>
     <span class="noc-track-badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2);">💾 Synthesizable Verilog Mapped</span>
     <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">🏆 Local &amp; Global Leaderboard Linked</span>
@@ -17,7 +17,7 @@
 
 <div class="noc-stats-grid">
   <div class="noc-stat-card">
-    <span class="noc-stat-number">15</span>
+    <span class="noc-stat-number">17</span>
     <span class="noc-stat-label">Hands-On Labs &amp; Games</span>
   </div>
   <div class="noc-stat-card">
@@ -43,6 +43,15 @@ Every simulator below is paired with formal mathematical models, synthesizable S
 ### 1. Router Microarchitecture & Flow Control
 
 <div class="noc-tracks-grid">
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">Physical Interconnect • Chapter 1</span>
+      <h3>Wire Wizard: Interconnect Physics</h3>
+      <p>Simulate nanoscale RC wire delay scaling from 180nm down to 3nm GAA. Insert optimal Bakoglu repeaters, model copper scattering resistivity, and witness the catastrophic bus contention collapse.</p>
+    </div>
+    <a href="wire/" class="noc-track-link">Launch Wire Wizard →</a>
+  </div>
+
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">Visualizer • Chapter 1 &amp; 3</span>
@@ -144,7 +153,16 @@ Every simulator below is paired with formal mathematical models, synthesizable S
 <div class="noc-tracks-grid">
   <div class="noc-track-card">
     <div>
-      <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2);">Packaging Architecture • Chapter 8 &amp; 9</span>
+      <span class="noc-track-badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2);">3D Silicon • Chapter 8</span>
+      <h3>TSV Titan: 3D-NoC &amp; Thermal Stacking</h3>
+      <p>Architect vertical Through-Silicon Via (TSV) networks across multi-tier silicon stacks. Evaluate keep-out zone (KOZ) stress margins, route 3D flits, and defeat thermal stacking traps using thermal dummy TSVs.</p>
+    </div>
+    <a href="tsv3d/" class="noc-track-link">Launch TSV Titan →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2);">Packaging Architecture • Chapter 9</span>
       <h3>Chiplet Tycoon: 2.5D/3D Multi-Die</h3>
       <p>Design next-generation heterogenous processors across passive silicon interposers, active interposers, and 3D TSV vertical stacks. Balance wafer yield ($Y$), UCIe D2D physical latency, and package thermal gradients.</p>
     </div>

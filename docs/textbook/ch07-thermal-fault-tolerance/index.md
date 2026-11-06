@@ -18,7 +18,7 @@ In high-throughput Network-on-Chip fabrics, routers and high-speed links contrib
 
 To ensure long-term survivability and sustained throughput, interconnect architects require a dual strategy: **proactive thermal management** to quench hotspots before thermal inertia takes over, and **resilient fault-tolerant routing** to dynamically navigate around permanent silicon defects.
 
-This chapter presents an integrated study of thermal physics, predictive estimation, and fault-tolerant microarchitecture. We formalize compact electro-thermal RC models using the HotSpot duality framework, analyze non-Gaussian temperature estimation via Gaussian-Sum Filtering (GSF), examine neural network-driven proactive Dynamic Thermal Management (DTM), and investigate structural fault-tolerance paradigms—including the landmark ZoneDefense routing framework (TVLSI 2014) that isolates convex fault blocks without requiring virtual channels.
+This chapter presents an integrated study of thermal physics, predictive estimation, and fault-tolerant microarchitecture. We formalize compact electro-thermal RC models using the HotSpot duality framework [[Huang2006](#ref-huang2006)], [[Skadron2003](#ref-skadron2003)], analyze non-Gaussian temperature estimation via Gaussian-Sum Filtering (GSF) [[Fu2019](#ref-fu2019)], examine neural network-driven proactive Dynamic Thermal Management (DTM) [[Kakoulli2012](#ref-kakoulli2012)], and investigate structural fault-tolerance paradigms—including the landmark ZoneDefense routing framework [[Fu2014](#ref-fu2014)] that isolates convex fault blocks without requiring virtual channels.
 
 ### Learning Objectives
 - **Understand Nanoscale Thermal Dynamics**: Model the physical consequences of thermal hotspots, including exponential sub-threshold leakage runaway, carrier mobility degradation, and Black's electromigration scaling.
@@ -36,7 +36,9 @@ This chapter presents an integrated study of thermal physics, predictive estimat
 - **Section 7.6**: Hardware Microarchitecture: Synthesizable Fault-Tolerant Port Bypass.
 - **Section 7.7**: Simulation Model & Numerical Verification.
 - **Section 7.8**: Summary & Cross-Disciplinary Synergies.
-- **Section 7.9**: Comprehensive Problem Set & Solutions.
+- **Section 7.9**: Interactive Lab & Hands-on Challenges.
+- **Section 7.10**: Comprehensive Problem Set & Solutions.
+- **Section 7.11**: Checkpoint Assessment & Certification Questions.
 
 ---
 
@@ -79,26 +81,26 @@ In an on-chip network, routers and high-speed serial links contribute between **
 ### 7.1.1 The Physical Consequences of Thermal Hotspots
 
 - **Exponential Sub-Threshold Leakage Runaway**:
-  - Sub-threshold leakage current exhibits an exponential dependence on absolute temperature governed by the Arrhenius relationship:
+    - Sub-threshold leakage current exhibits an exponential dependence on absolute temperature governed by the Arrhenius relationship:
     $$I_{\text{leak}}(T) \propto T^2 \exp\left(-\frac{q V_{th}}{m k_B T}\right)$$
-  - As temperature climbs, threshold voltage $V_{th}$ drops while carrier thermal energy increases.
-  - Left unmitigated, a localized hotspot triggers positive feedback: higher heat increases leakage power, which generates more heat, eventually culminating in catastrophic **thermal runaway**.
+    - As temperature climbs, threshold voltage $V_{th}$ drops while carrier thermal energy increases.
+    - Left unmitigated, a localized hotspot triggers positive feedback: higher heat increases leakage power, which generates more heat, eventually culminating in catastrophic **thermal runaway**.
 - **Carrier Mobility Degradation & Phonon Scattering**:
-  - At elevated temperatures, acoustic phonon scattering intensifies, degrading electron and hole mobility according to:
+    - At elevated temperatures, acoustic phonon scattering intensifies, degrading electron and hole mobility according to:
     $$\mu(T) = \mu(T_0) \left(\frac{T}{T_0}\right)^{-1.5}$$
-  - Lower carrier mobility reduces transistor drive current ($I_{on}$), increasing router stage gate delays, inducing setup timing violations, and lowering maximum operating frequencies ($f_{max}$).
+    - Lower carrier mobility reduces transistor drive current ($I_{on}$), increasing router stage gate delays, inducing setup timing violations, and lowering maximum operating frequencies ($f_{max}$).
 - **Accelerated Electromigration via Black's Equation**:
-  - Spatial thermal gradients across adjacent router tiles induce significant thermo-mechanical shear stress due to mismatched coefficients of thermal expansion (CTE) between silicon, copper interconnects, and low-$\kappa$ inter-metal dielectrics (IMD).
-  - Furthermore, according to **Black's Equation**, the Mean Time to Failure ($MTTF$) of on-chip copper wires drops exponentially with temperature:
+    - Spatial thermal gradients across adjacent router tiles induce significant thermo-mechanical shear stress due to mismatched coefficients of thermal expansion (CTE) between silicon, copper interconnects, and low-$\kappa$ inter-metal dielectrics (IMD).
+    - Furthermore, according to **Black's Equation** (Black, IEEE Trans. Electron Devices 1969 [[Black1969]](#ref-black1969)), the Mean Time to Failure ($MTTF$) of on-chip copper wires drops exponentially with temperature:
     $$MTTF = \frac{A}{J^n} \exp\left(\frac{E_a}{k_B T}\right)$$
-  - Here, $J$ is current density, $E_a \approx 0.9\text{ eV}$ is the activation energy for copper grain-boundary diffusion, and $k_B$ is Boltzmann's constant.
-  - An increase of just $15^\circ\text{C}$ in hotspot temperature cuts interconnect lifetime by more than **$50\%$**.
+    - Here, $J$ is current density, $E_a \approx 0.9\text{ eV}$ is the activation energy for copper grain-boundary diffusion, and $k_B$ is Boltzmann's constant.
+    - An increase of just $15^\circ\text{C}$ in hotspot temperature cuts interconnect lifetime by more than **$50\%$**.
 
 ---
 
 ## 7.2 Compact Thermal Physics: The Electro-Thermal RC Duality
 
-Accurate thermal management requires dynamic simulation models capable of evaluating multi-core temperatures in real time without the prohibitive computational overhead of three-dimensional Finite Element Methods (FEM). The computer architecture community resolves this via **compact thermal RC networks**, formalized by the landmark **HotSpot** methodology (Huang et al., IEEE TVLSI 2006).
+Accurate thermal management requires dynamic simulation models capable of evaluating multi-core temperatures in real time without the prohibitive computational overhead of three-dimensional Finite Element Methods (FEM). The computer architecture community resolves this via **compact thermal RC networks**, formalized by the landmark **HotSpot** methodology [[Huang2006](#ref-huang2006)].
 
 ### 7.2.1 Duality Between Heat Conduction and Electricity
 
@@ -158,7 +160,7 @@ To prevent thermal emergencies, real-time Dynamic Thermal Management (DTM) requi
 
 Prior academic literature frequently assumed that on-chip thermal sensors suffer only from zero-mean Gaussian measurement noise $\mathbf{v}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{R})$. In industrial silicon, however, thermal diodes share substrate grounds and power grids with high-frequency digital clock trees and high-speed serial links. 
 
-As rigorously proven by **Y. Fu, L. Li, et al. (IEEE TCAD 2019)**, sensor measurements are corrupted by:
+As rigorously proven by Y. Fu, L. Li, et al. [[Fu2019](#ref-fu2019)], sensor measurements are corrupted by:
 - **Gaussian thermal jitter**: Caused by ambient temperature drift and analog-to-digital quantization ($\sigma_1 \approx 0.5^\circ\text{C}\text{ to }1.0^\circ\text{C}$).
 - **Non-Gaussian EMI and inductive switching spikes**: Caused by power delivery network (PDN) $L \cdot di/dt$ ground bounce, clock gating transients, and cross-talk surges ($\sigma_2 \approx 5^\circ\text{C}\text{ to }8^\circ\text{C}$ with impulse probability $\epsilon \sim 5\%\text{--}10\%$).
 
@@ -204,25 +206,25 @@ However, because multi-core packaging has significant thermal capacitance, silic
 
 ### 7.4.1 Artificial Neural Network (ANN) Hotspot Prediction
 
-To solve this latency gap, **E. Kakoulli, V. Soteriou, and T. Theocharides (IEEE TCAD 2012)** proposed proactive hotspot forecasting using hardware-synthesizable **Artificial Neural Networks (ANNs)** integrated directly into the NoC fabric.
+To solve this latency gap, E. Kakoulli et al. [[Kakoulli2012](#ref-kakoulli2012)] proposed proactive hotspot forecasting using hardware-synthesizable **Artificial Neural Networks (ANNs)** integrated directly into the NoC fabric.
 
 ![Figure 7.2: Intelligent ANN Hotspot Predictor: (a) Dedicated Processing Element placement in NoC; (b) Hierarchical 4-engine monitoring across an 8x8 mesh; (c) Overall hardware dataflow pipeline. [Reproduced from: E. Kakoulli et al., "Intelligent Hotspot Prediction for Network-on-Chip-Based Multicore Systems", IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, Vol. 31, No. 3, pp. 418-431, March 2012, DOI: 10.1109/TCAD.2011.2170568. © 2012 IEEE]](figures/kakoulli_fig02_ann_hotspot_arch.png)
 
 As depicted in Figure 7.2:
 - **Distributed Hierarchical Partitioning**:
-  - Rather than routing global long wires from all 64 routers to a single monolithic neural network, an $8 \times 8$ mesh is divided into four non-overlapping $4 \times 4$ quadrants.
-  - Each quadrant is monitored by an independent, lightweight ANN processing element to keep interconnect overhead negligible.
+    - Rather than routing global long wires from all 64 routers to a single monolithic neural network, an $8 \times 8$ mesh is divided into four non-overlapping $4 \times 4$ quadrants.
+    - Each quadrant is monitored by an independent, lightweight ANN processing element to keep interconnect overhead negligible.
 - **Online Feature Inputs**:
-  - Each router transmits localized telemetry per sampling epoch:
+    - Each router transmits localized telemetry per sampling epoch:
     - Input buffer utilization ratio ($\beta = B_{\text{occupied}} / B_{\text{total}}$).
     - Packet arrival and departure rates over a sliding window ($\Delta \text{flits} / \Delta t$).
     - Round-trip credit turnaround delay.
 - **Multi-Horizon Hotspot Forecasting**:
-  - The trained multi-layer perceptron computes non-linear correlations between spatial traffic divergence and impending buffer saturation.
-  - Predicts hotspot emergence **$\Delta t = 50\text{ to }200$ clock cycles in advance** with **$65\%\text{ to }92\%$ accuracy**.
+    - The trained multi-layer perceptron computes non-linear correlations between spatial traffic divergence and impending buffer saturation.
+    - Predicts hotspot emergence **$\Delta t = 50\text{ to }200$ clock cycles in advance** with **$65\%\text{ to }92\%$ accuracy**.
 - **Proactive Quenching**:
-  - Armed with advance warnings, the network interface throttles injection quotas at the packet sources *before* queues fill.
-  - Smooths traffic flow and eliminates saturation trees with negligible performance overhead.
+    - Armed with advance warnings, the network interface throttles injection quotas at the packet sources *before* queues fill.
+    - Smooths traffic flow and eliminates saturation trees with negligible performance overhead.
 
 ---
 
@@ -230,14 +232,14 @@ As depicted in Figure 7.2:
 
 Beyond operational thermal stress, deep nanometer manufacturing yields physical defects including gate-oxide dielectric breakdown, open/short metal wires, and cracked microbumps. Faults fall into three distinct temporal categories:
 - **Transient Faults (Soft Errors)**:
-  - Single-Event Upsets (SEU) from cosmic radiation or alpha particles flipping a bit in a buffer FIFO.
-  - Mitigated via Forward Error Correction (Single-Error Correction Double-Error Detection, SECDED) and flit re-transmission.
+    - Single-Event Upsets (SEU) from cosmic radiation or alpha particles flipping a bit in a buffer FIFO.
+    - Mitigated via Forward Error Correction (Single-Error Correction Double-Error Detection, SECDED) and flit re-transmission.
 - **Intermittent Faults**:
-  - Marginal cells that fail only under simultaneous thermal hot-spotting and $V_{dd}$ supply droops.
-  - Mitigated via localized frequency scaling and adaptive guard-banding.
+    - Marginal cells that fail only under simultaneous thermal hot-spotting and $V_{dd}$ supply droops.
+    - Mitigated via localized frequency scaling and adaptive guard-banding.
 - **Permanent Hard Faults**:
-  - Physical silicon degradation permanently disabling router physical links or crossbar switch cross-points.
-  - Requires structural reconfiguration, deflection routing, or bypass rings to route packets around dead channels.
+    - Physical silicon degradation permanently disabling router physical links or crossbar switch cross-points.
+    - Requires structural reconfiguration, deflection routing, or bypass rings to route packets around dead channels.
 
 ### 7.5.1 The Danger of Disabling Unsafe Nodes
 
@@ -247,7 +249,7 @@ In 2D mesh topologies without virtual channels, a broken router or link creates 
 
 ### 7.5.2 ZoneDefense: Convex Block Containment Without Virtual Channels
 
-To prevent the massive sacrifice of healthy processor cores, **B. Fu, Y. Han, H. Li, and X. Li (IEEE TVLSI 2014)** established the **ZoneDefense** fault-tolerant routing framework.
+To prevent the massive sacrifice of healthy processor cores, B. Fu et al. [[Fu2014](#ref-fu2014)] established the **ZoneDefense** fault-tolerant routing framework.
 
 ![Figure 7.3: Faulty blocks without shared boundary channels in a 2D mesh. Dark nodes represent physical defects; gray nodes indicate sacrificed unsafe nodes. [Reproduced from: B. Fu et al., "ZoneDefense: A Fault-Tolerant Routing for 2-D Meshes Without Virtual Channels", IEEE Transactions on Very Large Scale Integration (VLSI) Systems, Vol. 22, No. 1, pp. 113-126, Jan. 2014, DOI: 10.1109/TVLSI.2012.2235188. © 2014 IEEE]](figures/fu_zonedefense_fig04_fault_blocks.png)
 
@@ -255,11 +257,11 @@ To prevent the massive sacrifice of healthy processor cores, **B. Fu, Y. Han, H.
 
 #### Theoretical Principles of ZoneDefense:
 - **Convex Fault Block (FB) Clustering**:
-  - As shown in Figures 7.3 and 7.4, arbitrary point faults are enclosed within rectangular convex blocks such that every boundary row and column has continuous traversability without concave dead-ends.
+    - As shown in Figures 7.3 and 7.4, arbitrary point faults are enclosed within rectangular convex blocks such that every boundary row and column has continuous traversability without concave dead-ends.
 - **Defense Zone Propagation**:
-  - Rather than taking healthy nodes offline, routers in the columns directly aligned with the faulty block are designated as **Defense Zones**.
+    - Rather than taking healthy nodes offline, routers in the columns directly aligned with the faulty block are designated as **Defense Zones**.
 - **Advance Perimeter Detour**:
-  - When a packet traverses toward the faulty block, routers inside the defense zone inspect the header coordinates and route the packet along the exterior perimeter of the faulty block *in advance*, avoiding blocking channels and maintaining provable deadlock freedom without requiring dedicated virtual channels.
+    - When a packet traverses toward the faulty block, routers inside the defense zone inspect the header coordinates and route the packet along the exterior perimeter of the faulty block *in advance*, avoiding blocking channels and maintaining provable deadlock freedom without requiring dedicated virtual channels.
 
 ---
 
@@ -404,14 +406,60 @@ The experimental data confirms that proactive thermal throttling quenches locali
 - **Proactive Over Reactive Control**: Thermal inertia renders reactive throttling too slow. Neural network traffic predictors anticipate congestion trees and quench hotspots hundreds of cycles in advance.
 - **Convex Fault Blocks**: In the presence of permanent silicon defects, ZoneDefense bounds faults into convex blocks and propagates defense zones, preserving healthy cores without virtual channel overheads.
 
-### Companion Platform Interactive Labs
-- **[Interactive Lab: Hotspot Hero](https://network-on-chip.github.io/learning/interactive/hotspot/)**: Experience real-time RC thermal diffusion and balance thermal throttling dials.
-- **[Interactive Lab: Fault Defender](https://network-on-chip.github.io/learning/interactive/faults/)**: Route packets dynamically around permanent silicon fault blocks in a 2D mesh.
-- **[Certification Quiz (Track 5)](https://network-on-chip.github.io/learning/quiz/)**: Challenge your mastery with Questions 28–30 on thermal RC physics, GSF reconstruction, and fault tolerance.
+---
+
+## 7.9 Interactive Lab & Hands-on Challenges
+
+<div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.65)); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+  <div>
+    <div style="font-weight: 700; color: #93c5fd; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
+      <span>🔥 Dedicated Interactive Labs: Hotspot Hero &amp; Fault Defender</span>
+    </div>
+    <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 800px; line-height: 1.5;">
+      Model transient RC heat diffusion ($C_{th} \frac{dT}{dt} + \frac{T - T_{amb}}{R_{th}} = P$), deploy DVFS and cryo cooling, and reroute packets around permanent silicon defects.
+    </div>
+  </div>
+  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+    <a href="../../interactive/hotspot.md" style="display: inline-flex; align-items: center; gap: 6px; background: #ef4444; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+      <span>Launch Hotspot Hero →</span>
+    </a>
+    <a href="../../interactive/faults.md" style="display: inline-flex; align-items: center; gap: 6px; background: #f59e0b; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+      <span>Launch Fault Defender →</span>
+    </a>
+  </div>
+</div>
+
+Complete the following three hands-on laboratory missions in **[Hotspot Hero](../../interactive/hotspot.md)** and **[Fault Defender](../../interactive/faults.md)**:
+
+### Challenge Mission 7.1: Transient RC Thermal Diffusion & Runaway Threshold ($T_{max} \le 85^\circ\text{C}$)
+- **Objective:** Model the exponential relationship between junction temperature and subthreshold leakage, and prevent thermal runaway under sustained compute bursts.
+- **Setup & Procedure:**
+  1. In **Hotspot Hero**, configure Core $(2,2)$ to execute sustained high-power compute bursts ($P_{dyn} = 22\text{ W}$).
+  2. Observe the temperature trajectory climbing past $75^\circ\text{C} \to 85^\circ\text{C} \to 95^\circ\text{C}$.
+  3. Deploy **DVFS Throttling** (throttle core to 0.65V/1.2GHz) before junction temperature reaches $105^\circ\text{C}$.
+- **Architectural Observation:** Above $85^\circ\text{C}$, subthreshold leakage current surges exponentially ($I_{leak} \propto T^2 e^{-qV_{th}/k_B T}$). At $105^\circ\text{C}$, leakage power surpasses heat removal capacity, triggering irreversible thermal runaway and dielectric gate breakdown. Throttling voltage to 0.65V drops dynamic power by $(0.65/1.0)^2 \approx 58\%$, arresting the thermal cascade.
+- **Verification Formula:** $C_{th} \frac{dT_i}{dt} = P_{dyn,i} + P_{leak,i}(T_i) - \frac{T_i - T_{amb}}{R_{conv}} + \sum_{j \in \text{neighbors}} \frac{T_j - T_i}{R_{inter}}$.
+
+### Challenge Mission 7.2: Thermal-Aware Adaptive Deflection Routing
+- **Objective:** Evaluate how steering packet traffic away from overheating routers prevents dynamic switching power from worsening thermal hotspots.
+- **Setup & Procedure:**
+  1. Set routing policy to `Shortest Path (High Bandwidth / Aggravates Heat)` while a central router core sits at $88^\circ\text{C}$.
+  2. Switch policy to `Thermal-Aware Deflection (Steer Around Hotspots)`.
+  3. Observe temperature cooldown on the hot core and packet deflection paths.
+- **Architectural Observation:** In shortest path routing, packets continue traversing the hot central router, dissipating dynamic switching power ($P_{switch} = \alpha C V_{dd}^2 f$) in its crossbars and buffers. Thermal-aware deflection dynamically routes flits around the hot perimeter. Although average hop count increases by $1.2$ hops, the hot core cools by $>12^\circ\text{C}$, eliminating the hotspot without requiring core shutdown.
+
+### Challenge Mission 7.3: Permanent Fault Recovery with Vicman Bypass Channels
+- **Objective:** In **Fault Defender**, simulate electromigration-induced permanent link severance and verify fault recovery without system deadlocks.
+- **Setup & Procedure:**
+  1. Launch **Fault Defender: Silicon Resilience**.
+  2. Trigger permanent fault injection on the North link of router $(2,1)$ and the East link of $(1,2)$.
+  3. Activate Built-In Self-Test (BIST) radar scan and engage Vicman bypass channels.
+- **Architectural Observation:** Permanent link failure breaks standard Dimension-Order Routing (DOR), causing dropped packets or deadlock cycles. The BIST engine isolates damaged channels and programs boundary routers into a convex fault block. Packet flits are routed around the fault block using dedicated bypass channels, restoring 100% packet delivery without cyclic buffer deadlock.
+- **Hardware RTL & Python Reference:** Run `python code/thermal_rc_diffusion_sim.py` and inspect `code/fault_tolerant_router_bypass.v` for synthesizable fault bypass multiplexer RTL.
 
 ---
 
-## 7.9 Comprehensive Problem Set & Solutions
+## 7.10 Comprehensive Problem Set & Solutions
 
 ### Problem 7.1: Thermal Time Constant & Lateral Heat Diffusion
 A multi-core tile fabricated in a 7nm FinFET process has a footprint of $1.2\text{ mm} \times 1.2\text{ mm}$ on a $150\ \mu\text{m}$ thick silicon substrate. Its lumped vertical thermal resistance to the heatsink is $R_v = 15.0\text{ K/W}$, and its lumped thermal capacitance is $C_{\text{th}} = 3.6\text{ mJ/K}$.
@@ -464,7 +512,7 @@ An on-chip interconnect link operates at a steady-state temperature of $T_1 = 60
 
 ---
 
-## 7.8 Checkpoint Assessment
+## 7.11 Checkpoint Assessment
 
 Test your mastery of Chapter 7 concepts against the official certification questions (mirroring the 3-Tier Exam Engine in [`quiz.md`](../../quiz.md)):
 
@@ -519,7 +567,7 @@ Test your mastery of Chapter 7 concepts against the official certification quest
     *(Reference: C.-H. Chao, K.-C. Chen, and A.-Y. Wu, 'Routing-Based Traffic Migration and Buffer Allocation Schemes for 3-D NoC With Thermal Limit,' IEEE TVLSI, Vol. 21, No. 11, pp. 2118–2131, Nov. 2013. DOI: 10.1109/TVLSI.2012.2227852.)*
 
 #### Question 7.3 (Tier 3: Silicon Mastery)
-*Which of the following architectural principles allow the ZoneDefense fault-tolerant routing framework (Fu et al., IEEE TVLSI 2014) to bypass permanent faulty routers without producing deadlock? (Select all that apply)*
+*Which of the following architectural principles allow the ZoneDefense fault-tolerant routing framework (Fu et al. [[Fu2014](#ref-fu2014)]) to bypass permanent faulty routers without producing deadlock? (Select all that apply)*
 
 - **A)** Grouping faulty routers and their adjacent perimeter nodes into regular, convex rectilinear 'Fault Zones'.
 - **B)** Routing packets around the perimeter of the Fault Zone using dedicated escape virtual channels with strictly acyclic turn rules.
@@ -530,7 +578,7 @@ Test your mastery of Chapter 7 concepts against the official certification quest
     **Correct Answer: Option A, B**
 
     **1. Step-by-Step Architectural & Mathematical Derivation:**
-    When physical hardware defects strike a 2D mesh router (e.g. permanent TDDB gate breakdown or electromigration line open): (1) Irregular Topologies: Random faulty routers create concave routing boundaries, where packets can be trapped in cyclic channel deadlocks. (2) Convex Zone Formation: ZoneDefense (Fu et al., IEEE TVLSI 2014) detects faulty nodes and coordinates adjacent routers to establish a convex rectilinear bounding box called a Fault Zone. All healthy nodes within the zone boundary are disabled from through-routing, transforming arbitrary jagged faults into clean rectangular boundaries. (3) Perimeter Contour Routing: Packets whose minimal paths intersect the Fault Zone are deflected onto the perimeter boundary ring. To guarantee deadlock freedom on the perimeter ring, ZoneDefense allocates dedicated Virtual Channels (VCs) running directional contour rules (e.g. clockwise ring on VC1, counter-clockwise on VC2) that strictly prevent cyclic buffer hold-and-wait dependencies. Packets NEVER enter the interior of the dead zone, and un-impacted healthy routers continue high-speed routing unimpeded.
+    When physical hardware defects strike a 2D mesh router (e.g. permanent TDDB gate breakdown or electromigration line open): (1) Irregular Topologies: Random faulty routers create concave routing boundaries, where packets can be trapped in cyclic channel deadlocks. (2) Convex Zone Formation: ZoneDefense (Fu et al. [[Fu2014](#ref-fu2014)]) detects faulty nodes and coordinates adjacent routers to establish a convex rectilinear bounding box called a Fault Zone. All healthy nodes within the zone boundary are disabled from through-routing, transforming arbitrary jagged faults into clean rectangular boundaries. (3) Perimeter Contour Routing: Packets whose minimal paths intersect the Fault Zone are deflected onto the perimeter boundary ring. To guarantee deadlock freedom on the perimeter ring, ZoneDefense allocates dedicated Virtual Channels (VCs) running directional contour rules (e.g. clockwise ring on VC1, counter-clockwise on VC2) that strictly prevent cyclic buffer hold-and-wait dependencies. Packets NEVER enter the interior of the dead zone, and un-impacted healthy routers continue high-speed routing unimpeded.
 
     **2. Option-by-Option Breakdown & Distractor Analysis:**
     - **Option A (Correct):** True. Enclosing irregular faults inside convex rectilinear bounding zones prevents concave packet traps.
@@ -545,11 +593,31 @@ Test your mastery of Chapter 7 concepts against the official certification quest
 
 ---
 
+### Thermal Anomaly Detection, Intrinsic PUFs, and Wafer-Scale Fault Tolerance
+<a id="security-waferscale"></a>
+
+Thermal management and fault resilience intersect directly with silicon hardware security and extreme-scale integration:
+- **Thermal Anomaly Detection for Hardware Trojan Defense (HeatSense)**: Hasanzadeh et al.~[[HeatSense2026](#ref-hasanzadeh2026heat)] developed HeatSense, using spatial thermal sensor correlation across the NoC grid to identify anomalous thermal signatures produced by stealthy hardware Trojans attempting side-channel exfiltration.
+- **Silicon Authentication via NoC Delay Variation (NoCiPUF)**: Grover et al.~[[NoCiPUF2025](#ref-grover2025puf)] leveraged intrinsic within-die manufacturing variations in router crossbar transit delays to construct cryptographic Physical Unclonable Functions (PUFs), providing unclonable device authentication without requiring dedicated analog PUF circuitry.
+- **Reconfigurable Real-Time Fault-Tolerant Mapping**: Li et al.~[[Li2026Reconfig](#ref-li2026reconfig)] demonstrated adaptive task migration protocols for flexible NoC architectures that guarantee hard real-time deadlines under transient fault bursts.
+- **Thermal Island Partitioning and Task Allocation**: Zheng et al.~[[Zheng2025Thermal](#ref-zheng2025thermal)] optimized dynamic voltage-frequency island (VFI) boundaries in 3D multi-core NoCs, mitigating inter-tier thermal coupling.
+- **Wafer-Scale Clustered Defect Tolerance**: Chen et al.~[[Chen2025Wafer](#ref-chen2025wafer)] established fault-tolerant deflection routing schemes capable of bypassing large-scale clustered manufacturing defects in full-wafer integration.
+
+---
+
 ## References & Bibliography
 
-1. **[Huang2006]** W. Huang, S. Ghosh, S. Velusamy, K. Sankaranarayanan, K. Skadron, and M. R. Stan, "HotSpot: A Compact Thermal Modeling Methodology for Early-Stage VLSI Design," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 14, no. 5, pp. 501–513, May 2006. [DOI: 10.1109/TVLSI.2006.876103](https://doi.org/10.1109/TVLSI.2006.876103).
-2. **[Fu2019]** Y. Fu, L. Li, H. Pan, K. Wang, F. Feng, Q. Chen, and C. Zhang, "Thermal Sensor Placement and Thermal Reconstruction Under Gaussian and Non-Gaussian Sensor Noises for 3-D NoC," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 38, no. 11, pp. 2110–2123, Nov. 2019. [DOI: 10.1109/TCAD.2018.2878178](https://doi.org/10.1109/TCAD.2018.2878178).
-3. **[Fu2017]** Y. Fu, L. Li, K. Wang, and C. Zhang, "Kalman Predictor-Based Proactive Dynamic Thermal Management for 3-D NoC Systems With Noisy Thermal Sensors," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 36, no. 11, pp. 1869–1882, Nov. 2017. [DOI: 10.1109/TCAD.2017.2661808](https://doi.org/10.1109/TCAD.2017.2661808).
-4. **[Kakoulli2012]** E. Kakoulli, V. Soteriou, and T. Theocharides, "Intelligent Hotspot Prediction for Network-on-Chip-Based Multicore Systems," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 31, no. 3, pp. 418–431, Mar. 2012. [DOI: 10.1109/TCAD.2011.2170568](https://doi.org/10.1109/TCAD.2011.2170568).
-5. **[Fu2014]** B. Fu, Y. Han, H. Li, and X. Li, "ZoneDefense: A Fault-Tolerant Routing for 2-D Meshes Without Virtual Channels," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 22, no. 1, pp. 113–126, Jan. 2014. [DOI: 10.1109/TVLSI.2012.2235188](https://doi.org/10.1109/TVLSI.2012.2235188).
-6. **[Chao2013]** C.-H. Chao, K.-C. Chen, and A.-Y. Wu, "Routing-Based Traffic Migration and Buffer Allocation Schemes for 3-D Network-on-Chip Systems With Thermal Limit," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 21, no. 11, pp. 2118–2131, Nov. 2013. [DOI: 10.1109/TVLSI.2012.2227852](https://doi.org/10.1109/TVLSI.2012.2227852).
+1. <a id="ref-black1969"></a>**[Black1969]** J. R. Black, "Electromigration---A Brief Survey and Some Recent Results," *IEEE Transactions on Electron Devices*, vol. 16, no. 4, pp. 338–347, Apr. 1969. [DOI: 10.1109/T-ED.1969.16754](https://doi.org/10.1109/T-ED.1969.16754).
+2. <a id="ref-skadron2003"></a>**[Skadron2003]** K. Skadron, M. R. Stan, W. Huang, S. Velusamy, K. Sankaranarayanan, and D. Tarjan, "Temperature-Aware Microarchitecture," in *Proceedings of the 30th Annual International Symposium on Computer Architecture (ISCA)*, 2003, pp. 2–13. [DOI: 10.1145/859618.859620](https://doi.org/10.1145/859618.859620).
+3. <a id="ref-huang2006"></a>**[Huang2006]** W. Huang, S. Ghosh, S. Velusamy, K. Sankaranarayanan, K. Skadron, and M. R. Stan, "HotSpot: A Compact Thermal Modeling Methodology for Early-Stage VLSI Design," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 14, no. 5, pp. 501–513, May 2006. [DOI: 10.1109/TVLSI.2006.876103](https://doi.org/10.1109/TVLSI.2006.876103).
+4. <a id="ref-tuckerman1981"></a>**[Tuckerman1981]** D. B. Tuckerman and R. F. W. Pease, "High-Performance Heat Sinking for VLSI," *IEEE Electron Device Letters*, vol. 2, no. 5, pp. 126–129, May 1981. [DOI: 10.1109/EDL.1981.25367](https://doi.org/10.1109/EDL.1981.25367).
+5. <a id="ref-fu2019"></a>**[Fu2019]** Y. Fu, L. Li, H. Pan, K. Wang, F. Feng, Q. Chen, and C. Zhang, "Thermal Sensor Placement and Thermal Reconstruction Under Gaussian and Non-Gaussian Sensor Noises for 3-D NoC," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 38, no. 11, pp. 2110–2123, Nov. 2019. [DOI: 10.1109/TCAD.2018.2878178](https://doi.org/10.1109/TCAD.2018.2878178).
+6. <a id="ref-fu2017"></a>**[Fu2017]** Y. Fu, L. Li, K. Wang, and C. Zhang, "Kalman Predictor-Based Proactive Dynamic Thermal Management for 3-D NoC Systems With Noisy Thermal Sensors," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 36, no. 11, pp. 1869–1882, Nov. 2017. [DOI: 10.1109/TCAD.2017.2661808](https://doi.org/10.1109/TCAD.2017.2661808).
+7. <a id="ref-kakoulli2012"></a>**[Kakoulli2012]** E. Kakoulli, V. Soteriou, and T. Theocharides, "Intelligent Hotspot Prediction for Network-on-Chip-Based Multicore Systems," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 31, no. 3, pp. 418–431, Mar. 2012. [DOI: 10.1109/TCAD.2011.2170568](https://doi.org/10.1109/TCAD.2011.2170568).
+8. <a id="ref-fu2014"></a>**[Fu2014]** B. Fu, Y. Han, H. Li, and X. Li, "ZoneDefense: A Fault-Tolerant Routing for 2-D Meshes Without Virtual Channels," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 22, no. 1, pp. 113–126, Jan. 2014. [DOI: 10.1109/TVLSI.2012.2235188](https://doi.org/10.1109/TVLSI.2012.2235188).
+9. <a id="ref-chao2013"></a>**[Chao2013]** C.-H. Chao, K.-C. Chen, and A.-Y. Wu, "Routing-Based Traffic Migration and Buffer Allocation Schemes for 3-D Network-on-Chip Systems With Thermal Limit," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 21, no. 11, pp. 2118–2131, Nov. 2013. [DOI: 10.1109/TVLSI.2012.2227852](https://doi.org/10.1109/TVLSI.2012.2227852).
+10. <a id="ref-hasanzadeh2026heat"></a>**[Hasanzadeh2026Heat]** M. Hasanzadeh et al., \"HeatSense: Intelligent Thermal Anomaly Detection for Securing Network-on-Chips Against Hardware Trojans,\" *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 6, pp. 2680–2693, June 2026. [DOI: 10.1109/TCAD.2025.3627710](https://doi.org/10.1109/TCAD.2025.3627710).
+11. <a id="ref-grover2025puf"></a>**[Grover2025PUF]** D. Grover et al., \"NoCiPUF: NoC-Based Intrinsic PUF for MPSoC Authentication and Key Generation,\" *IEEE Transactions on Circuits and Systems I: Regular Papers*, vol. 72, no. 8, pp. 3410–3423, Aug. 2025. [DOI: 10.1109/TCSI.2025.3562100](https://doi.org/10.1109/TCSI.2025.3562100).
+12. <a id="ref-li2026reconfig"></a>**[Li2026Reconfig]** X. Li et al., \"Reconfigurable Fault-tolerance Mapping Method for Real-Time and Dependent Tasks on Flexible Adapt-NoC MPSoCs,\" *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 4, pp. 1550–1563, Apr. 2026. [DOI: 10.1109/TCAD.2025.3623305](https://doi.org/10.1109/TCAD.2025.3623305).
+13. <a id="ref-zheng2025thermal"></a>**[Zheng2025Thermal]** Y. Zheng et al., \"Thermal-Aware Task Allocation and Dynamic Voltage Frequency Island Partitioning for 3-D NoCs,\" *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 44, no. 10, pp. 3480–3493, Oct. 2025. [DOI: 10.1109/TCAD.2024.3489910](https://doi.org/10.1109/TCAD.2024.3489910).
+14. <a id="ref-chen2025wafer"></a>**[Chen2025Wafer]** T. Chen et al., \"Fault-Tolerant Routing for Wafer-Scale Integration Interconnects Under Clustered Defect Distributions,\" *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 33, no. 7, pp. 1750–1763, July 2025. [DOI: 10.1109/TVLSI.2025.3551200](https://doi.org/10.1109/TVLSI.2025.3551200).

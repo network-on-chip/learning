@@ -1,13 +1,13 @@
 # 🎮 交互式实验与街机仿真中心
 
 <div class="noc-hero">
-  <div class="noc-track-badge">✨ 15 款纯浏览器端微架构仿真器、迷你挑战与架构工具箱</div>
+  <div class="noc-track-badge">✨ 17 款纯浏览器端微架构仿真器、迷你挑战与架构工具箱</div>
   <h1>片上网络交互式实验与街机挑战中心</h1>
   <p class="subtitle">
-    通过 15 款即开即用的实时浏览器仿真实验与街机挑战，深入探索片上网络（NoC）的核心运转机制。实时观察数据包碰撞、动态平衡芯片热分布、绕过永久硅缺陷链路，并亲手设计先进 2.5D/3D 芯粒互连网络。
+    通过 17 款即开即用的实时浏览器仿真实验与街机挑战，深入探索片上网络（NoC）的核心运转机制。实时观察数据包碰撞、动态平衡芯片热分布、绕过永久硅缺陷链路，并亲手设计先进 2.5D/3D 芯粒互连网络。
   </p>
   <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
-    <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">🔬 15 款交互式仿真器</span>
+    <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">🔬 17 款交互式仿真器</span>
     <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: rgba(16, 185, 129, 0.2);">⚡ 100% 纯前端 Canvas 与音效</span>
     <span class="noc-track-badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2);">💾 对应可综合 Verilog RTL</span>
     <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">🏆 本地与云端排行榜同步</span>
@@ -17,7 +17,7 @@
 
 <div class="noc-stats-grid">
   <div class="noc-stat-card">
-    <span class="noc-stat-number">15</span>
+    <span class="noc-stat-number">17</span>
     <span class="noc-stat-label">交互式实验与挑战</span>
   </div>
   <div class="noc-stat-card">
@@ -43,6 +43,15 @@
 ### 1. 路由器微架构与流控机制
 
 <div class="noc-tracks-grid">
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">物理互连 • 第1章</span>
+      <h3>导线向导：物理互连与RC延迟仿真</h3>
+      <p>仿真 180nm 至 3nm GAA 纳米级导线 RC 延迟缩放。插入 Bakoglu 最佳中继器，模拟铜电子散射电阻率激增，直观见证共享总线竞争崩溃。</p>
+    </div>
+    <a href="wire/" class="noc-track-link">启动导线向导 →</a>
+  </div>
+
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">可视化器 • 第1章与第3章</span>
@@ -144,7 +153,16 @@
 <div class="noc-tracks-grid">
   <div class="noc-track-card">
     <div>
-      <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2);">封装架构 • 第8章与第9章</span>
+      <span class="noc-track-badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2);">三维集成 • 第8章</span>
+      <h3>TSV泰坦：三维片上网络与热堆叠</h3>
+      <p>在多层垂直硅层间构建三维硅通孔（TSV）网络。评估禁布区（KOZ）热机械应力开销，调度三维数据包，并利用导热 TSV 破解热堆叠陷阱。</p>
+    </div>
+    <a href="tsv3d/" class="noc-track-link">启动 TSV 泰坦 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2);">封装架构 • 第9章</span>
       <h3>芯粒大亨：先进封装设计挑战</h3>
       <p>在无源中介层、有源中介层及 3D TSV 垂直堆叠间设计下一代异构处理器。权衡晶圆良率（$Y$）、UCIe D2D 物理延迟与封装热梯度。</p>
     </div>

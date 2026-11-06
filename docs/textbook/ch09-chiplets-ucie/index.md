@@ -51,8 +51,9 @@ This modular revolution requires standardized, ultra-low-latency, and high-energ
 - **Section 9.5**: Deadlock in Multi-Chiplet Networks & In/Outbound Swap Recovery (inter-die cycles, swap registers).
 - **Section 9.6**: Hardware Implementation: Synthesizable Chiplet D2D Bridge (Verilog RTL walk-through).
 - **Section 9.7**: Quantitative Evaluation & Simulation Results (organic vs. silicon interposer benchmark data).
-- **Section 9.8**: Chapter Summary & System Takeaways.
-- **Section 9.9**: Comprehensive Review Questions & Step-by-Step Analytical Problems.
+- **Section 9.8**: Interactive Lab & Hands-on Challenges.
+- **Section 9.9**: Summary & Cross-Disciplinary Synergies.
+- **Section 9.10**: Checkpoint Assessment & Certification Questions.
 - **Interactive Companion**: Explore the [`Chiplet Tycoon Interactive Lab`](https://network-on-chip.github.io/learning/interactive/chiplet/) to model packaging geometries, latency trade-offs, and yield curves live.
 
 ---
@@ -69,20 +70,20 @@ This modular revolution requires standardized, ultra-low-latency, and high-energ
 For over four decades, Moore's Law advanced by packing ever-more transistors onto a single continuous slice of silicon called a **monolithic die**. In modern sub-3nm nodes, this approach has hit two hard physical and economic walls:
 
 - **The Optical Reticle Limit (The Photolithographic Lens Boundary)**:
-  - Semiconductor chips are patterned using photolithography steppers/scanners that project extreme ultraviolet (EUV) light through a photomask onto a photoresist-coated silicon wafer.
-  - Optical exposure systems possess an immutable physical field size defined by the lens numerical aperture, known as the **optical reticle limit** (standard full-field size: $26\text{ mm} \times 33\text{ mm} \approx 858\text{ mm}^2$).
-  - Frontier artificial intelligence accelerators (such as NVIDIA Blackwell or AMD Instinct MI300) demand active compute areas exceeding $1000\text{ to }1500\text{ mm}^2$—far exceeding what any photolithography scanner can expose in a single monolithic shot.
+    - Semiconductor chips are patterned using photolithography steppers/scanners that project extreme ultraviolet (EUV) light through a photomask onto a photoresist-coated silicon wafer.
+    - Optical exposure systems possess an immutable physical field size defined by the lens numerical aperture, known as the **optical reticle limit** (standard full-field size: $26\text{ mm} \times 33\text{ mm} \approx 858\text{ mm}^2$ [[Mack2007]](#ref-mack2007)).
+    - Frontier artificial intelligence accelerators (such as NVIDIA Blackwell or AMD Instinct MI300) demand active compute areas exceeding $1000\text{ to }1500\text{ mm}^2$—far exceeding what any photolithography scanner can expose in a single monolithic shot.
 - **Defect Density & Exponential Yield Collapse**:
-  - Manufacturing yield $Y$ (the fraction of non-defective, fully functional dies fabricated across a wafer) plummets exponentially as monolithic die area $A$ expands.
-  - Under Murphy's classic yield formulation:
+    - Manufacturing yield $Y$ (the fraction of non-defective, fully functional dies fabricated across a wafer) plummets exponentially as monolithic die area $A$ expands.
+    - Under Murphy's classic yield formulation [[Murphy1964]](#ref-murphy1964):
     $$Y = \left( \frac{1 - e^{-A \cdot D_0}}{A \cdot D_0} \right)^2$$
     and Seeds' model ($Y = e^{-\sqrt{A \cdot D_0}}$), where $A$ denotes die area in $\text{cm}^2$ and $D_0$ represents random particulate defect density.
-  - A massive monolithic die spanning $800\text{ mm}^2$ ($A = 8.0\text{ cm}^2$) with $D_0 = 0.08\text{ defects/cm}^2$ exhibits a yield under $25\%$, discarding $>75\%$ of wafer silicon.
-  - Slicing that logic into four modular $200\text{ mm}^2$ chiplets ($A = 2.0\text{ cm}^2$) vaults die-level yield above $82\%$, cutting total manufacturing silicon cost by more than $50\%$.
+    - A massive monolithic die spanning $800\text{ mm}^2$ ($A = 8.0\text{ cm}^2$) with $D_0 = 0.08\text{ defects/cm}^2$ exhibits a yield under $25\%$, discarding $>75\%$ of wafer silicon.
+    - Slicing that logic into four modular $200\text{ mm}^2$ chiplets ($A = 2.0\text{ cm}^2$) vaults die-level yield above $82\%$ (as demonstrated in multi-chiplet accelerators like Simba [[Zimmer2020]](#ref-zimmer2020)), cutting total manufacturing silicon cost by more than $50\%$.
 - **Process Node Specialization (The Heterogeneous LEGO Principle)**:
-  - Leading-edge lithography (sub-3nm Gate-All-Around / FinFET) carries exorbitant mask set and wafer processing costs.
-  - While dense digital logic (SIMD/systolic tensor arrays and CPU cores) scales aggressively in power and density at 3nm, analog/mixed-signal blocks (phase-locked loops, voltage regulators), high-voltage I/O pads, and PCIe/DDR PHYs do not shrink proportionally.
-  - Modular chiplets enable architects to fabricate compute-heavy tiles on expensive 3nm processes while placing I/O transceivers and memory controllers on mature, high-yield, low-cost 7nm or 14nm silicon, interconnecting them like modular bricks.
+    - Leading-edge lithography (sub-3nm Gate-All-Around / FinFET) carries exorbitant mask set and wafer processing costs.
+    - While dense digital logic (SIMD/systolic tensor arrays and CPU cores) scales aggressively in power and density at 3nm, analog/mixed-signal blocks (phase-locked loops, voltage regulators), high-voltage I/O pads, and PCIe/DDR PHYs do not shrink proportionally.
+    - Modular chiplets enable architects to fabricate compute-heavy tiles on expensive 3nm processes while placing I/O transceivers and memory controllers on mature, high-yield, low-cost 7nm or 14nm silicon, interconnecting them like modular bricks.
 
 ```
        Monolithic SoC vs. Multi-Chiplet Modular Disaggregation
@@ -109,7 +110,7 @@ For over four decades, Moore's Law advanced by packing ever-more transistors ont
 > - **Standard Organic Packaging**: Like driving across a bumpy dirt road. The wires are thick, far apart ($110\ \mu\text{m}$ pitch), and slow. It takes lots of energy ($1.2\text{ pJ/bit}$) to push electrical signals across centimeters of circuit board.
 > - **Advanced Silicon Interposer (2.5D)**: Like building a **16-lane high-speed glass bridge** directly between the two houses! The bridge is made of pure polished silicon. The wires are microscopic ($45\ \mu\text{m}$ micro-bumps, thousands of lines), ultra-short ($1.8\text{ mm}$), and lightning-fast. It takes less than **one-third the energy** ($0.33\text{ pJ/bit}$) and carries **four times more data**!
 
-As classified by **Z. Chen et al. (IEEE TVLSI 2026)** and illustrated in Figure 9.1, multi-chiplet packaging spans four distinct integration categories:
+As classified by Z. Chen et al. [[Chen2026](#ref-chen2026)] and illustrated in Figure 9.1, multi-chiplet packaging spans four distinct integration categories:
 
 ![Figure 9.1: Multi-chiplet packaging taxonomy: (a) Standard organic substrate, (b) 2.5D silicon interposer, (c) Embedded silicon bridge (e.g., Intel EMIB), and (d) 3D hybrid bonding. [Reproduced from: Z. Chen et al., "HiRe: A Hierarchical Reconfigurable Architecture for Large-Scale Multichiplet DNN Accelerators", IEEE Transactions on Very Large Scale Integration (VLSI) Systems, Vol. 34, No. 4, pp. 880-893, 2026, DOI: 10.1109/TVLSI.2026.3676552. © 2026 IEEE]](figures/chen_fig02_chiplet_packaging_taxonomy.png)
 
@@ -165,20 +166,20 @@ In passive interposers, the carrier wafer contains only copper wiring traces. In
 
 ### 9.3.1 The Three Layers of UCIe
 - **Protocol Layer (Native High-Level Transactions)**:
-  - Transports industry-standard compute and memory semantics directly between chiplets without software stack translation.
-  - Supports **PCIe 6.0/7.0** (load/store, DMA, and interrupts for standard peripheral expansion).
-  - Supports **CXL (Compute Express Link)** variants: `CXL.io` (initialization), `CXL.cache` (coherent accelerator caching), and `CXL.mem` (byte-addressable memory pooling).
-  - Provides a **Raw Streaming Mode** that directly tunnels custom Network-on-Chip (NoC) flits (e.g., 68-byte or 256-byte AXI/CHI flits) across the link with zero protocol overhead.
+    - Transports industry-standard compute and memory semantics directly between chiplets without software stack translation.
+    - Supports **PCIe 6.0/7.0** (load/store, DMA, and interrupts for standard peripheral expansion).
+    - Supports **CXL (Compute Express Link)** variants: `CXL.io` (initialization), `CXL.cache` (coherent accelerator caching), and `CXL.mem` (byte-addressable memory pooling).
+    - Provides a **Raw Streaming Mode** that directly tunnels custom Network-on-Chip (NoC) flits (e.g., 68-byte or 256-byte AXI/CHI flits) across the link with zero protocol overhead.
 - **Die-to-Die (D2D) Adapter Layer (Link Integrity & Flow Control)**:
-  - Formats higher-layer flits into standard UCIe packaging blocks and manages reliable end-to-end transport.
-  - Generates and verifies cyclic redundancy checks (**CRC-16** for 68-byte standard flits, **CRC-32** for 256-byte latency-optimized flits) to detect signal bit flips across the packaging substrate.
-  - Houses the **Retransmission Retry Buffer** running sliding-window error recovery (Go-Back-N or selective retransmit) to guarantee 100% loss-free flit delivery without software involvement.
-  - Tracks receiver buffer occupancies via high-speed **credit-based flow control**, preventing receiver buffer overflow and arbitrating between multiplexed protocol streams.
+    - Formats higher-layer flits into standard UCIe packaging blocks and manages reliable end-to-end transport.
+    - Generates and verifies cyclic redundancy checks (**CRC-16** for 68-byte standard flits, **CRC-32** for 256-byte latency-optimized flits) to detect signal bit flips across the packaging substrate.
+    - Houses the **Retransmission Retry Buffer** running sliding-window error recovery (Go-Back-N or selective retransmit) to guarantee 100% loss-free flit delivery without software involvement.
+    - Tracks receiver buffer occupancies via high-speed **credit-based flow control**, preventing receiver buffer overflow and arbitrating between multiplexed protocol streams.
 - **Physical Layer (PHY - Electrical Signaling & Clocking)**:
-  - Drives high-density, low-voltage electrical signals across package traces and micro-bumps ($16$, $32$, or $64$ single-ended data lanes per standard cluster).
-  - Operates forwarded differential clocking topologies alongside dynamic track signals to achieve multi-gigahertz line rates ($4\text{ to }32\text{ Gbps}$ per pin).
-  - Embeds an independent, low-speed **Sideband Management Channel** ($800\text{ MHz}$ Manchester-encoded link) for link training, parametric discovery, calibration, and power-state transitions without interrupting the mainband.
-  - Performs dynamic per-lane deskew, receiver equalization, and phase alignment to compensate for temperature drift and trace length mismatches.
+    - Drives high-density, low-voltage electrical signals across package traces and micro-bumps ($16$, $32$, or $64$ single-ended data lanes per standard cluster).
+    - Operates forwarded differential clocking topologies alongside dynamic track signals to achieve multi-gigahertz line rates ($4\text{ to }32\text{ Gbps}$ per pin).
+    - Embeds an independent, low-speed **Sideband Management Channel** ($800\text{ MHz}$ Manchester-encoded link) for link training, parametric discovery, calibration, and power-state transitions without interrupting the mainband.
+    - Performs dynamic per-lane deskew, receiver equalization, and phase alignment to compensate for temperature drift and trace length mismatches.
 
 ---
 
@@ -190,35 +191,35 @@ When a packet leaves Chiplet A and enters Chiplet B, it experiences multiple del
 $$t_{\text{D2D}} = t_{\text{CDC}} + t_{\text{adapter}} + t_{\text{PHY\_tx}} + t_{\text{flight}} + t_{\text{PHY\_rx}} + t_{\text{deskew}} + t_{\text{CDC}}$$
 
 - **Clock Domain Crossing ($t_{\text{CDC}}$)**:
-  - Chiplet A and Chiplet B frequently operate on independent, asynchronous clock sources (e.g., $2.5\text{ GHz}$ on a 3nm compute tile vs. $1.6\text{ GHz}$ on a 14nm I/O hub).
-  - Crossing between clock domains safely requires asynchronous dual-clock FIFOs and dual-flip-flop synchronizers to prevent metastability, consuming $2\text{ to }3$ clock cycles per boundary crossing.
+    - Chiplet A and Chiplet B frequently operate on independent, asynchronous clock sources (e.g., $2.5\text{ GHz}$ on a 3nm compute tile vs. $1.6\text{ GHz}$ on a 14nm I/O hub).
+    - Crossing between clock domains safely requires asynchronous dual-clock FIFOs and dual-flip-flop synchronizers to prevent metastability, consuming $2\text{ to }3$ clock cycles per boundary crossing.
 - **Adapter Packaging & Framing ($t_{\text{adapter}}$)**:
-  - Flits pass through the D2D adapter for CRC calculation, sequencing tag insertion, and retry buffer logging, adding $1\text{ to }2$ cycles of pipelined logic delay.
+    - Flits pass through the D2D adapter for CRC calculation, sequencing tag insertion, and retry buffer logging, adding $1\text{ to }2$ cycles of pipelined logic delay.
 - **Physical Layer Serialization & Drive ($t_{\text{PHY\_tx}} + t_{\text{PHY\_rx}}$)**:
-  - Wide internal flit buses (e.g., 256 or 512 bits) are serialized into narrower high-speed PHY lanes (e.g., 32 single-ended pins), driven through analog buffers, and deserialized at the receiver.
+    - Wide internal flit buses (e.g., 256 or 512 bits) are serialized into narrower high-speed PHY lanes (e.g., 32 single-ended pins), driven through analog buffers, and deserialized at the receiver.
 - **Substrate Flight Time ($t_{\text{flight}}$)**:
-  - Electromagnetic waves travel through the packaging dielectric ($\text{SiO}_2$ with $\epsilon_r \approx 3.9$ or organic build-up films with $\epsilon_r \approx 3.4$) at speed:
+    - Electromagnetic waves travel through the packaging dielectric ($\text{SiO}_2$ with $\epsilon_r \approx 3.9$ or organic build-up films with $\epsilon_r \approx 3.4$) at speed:
     $$v = \frac{c}{\sqrt{\epsilon_r}} \approx \frac{3 \times 10^8\text{ m/s}}{\sqrt{3.9}} \approx 1.52 \times 10^8\text{ m/s} = 152\ \mu\text{m/ps}$$
-  - For an advanced silicon interposer trace of length $L = 1.8\text{ mm}$, the physical flight delay is only $t_{\text{flight}} \approx 12\text{ ps}$—less than one-twentieth of a single clock cycle at $2\text{ GHz}$.
+    - For an advanced silicon interposer trace of length $L = 1.8\text{ mm}$, the physical flight delay is only $t_{\text{flight}} \approx 12\text{ ps}$—less than one-twentieth of a single clock cycle at $2\text{ GHz}$.
 - **Deskew & Dynamic Phase Alignment ($t_{\text{deskew}}$)**:
-  - Compensates for subtle trace length mismatches and micro-bump parasitic variations across parallel lanes, buffering data until all signals align cleanly.
+    - Compensates for subtle trace length mismatches and micro-bump parasitic variations across parallel lanes, buffering data until all signals align cleanly.
 
 ### 9.4.2 Little's Law: Why Transmitters Need Buffer Queues
 Imagine you are playing catch with a friend across a field. If you throw a baseball, you must wait for your friend to throw a ball back before you can throw again. If you only own 1 baseball, you spend most of your time standing around waiting!
 
-To keep throwing continuously at full speed, you need a basket of balls. How many balls do you need? Exactly enough to fill the round-trip flight time! This is **Little's Law** applied to flow control:
+To keep throwing continuously at full speed, you need a basket of balls. How many balls do you need? Exactly enough to fill the round-trip flight time! This is **Little's Law** applied to flow control (Little, Operations Research 1961 [[Little1961]](#ref-little1961)):
 
 $$B_{\text{min}} \ge \lceil \text{RTT}_{\text{credit}} \cdot f_{\text{clk}} \rceil$$
 
 - **Round-Trip Credit Latency ($\text{RTT}_{\text{credit}}$)**:
-  - The total time elapsed from the moment flit $N$ departs the transmitter until the corresponding receiver credit token arrives back at the transmitter credit counter:
+    - The total time elapsed from the moment flit $N$ departs the transmitter until the corresponding receiver credit token arrives back at the transmitter credit counter:
     $$\text{RTT}_{\text{credit}} = t_{\text{D2D\_forward}} + t_{\text{rx\_processing}} + t_{\text{credit\_return}}$$
 - **Throughput Collapse without Sufficient Buffering**:
-  - If a die-to-die bridge has an $\text{RTT}_{\text{credit}} = 8.5\text{ ns}$ running at $f_{\text{clk}} = 2.0\text{ GHz}$ ($T_{\text{cycle}} = 0.5\text{ ns}$), then:
+    - If a die-to-die bridge has an $\text{RTT}_{\text{credit}} = 8.5\text{ ns}$ running at $f_{\text{clk}} = 2.0\text{ GHz}$ ($T_{\text{cycle}} = 0.5\text{ ns}$), then:
     $$B_{\text{min}} \ge \lceil 8.5 / 0.5 \rceil = 17\text{ flits}$$
-  - If the transmitter queue has fewer than $17$ credits, the credit counter decrements to zero before the first credit returns, forcing the transmitter into bubble cycles and slashing link utilization below $100\%$.
+    - If the transmitter queue has fewer than $17$ credits, the credit counter decrements to zero before the first credit returns, forcing the transmitter into bubble cycles and slashing link utilization below $100\%$.
 - **Buffer Memory Area Trade-Off**:
-  - Allocating excessive buffer capacity wastes silicon real estate, while under-allocating buffers throttles inter-chiplet bandwidth; precise RTT budgeting is therefore paramount during die-to-die architectural sign-off.
+    - Allocating excessive buffer capacity wastes silicon real estate, while under-allocating buffers throttles inter-chiplet bandwidth; precise RTT budgeting is therefore paramount during die-to-die architectural sign-off.
 
 ---
 
@@ -239,20 +240,20 @@ $$B_{\text{min}} \ge \lceil \text{RTT}_{\text{credit}} \cdot f_{\text{clk}} \rce
 
 ![Figure 9.3: Multi-chiplet routing deadlock scenario where local subpath dependencies cross die-to-die bridge boundaries, forming a closed resource dependency cycle across four chiplets. [Reproduced from: P. Wang et al., "In/Outbound Swap: A Backtracking-based Deadlock Recovery Mechanism for Multi-Chiplet Networks", IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, Vol. 45, No. 5, pp. 2100-2114, 2026, DOI: 10.1109/TCAD.2026.3688573. © 2026 IEEE]](figures/wang_fig01_chiplet_deadlock_subpath.png)
 
-As demonstrated by **P. Wang et al. (IEEE TCAD 2026)** in Figure 9.3, combining deadlock-free local networks creates dangerous global dependency loops across bridge routers.
+As demonstrated by P. Wang et al. [[Wang2026](#ref-wang2026)] in Figure 9.3, combining deadlock-free local networks creates dangerous global dependency loops across bridge routers.
 
 ![Figure 9.4: Operational flow of the In/Outbound Swap deadlock recovery mechanism: stall timeout detection, swap request assertion, queue handshake, and circular dependency breaking. [Reproduced from: P. Wang et al., "In/Outbound Swap: A Backtracking-based Deadlock Recovery Mechanism for Multi-Chiplet Networks", IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, Vol. 45, No. 5, pp. 2100-2114, 2026, DOI: 10.1109/TCAD.2026.3688573. © 2026 IEEE]](figures/wang_fig02_swap_recovery_flow.png)
 
-Instead of doubling or tripling hardware buffers across the entire chip, Wang et al.'s **In/Outbound Swap** mechanism (Figure 9.4):
+Instead of doubling or tripling hardware buffers across the entire chip, Wang et al.'s **In/Outbound Swap** mechanism [[Wang2026](#ref-wang2026)] (Figure 9.4):
 - **Stall Cycle Timeout Monitoring**:
-  - A local hardware timer increments whenever a valid head flit is poised at a D2D boundary bridge with zero downstream transmission credits.
-  - If the stall counter exceeds a programmable safety threshold $\tau_{\text{stall}}$ (e.g., 256 consecutive cycles), a circular deadlock condition is inferred.
+    - A local hardware timer increments whenever a valid head flit is poised at a D2D boundary bridge with zero downstream transmission credits.
+    - If the stall counter exceeds a programmable safety threshold $\tau_{\text{stall}}$ (e.g., 256 consecutive cycles), a circular deadlock condition is inferred.
 - **Escape Buffer Backtracking**:
-  - The blocked head flit is diverted out of the primary channel into a dedicated, ultra-compact 2-flit swap escape register.
-  - The swap operation frees the occupied input buffer slot on the upstream router, returning a flow control credit backward.
+    - The blocked head flit is diverted out of the primary channel into a dedicated, ultra-compact 2-flit swap escape register.
+    - The swap operation frees the occupied input buffer slot on the upstream router, returning a flow control credit backward.
 - **Deadlock Cycle Rupture**:
-  - Diverting the trapped flit breaks the closed dependency knot, enabling blocked downstream packets to advance unimpeded.
-  - Once downstream traffic clears and credits return, the buffered flit in the swap register is reinjected into the network pipeline, guaranteeing complete deadlock freedom with zero packet dropping.
+    - Diverting the trapped flit breaks the closed dependency knot, enabling blocked downstream packets to advance unimpeded.
+    - Once downstream traffic clears and credits return, the buffered flit in the swap register is reinjected into the network pipeline, guaranteeing complete deadlock freedom with zero packet dropping.
 
 ---
 
@@ -312,7 +313,55 @@ Advanced silicon interposers achieve a staggering **$4.88\times$** higher shorel
 
 ---
 
-## 9.8 Summary: What You Learned
+## 9.8 Interactive Lab & Hands-on Challenges
+
+<div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.65)); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+  <div>
+    <div style="font-weight: 700; color: #93c5fd; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
+      <span>🏗️ Dedicated Interactive Lab: Chiplet Tycoon</span>
+    </div>
+    <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 800px; line-height: 1.5;">
+      Construct heterogeneous multi-die Superchips across passive/active silicon interposers with UCIe interfaces. Balance compute throughput, thermal dissipation, and Murphy wafer yield economics.
+    </div>
+  </div>
+  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+    <a href="../../interactive/chiplet.md" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+      <span>Launch Chiplet Tycoon →</span>
+    </a>
+  </div>
+</div>
+
+Complete the following three hands-on laboratory missions in **[Chiplet Tycoon](../../interactive/chiplet.md)**:
+
+### Challenge Mission 9.1: Monolithic Reticle Limits vs. Murphy Wafer Yield Economics
+- **Objective:** Quantify the economic cost crossover between an 800 mm² monolithic reticle-limit die and a 4-chiplet partitioned architecture under Murphy's yield model.
+- **Setup & Procedure:**
+  1. In **Chiplet Tycoon**, configure an 800 mm² monolithic die with defect density $D_0 = 0.08\text{ defects/cm}^2$. Record wafer yield ($Y \approx 22\%$) and scrap cost.
+  2. Partition the system into four $200\text{ mm}^2$ chiplets connected on an organic substrate ($Y_{pkg} \approx 96\%$).
+  3. Compare per-good-die manufacturing cost including substrate packaging overhead.
+- **Architectural Observation:** Because die yield drops exponentially with area ($Y \approx ((1 - e^{-A D_0}) / (A D_0))^2$), the $800\text{ mm}^2$ monolithic design loses nearly $80\%$ of all fabricated wafers to defects. Partitioning into 4 smaller chiplets boosts per-die yield above $82\%$. Even with packaging integration costs, total good-die cost drops by $>48\%$, demonstrating why modern GPU superchips (NVIDIA Blackwell, AMD MI300) mandate chiplet disaggregation.
+- **Verification Formula:** $Y_{Murphy} = \left(\frac{1 - e^{-A \cdot D_0}}{A \cdot D_0}\right)^2, \quad \text{Cost}_{good} = \frac{\text{Cost}_{wafer}}{N_{dies} \cdot Y} + \text{Cost}_{pkg}$.
+
+### Challenge Mission 9.2: UCIe Physical Layer & Die-to-Die Packaging Comparison
+- **Objective:** Compare shoreline bandwidth density and energy efficiency between standard organic packaging and advanced silicon interposers (UCIe-A).
+- **Setup & Procedure:**
+  1. In **Chiplet Tycoon**, select **Standard Organic Packaging** (bump pitch $110\,\mu\text{m}$, trace length $15.0\text{ mm}$).
+  2. Measure die-to-die flight delay ($100\text{ ps}$), energy per bit ($1.20\text{ pJ/bit}$), and shoreline bandwidth ($145.5\text{ Gbps/mm}$).
+  3. Switch to **Advanced Silicon Interposer (UCIe-A)** (bump pitch $45\,\mu\text{m}$, trace length $1.8\text{ mm}$).
+- **Architectural Observation:** The advanced silicon interposer achieves $2.44\times$ tighter bump pitch and $8.3\times$ shorter physical wires. Shoreline bandwidth density surges by $4.88\times$ (to $711.1\text{ Gbps/mm}$), while energy per bit drops by $3.64\times$ down to $0.33\text{ pJ/bit}$, confirming that advanced packaging is critical to avoiding the memory/IO power wall in multi-die processors.
+
+### Challenge Mission 9.3: Asymmetric Die-to-Die Bridge Routing & Deadlock Elimination
+- **Objective:** Prevent cyclic buffer lockups when routing flits across narrow inter-die bridge channels using the Inbound/Outbound Swap Protocol.
+- **Setup & Procedure:**
+  1. In **Chiplet Tycoon**, inject heavy bi-directional cross-die traffic across a single narrow bridge link.
+  2. Observe traffic serialization when outbound flits from Die 0 collide with inbound flits from Die 1.
+  3. Enable the **In/Outbound Swap Escape Register** protocol.
+- **Architectural Observation:** Narrow die-to-die bridge links create severe bandwidth bottlenecks where bidirectional packet streams can form circular wait dependencies across die boundaries. The In/Outbound swap protocol detects sustained stalls ($>16$ cycles) and diverts blocked head flits into an auxiliary swap register, dynamically breaking the circular dependency and clearing the bridge traffic jam without dropping flits!
+- **Hardware RTL & Python Reference:** Run `python code/chiplet_yield_cost_model.py` and inspect `code/chiplet_bridge_protocol.v` for synthesizable UCIe bridge swap controller RTL.
+
+---
+
+## 9.9 Summary & Cross-Disciplinary Synergies
 
 - **The Big Picture**: Making one giant chip is like baking a giant table-sized pizza: one fly ruins the whole thing. Chiplets let us make smaller personal pizzas, lifting yields from $25\%$ to $>80\%$.
 - **Packaging Matters**: Standard circuit boards are slow dirt roads ($1.2\text{ pJ/bit}$). Silicon interposers are 16-lane glass superhighways ($0.33\text{ pJ/bit}$).
@@ -321,7 +370,7 @@ Advanced silicon interposers achieve a staggering **$4.88\times$** higher shorel
 
 ---
 
-## 9.9 Checkpoint Assessment
+## 9.10 Checkpoint Assessment
 
 Test your mastery of Chapter 9 concepts against the official certification questions (mirroring the 3-Tier Exam Engine in [`quiz.md`](../../quiz.md)):
 
@@ -376,7 +425,7 @@ Test your mastery of Chapter 9 concepts against the official certification quest
     *(Reference: D. Das Sharma et al., 'Universal Chiplet Interconnect Express (UCIe): Building an Open Chiplet Ecosystem,' IEEE Micro, Vol. 42, No. 5, pp. 63–71, Sept.–Oct. 2022. DOI: 10.1109/MM.2022.3195973.)*
 
 #### Question 9.3 (Tier 3: Silicon Mastery)
-*Why can composing individually deadlock-free 2D mesh chiplets produce system-level routing deadlocks, and how does the In/Outbound Swap backtracking mechanism (Wang et al., IEEE TCAD 2026) resolve this without dedicating redundant Virtual Channels?*
+*Why can composing individually deadlock-free 2D mesh chiplets produce system-level routing deadlocks, and how does the In/Outbound Swap backtracking mechanism [[Wang2026](#ref-wang2026)] resolve this without dedicating redundant Virtual Channels?*
 
 - **A)** Hierarchical routing across die-to-die boundaries can form cyclic buffer dependency loops across inter-chiplet bridge routers; the In/Outbound Swap detects stalls exceeding a timeout threshold and diverts blocked head flits into an escape swap register, severing the cyclic dependency loop and allowing trailing flits to advance.
 - **B)** Deadlocks only occur if the interposer runs out of electrical ground wires.
@@ -387,7 +436,7 @@ Test your mastery of Chapter 9 concepts against the official certification quest
     **Correct Answer: Option A**
 
     **1. Step-by-Step Architectural & Mathematical Derivation:**
-    When independent chiplets (each using deterministic XY DOR) are assembled on a silicon interposer: (1) Global Cyclic Dependencies: While intra-chiplet routing is acyclic, inter-chiplet traffic must cross Die-to-Die (D2D) bridge routers. If a packet leaves Chiplet 0, enters Chiplet 1, and subsequent traffic routes back into Chiplet 0 through a second bridge, a global circular channel dependency cycle (C0 -> D2D_East -> C1 -> D2D_South -> C0) forms in the system-level Channel Dependency Graph. (2) Limitations of Prior Solutions: Adding extra global Virtual Channels to partition traffic is area-prohibitive in compact chiplet bridge routers. (3) In/Outbound Swap: Wang et al. (IEEE TCAD 2026) introduced an asynchronous deadlock resolution mechanism: When a flit at an inter-chiplet boundary stalls for longer than a predefined threshold tau_stall, a deadlock cycle is flagged. The bridge router activates the In/Outbound Swap register, deflecting the blocked Head flit into a side escape buffer. This removes the flit from the congested link, breaking the circular wait condition and allowing trailing flits to drain. Once the link clears, the swapped flit is reinjected into the network without dropping data.
+    When independent chiplets (each using deterministic XY DOR) are assembled on a silicon interposer: (1) Global Cyclic Dependencies: While intra-chiplet routing is acyclic, inter-chiplet traffic must cross Die-to-Die (D2D) bridge routers. If a packet leaves Chiplet 0, enters Chiplet 1, and subsequent traffic routes back into Chiplet 0 through a second bridge, a global circular channel dependency cycle (C0 -> D2D_East -> C1 -> D2D_South -> C0) forms in the system-level Channel Dependency Graph. (2) Limitations of Prior Solutions: Adding extra global Virtual Channels to partition traffic is area-prohibitive in compact chiplet bridge routers. (3) In/Outbound Swap: Wang et al. [[Wang2026](#ref-wang2026)] introduced an asynchronous deadlock resolution mechanism: When a flit at an inter-chiplet boundary stalls for longer than a predefined threshold tau_stall, a deadlock cycle is flagged. The bridge router activates the In/Outbound Swap register, deflecting the blocked Head flit into a side escape buffer. This removes the flit from the congested link, breaking the circular wait condition and allowing trailing flits to drain. Once the link clears, the swapped flit is reinjected into the network without dropping data.
 
     **2. Option-by-Option Breakdown & Distractor Analysis:**
     - **Option A (Correct):** Inter-chiplet bridges form global dependency cycles; timeout-driven escape swap registers break the cycle without dropping packets or dedicating redundant VCs.
@@ -402,12 +451,31 @@ Test your mastery of Chapter 9 concepts against the official certification quest
 
 ---
 
+### Analytical DSE Frameworks, Vertical Link Selection, and Multi-Chiplet Routing
+<a id="hisim-dyvs"></a>
+
+The scaling of multi-chiplet computing has accelerated the development of dedicated design space exploration frameworks and routing protocols:
+- **HISIM: Analytical DSE for 2.5D/3D AI Integration**: Wang et al.~[[Wang2025HiSim](#ref-wang2025hisim)] presented HISIM, an analytical performance modeling framework that captures package interposer routing, memory bandwidth, and D2D PHY overheads to rapidly evaluate architectural choices for large language model accelerators across 2.5D and 3D configurations.
+- **DyVS: Dynamic Vertical Link Selection**: Wu et al.~[[Wu2026DyVS](#ref-wu2026dyvs)] formulated DyVS, dynamically steering inter-chiplet traffic across vertical micro-bump links in 2.5D passive interposers based on runtime thermal and congestion feedback, eliminating boundary router bottlenecks.
+- **Scalable Deadlock-Free Routing (ScaDA-Rou)**: Zhu et al.~[[Zhu2026ScaDA](#ref-zhu2026scada)] proposed ScaDA-Rou, a scalable deadlock-free adaptive routing protocol for 3D multi-chiplet topologies that decouples inter-die routing cycles without requiring virtual channel duplication.
+- **In/Outbound Swap Deadlock Recovery**: Wang et al.~[[Wang2026Swap](#ref-wang2026swap)] introduced backtracking-based dynamic buffer swapping for high-radix multi-chiplet interconnects, clearing complex cyclic buffer dependencies with minimal protocol overhead.
+
+---
+
 ## References & Bibliography
 
-1. **[Vivet2021]** P. Vivet et al., "IntAct: A 96-Core Processor With Six Chiplets 3D-Stacked on an Active Interposer With Distributed Interconnects and Integrated Power Management," *IEEE Journal of Solid-State Circuits*, vol. 56, no. 1, pp. 79–97, Jan. 2021. [DOI: 10.1109/JSSC.2020.3036341](https://doi.org/10.1109/JSSC.2020.3036341).
-2. **[Chen2026]** Z. Chen, J. Zhang, D. Lyu, H. Chen, J. Jiang, W. Sheng, C. Zhang, and G. He, "HiRe: A Hierarchical Reconfigurable Architecture for Large-Scale Multichiplet DNN Accelerators," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 34, no. 4, pp. 880–893, Apr. 2026. [DOI: 10.1109/TVLSI.2026.3676552](https://doi.org/10.1109/TVLSI.2026.3676552).
-3. **[Wang2026]** P. Wang, M. Wang, Z. Ye, T. Lu, and Z. Yu, "In/Outbound Swap: A Backtracking-based Deadlock Recovery Mechanism for Multi-Chiplet Networks," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 5, pp. 2100–2114, May 2026. [DOI: 10.1109/TCAD.2026.3688573](https://doi.org/10.1109/TCAD.2026.3688573).
-4. **[DasSharma2022]** D. Das Sharma et al., "Universal Chiplet Interconnect Express (UCIe): Building an Open Chiplet Ecosystem," *IEEE Micro*, vol. 42, no. 5, pp. 63–71, Sept.–Oct. 2022. [DOI: 10.1109/MM.2022.3195973](https://doi.org/10.1109/MM.2022.3195973).
-5. **[UCIe2023]** UCIe Consortium, "Universal Chiplet Interconnect Express (UCIe) Specification Rev 1.1," Industry Standard Specification, Aug. 2023. [Online: https://www.uciexpress.org](https://www.uciexpress.org).
-6. **[Zhu2026]** L. Zhu, H. Gu, Y. Tan, and G. Zhang, "ScaDA-Rou: A Scalable, Deadlock-Free, and Adaptive Routing for 3-D Multi-Chiplet System," *IEEE Transactions on Circuits and Systems–II: Express Briefs*, vol. 73, no. 4, pp. 433–437, Apr. 2026. [DOI: 10.1109/TCSII.2025.3526101](https://doi.org/10.1109/TCSII.2025.3526101).
-7. **[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann Publishers, San Francisco, CA, 2004.
+1. <a id="ref-mack2007"></a>**[Mack2007]** C. Mack, *Fundamental Principles of Optical Lithography: The Science of Microfabrication*, John Wiley & Sons, Chichester, UK, 2007. [DOI: 10.1002/9780470723876](https://doi.org/10.1002/9780470723876).
+2. <a id="ref-murphy1964"></a>**[Murphy1964]** B. T. Murphy, "Cost-Size Optima of Monolithic Integrated Circuits," *Proceedings of the IEEE*, vol. 52, no. 12, pp. 1537–1545, Dec. 1964. [DOI: 10.1109/PROC.1964.3442](https://doi.org/10.1109/PROC.1964.3442).
+3. <a id="ref-little1961"></a>**[Little1961]** J. D. C. Little, "A Proof for the Queuing Formula: $L = \lambda W$," *Operations Research*, vol. 9, no. 3, pp. 383–387, 1961. [DOI: 10.1287/opre.9.3.383](https://doi.org/10.1287/opre.9.3.383).
+4. <a id="ref-zimmer2020"></a>**[Zimmer2020]** B. Zimmer et al., "A 0.11 pJ/Op, 0.32–1.28 TOPS, Scalable Multi-Chip-Module-Based Deep Neural Network Accelerator with Ground-Referenced Signaling in 16nm," *IEEE Journal of Solid-State Circuits*, vol. 55, no. 4, pp. 920–932, Apr. 2020. [DOI: 10.1109/JSSC.2019.2960488](https://doi.org/10.1109/JSSC.2019.2960488).
+5. <a id="ref-vivet2021"></a>**[Vivet2021]** P. Vivet et al., "IntAct: A 96-Core Processor With Six Chiplets 3D-Stacked on an Active Interposer With Distributed Interconnects and Integrated Power Management," *IEEE Journal of Solid-State Circuits*, vol. 56, no. 1, pp. 79–97, Jan. 2021. [DOI: 10.1109/JSSC.2020.3036341](https://doi.org/10.1109/JSSC.2020.3036341).
+6. <a id="ref-chen2026"></a>**[Chen2026]** Z. Chen, J. Zhang, D. Lyu, H. Chen, J. Jiang, W. Sheng, C. Zhang, and G. He, "HiRe: A Hierarchical Reconfigurable Architecture for Large-Scale Multichiplet DNN Accelerators," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 34, no. 4, pp. 880–893, Apr. 2026. [DOI: 10.1109/TVLSI.2026.3676552](https://doi.org/10.1109/TVLSI.2026.3676552).
+7. <a id="ref-wang2026"></a>**[Wang2026]** P. Wang, M. Wang, Z. Ye, T. Lu, and Z. Yu, "In/Outbound Swap: A Backtracking-based Deadlock Recovery Mechanism for Multi-Chiplet Networks," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 5, pp. 2100–2114, May 2026. [DOI: 10.1109/TCAD.2026.3688573](https://doi.org/10.1109/TCAD.2026.3688573).
+8. <a id="ref-dassharma2022"></a>**[DasSharma2022]** D. Das Sharma et al., "Universal Chiplet Interconnect Express (UCIe): Building an Open Chiplet Ecosystem," *IEEE Micro*, vol. 42, no. 5, pp. 63–71, Sept.–Oct. 2022. [DOI: 10.1109/MM.2022.3195973](https://doi.org/10.1109/MM.2022.3195973).
+9. <a id="ref-ucie2023"></a>**[UCIe2023]** UCIe Consortium, "Universal Chiplet Interconnect Express (UCIe) Specification Rev 1.1," Industry Standard Specification, Aug. 2023. [Online: https://www.uciexpress.org](https://www.uciexpress.org).
+10. <a id="ref-zhu2026"></a>**[Zhu2026]** L. Zhu, H. Gu, Y. Tan, and G. Zhang, "ScaDA-Rou: A Scalable, Deadlock-Free, and Adaptive Routing for 3-D Multi-Chiplet System," *IEEE Transactions on Circuits and Systems–II: Express Briefs*, vol. 73, no. 4, pp. 433–437, Apr. 2026. [DOI: 10.1109/TCSII.2025.3526101](https://doi.org/10.1109/TCSII.2025.3526101).
+11. <a id="ref-dallyprinciples"></a>**[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann Publishers, San Francisco, CA, 2004.
+12. <a id="ref-wang2025hisim"></a>**[Wang2025HiSim]** T. Wang et al., \"HISIM: Analytical Performance Modeling and Design Space Exploration of 2.5D/3D Integration for AI Computing,\" *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 44, no. 12, pp. 4210–4223, Dec. 2025. [DOI: 10.1109/TCAD.2025.3531348](https://doi.org/10.1109/TCAD.2025.3531348).
+13. <a id="ref-wu2026dyvs"></a>**[Wu2026DyVS]** X. Wu et al., \"DyVS: Dynamic Optimization of Vertical Link Selection for Routing in 2.5D Chiplet Networks,\" *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 34, no. 6, pp. 1950–1963, June 2026. [DOI: 10.1109/TVLSI.2026.3710644](https://doi.org/10.1109/TVLSI.2026.3710644).
+14. <a id="ref-zhu2026scada"></a>**[Zhu2026ScaDA]** L. Zhu, H. Gu, Y. Tan, and G. Zhang, \"ScaDA-Rou: A Scalable, Deadlock-Free, and Adaptive Routing for 3-D Multi-Chiplet System,\" *IEEE Transactions on Circuits and Systems II: Express Briefs*, vol. 73, no. 5, pp. 1810–1814, May 2026. [DOI: 10.1109/TCSII.2025.3618100](https://doi.org/10.1109/TCSII.2025.3618100).
+15. <a id="ref-wang2026swap"></a>**[Wang2026Swap]** P. Wang et al., \"In/Outbound Swap: A Backtracking-based Deadlock Recovery Mechanism for Multi-Chiplet Networks,\" *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 5, pp. 2100–2114, May 2026. [DOI: 10.1109/TCAD.2026.3688573](https://doi.org/10.1109/TCAD.2026.3688573).

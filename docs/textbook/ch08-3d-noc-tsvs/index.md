@@ -36,7 +36,9 @@ This chapter delivers a rigorous, multidisciplinary exploration of 3D-NoC archit
 - **Section 8.6**: Hardware Microarchitecture: 7-Port Vertical Link Arbiter.
 - **Section 8.7**: Simulation Model & Numerical Verification.
 - **Section 8.8**: Summary & Cross-Disciplinary Synergies.
-- **Section 8.9**: Comprehensive Problem Set & Solutions.
+- **Section 8.9**: Interactive Lab & Hands-on Challenges.
+- **Section 8.10**: Comprehensive Problem Set & Solutions.
+- **Section 8.11**: Checkpoint Assessment & Certification Questions.
 
 ---
 
@@ -71,17 +73,18 @@ Three-Dimensional Integrated Circuits (3D-ICs) break this planar constraint by s
 
 ### 8.1.1 Advantages of 3D Integration
 - **Dramatically Shortened Interconnect Lengths**:
-  - Replaces long, resistive horizontal metal wires with micrometer-scale vertical connections across stacked dies.
-  - A $4 \times 4 \times 4$ 3D mesh containing 64 cores achieves a network diameter of only $(3 + 3 + 3) = 9$ hops, contrasted with $(7 + 7) = 14$ hops in a conventional $8 \times 8$ 2D mesh.
-  - Slashes average packet hop counts and wire traversal latency by over **$35\%$**, significantly curbing total capacitive dynamic wire dissipation.
+    - Replaces long, resistive horizontal metal wires with micrometer-scale vertical connections across stacked dies.
+    - A $4 \times 4 \times 4$ 3D mesh containing 64 cores achieves a network diameter of only $(3 + 3 + 3) = 9$ hops, contrasted with $(7 + 7) = 14$ hops in a conventional $8 \times 8$ 2D mesh.
+    - Slashes average packet hop counts and wire traversal latency by over **$35\%$**, significantly curbing total capacitive dynamic wire dissipation.
 - **Heterogeneous Technology Stacking**:
-  - Decouples process technology across functional tiers, allowing each die layer to be manufactured in its optimal, cost-effective semiconductor process.
-  - Enables direct vertical stacking of an advanced leading-edge compute tier (e.g., 3nm FinFET/GAAFET) directly over dense memory tiers (e.g., 14nm eDRAM, High-Bandwidth Memory stacks) or analog/RF/sensor tiers.
-  - Eliminates long off-chip PCB board traces and packaging parasitics, reducing I/O power and pad-ring footprint.
+    - Decouples process technology across functional tiers, allowing each die layer to be manufactured in its optimal, cost-effective semiconductor process.
+    - Enables direct vertical stacking of an advanced leading-edge compute tier (e.g., 3nm FinFET/GAAFET) directly over dense memory tiers (e.g., 14nm eDRAM, High-Bandwidth Memory stacks) or analog/RF/sensor tiers.
+    - Eliminates long off-chip PCB board traces and packaging parasitics, reducing I/O power and pad-ring footprint.
 - **Massive Vertical Bandwidth Density**:
-  - Delivers fine-pitch micro-bumps and Through-Silicon Vias (TSVs) yielding thousands of parallel vertical inter-tier channels.
-  - Achieves multi-terabits-per-second inter-tier bisection bandwidth with ultra-low sub-100 picosecond propagation delays.
-  - Bypasses traditional chip-edge I/O pin-count bottlenecks (Rent's rule off-chip pin limitations).
+    - Delivers fine-pitch micro-bumps and Through-Silicon Vias (TSVs) yielding thousands of parallel vertical inter-tier channels.
+    - Achieves multi-terabits-per-second inter-tier bisection bandwidth with ultra-low sub-100 picosecond propagation delays.
+    - Bypasses traditional chip-edge I/O pin-count bottlenecks (Rent's rule off-chip pin limitations [[Pavlidis2009]](#ref-pavlidis2009)).
+    - Explores complex vendor-independent design space allocations using hypergraph-genetic algorithms (Al-Alousi et al. [[AlAlousi2026](#ref-alalousi2026)]).
 
 ---
 
@@ -94,21 +97,21 @@ A Through-Silicon Via is a microscopic copper plug etched vertically through the
 ![Figure 8.2: Circuit-level lumped parasitic model of a multi-TSV bundle. [Reproduced from: I. Loi et al., "Characterization and Implementation of Fault-Tolerant Vertical Links for 3-D Networks-on-Chip", IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, Vol. 30, No. 1, pp. 124-134, Jan. 2011, DOI: 10.1109/TCAD.2010.2065990. © 2011 IEEE]](figures/loi_fig03_tsv_schematic.png)
 
 ### 8.2.1 Lumped Electrical Model
-As characterized by **I. Loi et al. (IEEE TCAD 2011)** and depicted in Figures 8.1 and 8.2, each TSV is modeled as an electrical lumped $\pi$-network parameterized by the following physical components:
+As characterized by I. Loi et al. [[Loi2011](#ref-loi2011)] and depicted in Figures 8.1 and 8.2, each TSV is modeled as an electrical lumped $\pi$-network parameterized by the following physical components:
 
 - **Ohmic Resistance ($R_{\text{tsv}}$)**:
-  - Governed by the electrical resistivity of electroplated copper ($\rho_{\text{Cu}} \approx 1.7 \times 10^{-8}\ \Omega\cdot\text{m}$):
+    - Governed by the electrical resistivity of electroplated copper ($\rho_{\text{Cu}} \approx 1.7 \times 10^{-8}\ \Omega\cdot\text{m}$):
     $$R_{\text{tsv}} = \rho_{\text{Cu}} \frac{h_{\text{tsv}}}{\pi (d_{\text{tsv}} / 2)^2}$$
-  - For typical dimensions ($h_{\text{tsv}} = 30\ \mu\text{m}$, $d_{\text{tsv}} = 4\ \mu\text{m}$), $R_{\text{tsv}} \approx 30\text{ to }50\text{ m}\Omega$.
-  - This resistance is negligible compared to planar millimeter-long on-chip wires ($>100\ \Omega$), rendering TSV RC line delay exceptionally low.
+    - For typical dimensions ($h_{\text{tsv}} = 30\ \mu\text{m}$, $d_{\text{tsv}} = 4\ \mu\text{m}$), $R_{\text{tsv}} \approx 30\text{ to }50\text{ m}\Omega$.
+    - This resistance is negligible compared to planar millimeter-long on-chip wires ($>100\ \Omega$), rendering TSV RC line delay exceptionally low.
 - **Insulator Oxide Capacitance ($C_{\text{ox}}$)**:
-  - Formed across the cylindrical dielectric sleeve ($\text{SiO}_2$ with thickness $t_{\text{ox}} \approx 100\text{ to }200\text{ nm}$):
+    - Formed across the cylindrical dielectric sleeve ($\text{SiO}_2$ with thickness $t_{\text{ox}} \approx 100\text{ to }200\text{ nm}$):
     $$C_{\text{ox}} = \frac{2 \pi \epsilon_{\text{ox}} \epsilon_0 h_{\text{tsv}}}{\ln\left(\frac{r_{\text{tsv}} + t_{\text{ox}}}{r_{\text{tsv}}}\right)} \approx 20\text{ to }50\text{ fF}$$
-  - Constitutes the dominant capacitive load driven by vertical link buffers, establishing the minimum driver transistor sizing.
+    - Constitutes the dominant capacitive load driven by vertical link buffers, establishing the minimum driver transistor sizing.
 - **Substrate Conductance and Inter-TSV Coupling ($C_{\text{sub}}, G_{\text{sub}}$)**:
-  - Arises from high-frequency electrostatic fields penetrating through the moderately conductive doped bulk silicon substrate between neighboring vertical conductors.
-  - Induces dynamic cross-talk noise and signal integrity degradation on adjacent unshielded vertical signal lines.
-  - Requires dedicated ground/power shielding TSVs or differential signaling topologies when dense vertical bundles switch simultaneously.
+    - Arises from high-frequency electrostatic fields penetrating through the moderately conductive doped bulk silicon substrate between neighboring vertical conductors.
+    - Induces dynamic cross-talk noise and signal integrity degradation on adjacent unshielded vertical signal lines.
+    - Requires dedicated ground/power shielding TSVs or differential signaling topologies when dense vertical bundles switch simultaneously.
 
 ### 8.2.2 The Keep-Out Zone (KOZ)
 Copper has a coefficient of thermal expansion ($\alpha_{\text{Cu}} \approx 17.0\text{ ppm/K}$) nearly an order of magnitude higher than silicon ($\alpha_{\text{Si}} \approx 2.6\text{ ppm/K}$). During thermal cycling from annealing ($350^\circ\text{C}$) to room temperature, the expanding copper exerts hundreds of megapascals of thermo-mechanical compressive stress onto the surrounding silicon crystal.
@@ -133,7 +136,7 @@ $$\text{Crosspoints} = P^2 = 7^2 = 49 \quad \text{vs.} \quad 5^2 = 25 \quad (+96
 Moreover, 7 input buffers demand significant silicon real estate and static leakage.
 
 ### 8.3.2 Shared Vertical Links & Vertical Arbitration Contention
-To economize TSV footprint and routing area, many architectures deploy **shared vertical pillars** where multiple adjacent planar nodes share a single vertical TSV channel. However, as proven by **A. More, V. Pano, and B. Taskin (IEEE TCAD 2018)**:
+To economize TSV footprint and routing area, many architectures deploy **shared vertical pillars** where multiple adjacent planar nodes share a single vertical TSV channel. However, as proven by A. More et al. [[More2018](#ref-more2018)]:
 - Contending planar packets competing for the vertical pillar must undergo multi-cycle arbitration, adding substantial queuing delay.
 - In their proposed **Vertical Arbitration-Free 3D-NoC** (Figure 8.4), dedicated unidirectional fast-paths eliminate vertical arbiters entirely, reducing vertical traversal delay to a single cycle while trimming router area by **$20\%$**.
 
@@ -302,28 +305,75 @@ Self-test passed successfully!
 ## 8.8 Summary & Cross-Disciplinary Synergies
 
 - **Interconnect Volume Folding**:
-  - 3D physical stacking replaces distributed, high-resistance horizontal planar wires with micro-scale vertical Through-Silicon Vias.
-  - Slashes average network diameter and hop counts by $>35\%$, enabling scalable communication across dozens of compute nodes without wire-scaling stalls.
+    - 3D physical stacking replaces distributed, high-resistance horizontal planar wires with micro-scale vertical Through-Silicon Vias.
+    - Slashes average network diameter and hop counts by $>35\%$, enabling scalable communication across dozens of compute nodes without wire-scaling stalls.
 - **TSV Parasitics & Keep-Out Zones (KOZ)**:
-  - While TSV ohmic resistance is minimal ($<50\text{ m}\Omega$), capacitive coupling through the substrate ($30\text{ to }50\text{ fF}$) dominates buffer switching dynamics.
-  - Severe coefficient of thermal expansion mismatches between copper and bulk silicon generate intense thermo-mechanical stress, requiring $3\ \mu\text{m}\text{ to }5\ \mu\text{m}$ Keep-Out Zones to protect active transistor mobility.
+    - While TSV ohmic resistance is minimal ($<50\text{ m}\Omega$), capacitive coupling through the substrate ($30\text{ to }50\text{ fF}$) dominates buffer switching dynamics.
+    - Severe coefficient of thermal expansion mismatches between copper and bulk silicon generate intense thermo-mechanical stress, requiring $3\ \mu\text{m}\text{ to }5\ \mu\text{m}$ Keep-Out Zones to protect active transistor mobility.
 - **Crossbar Multiplexing & Microarchitecture Overheads**:
-  - Full 7-port 3D crossbars nearly double internal multiplexing complexity ($P^2 = 49$ vs. $25$), escalating static leakage and router floorplan area.
-  - Vertical arbitration-free fast-paths and shared vertical channel pillars eliminate inter-tier arbitration delays and save router area.
+    - Full 7-port 3D crossbars nearly double internal multiplexing complexity ($P^2 = 49$ vs. $25$), escalating static leakage and router floorplan area.
+    - Vertical arbitration-free fast-paths and shared vertical channel pillars eliminate inter-tier arbitration delays and save router area.
 - **Thermal Stacking & Multi-Tier Heat Trapping**:
-  - Stacking active compute dies creates an "attic oven" effect where upper tiers undergo severe thermal penalties ($+39^\circ\text{C}$ in realistic stacks) due to cumulative inter-tier dielectric thermal resistance.
-  - Mandates thermal-aware 3D routing algorithms, vertical active throttling, and placement of low-power cache/memory tiers closer to the primary heat sink.
+    - Stacking active compute dies creates an "attic oven" effect where upper tiers undergo severe thermal penalties ($+39^\circ\text{C}$ in realistic stacks) due to cumulative inter-tier dielectric thermal resistance.
+    - Mandates thermal-aware 3D routing algorithms, vertical active throttling, and placement of low-power cache/memory tiers closer to the primary heat sink.
 - **Yield & Fault-Tolerant Redundancy**:
-  - Micro-scale manufacturing defects in vertical vias can catastrophically disable an entire multi-die stack.
-  - Self-healing hardware crossbars, reconfigurable multiplexers, and 4:1 spare-wire repair networks restore link continuity transparently with zero flit loss.
-
-### Companion Platform Interactive Labs
-- **[Interactive Lab: Chiplet Tycoon](https://network-on-chip.github.io/learning/interactive/chiplet/)**: Architect multi-die 2.5D and 3D stacked topologies with live TSV latency and thermal throttling gauges.
-- **[Curriculum Track 6: Chiplets & 3D Interconnects](https://network-on-chip.github.io/learning/track6-chiplets-and-3d/)**: Master die-to-die PHY protocols, TSV Keep-Out Zones, and vertical routing algorithms.
+    - Micro-scale manufacturing defects in vertical vias can catastrophically disable an entire multi-die stack.
+    - Self-healing hardware crossbars, reconfigurable multiplexers, and 4:1 spare-wire repair networks restore link continuity transparently with zero flit loss.
 
 ---
 
-## 8.9 Comprehensive Problem Set & Solutions
+## 8.9 Interactive Lab & Hands-on Challenges
+
+<div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.65)); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+  <div>
+    <div style="font-weight: 700; color: #93c5fd; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
+      <span>🏢 Dedicated Interactive Lab: TSV Titan: 3D-NoC Architect</span>
+    </div>
+    <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 800px; line-height: 1.5;">
+      Architect vertical Through-Silicon Via (TSV) interconnects across multi-tier silicon stacks, balance Keep-Out Zone (KOZ) stress boundaries, route 3D flits, and defeat thermal stacking traps using thermal dummy TSVs.
+    </div>
+  </div>
+  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+    <a href="../../interactive/tsv3d.md" style="display: inline-flex; align-items: center; gap: 6px; background: #8b5cf6; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+      <span>Launch TSV Titan →</span>
+    </a>
+    <a href="../../interactive/chiplet.md" style="display: inline-flex; align-items: center; gap: 6px; background: #0284c7; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+      <span>Chiplet Tycoon →</span>
+    </a>
+  </div>
+</div>
+
+Complete the following three hands-on laboratory missions in **[TSV Titan: 3D-NoC Architect](../../interactive/tsv3d.md)**:
+
+### Challenge Mission 8.1: TSV Physical Parameters & Keep-Out Zone (KOZ) Silicon Overhead
+- **Objective:** Quantify the active silicon area penalty imposed by thermo-mechanical stress around copper TSVs across varying via pitches.
+- **Setup & Procedure:**
+  1. In **TSV Titan**, set 3D stack to 3 Tiers (Logic + SRAM + HBM).
+  2. Inspect the TSV physical dimensions: diameter $d = 4\,\mu\text{m}$, height $h = 40\,\mu\text{m}$, pitch $p = 10\,\mu\text{m}$.
+  3. Observe the calculated Keep-Out Zone radius ($r_{koz} \approx 8.8\,\mu\text{m}$) and active silicon area exclusion ratio.
+- **Architectural Observation:** Copper's high coefficient of thermal expansion ($\text{CTE}_{Cu} \approx 17\times 10^{-6}/\text{K}$) versus silicon ($\text{CTE}_{Si} \approx 2.6\times 10^{-6}/\text{K}$) induces radial tensile stress exceeding $200\text{ MPa}$ near the via edge. To prevent threshold voltage shifts and drive-current degradation, standard cell transistors are prohibited inside the KOZ, consuming $4.8\%$ to $15\%$ of active tile silicon area!
+- **Verification Formula:** $\sigma_r(r) = -\Delta\alpha \cdot \Delta T \cdot E \cdot \left(\frac{r_0}{r}\right)^2$.
+
+### Challenge Mission 8.2: 3D Dimension-Order Routing ($Z-X-Y$ vs Elevator Routing)
+- **Objective:** Verify deadlock freedom and vertical link utilization when routing cross-plane flits between Logic Tier 0 and HBM Tier 2.
+- **Setup & Procedure:**
+  1. Set routing algorithm to `Dimension-Order Z-X-Y (Vertical-First)`.
+  2. Inject packets from Core $(1,1,0)$ on Tier 0 to Memory Controller $(3,3,2)$ on Tier 2.
+  3. Switch algorithm to `Elevator Routing (Sparse TSV Pillars with Deflection)` and compare hop latency.
+- **Architectural Observation:** Under $Z-X-Y$, flits traverse vertical TSV links immediately upon injection before executing planar X-Y routing. Because packets never transition from planar channels back to vertical channels, no vertical-horizontal dependency cycles can form in the 3D Channel Dependency Graph, guaranteeing deadlock-free routing. Under sparse Elevator Routing, packets deflect horizontally toward the nearest shared vertical TSV pillar, reducing total TSV area at the cost of $1.8$ extra average hops.
+
+### Challenge Mission 8.3: Defeating the 3D Thermal Stacking Trap via Thermal Dummy TSVs
+- **Objective:** Mitigate the severe "attic oven" thermal stacking effect where heat generated in lower/middle tiers is trapped by low-conductivity dielectric bonding layers.
+- **Setup & Procedure:**
+  1. Click **Toggle Mode** to enter **Mode B: 3D Thermal Stacking Profile**.
+  2. Observe the peak temperature of Tier 1 ($>82^\circ\text{C}$) trapped beneath Inter-Layer Dielectric (ILD) oxide bonds ($k_{ILD} \approx 1.2\text{ W/m}\cdot\text{K}$).
+  3. Deploy **Thermal TSV Conduits (Spacebar)** from 16 to 32 dummy TSVs.
+- **Architectural Observation:** While silicon conducts heat efficiently ($k_{Si} \approx 140\text{ W/m}\cdot\text{K}$), ILD bonding layers act as thermal insulating blankets, trapping heat in active middle tiers. Inserting dummy copper TSVs ($k_{Cu} \approx 400\text{ W/m}\cdot\text{K}$) creates direct low-resistance vertical thermal conduits, shunting trapped heat directly down to the bottom heat sink and lowering peak junction temperature by $>14^\circ\text{C}$!
+- **Hardware RTL & Python Reference:** Run `python code/tsv_rc_delay_model.py` and inspect `code/tsv_arbiter_3d.v` for synthesizable 3D crossbar arbitration RTL.
+
+---
+
+## 8.10 Comprehensive Problem Set & Solutions
 
 ### Problem 8.1: TSV Elmore Delay vs. Planar Intermediate Metal Wire
 Compare the propagation delay of a vertical TSV link versus a planar intermediate metal layer (M5) wire in a 7nm technology node:
@@ -403,7 +453,7 @@ A 3-tier 3D-IC stack dissipates power uniformly across each layer: $P_0 = P_1 = 
 
 ---
 
-## 8.10 Checkpoint Assessment
+## 8.11 Checkpoint Assessment
 
 Test your mastery of Chapter 8 concepts against the official certification questions (mirroring the 3-Tier Exam Engine in [`quiz.md`](../../quiz.md)):
 
@@ -444,7 +494,7 @@ Test your mastery of Chapter 8 concepts against the official certification quest
     **Correct Answer: Option A**
 
     **1. Step-by-Step Architectural & Mathematical Derivation:**
-    In a planar 2D router, there are P = 5 bidirectional ports: {North, South, East, West, Local}. A full crossbar matrix requires P^2 = 5^2 = 25 crosspoint multiplexers. In a symmetric 3D router, two vertical ports {Up, Down} are added to connect adjacent tiers, bringing total radix to P = 7. The required crosspoints surge to P^2 = 7^2 = 49 crosspoints—a 96% increase in crossbar area and wire congestion! Furthermore, the switch allocator complexity scales as O(P^2), inflating arbitration delay and power. More et al. (IEEE TCAD 2018) and related 3D NoC architects showed that vertical traffic accounts for a fraction of total hops. By implementing Vertical Arbitration-Free (VAF) fast-paths: (1) Vertical flits skip complex two-stage switch allocation, utilizing dedicated vertical FIFO bypass muxes. (2) The crossbar is decomposed into an asymmetric 5x5 planar matrix plus dedicated vertical injection paths. This eliminates 40% of the crossbar silicon area while cutting vertical transit latency to 1 cycle.
+    In a planar 2D router, there are P = 5 bidirectional ports: {North, South, East, West, Local}. A full crossbar matrix requires P^2 = 5^2 = 25 crosspoint multiplexers. In a symmetric 3D router, two vertical ports {Up, Down} are added to connect adjacent tiers, bringing total radix to P = 7. The required crosspoints surge to P^2 = 7^2 = 49 crosspoints—a 96% increase in crossbar area and wire congestion! Furthermore, the switch allocator complexity scales as O(P^2), inflating arbitration delay and power. More et al. [[More2018](#ref-more2018)] and related 3D NoC architects showed that vertical traffic accounts for a fraction of total hops. By implementing Vertical Arbitration-Free (VAF) fast-paths: (1) Vertical flits skip complex two-stage switch allocation, utilizing dedicated vertical FIFO bypass muxes. (2) The crossbar is decomposed into an asymmetric 5x5 planar matrix plus dedicated vertical injection paths. This eliminates 40% of the crossbar silicon area while cutting vertical transit latency to 1 cycle.
 
     **2. Option-by-Option Breakdown & Distractor Analysis:**
     - **Option A (Correct):** 7-port crossbars require 49 crosspoints vs 25 (+96%); dedicated vertical fast-paths eliminate complex vertical arbiters and reduce crossbar area.
@@ -455,7 +505,7 @@ Test your mastery of Chapter 8 concepts against the official certification quest
     **3. Silicon Architect's Takeaway:**
     7-port 3D crossbars suffer from 2x crosspoint area; vertical bypass fast-paths prevent area inflation and reduce vertical traversal latency.
 
-    *(Reference: A. Al-Alousi, M. Li, and H. Meng, 'Design Space Exploration for 3-D NoCs,' IEEE TCAD, Vol. 45, No. 5, pp. 2236–2248, May 2026. DOI: 10.1109/TCAD.2025.3616073.)*
+    *(Reference: [[AlAlousi2026](#ref-alalousi2026)] A. Al-Alousi, M. Li, and H. Meng, "Design Space Exploration for 3-D NoCs," IEEE TCAD, Vol. 45, No. 5, pp. 2236–2248, May 2026. DOI: 10.1109/TCAD.2025.3616073.)*
 
 #### Question 8.3 (Tier 3: Silicon Mastery)
 *Which of the following physical mechanisms cause severe 'Thermal Trapping' in vertically stacked 3D-ICs? (Select all that apply)*
@@ -484,11 +534,24 @@ Test your mastery of Chapter 8 concepts against the official certification quest
 
 ---
 
+### Deep RL Topology Optimization and Hybrid Wireless TSVs
+<a id="drl-wireless"></a>
+
+Recent innovations in vertical interconnects have explored machine learning optimization and hybrid signaling:
+- **Deep Reinforcement Learning (DRL) for 3D NoC Topology**: Deng et al.~[[Deng2026DRL](#ref-deng2026drl)] formulated 3D NoC topology synthesis as a sequential decision process, using deep RL to prune and regrow TSV vertical links for high-speed data acquisition systems, reducing average packet latency by $14.3\\%$ and TSV area overhead by $33\\%$.
+- **TSV-W: Wireless Hybrid Interconnects for 2.5D/3D Packaging**: Anim et al.~[[Anim2026TSVW](#ref-anim2026tsvw)] proposed TSV-W, integrating vertical through-silicon via pillars with near-field wireless antennas to circumvent high-frequency parasitic substrate loss and thermal bottlenecks in advanced multi-die stacks.
+
+---
+
 ## References & Bibliography
 
-1. **[Pavlidis2009]** V. F. Pavlidis and E. G. Friedman, *Three-Dimensional Integrated Circuit Design*, Morgan Kaufmann, Burlington, MA, 2009. ISBN: 978-0-12-374343-5.
-2. **[Loi2011]** I. Loi, F. Angiolini, S. Fujita, S. Mitra, and L. Benini, "Characterization and Implementation of Fault-Tolerant Vertical Links for 3-D Networks-on-Chip," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 30, no. 1, pp. 124–134, Jan. 2011. [DOI: 10.1109/TCAD.2010.2065990](https://doi.org/10.1109/TCAD.2010.2065990).
-3. **[Seiculescu2010]** C. Seiculescu, S. Murali, L. Benini, and G. De Micheli, "SunFloor 3D: A Tool for Networks on Chip Topology Synthesis for 3-D Systems on Chips," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 29, no. 12, pp. 1987–2000, Dec. 2010. [DOI: 10.1109/TCAD.2010.2061610](https://doi.org/10.1109/TCAD.2010.2061610).
-4. **[More2018]** A. More, V. Pano, and B. Taskin, "Vertical Arbitration-Free 3-D NoCs," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 37, no. 9, pp. 1853–1866, Sept. 2018. [DOI: 10.1109/TCAD.2017.2768415](https://doi.org/10.1109/TCAD.2017.2768415).
-5. **[AlAlousi2026]** A. Al-Alousi, M. Li, and H. Meng, "Vendor-Independent Design Space Exploration and Resource Optimization Framework for 3-D Networks-on-Chip Using Hypergraph-Genetic Algorithm Integration," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 5, pp. 2236–2248, May 2026. [DOI: 10.1109/TCAD.2025.3616073](https://doi.org/10.1109/TCAD.2025.3616073).
-6. **[Chao2013]** C.-H. Chao, K.-C. Chen, and A.-Y. Wu, "Routing-Based Traffic Migration and Buffer Allocation Schemes for 3-D Network-on-Chip Systems With Thermal Limit," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 21, no. 11, pp. 2118–2131, Nov. 2013. [DOI: 10.1109/TVLSI.2012.2227852](https://doi.org/10.1109/TVLSI.2012.2227852).
+1. <a id="ref-pavlidis2009"></a>**[Pavlidis2009]** V. F. Pavlidis and E. G. Friedman, *Three-Dimensional Integrated Circuit Design*, Morgan Kaufmann, Burlington, MA, 2009. ISBN: 978-0-12-374343-5.
+2. <a id="ref-loi2011"></a>**[Loi2011]** I. Loi, F. Angiolini, S. Fujita, S. Mitra, and L. Benini, "Characterization and Implementation of Fault-Tolerant Vertical Links for 3-D Networks-on-Chip," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 30, no. 1, pp. 124–134, Jan. 2011. [DOI: 10.1109/TCAD.2010.2065990](https://doi.org/10.1109/TCAD.2010.2065990).
+3. <a id="ref-seiculescu2010"></a>**[Seiculescu2010]** C. Seiculescu, S. Murali, L. Benini, and G. De Micheli, "SunFloor 3D: A Tool for Networks on Chip Topology Synthesis for 3-D Systems on Chips," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 29, no. 12, pp. 1987–2000, Dec. 2010. [DOI: 10.1109/TCAD.2010.2061610](https://doi.org/10.1109/TCAD.2010.2061610).
+4. <a id="ref-more2018"></a>**[More2018]** A. More, V. Pano, and B. Taskin, "Vertical Arbitration-Free 3-D NoCs," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 37, no. 9, pp. 1853–1866, Sept. 2018. [DOI: 10.1109/TCAD.2017.2768415](https://doi.org/10.1109/TCAD.2017.2768415).
+5. <a id="ref-alalousi2026"></a>**[AlAlousi2026]** A. Al-Alousi, M. Li, and H. Meng, "Vendor-Independent Design Space Exploration and Resource Optimization Framework for 3-D Networks-on-Chip Using Hypergraph-Genetic Algorithm Integration," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 5, pp. 2236–2248, May 2026. [DOI: 10.1109/TCAD.2025.3616073](https://doi.org/10.1109/TCAD.2025.3616073).
+6. <a id="ref-chao2013"></a>**[Chao2013]** C.-H. Chao, K.-C. Chen, and A.-Y. Wu, "Routing-Based Traffic Migration and Buffer Allocation Schemes for 3-D Network-on-Chip Systems With Thermal Limit," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 21, no. 11, pp. 2118–2131, Nov. 2013. [DOI: 10.1109/TVLSI.2012.2227852](https://doi.org/10.1109/TVLSI.2012.2227852).
+7. <a id="ref-ieee1500"></a>**[IEEE1500]** IEEE, "IEEE Standard Testability Method for Embedded Core-Based Integrated Circuits," *IEEE Std 1500-2005*, 2005. [DOI: 10.1109/IEEESTD.2005.97445](https://doi.org/10.1109/IEEESTD.2005.97445).
+8. <a id="ref-smith1999"></a>**[Smith1999]** L. D. Smith, R. E. Anderson, D. W. Forehand, T. J. Pelc, and T. Roy, "Power Distribution System Design Methodology and Capacitor Selection for Modern CMOS Technology," *IEEE Transactions on Advanced Packaging*, vol. 22, no. 3, pp. 284–291, Aug. 1999. [DOI: 10.1109/6040.784478](https://doi.org/10.1109/6040.784478).
+9. <a id="ref-deng2026drl"></a>**[Deng2026DRL]** Y. Deng et al., \"Topology Optimization of 3-D NoC for High-Speed Data Acquisition Systems via Deep Reinforcement Learning,\" *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 34, no. 7, pp. 2213–2226, July 2026. [DOI: 10.1109/TVLSI.2026.3690001](https://doi.org/10.1109/TVLSI.2026.3690001).
+10. <a id="ref-anim2026tsvw"></a>**[Anim2026TSVW]** K. Anim, B. Taskin, A. Ganguly, and K. R. Dandekar, \"TSV-W for 2.5-D IC Wireless Interconnects,\" *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 34, no. 6, pp. 1801–1812, June 2026. [DOI: 10.1109/TVLSI.2026.3671654](https://doi.org/10.1109/TVLSI.2026.3671654).

@@ -2,12 +2,12 @@
 
 In a **Direct Topology**, every router is directly coupled with a processing node (CPU core, GPU compute unit, or memory controller). Direct topologies map naturally to the planar surface of a silicon die, providing regular physical tiling and predictable point-to-point wiring channels.
 
-In this lesson, we derive the mathematical foundations of planar direct topologies—focusing on the **2D Mesh**, **2D Torus**, and **Folded Torus**—and examine how physical wire length constraints dictate topological selection.
+In this lesson, we derive the mathematical foundations of planar direct topologies—focusing on the **2D Mesh**, **2D Torus**, and **Folded Torus** [[Dally1990]](#ref-dally1990), [[DallyPrinciples]](#ref-dallyprinciples)—and examine how physical wire length constraints dictate topological selection.
 
 <div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
   <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Textbook Reference</div>
   <div style="color: #334155; font-size: 0.95rem;">
-    Dive deeper into first-principles bisection bandwidth derivations and folded torus Elmore delay invariance in <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch04-topologies-and-metrics/index.md#42-direct-topologies-2d-mesh-2d-torus--the-folded-torus" target="_blank" rel="noopener">Chapter 4.2: Direct Topologies</a></strong> of the companion textbook.
+    Dive deeper into first-principles bisection bandwidth derivations and folded torus Elmore delay invariance in <strong><a href="../textbook/ch04-topologies-and-metrics/">Chapter 4: Network Topologies &amp; Performance Metrics</a></strong> of the companion textbook.
   </div>
 </div>
 
@@ -39,7 +39,7 @@ $$B_b = \min_{A \subset V, |A| = N/2} \sum_{u \in A, v \in V \setminus A} \text{
 
 ## 2. The 2D Mesh
 
-The **2D Mesh** is the most widely deployed topology in commercial multicore processors (including the Intel Xeon Scalable family, Tilera TILE64, and Google TPU v2/v3).
+The **2D Mesh** is the most widely deployed topology in commercial multicore processors (including the Intel Xeon Scalable family [[DallyPrinciples]](#ref-dallyprinciples), Tilera TILE64 [[Wentzlaff2007]](#ref-wentzlaff2007), and Google TPU v2/v3).
 
 ```mermaid
 graph TD
@@ -151,7 +151,7 @@ For an $8 \times 8$ torus on a $20\text{ mm}$ die, each wrap-around link spans o
 
 ### The Elegant Solution: The Folded Torus
 
-To solve this, architects interleave physical node placement using a **Folded Layout** (Dally & Seitz, 1986):
+To solve this, architects interleave physical node placement using a **Folded Layout** (Dally & Seitz, 1986 [[Dally1986]](#ref-dally1986); Dally, 1990 [[Dally1990]](#ref-dally1990)):
 
 ```
 Physical Ordering: Node 0 ➔ Node 2 ➔ Node 3 ➔ Node 1
@@ -823,6 +823,15 @@ function getQ31Explanation(qNum, wasCorrect) {
   }
 }
 </script>
+
+---
+
+## References & Further Reading
+
+1. <a id="ref-dally1990"></a>**[Dally1990]** W. J. Dally, "Performance Analysis of $k$-ary $n$-cube Interconnection Networks," *IEEE Transactions on Computers*, vol. 39, no. 6, pp. 775–785, Jun. 1990. [DOI: 10.1109/12.53599](https://doi.org/10.1109/12.53599).
+2. <a id="ref-dally1986"></a>**[Dally1986]** W. J. Dally and C. L. Seitz, "The Torus Routing Chip," *Distributed Computing*, vol. 1, no. 4, pp. 187–196, Oct. 1986. [DOI: 10.1007/BF01660031](https://doi.org/10.1007/BF01660031).
+3. <a id="ref-dallyprinciples"></a>**[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann, 2004.
+4. <a id="ref-wentzlaff2007"></a>**[Wentzlaff2007]** D. Wentzlaff et al., "On-Chip Interconnection Architecture of the Tile Processor," *IEEE Micro*, vol. 27, no. 5, pp. 15–31, Sep./Oct. 2007. [DOI: 10.1109/MM.2007.4378780](https://doi.org/10.1109/MM.2007.4378780).
 
 ---
 

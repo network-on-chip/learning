@@ -1,9 +1,9 @@
 # Chapter 3: High-Performance Router Microarchitecture & Arbitration
 
-> **Authors**: NoC-Lab Research Consortium  
-> **Domain**: Silicon Microarchitecture & Interconnect Design  
-> **Interactive Companion**: [NoC Learning Hub — Track 2: Router Microarchitecture](https://network-on-chip.github.io/learning/track2-router-architecture/)  
-> **Accompanying Code**: [`code/matrix_arbiter_islip_sim.py`](code/matrix_arbiter_islip_sim.py), [`code/matrix_arbiter_4port.v`](code/matrix_arbiter_4port.v)
+[![Companion Platform](https://img.shields.io/badge/Interactive%20Lab-Router%20Pipeline-0f766e?logo=bookstack&logoColor=white)](https://network-on-chip.github.io/learning/interactive/router/)
+[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%202%3A%20Router%20Microarch-blue)](https://network-on-chip.github.io/learning/track2-router-architecture/)
+[![Simulation Model](https://img.shields.io/badge/Python%20Model-matrix__arbiter__islip__sim.py-blueviolet)](code/matrix_arbiter_islip_sim.py)
+[![Hardware RTL](https://img.shields.io/badge/Verilog%20RTL-matrix__arbiter__4port.v-success)](code/matrix_arbiter_4port.v)
 
 ---
 
@@ -24,8 +24,8 @@ This chapter opens the silicon black box of the on-chip router. We systematicall
 ### Chapter Roadmap & Interactive Modules
 - **Section 3.1**: The Canonical Virtual-Channel Router Pipeline & Functional Decomposition.
 - **Section 3.2**: Advanced Pipeline Compression, Lookahead Routing & Speculative Allocation.
-- **Section 3.3**: Asynchronous Router Architectures (HyPA TVLSI 2026).
-- **Section 3.4**: Single-Cycle Multi-Hop Traversal (SMART & SHARP).
+- **Section 3.3**: Asynchronous Router Architectures (HyPA [[Saranya2026](#ref-saranya2026)]).
+- **Section 3.4**: Single-Cycle Multi-Hop Traversal (SMART [[Krishna2013](#ref-krishna2013)] & SHARP [[SHARP2023](#ref-sharp2023)]).
 - **Section 3.5**: Crossbar Arbitration Theory, Matrix Arbiters & iSLIP Matching.
 - **Section 3.6**: Crossbar Switch Physical Circuit Design & Scaling.
 - **Section 3.7**: Interactive Lab Challenges & Hands-on Simulators.
@@ -60,57 +60,57 @@ graph LR
 ### 3.1.1 Stage-by-Stage Functional Decomposition
 
 - **Stage 1: Buffer Write (BW)**
-  - *Primary Role*: Receives incoming flits across physical inter-router link wires, decodes control headers, and writes payload bytes into the appropriate virtual channel storage slot.
-  - *Microarchitectural Datapath*: Implemented using multi-queue dual-ported SRAM banks or distributed D-flip-flop register files organized per Virtual Channel (`VC_ID`). A write pointer (`wr_ptr`) increments per stored flit.
-  - *Signals & Handshaking*: Evaluates incoming `flit_valid`, captures `flit_data[W-1:0]`, decodes `flit_type[1:0]` (Head, Body, Tail, Head-Tail), and extracts the target `vc_id_in`.
-  - *Flit Invariant Behavior*:
-    - **Head Flit**: Initializes the VC state machine from `IDLE` to `ROUTING`, latching the destination coordinate packet header for subsequent route computation.
-    - **Body & Tail Flits**: Enqueued sequentially behind the Head flit; bypass route calculation and inherit existing channel state registers.
-  - *Credit Management & Flow Control*: Synchronously decrements the upstream router's credit counter for this VC. If buffer occupancy reaches capacity ($depth = B_{max}$), upstream transmitters are prevented from sending further flits via credit exhaustion.
-  - *Critical Path Timing*: Incurs SRAM write setup time ($t_{setup}$), address decoder propagation delay, and array cell charging delay before the flit becomes visible to internal arbitration logic.
+    - *Primary Role*: Receives incoming flits across physical inter-router link wires, decodes control headers, and writes payload bytes into the appropriate virtual channel storage slot.
+    - *Microarchitectural Datapath*: Implemented using multi-queue dual-ported SRAM banks or distributed D-flip-flop register files organized per Virtual Channel (`VC_ID`). A write pointer (`wr_ptr`) increments per stored flit.
+    - *Signals & Handshaking*: Evaluates incoming `flit_valid`, captures `flit_data[W-1:0]`, decodes `flit_type[1:0]` (Head, Body, Tail, Head-Tail), and extracts the target `vc_id_in`.
+    - *Flit Invariant Behavior*:
+        - **Head Flit**: Initializes the VC state machine from `IDLE` to `ROUTING`, latching the destination coordinate packet header for subsequent route computation.
+        - **Body & Tail Flits**: Enqueued sequentially behind the Head flit; bypass route calculation and inherit existing channel state registers.
+    - *Credit Management & Flow Control*: Synchronously decrements the upstream router's credit counter for this VC. If buffer occupancy reaches capacity ($depth = B_{max}$), upstream transmitters are prevented from sending further flits via credit exhaustion.
+    - *Critical Path Timing*: Incurs SRAM write setup time ($t_{setup}$), address decoder propagation delay, and array cell charging delay before the flit becomes visible to internal arbitration logic.
 
 - **Stage 2: Route Computation (RC)**
-  - *Primary Role*: Resolves the output physical port (e.g., North, South, East, West, or Local) through which the packet must depart toward its final destination.
-  - *Microarchitectural Datapath*: Evaluates the combinational routing function $\mathcal{R}: (C_{curr}, C_{dest}) \to P_{out}$ using fast parallel subtraction comparator slices or small lookup routing tables (LUTs).
-  - *DOR Combinational Logic*: For Dimension-Order Routing (XY routing) in a 2D mesh, the hardware logic requires only two comparator blocks:
-    - $\Delta X = X_{dest} - X_{curr}$: If $\Delta X > 0$, select East; if $\Delta X < 0$, select West.
-    - $\Delta Y = Y_{dest} - Y_{curr}$: If $\Delta X == 0$ and $\Delta Y > 0$, select South; if $\Delta X == 0$ and $\Delta Y < 0$, select North; if both equal 0, select Local core injection/ejection.
-  - *Flit Invariant Behavior*:
-    - **Head Flit**: Exclusively undergoes Route Computation. Once the outgoing direction $P_{out}$ is resolved, it is written into the VC state table register (`vc_out_port <= P_out`).
-    - **Body & Tail Flits**: Completely skip the RC stage! Because wormhole routing preserves packet integrity along a single path, body and tail flits automatically follow the output port established by their preceding Head flit.
-  - *Pipeline Lookahead Optimization*: In modern routers, RC is performed *one hop ahead* at the upstream node (Lookahead Routing), effectively removing RC from the critical pipeline path of intermediate routers.
+    - *Primary Role*: Resolves the output physical port (e.g., North, South, East, West, or Local) through which the packet must depart toward its final destination.
+    - *Microarchitectural Datapath*: Evaluates the combinational routing function $\mathcal{R}: (C_{curr}, C_{dest}) \to P_{out}$ using fast parallel subtraction comparator slices or small lookup routing tables (LUTs).
+    - *DOR Combinational Logic*: For Dimension-Order Routing (XY routing) in a 2D mesh, the hardware logic requires only two comparator blocks:
+        - $\Delta X = X_{dest} - X_{curr}$: If $\Delta X > 0$, select East; if $\Delta X < 0$, select West.
+        - $\Delta Y = Y_{dest} - Y_{curr}$: If $\Delta X == 0$ and $\Delta Y > 0$, select South; if $\Delta X == 0$ and $\Delta Y < 0$, select North; if both equal 0, select Local core injection/ejection.
+    - *Flit Invariant Behavior*:
+        - **Head Flit**: Exclusively undergoes Route Computation. Once the outgoing direction $P_{out}$ is resolved, it is written into the VC state table register (`vc_out_port <= P_out`).
+        - **Body & Tail Flits**: Completely skip the RC stage! Because wormhole routing preserves packet integrity along a single path, body and tail flits automatically follow the output port established by their preceding Head flit.
+    - *Pipeline Lookahead Optimization*: In modern routers, RC is performed *one hop ahead* at the upstream node (Lookahead Routing), effectively removing RC from the critical pipeline path of intermediate routers.
 
 - **Stage 3: Virtual Channel Allocation (VA)**
-  - *Primary Role*: Arbitrates among competing Head flits from multiple input ports that desire the same outgoing physical port, assigning an idle downstream Virtual Channel (`VC_ID_out`) to each winning packet.
-  - *Two-Phase Separable Allocator Architecture*: Because a full $V_{in} \cdot P_{in} \times V_{out} \cdot P_{out}$ allocator is hardware-prohibitive, VA is factored into two smaller, decoupled arbitration stages:
-    - *Phase 1 (Input-to-Output Request / V-to-1 Arbitration)*: At each input port, active VCs that have completed RC select one downstream candidate VC at the designated output port.
-    - *Phase 2 (Output-to-Input Grant / P-to-1 Arbitration)*: At each output port, arbiters choose one winning input VC from all competing requests and return a grant signal (`va_grant`).
-  - *Flit Invariant Behavior*:
-    - **Head Flit**: Competes in VA. Upon winning a grant, it locks the assigned downstream `VC_ID_out` in the router state table (`vc_state <= ACTIVE_VC`).
-    - **Body & Tail Flits**: Do not participate in VA; they are tagged with the previously allocated `VC_ID_out`.
-  - *Resource Reservation & Release*: The assigned downstream VC remains exclusively reserved for this packet until the packet's Tail flit completes switch traversal and departs, guaranteeing that flits from different packets are never interleaved within the same virtual channel.
+    - *Primary Role*: Arbitrates among competing Head flits from multiple input ports that desire the same outgoing physical port, assigning an idle downstream Virtual Channel (`VC_ID_out`) to each winning packet.
+    - *Two-Phase Separable Allocator Architecture*: Because a full $V_{in} \cdot P_{in} \times V_{out} \cdot P_{out}$ allocator is hardware-prohibitive, VA is factored into two smaller, decoupled arbitration stages:
+        - *Phase 1 (Input-to-Output Request / V-to-1 Arbitration)*: At each input port, active VCs that have completed RC select one downstream candidate VC at the designated output port.
+        - *Phase 2 (Output-to-Input Grant / P-to-1 Arbitration)*: At each output port, arbiters choose one winning input VC from all competing requests and return a grant signal (`va_grant`).
+    - *Flit Invariant Behavior*:
+        - **Head Flit**: Competes in VA. Upon winning a grant, it locks the assigned downstream `VC_ID_out` in the router state table (`vc_state <= ACTIVE_VC`).
+        - **Body & Tail Flits**: Do not participate in VA; they are tagged with the previously allocated `VC_ID_out`.
+    - *Resource Reservation & Release*: The assigned downstream VC remains exclusively reserved for this packet until the packet's Tail flit completes switch traversal and departs, guaranteeing that flits from different packets are never interleaved within the same virtual channel.
 
 - **Stage 4: Switch Allocation (SA)**
-  - *Primary Role*: Allocates physical access to the internal crossbar switch multiplexers on a cycle-by-cycle basis for flits that already possess a valid downstream VC and have available downstream buffer credits.
-  - *Two-Stage Separable Crossbar Allocator*:
-    - *Stage 1 (Input Port Arbitration)*: At each input port, an arbiter chooses one candidate flit among all local VCs that have flits ready and downstream credit count $> 0$.
-    - *Stage 2 (Output Port Arbitration)*: For each physical output port, an arbiter selects one winner among the input ports that won Stage 1.
-  - *Flit Invariant Behavior*:
-    - **Head, Body, and Tail Flits**: All flits must win Switch Allocation individually in order to traverse the crossbar.
-    - **Pipelined Streaming**: Once a Head flit wins SA, subsequent body flits can request SA in contiguous back-to-back cycles, achieving ideal single-cycle throughput under zero-contention conditions.
-  - *Credit-Aware Allocation Guard*: A flit is eligible to request SA if and only if the downstream credit counter for its assigned VC is strictly positive ($Credit[P_{out}][VC_{out}] > 0$), preventing crossbar traversals that would cause downstream buffer overflows.
+    - *Primary Role*: Allocates physical access to the internal crossbar switch multiplexers on a cycle-by-cycle basis for flits that already possess a valid downstream VC and have available downstream buffer credits.
+    - *Two-Stage Separable Crossbar Allocator*:
+        - *Stage 1 (Input Port Arbitration)*: At each input port, an arbiter chooses one candidate flit among all local VCs that have flits ready and downstream credit count $> 0$.
+        - *Stage 2 (Output Port Arbitration)*: For each physical output port, an arbiter selects one winner among the input ports that won Stage 1.
+    - *Flit Invariant Behavior*:
+        - **Head, Body, and Tail Flits**: All flits must win Switch Allocation individually in order to traverse the crossbar.
+        - **Pipelined Streaming**: Once a Head flit wins SA, subsequent body flits can request SA in contiguous back-to-back cycles, achieving ideal single-cycle throughput under zero-contention conditions.
+    - *Credit-Aware Allocation Guard*: A flit is eligible to request SA if and only if the downstream credit counter for its assigned VC is strictly positive ($Credit[P_{out}][VC_{out}] > 0$), preventing crossbar traversals that would cause downstream buffer overflows.
 
 - **Stage 5: Switch Traversal (ST)**
-  - *Primary Role*: Drives the granted flit from the input buffer storage through the internal crossbar switch fabric to the output port link registers.
-  - *Microarchitectural Datapath*: The crossbar switch consists of $P$ multiplexer trees (one per output port), each selecting among $P$ input datapath buses of width $W$ bits (e.g., 64, 128, or 512 bits).
-  - *Hardware Handshake & Control*: The winning grant signals from Stage 4 configure the multiplexer select lines (`xbar_sel[P_out] <= winning_input_port`).
-  - *Energy & Timing Constraints*: Crossbar traversal represents a significant capacitive load due to long internal wire tracks crossing all input/output buses. High-speed drivers and intermediate pipeline registers are often placed between the multiplexer outputs and the physical link drivers.
+    - *Primary Role*: Drives the granted flit from the input buffer storage through the internal crossbar switch fabric to the output port link registers.
+    - *Microarchitectural Datapath*: The crossbar switch consists of $P$ multiplexer trees (one per output port), each selecting among $P$ input datapath buses of width $W$ bits (e.g., 64, 128, or 512 bits).
+    - *Hardware Handshake & Control*: The winning grant signals from Stage 4 configure the multiplexer select lines (`xbar_sel[P_out] <= winning_input_port`).
+    - *Energy & Timing Constraints*: Crossbar traversal represents a significant capacitive load due to long internal wire tracks crossing all input/output buses. High-speed drivers and intermediate pipeline registers are often placed between the multiplexer outputs and the physical link drivers.
 
 - **Stage 6: Link Traversal (LT)**
-  - *Primary Role*: Propagates physical voltage signals across the inter-router metal wires to the input registers of the neighboring downstream router.
-  - *Physical Signaling*: Traverses intermediate or global metal layers (e.g., M4–M8 in standard FinFET processes) with optimal repeater insertion to maintain signal integrity and sharp edge transitions.
-  - *Timing Relationship*: In short-distance local mesh topologies, LT typically completes within a single clock cycle ($t_{LT} = 1\text{ cycle}$). In long-distance express links or multi-chiplet topologies, LT may require multi-cycle pipelined links.
-  - *Downstream Handshake & Credit Return*: As the flit enters the downstream router, a credit signal (`credit_out`) is pulsed backward to the upstream router, replenishing the transmitter's credit pool.
+    - *Primary Role*: Propagates physical voltage signals across the inter-router metal wires to the input registers of the neighboring downstream router.
+    - *Physical Signaling*: Traverses intermediate or global metal layers (e.g., M4–M8 in standard FinFET processes) with optimal repeater insertion to maintain signal integrity and sharp edge transitions.
+    - *Timing Relationship*: In short-distance local mesh topologies, LT typically completes within a single clock cycle ($t_{LT} = 1\text{ cycle}$). In long-distance express links or multi-chiplet topologies, LT may require multi-cycle pipelined links.
+    - *Downstream Handshake & Credit Return*: As the flit enters the downstream router, a credit signal (`credit_out`) is pulsed backward to the upstream router, replenishing the transmitter's credit pool.
 
 ```
 Figure 3.1: Canonical vs. Speculative vs. Lookahead Router Pipelines
@@ -140,36 +140,39 @@ Because per-hop pipeline latency compounds linearly with network diameter ($T_{n
 - **Immediate VA Activation**: Upon arrival at router $N+1$, the outgoing port is already known combinatorially from the packet header, enabling Virtual Channel Allocation to initiate immediately in cycle 1.
 - **Latency & Critical Path Benefit**: Completely eliminates the RC pipeline stage at every intermediate hop, compressing a 5-stage canonical router to 4 stages with negligible silicon area overhead.
 
-### 3.2.2 Speculative Switch Allocation
-- **Optimistic Resource Request**: In low-to-medium network load regimes, downstream virtual channel contention is infrequent. Speculative Switch Allocation exploits this by scheduling Virtual Channel Allocation (VA) and Switch Allocation (SA) concurrently in the same clock cycle.
+### 3.2.2 Speculative Switch Allocation [[Peh2001](#ref-peh2001)]
+- **Optimistic Resource Request**: In low-to-medium network load regimes, downstream virtual channel contention is infrequent. Speculative Switch Allocation [[Peh2001](#ref-peh2001)] exploits this by scheduling Virtual Channel Allocation (VA) and Switch Allocation (SA) concurrently in the same clock cycle.
 - **Dual-Path Speculative Request Logic**: The Head flit requests an output crossbar port *speculatively*, assuming that its simultaneous request for a downstream VC will succeed.
 - **Validation & Conflict Resolution**:
-  - *Both Succeed*: If VA grants a downstream VC and speculative SA grants crossbar access, the flit immediately proceeds to Switch Traversal (ST) in cycle 2, compressing pipeline latency to 2 cycles.
-  - *VA Contention Mis-prediction*: If VA fails due to VC exhaustion, the speculative SA grant is suppressed and squashed, preventing unauthorized crossbar traversal.
-  - *Priority Rules*: Non-speculative requests (from body flits that already possess valid VCs) are given strict priority over speculative Head flit requests to eliminate pipeline stalls for ongoing flows.
+    - *Both Succeed*: If VA grants a downstream VC and speculative SA grants crossbar access, the flit immediately proceeds to Switch Traversal (ST) in cycle 2, compressing pipeline latency to 2 cycles.
+    - *VA Contention Mis-prediction*: If VA fails due to VC exhaustion, the speculative SA grant is suppressed and squashed, preventing unauthorized crossbar traversal.
+    - *Priority Rules*: Non-speculative requests (from body flits that already possess valid VCs) are given strict priority over speculative Head flit requests to eliminate pipeline stalls for ongoing flows.
 - **Silicon Trade-Offs**: Delivers near-single-cycle zero-load latencies under light traffic, but incurs higher allocator power dissipation due to wasted speculative grant computations under saturation loads.
 
-### 3.2.3 Buffer Reservation Scheduling: BuffeRS (TCAD 2026)
-- **The Classical Bypassing Dilemma**: Traditional router bypassing mechanisms (e.g., SMART, NoRD) allow flits to skip input buffering and crossbars. However, when bypass flits arrive at downstream nodes only to find input queues completely saturated, they suffer abrupt pipeline stalls, deflections, or packet drops.
-- **Time-Division Pre-Allocation**: BuffeRS (Liu et al., *IEEE TCAD 2026*) establishes a coordinated **buffer reservation scheduling strategy** that reserves destination buffer slots *in advance* across router groups before initiating traversal.
+### 3.2.3 Buffer Reservation Scheduling: BuffeRS [[Liu2026](#ref-liu2026)]
+
+As formulated by Liu et al. [[Liu2026](#ref-liu2026)], **BuffeRS** solves the fundamental flaw of prior bypass architectures:
+
+- **The Classical Bypassing Dilemma**: Traditional router bypassing mechanisms (such as SMART [[Krishna2013](#ref-krishna2013)], NoRD) allow flits to skip input buffering and crossbars. However, when bypass flits arrive at downstream nodes only to find input queues completely saturated, they suffer abrupt pipeline stalls, deflections, or packet drops.
+- **Time-Division Pre-Allocation**: BuffeRS establishes a coordinated **buffer reservation scheduling strategy** that reserves destination buffer slots *in advance* across router groups before initiating traversal.
 - **Two-Phase Reservation Protocol**:
-  - *Reservation Phase*: A lightweight 1-bit lookahead token traverses ahead of the packet payload to claim a free buffer slot at the downstream destination tile.
-  - *Bypass Phase*: The packet payload flits traverse through intermediate router crossbars in a single clock cycle without stopping, guaranteed that a guaranteed buffer slot awaits them at the terminating node.
+    - *Reservation Phase*: A lightweight 1-bit lookahead token traverses ahead of the packet payload to claim a free buffer slot at the downstream destination tile.
+    - *Bypass Phase*: The packet payload flits traverse through intermediate router crossbars in a single clock cycle without stopping, guaranteed that a reserved buffer slot awaits them at the terminating node.
 - **Multi-Chiplet Interconnect Suitability**: Highly resilient across high-latency die-to-die (D2D) packaging boundaries, preventing credit turnaround latency loops from throttling inter-chiplet throughput.
 
 #### Table 3.1: Quantitative Comparison of High-Performance Router Microarchitectures
 | Architecture Paradigm | Pipeline Stages | Allocation Scheme | Clocking / Timing Strategy | Key Silicon Trade-Off |
 | :--- | :--- | :--- | :--- | :--- |
-| **Canonical VC Router** (Peh & Dally) | 4–5 cycles | Separable VA + SA | Fully Synchronous | Baseline area; multi-cycle per-hop serialization delay |
+| **Canonical VC Router** [[Peh2001](#ref-peh2001)] | 4–5 cycles | Separable VA + SA | Fully Synchronous | Baseline area; multi-cycle per-hop serialization delay |
 | **Lookahead Routing** | 3 cycles | Lookahead RC + SA | Fully Synchronous | Strips RC stage; minimal packet header overhead |
-| **Speculative Allocator** | 2 cycles | Parallel speculative VA/SA | Fully Synchronous | Speculation mis-predictions stall under heavy injection |
-| **SMART / SHARP** | 1–2 cycles | Priority bypass muxes | Multi-hop async bypass | Bounded by physical $HPC_{max}$ wire RC delay budget |
-| **HyPA Router** (TVLSI 2026) | 0.8 ns / hop | Handshake pipeline | GALS Asynchronous domino | 62% lower power; eliminates global clock tree distribution |
-| **BuffeRS** (TCAD 2026) | 1 cycle | Buffer reservation slots | Time-division coordinated | Deterministic zero-contention bypass; token reservation logic |
+| **Speculative Allocator** [[Peh2001](#ref-peh2001)] | 2 cycles | Parallel speculative VA/SA | Fully Synchronous | Speculation mis-predictions stall under heavy injection |
+| **SMART** [[Krishna2013](#ref-krishna2013)] / **SHARP** [[SHARP2023](#ref-sharp2023)] | 1–2 cycles | Priority bypass muxes | Multi-hop async bypass | Bounded by physical $HPC_{max}$ wire RC delay budget |
+| **HyPA Router** [[Saranya2026](#ref-saranya2026)] | 0.8 ns / hop | Handshake pipeline | GALS Asynchronous domino | 62% lower power; eliminates global clock tree distribution |
+| **BuffeRS** [[Liu2026](#ref-liu2026)] | 1 cycle | Buffer reservation slots | Time-division coordinated | Deterministic zero-contention bypass; token reservation logic |
 
 ---
 
-## 3.3 Asynchronous Router Architectures: HyPA (TVLSI 2026)
+## 3.3 Asynchronous Router Architectures: HyPA [[Saranya2026](#ref-saranya2026)]
 
 In large-scale Multi-Processor Systems-on-Chip (MPSoCs), distributing a single low-skew global clock across a $20\text{ mm} \times 20\text{ mm}$ die is prohibitively expensive in clock-tree power and timing closure complexity.
 
@@ -177,14 +180,14 @@ In large-scale Multi-Processor Systems-on-Chip (MPSoCs), distributing a single l
 *Figure 3.2: Detailed microarchitecture of the proposed asynchronous router featuring a high-throughput domino-logic pipeline template with one-hot hybrid data encoding. [Reproduced from: M. N. Saranya, C. T. Avinash, and R. Rao, "HyPA: A Low-Latency Hybrid Pipeline Asynchronous Router for Network-on-Chip Architectures in GALS-Based SoCs," IEEE Transactions on Very Large Scale Integration (VLSI) Systems, vol. 34, 2026, DOI: 10.1109/TVLSI.2026.3716692. © 2026 IEEE]*
 
 In **Globally Asynchronous Locally Synchronous (GALS)** systems, asynchronous routers eliminate clock trees entirely:
-- **HyPA Router** (Saranya et al., *IEEE TVLSI 2026*): Implemented in 65nm CMOS, HyPA employs a **hybrid pipeline asynchronous architecture** based on high-throughput domino logic.
+- **HyPA Router** (Saranya et al. [[Saranya2026](#ref-saranya2026)]): Implemented in 65nm CMOS, HyPA employs a **hybrid pipeline asynchronous architecture** based on high-throughput domino logic.
 - **Power and Energy Gains**: Benchmarked against synchronous clock-gated routers, HyPA demonstrates **62% lower power consumption** and an **85% reduction in energy-per-flit**, achieving a forward latency of **0.8 ns** and a throughput of **1.65 GFlits/port/s**.
 
 ---
 
-## 3.4 Single-Cycle Multi-Hop Traversal (SMART / SHARP)
+## 3.4 Single-Cycle Multi-Hop Traversal: SMART & SHARP
 
-In 2013, Krishna et al. introduced **SMART** (Single-Cycle Multi-hop Asynchronous Repeated Traversal), demonstrating that a flit can traverse **multiple physical router crossbars and links within a single clock cycle** when no contention exists.
+In 2013, Krishna et al. [[Krishna2013](#ref-krishna2013)] introduced **SMART** (Single-Cycle Multi-hop Asynchronous Repeated Traversal), demonstrating that a flit can traverse **multiple physical router crossbars and links within a single clock cycle** when no contention exists.
 
 ![Figure 3.3: Preemption and stopping cases in priority-preemptive single-cycle multi-hop routers](figures/sharp_fig02_bypass_limit.png)
 *Figure 3.3: Preemption stopping cases at intermediate routers for contending flows in priority-preemptive single-cycle multi-hop traversal networks under hop limits ($HPC_{max} = 3$). [Reproduced from: IEEE Transactions on Very Large Scale Integration (VLSI) Systems, 2023, DOI: 10.1109/TVLSI.2023.3298101. © 2023 IEEE]*
@@ -192,16 +195,16 @@ In 2013, Krishna et al. introduced **SMART** (Single-Cycle Multi-hop Asynchronou
 As illustrated in Figure 3.3, single-cycle traversal is physically bounded by:
 
 - **Clock Period Timing Budget ($HPC_{max}$)**:
-  - Wire propagation delay and multiplexer gate delays accumulate along the bypassed path:
-    $$t_{hop} = t_{crossbar\_mux} + t_{wire\_propagation} + t_{repeater}$$
-  - The maximum traversable hops per cycle is strictly bounded by the clock cycle time:
-    $$HPC_{max} = \left\lfloor \frac{T_{clk} - t_{setup}}{t_{hop}} \right\rfloor$$
-  - At 1.0 GHz ($T_{clk} = 1.0\text{ ns}$) in 14nm FinFET, $HPC_{max}$ typically allows 3 to 5 hops before requiring intermediate latching.
+    - Wire propagation delay and multiplexer gate delays accumulate along the bypassed path:
+      $$t_{hop} = t_{crossbar\_mux} + t_{wire\_propagation} + t_{repeater}$$
+    - The maximum traversable hops per cycle is strictly bounded by the clock cycle time:
+      $$HPC_{max} = \left\lfloor \frac{T_{clk} - t_{setup}}{t_{hop}} \right\rfloor$$
+    - At 1.0 GHz ($T_{clk} = 1.0\text{ ns}$) in 14nm FinFET, $HPC_{max}$ typically allows 3 to 5 hops before requiring intermediate latching.
 - **Dynamic Flow Contention & Preemption**:
-  - Local flits at intermediate nodes may contend for an output port that a distant bypass packet is attempting to cut through.
-  - Priority-preemptive arbitration protocols dictate whether the traversing bypass flow preempts local traffic or stops and buffers in place.
+    - Local flits at intermediate nodes may contend for an output port that a distant bypass packet is attempting to cut through.
+    - Priority-preemptive arbitration protocols dictate whether the traversing bypass flow preempts local traffic or stops and buffers in place.
 - **Asynchronous Bypass Setup Signals**:
-  - Dedicated lookahead request wires run parallel to data links, configuring bypass multiplexers in intermediate routers a fraction of a cycle before the packet payload arrives.
+    - Dedicated lookahead request wires run parallel to data links, configuring bypass multiplexers in intermediate routers a fraction of a cycle before the packet payload arrives.
 
 ---
 
@@ -259,9 +262,9 @@ $$\text{Priority Matrix: } M[i][j] = \begin{cases}
   $$G_i = R_i \cdot \prod_{j \ne i} (\overline{R_j} + M[i][j])$$
   This evaluates in exactly two gate levels (an inverter/OR array followed by an $N$-input AND gate), making it exceptionally fast for $N \le 8$.
 - **Single-Cycle LRU State Transition**:
-  - When client $k$ wins the grant ($G_k = 1$), it immediately drops to the **Least Recently Used (LRU)** rank.
-  - **Row $k$ is cleared to zero**: $M[k][j] \leftarrow 0 \quad (\forall j \ne k)$, removing priority over all peers.
-  - **Column $k$ is set to one**: $M[i][k] \leftarrow 1 \quad (\forall i \ne k)$, ensuring all peers now take priority over client $k$.
+    - When client $k$ wins the grant ($G_k = 1$), it immediately drops to the **Least Recently Used (LRU)** rank.
+    - **Row $k$ is cleared to zero**: $M[k][j] \leftarrow 0 \quad (\forall j \ne k)$, removing priority over all peers.
+    - **Column $k$ is set to one**: $M[i][k] \leftarrow 1 \quad (\forall i \ne k)$, ensuring all peers now take priority over client $k$.
 - **Absolute Starvation Freedom**: In a system of $N$ requesters, no asserted request can wait more than $N-1$ arbitration rounds before winning.
 
 ```
@@ -282,31 +285,31 @@ Table 3.1: 4-Port Matrix Arbiter Priority State Evolution Under Continuous Conte
 (Simulated via code/matrix_arbiter_islip_sim.py)
 ```
 
-### 3.5.2 McKeown's iSLIP Iterative Matching Algorithm
+### 3.5.2 McKeown's iSLIP Iterative Matching Algorithm [[McKeown1999](#ref-mckeown1999)]
 For a complete $N \times N$ crossbar switch, separable allocation using independent input and output arbiters can leave up to 50% of crossbar ports idle under heavy traffic due to conflicting uncoordinated grants.
 
-In 1999, Nick McKeown introduced **iSLIP** (*Iterative Serial round-robin with SLIP*), an algorithm widely implemented in high-radix routers and internet switches:
+In 1999, Nick McKeown [[McKeown1999](#ref-mckeown1999)] introduced **iSLIP** (*Iterative Serial round-robin with SLIP*), an algorithm widely implemented in high-radix routers and internet switches:
 
 #### The Three-Phase Iterative Protocol:
 - **Phase 1: Parallel Request Generation**:
-  - Each unmatched input port asserts request lines to every output port for which it holds at least one buffered flit.
+    - Each unmatched input port asserts request lines to every output port for which it holds at least one buffered flit.
 - **Phase 2: Output-Side Round-Robin Grant**:
-  - Each unmatched output port arbitrates among contending input requests using an independent round-robin pointer $g_j$.
-  - The output asserts a tentative grant signal to the winning input. The pointer $g_j$ is **not updated yet**.
+    - Each unmatched output port arbitrates among contending input requests using an independent round-robin pointer $g_j$.
+    - The output asserts a tentative grant signal to the winning input. The pointer $g_j$ is **not updated yet**.
 - **Phase 3: Input-Side Round-Robin Accept**:
-  - Each unmatched input port arbitrates among all tentative grants it received using an independent accept pointer $a_i$.
-  - The input accepts exactly one grant, establishing a confirmed input-output crossbar match $(\mathcal{M} \leftarrow \mathcal{M} \cup \{(i, j)\})$.
+    - Each unmatched input port arbitrates among all tentative grants it received using an independent accept pointer $a_i$.
+    - The input accepts exactly one grant, establishing a confirmed input-output crossbar match $(\mathcal{M} \leftarrow \mathcal{M} \cup \{(i, j)\})$.
 - **Pointer Update Invariant (The SLIP Principle)**:
-  - Output grant pointers $g_j$ and input accept pointers $a_i$ are updated **if and only if** the match is accepted in the **very first iteration**:
-    $$g_j \leftarrow (i + 1) \pmod N, \quad a_i \leftarrow (j + 1) \pmod N$$
-  - Restricting updates strictly to iteration 1 prevents arbiters from falling into synchronized lockstep states under high offered load, de-correlating request patterns and maximizing entropy.
+    - Output grant pointers $g_j$ and input accept pointers $a_i$ are updated **if and only if** the match is accepted in the **very first iteration**:
+      $$g_j \leftarrow (i + 1) \pmod N, \quad a_i \leftarrow (j + 1) \pmod N$$
+    - Restricting updates strictly to iteration 1 prevents arbiters from falling into synchronized lockstep states under high offered load, de-correlating request patterns and maximizing entropy.
 
 #### Convergence & Throughput Theorems:
-- **Theorem 1 (Fast Convergence, McKeown 1999)**:
-  - For an $N \times N$ crossbar switch, iSLIP converges to a maximal matching in at most $\min(N, \log_2 N)$ iterations.
-  - In silicon, **2 iterations** achieve over **94% crossbar efficiency**, and **4 iterations** achieve **100% maximal matching** even under continuous 100% offered injection.
+- **Theorem 1 (Fast Convergence [[McKeown1999](#ref-mckeown1999)])**:
+    - For an $N \times N$ crossbar switch, iSLIP converges to a maximal matching in at most $\min(N, \log_2 N)$ iterations.
+    - In silicon, **2 iterations** achieve over **94% crossbar efficiency**, and **4 iterations** achieve **100% maximal matching** even under continuous 100% offered injection.
 - **Theorem 2 (Starvation Freedom & 100% Saturation Throughput)**:
-  - Under uniform independent and identically distributed (i.i.d.) traffic, iSLIP delivers **100% throughput** without internal switch speedup, guaranteeing that no input port is starved indefinitely.
+    - Under uniform independent and identically distributed (i.i.d.) traffic, iSLIP delivers **100% throughput** without internal switch speedup, guaranteeing that no input port is starved indefinitely.
 
 ---
 
@@ -327,22 +330,61 @@ Input 3 Data ----[     ]
 - **Crosspoint Switch Complexity**: Scales quadratically with port count $P$ as $P^2 \times W$ transmission gates, tri-state buffers, or multiplexer cells, where $W$ is the flit datapath bit width (e.g., 64–512 bits).
 - **Silicon Metal Track Area**: Consumes $2 \cdot P \cdot W \cdot \text{pitch}_{metal}$ wiring track area, creating significant routing density congestion on intermediate metal layers (M3–M5).
 - **Capacitive Loading & Energy Scaling**:
-  - Dynamic switching power is governed by:
-    $$P_{xbar} = \alpha \cdot C_{xbar\_wire} \cdot V_{dd}^2 \cdot f_{clk}$$
-  - As port count $P$ exceeds 8 (e.g., in high-radix Dragonfly routers with $P = 16\text{–}32$), long internal crossbar wire capacitance dominates router dynamic power.
+    - Dynamic switching power is governed by:
+      $$P_{xbar} = \alpha \cdot C_{xbar\_wire} \cdot V_{dd}^2 \cdot f_{clk}$$
+    - As port count $P$ exceeds 8 (e.g., in high-radix Dragonfly routers with $P = 16\text{–}32$), long internal crossbar wire capacitance dominates router dynamic power.
 - **Hierarchical Sub-Crossbars**: High-radix designs mitigate quadratic area and power penalties by replacing monolithic crossbars with **hierarchical two-stage crossbars** or bit-sliced matrix sub-blocks.
 
 ---
 
 ## 3.7 Interactive Lab & Hands-on Challenges
 
-Test your arbitration and router pipeline expertise on the **Companion Learning Platform**:
+<div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.65)); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+  <div>
+    <div style="font-weight: 700; color: #93c5fd; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
+      <span>⚡ Dedicated Interactive Lab: Arbiter Arena &amp; Mesh Visualizer</span>
+    </div>
+    <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 800px; line-height: 1.5;">
+      Schedule competing flits across $5 \times 5$ crossbars, compare sub-200ps LRU matrix arbiters with iSLIP, and optimize canonical 4-stage pipeline traversals.
+    </div>
+  </div>
+  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+    <a href="../../interactive/arbiter.md" style="display: inline-flex; align-items: center; gap: 6px; background: #ea580c; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+      <span>Enter Arbiter Arena →</span>
+    </a>
+    <a href="../../interactive/visualizer.md" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+      <span>2D Mesh Pipeline Visualizer →</span>
+    </a>
+  </div>
+</div>
 
-- ⚔️ **[Arbiter Arena: Crossbar Clash](https://network-on-chip.github.io/learning/interactive/arbiter/)**:
-  - Step cycle-by-cycle through Matrix Arbiters, Round-Robin, and Wavefront schedulers.
-  - Inject adversarial traffic bursts to observe how priority matrix updates guarantee starvation freedom.
-- 🔬 **[2D Mesh Routing Visualizer](https://network-on-chip.github.io/learning/interactive/visualizer/)**:
-  - Inspect crossbar switch allocation states and input buffer queues across a full $8 \times 8$ mesh network.
+Complete the following three hands-on laboratory missions in **[Arbiter Arena](../../interactive/arbiter.md)** and **[2D Mesh Visualizer](../../interactive/visualizer.md)**:
+
+### Challenge Mission 3.1: Arbiter Fairness & Starvation Freedom Under Adversarial Traffic
+- **Objective:** Compare Strict Priority, Round-Robin, and Triangular Matrix Arbiters under persistent contention on output port East.
+- **Setup & Procedure:**
+  1. In **Arbiter Arena**, select `Strict Priority` and configure Requestors 0, 1, 2, and 3 to continuously request output port 0.
+  2. Observe service grants over 20 clock cycles.
+  3. Switch to `Matrix Arbiter (Least-Recently-Used / LRU)` and repeat.
+- **Architectural Observation:** Under Strict Priority, Requestors 1, 2, and 3 suffer complete starvation: Requestor 0 monopolizes 100% of the grants. Under the Matrix Arbiter, the upper triangular state matrix $M[i][j]$ is dynamically updated on every grant ($M[grant][*] \leftarrow 0$, $M[*][grant] \leftarrow 1$), guaranteeing mathematical Least-Recently-Used (LRU) fairness and bounded service latency ($T_{max} \le N-1$ cycles) with sub-200ps combinational gate delay.
+- **Verification Formula:** $G_k = R_k \cdot \prod_{j \ne k} (\overline{R_j} + M_{k,j})$.
+
+### Challenge Mission 3.2: 2-Stage Speculative VA/SA Parallel Allocation
+- **Objective:** Evaluate how speculative allocation compresses canonical 4-stage router latency into a 2-stage pipeline under low-to-medium traffic.
+- **Setup & Procedure:**
+  1. Launch the **2D Mesh Visualizer** with Uniform Random traffic at injection rate $\lambda = 0.1\text{ flits/cycle/node}$.
+  2. Inspect the flit progression timeline: Head flits arbitrate for Switch Allocation (SA) in parallel with Virtual Channel Allocation (VA), assuming a free downstream VC will be successfully acquired.
+  3. Increase injection rate to saturation ($\lambda = 0.5$) and observe mis-speculation frequency.
+- **Architectural Observation:** Under light traffic, VC contention is near zero: speculation succeeds $>95\%$ of the time, reducing zero-load router traversal latency from 4 cycles down to 2 cycles. At saturation, VC conflicts cause speculation failures, requiring flits to kill their switch grants and re-arbitrate in non-speculative mode.
+
+### Challenge Mission 3.3: SMART Single-Cycle Multi-Hop Bypass Traversals
+- **Objective:** Observe how asynchronous crossbar bypass paths (SMART) bypass intermediate router buffering and arbitration entirely.
+- **Setup & Procedure:**
+  1. In **2D Mesh Visualizer**, enable SMART bypass routing with maximum hop limit $H_{max} = 4$.
+  2. Send a 4-hop packet from $(0,0)$ to $(0,3)$ along dimension X.
+  3. Measure the end-to-end network latency.
+- **Architectural Observation:** In a conventional router, a 4-hop traversal incurs $4 \times t_{router} = 12\text{–}16$ clock cycles. With SMART bypass enabled, downstream arbiters pre-allocate their crossbars via dedicated lookahead wires, allowing the flit to traverse up to 4 routers in a single clock cycle ($t_{net} = 1 + H \cdot t_{wire}$), drastically flattening the zero-load latency curve toward wire speed!
+- **Hardware RTL & Python Reference:** Run `python code/router_pipeline_sim.py` and inspect `code/matrix_arbiter_4x4.v` for synthesizable 4-port matrix arbitration Verilog.
 
 ---
 
@@ -373,7 +415,7 @@ Test your mastery of Chapter 3 concepts against the official certification quest
     **3. Silicon Architect's Takeaway:**
     Head flits establish the network path (RC & VA); body flits stream through using pre-allocated VC state (BW -> SA -> ST).
 
-    *(Reference: L.-S. Peh and W. J. Dally, 'A Delay Model and Speculative Architecture for Pipelined Routers,' HPCA, pp. 255–266, 2001. DOI: 10.1109/HPCA.2001.903268.)*
+    *(Reference: [[Peh2001](#ref-peh2001)] L.-S. Peh and W. J. Dally, "A Delay Model and Speculative Architecture for Pipelined Routers," HPCA, pp. 255–266, 2001. DOI: 10.1109/HPCA.2001.903268.)*
 
 #### Question 3.2 (Tier 2: Core Engineering)
 *In a hardware Matrix Arbiter implementing Least-Recently-Used (LRU) priority, how many flip-flops are required to store the priority state for an N-input arbiter, and what is its maximum grant evaluation latency?*
@@ -423,16 +465,38 @@ Test your mastery of Chapter 3 concepts against the official certification quest
     **3. Silicon Architect's Takeaway:**
     In crossbar switch allocation, conditional pointer updating guarantees arbiter desynchronization, achieving near-100% throughput without starvation.
 
-    *(Reference: N. McKeown, 'The iSLIP Scheduling Algorithm for Input-Queued Switches,' IEEE/ACM Transactions on Networking, Vol. 7, No. 2, pp. 188–201, Apr. 1999. DOI: 10.1109/90.769767.)*
+    *(Reference: [[McKeown1999](#ref-mckeown1999)] N. McKeown, "The iSLIP Scheduling Algorithm for Input-Queued Switches," IEEE/ACM Transactions on Networking, Vol. 7, No. 2, pp. 188–201, Apr. 1999. DOI: 10.1109/90.769767.)*
+
+---
+
+### Modern Router Innovations: Asynchrony, WRR Bounds, and In-Network Compute
+<a id="modern-innovations"></a>
+
+Recent microarchitectural research has expanded router functionality beyond conventional packet forwarding:
+- **Weighted Round-Robin (WRR) Delay Optimization**: To guarantee strict quality-of-service (QoS) in heterogeneous SoCs, Jafari et al.~[[Jafari2016WRR](#ref-jafari2016wrr)] and Mandal et al.~[[Mandal2023WRR](#ref-mandal2023wrr)] formalized analytical configurations for WRR arbiters, deriving tight upper bounds on worst-case packet latency and enabling predictable network performance for mission-critical flows.
+- **Asynchronous Hybrid Pipelines**: Saranya et al.~[[Saranya2026HyPA](#ref-saranya2026hypa)] introduced HyPA, a low-latency hybrid pipeline asynchronous router for Globally Asynchronous Locally Synchronous (GALS) SoCs, combining bundled-data clockless crossbars with speculative reservation to achieve single-cycle zero-load traversal.
+- **Synchronization-Aware Crossbar Arbitration**: Addressing tail latency in parallel barrier primitives, Fan et al.~[[Fan2024Sync](#ref-fan2024sync)] proposed synchronization-aware arbitration policies that prioritize flits from straggler threads, improving multi-threaded speedups by up to $22\\%$.
+- **Power-Aware Built-In Self-Test (BIST)**: Scalable test-delivery architectures by Xiang et al.~[[Xiang2011Test](#ref-xiang2011test)] and Agrawal et al.~[[Agrawal2014Test](#ref-agrawal2014test)] utilize unicast-based multicast routing mechanisms across the NoC to distribute manufacturing test patterns to embedded IP cores without exceeding peak chip thermal limits.
+- **In-Network Neuromorphic Processing**: Li et al.~[[Li2024Neuro](#ref-li2024neuro)] demonstrated partial-sum routers for Spiking Neural Networks (SNNs), performing in-flight synaptic weight reductions inside router crossbars to achieve an ultra-low energy footprint of $1.63\\text{ pJ/SOP}$.
 
 ---
 
 ## References & Bibliography
 
-1. **[Liu2026]** Z. Liu, X. Wu, and Y. Ye, "BuffeRS: A Buffer Reservation Scheduling Strategy for Router Bypassing in NoCs and Multichiplet Networks," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 6, pp. 2635–2648, June 2026. [DOI: 10.1109/TCAD.2025.3624677](https://doi.org/10.1109/TCAD.2025.3624677).
-2. **[Saranya2026]** M. N. Saranya, C. T. Avinash, and R. Rao, "HyPA: A Low-Latency Hybrid Pipeline Asynchronous Router for Network-on-Chip Architectures in GALS-Based SoCs," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 34, 2026. [DOI: 10.1109/TVLSI.2026.3716692](https://doi.org/10.1109/TVLSI.2026.3716692).
-3. **[Krishna2013]** T. Krishna, C.-H. O. Chen, W. C. Kwon, and L.-S. Peh, "Single-Cycle Multi-Hop Asynchronous Repeated Traversal: A Case for Asynchronous Logic in On-Chip Networks," in *Proceedings of the 46th Annual IEEE/ACM International Symposium on Microarchitecture (MICRO)*, 2013, pp. 336–348. [DOI: 10.1145/2540708.2540737](https://doi.org/10.1145/2540708.2540737).
-4. **[McKeown1999]** N. McKeown, "The iSLIP Scheduling Algorithm for Input-Queued Switches," *IEEE/ACM Transactions on Networking*, vol. 7, no. 2, pp. 188–201, Apr. 1999. [DOI: 10.1109/90.769767](https://doi.org/10.1109/90.769767).
-5. **[Peh2001]** L.-S. Peh and W. J. Dally, "A Delay Model and Speculative Architecture for Pipelined Routers," in *Proceedings of the 7th International Symposium on High-Performance Computer Architecture (HPCA)*, 2001, pp. 255–266. [DOI: 10.1109/HPCA.2001.903268](https://doi.org/10.1109/HPCA.2001.903268).
-6. **[SHARP2023]** "Reduced Worst-Case Communication Latency Using Single-Cycle Multihop Traversal Network-on-Chip," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 31, no. 10, pp. 1560–1572, Oct. 2023. [DOI: 10.1109/TVLSI.2023.3298101](https://doi.org/10.1109/TVLSI.2023.3298101).
-7. **[Howard2011]** J. Howard et al., "A 48-Core IA-32 Message-Passing Processor with DVFS in 45nm CMOS," *IEEE Journal of Solid-State Circuits*, vol. 46, no. 1, pp. 173–183, Jan. 2011. [DOI: 10.1109/JSSC.2010.2079496](https://doi.org/10.1109/JSSC.2010.2079496).
+<a id="references"></a>
+
+1. <a id="ref-mckeown1999"></a>**[McKeown1999]** N. McKeown, "The iSLIP Scheduling Algorithm for Input-Queued Switches," *IEEE/ACM Transactions on Networking*, vol. 7, no. 2, pp. 188–201, Apr. 1999. [DOI: 10.1109/90.769767](https://doi.org/10.1109/90.769767).
+2. <a id="ref-tamir1993"></a>**[Tamir1993]** Y. Tamir and H.-C. Chi, "Symmetric Banyan Networks for High-Performance Packet Switches," *IEEE Transactions on Computers*, vol. 42, no. 8, pp. 933–947, Aug. 1993. [DOI: 10.1109/12.238484](https://doi.org/10.1109/12.238484).
+3. <a id="ref-peh2001"></a>**[Peh2001]** L.-S. Peh and W. J. Dally, "A Delay Model and Speculative Architecture for Pipelined Routers," in *Proceedings of the 7th International Symposium on High-Performance Computer Architecture (HPCA)*, 2001, pp. 255–266. [DOI: 10.1109/HPCA.2001.903268](https://doi.org/10.1109/HPCA.2001.903268).
+4. <a id="ref-krishna2013"></a>**[Krishna2013]** T. Krishna, C.-H. O. Chen, W. C. Kwon, and L.-S. Peh, "Single-Cycle Multi-Hop Asynchronous Repeated Traversal: A Case for Asynchronous Logic in On-Chip Networks," in *Proceedings of the 46th Annual IEEE/ACM International Symposium on Microarchitecture (MICRO)*, 2013, pp. 336–348. [DOI: 10.1145/2540708.2540737](https://doi.org/10.1145/2540708.2540737).
+5. <a id="ref-liu2026"></a>**[Liu2026]** Z. Liu, X. Wu, and Y. Ye, "BuffeRS: A Buffer Reservation Scheduling Strategy for Router Bypassing in NoCs and Multichiplet Networks," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 6, pp. 2635–2648, June 2026. [DOI: 10.1109/TCAD.2025.3624677](https://doi.org/10.1109/TCAD.2025.3624677).
+6. <a id="ref-saranya2026"></a>**[Saranya2026]** M. N. Saranya, C. T. Avinash, and R. Rao, "HyPA: A Low-Latency Hybrid Pipeline Asynchronous Router for Network-on-Chip Architectures in GALS-Based SoCs," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 34, 2026. [DOI: 10.1109/TVLSI.2026.3716692](https://doi.org/10.1109/TVLSI.2026.3716692).
+7. <a id="ref-sharp2023"></a>**[SHARP2023]** "Reduced Worst-Case Communication Latency Using Single-Cycle Multihop Traversal Network-on-Chip," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 31, no. 10, pp. 1560–1572, Oct. 2023. [DOI: 10.1109/TVLSI.2023.3298101](https://doi.org/10.1109/TVLSI.2023.3298101).
+8. <a id="ref-howard2011"></a>**[Howard2011]** J. Howard et al., "A 48-Core IA-32 Message-Passing Processor with DVFS in 45nm CMOS," *IEEE Journal of Solid-State Circuits*, vol. 46, no. 1, pp. 173–183, Jan. 2011. [DOI: 10.1109/JSSC.2010.2079496](https://doi.org/10.1109/JSSC.2010.2079496).
+9. <a id="ref-jafari2016wrr"></a>**[Jafari2016WRR]** F. Jafari, M. Daneshtalab, and A. Jantsch, \"Weighted Round Robin Configuration for Worst-Case Delay Optimization in Network-on-Chip,\" *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 24, no. 5, pp. 1915–1928, May 2016. [DOI: 10.1109/TVLSI.2015.2477810](https://doi.org/10.1109/TVLSI.2015.2477810).
+10. <a id="ref-mandal2023wrr"></a>**[Mandal2023WRR]** S. K. Mandal et al., \"Fast Performance Analysis for NoCs With Weighted Round-Robin Arbitration,\" *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 31, no. 8, pp. 1180–1193, Aug. 2023. [DOI: 10.1109/TVLSI.2023.3281050](https://doi.org/10.1109/TVLSI.2023.3281050).
+11. <a id="ref-saranya2026hypa"></a>**[Saranya2026HyPA]** M. N. Saranya, C. T. Avinash, and R. Rao, \"HyPA: A Low-Latency Hybrid Pipeline Asynchronous Router for Network-on-Chip,\" *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 34, no. 3, pp. 750–763, Mar. 2026. [DOI: 10.1109/TVLSI.2026.3716692](https://doi.org/10.1109/TVLSI.2026.3716692).
+12. <a id="ref-fan2024sync"></a>**[Fan2024Sync]** W. Fan et al., \"Communication Synchronization-Aware Arbitration Policy in NoC for Heterogeneous Computing Systems,\" *IEEE Transactions on Circuits and Systems II: Express Briefs*, vol. 71, no. 6, pp. 3105–3109, June 2024. [DOI: 10.1109/TCSII.2024.3361205](https://doi.org/10.1109/TCSII.2024.3361205).
+13. <a id="ref-xiang2011test"></a>**[Xiang2011Test]** D. Xiang et al., \"Cost-Effective Power-Aware Core Testing in NoCs Based on a New Unicast-Based Multicast Scheme,\" *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 30, no. 9, pp. 1373–1386, Sept. 2011. [DOI: 10.1109/TCAD.2011.2147785](https://doi.org/10.1109/TCAD.2011.2147785).
+14. <a id="ref-agrawal2014test"></a>**[Agrawal2014Test]** P. Agrawal et al., \"Test-Delivery Optimization in Manycore SOCs,\" *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 33, no. 4, pp. 600–613, Apr. 2014. [DOI: 10.1109/TCAD.2013.2294110](https://doi.org/10.1109/TCAD.2013.2294110).
+15. <a id="ref-li2024neuro"></a>**[Li2024Neuro]** D. Li, M. M. Wong, and L.-S. Peh, \"A 1.63-pJ/SOP Neuromorphic Processor With Integrated Partial Sum Routers for In-Network Computing,\" *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 32, no. 11, pp. 2080–2093, Nov. 2024. [DOI: 10.1109/TVLSI.2024.3411200](https://doi.org/10.1109/TVLSI.2024.3411200).

@@ -6,12 +6,12 @@ While deterministic Dimension-Order Routing (DOR) is simple and provably deadloc
 
 To solve these challenges, computer architects developed **Adaptive Routing**, allowing packets to dynamically select among multiple alternative paths based on local channel congestion or link health.
 
-However, arbitrary adaptivity reintroduces the risk of **circular buffer deadlock**. In 1994, Christopher J. Glass and Lionel M. Ni introduced a foundational methodology called **The Turn Model**, proving that eliminating **just two turns** is sufficient to guarantee deadlock freedom while unlocking rich path diversity!
+However, arbitrary adaptivity reintroduces the risk of **circular buffer deadlock**. In 1994, Christopher J. Glass and Lionel M. Ni introduced a foundational methodology called **The Turn Model** [[Glass1994]](#ref-glass1994), proving that eliminating **just two turns** is sufficient to guarantee deadlock freedom while unlocking rich path diversity!
 
 <div class="noc-callout" style="background: rgba(15, 118, 110, 0.08); border-left: 4px solid #0f766e; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0;">
   <div style="font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">📖 Textbook Reference</div>
   <div style="color: #334155; font-size: 0.95rem;">
-    Explore formal proofs of West-First, North-Last, and Negative-First turn models alongside synthesizable Verilog RTL in <strong><a href="https://github.com/network-on-chip/book/blob/main/chapters/ch05-routing-deadlock-theory/index.md#53-glass--ni-turn-models-for-adaptive-routing-1994" target="_blank" rel="noopener">Chapter 5.3: Glass &amp; Ni Turn Models</a></strong>.
+    Explore formal proofs of West-First, North-Last, and Negative-First turn models alongside synthesizable Verilog RTL in <strong><a href="../textbook/ch05-routing-deadlock-theory/">Chapter 5: Routing Algorithms &amp; Deadlock Theory</a></strong>.
   </div>
 </div>
 
@@ -44,7 +44,7 @@ CW Cycle Turns:                     CCW Cycle Turns:
 4. West  -> North                   4. East  -> North
 ```
 
-### The Turn Model Theorem (Glass & Ni, 1994)
+### The Turn Model Theorem (Glass & Ni, 1994 [[Glass1994]](#ref-glass1994))
 > **Theorem:**  
 > A routing algorithm for an $n$-dimensional mesh is deadlock-free if and only if it prohibits **at least one turn in every directed cycle** of the Channel Dependency Graph.
 
@@ -85,17 +85,17 @@ graph TD
 ### 1. West-First Routing
 - **Prohibited Turns:** $\text{South} \rightarrow \text{West}$ (breaks CW) and $\text{North} \rightarrow \text{West}$ (breaks CCW).
 - **Algorithmic Rule:**
-  > **"If the destination lies West of the current router ($x_d < x_c$), the packet MUST route West first before taking any vertical turns!"**
+    > **"If the destination lies West of the current router ($x_d < x_c$), the packet MUST route West first before taking any vertical turns!"**
 - **Adaptivity Profile:**
-  - **Westbound Traffic ($\Delta x < 0$):** Fully deterministic (must take West hops immediately).
-  - **Eastbound Traffic ($\Delta x > 0$):** **100% Fully Adaptive!** Packets can freely interleave East, North, and South hops around hotspots.
+    - **Westbound Traffic ($\Delta x < 0$):** Fully deterministic (must take West hops immediately).
+    - **Eastbound Traffic ($\Delta x > 0$):** **100% Fully Adaptive!** Packets can freely interleave East, North, and South hops around hotspots.
 
 ### 2. North-Last Routing
 - **Prohibited Turns:** $\text{North} \rightarrow \text{East}$ (breaks CW) and $\text{North} \rightarrow \text{West}$ (breaks CCW).
 - **Algorithmic Rule:**
-  > **"If the destination lies North of the current router ($y_d < y_c$), save all North hops for LAST!"**
+    > **"If the destination lies North of the current router ($y_d < y_c$), save all North hops for LAST!"**
 - **Adaptivity Profile:**
-  - Packets resolve horizontal ($X$) and South hops adaptively, only turning North when directly below the destination column.
+    - Packets resolve horizontal ($X$) and South hops adaptively, only turning North when directly below the destination column.
 
 ### 3. Negative-First Routing
 - **Prohibited Turns:** $\text{North} \rightarrow \text{East}$ (breaks CW) and $\text{South} \rightarrow \text{East}$ (breaks CCW).
@@ -118,7 +118,7 @@ graph TD
 Notice the fundamental flaw in West-First, North-Last, and Negative-First: **Directional Asymmetry!**
 In West-First, flows traveling East enjoy dozens of alternate paths, while flows traveling West have exactly **one path**, creating severe link starvation and uneven hotspot vulnerability.
 
-In 2000, Ge-Ming Chiu solved this problem by introducing the **Odd-Even Turn Model** (IEEE Transactions on Parallel and Distributed Systems). Rather than applying static turn prohibitions everywhere, Odd-Even distributes turn restrictions across routers based on **column parity**:
+In 2000, Ge-Ming Chiu solved this problem by introducing the **Odd-Even Turn Model** (IEEE Transactions on Parallel and Distributed Systems [[Chiu2000]](#ref-chiu2000)). Rather than applying static turn prohibitions everywhere, Odd-Even distributes turn restrictions across routers based on **column parity**:
 
 ```
 Column Parity Architecture in Odd-Even:
@@ -437,22 +437,22 @@ if (document.readyState === "loading") {
 ### Step 1: Destination $(3, 3)$ from Source $(0, 0)$
 - Total Manhattan Distance: $\Delta x = 3, \Delta y = 3$. Total hops $= 6$.
 - Under **Deterministic XY Routing**:
-  - The packet must travel East for 3 hops, then South for 3 hops.
-  - $\mathbf{\text{Legal Paths (XY)} = 1\text{ path}}$.
+    - The packet must travel East for 3 hops, then South for 3 hops.
+    - $\mathbf{\text{Legal Paths (XY)} = 1\text{ path}}$.
 - Under **West-First Routing**:
-  - The destination is East ($\Delta x > 0$) and South ($\Delta y > 0$).
-  - Neither forbidden turn ($S \to W$ or $N \to W$) is ever needed!
-  - The packet can take any combination of 3 East hops and 3 South hops in ANY arbitrary order:
+    - The destination is East ($\Delta x > 0$) and South ($\Delta y > 0$).
+    - Neither forbidden turn ($S \to W$ or $N \to W$) is ever needed!
+    - The packet can take any combination of 3 East hops and 3 South hops in ANY arbitrary order:
 
     $$\mathbf{\text{Legal Paths (WF)} = \binom{\Delta x + \Delta y}{\Delta x} = \binom{3 + 3}{3} = \frac{6 \times 5 \times 4}{3 \times 2 \times 1} = \mathbf{20\text{ distinct paths}}!}$$
 
 ### Step 2: Reverse Flow from $(3, 3)$ to $(0, 0)$
 - Here $\Delta x = -3$ (West) and $\Delta y = -3$ (North).
 - Under **West-First Routing**:
-  - Because the destination is West, the algorithm strictly mandates: **take all West hops first**!
-  - Once the packet turns North, turning West is strictly prohibited ($N \to W$ is illegal).
-  - Therefore, the packet MUST take 3 West hops first, followed by 3 North hops.
-  - $\mathbf{\text{Legal Paths (WF from East to West)} = \mathbf{1\text{ path}}}$!
+    - Because the destination is West, the algorithm strictly mandates: **take all West hops first**!
+    - Once the packet turns North, turning West is strictly prohibited ($N \to W$ is illegal).
+    - Therefore, the packet MUST take 3 West hops first, followed by 3 North hops.
+    - $\mathbf{\text{Legal Paths (WF from East to West)} = \mathbf{1\text{ path}}}$!
 
 ### Takeaway:
 West-First provides a staggering **$20\times$ increase in path diversity** for Eastbound traffic, completely eliminating single-link bottlenecks. However, it collapses back to deterministic routing for Westbound traffic—which is why the **Odd-Even model** was developed to equalize adaptivity across both directions.

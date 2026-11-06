@@ -1,10 +1,9 @@
 # Chapter 4: Direct, Indirect & High-Radix Interconnect Topologies
 
-> **Authors**: NoC-Lab Research Consortium  
-> **Domain**: Silicon Microarchitecture & Interconnect Design  
-> **Interactive Companion**: [NoC Learning Hub — Track 3: Topologies & Metrics](https://network-on-chip.github.io/learning/track3-topologies/)  
-> **Interactive Lab**: [Topology Titans: Graph Architect](https://network-on-chip.github.io/learning/interactive/topology/)  
-> **Accompanying Code**: [`code/topology_metrics_sim.py`](code/topology_metrics_sim.py), [`code/topology_router_mesh_torus.v`](code/topology_router_mesh_torus.v)
+[![Companion Platform](https://img.shields.io/badge/Interactive%20Lab-Topology%20Titans-0f766e?logo=bookstack&logoColor=white)](https://network-on-chip.github.io/learning/interactive/topology/)
+[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%203%3A%20Topologies-blue)](https://network-on-chip.github.io/learning/track3-topologies/)
+[![Simulation Model](https://img.shields.io/badge/Python%20Model-topology__metrics__sim.py-blueviolet)](code/topology_metrics_sim.py)
+[![Hardware RTL](https://img.shields.io/badge/Verilog%20RTL-topology__router__mesh__torus.v-success)](code/topology_router_mesh_torus.v)
 
 ---
 
@@ -75,42 +74,42 @@ graph TD
 To evaluate any candidate topology objectively, we formalize the fundamental graph-theoretic and architectural metrics:
 
 - **Router Radix (Node Degree $k$)**:
-  - The degree of a node $u \in V$, denoted as $\text{deg}(u)$, is the total number of physical bidirectional links incident upon it:
+    - The degree of a node $u \in V$, denoted as $\text{deg}(u)$, is the total number of physical bidirectional links incident upon it:
     $$\text{deg}(u) = \text{deg}_{in}(u) + \text{deg}_{out}(u)$$
-  - In a symmetric, regular network where every node connects to $k$ physical channels, the router radix is $k$. A standard 2D mesh router connects to 4 cardinal neighbors (North, South, East, West) plus 1 local compute tile interface, yielding physical radix $k = 5$.
-  - *Microarchitectural Trade-Off*: Because internal crossbar switch area and power scale quadratically ($O(k^2)$), low-radix designs minimize router area, whereas high-radix topologies ($k \ge 16\text{–}64$) require larger switch fabrics but dramatically compress network diameter.
+    - In a symmetric, regular network where every node connects to $k$ physical channels, the router radix is $k$. A standard 2D mesh router connects to 4 cardinal neighbors (North, South, East, West) plus 1 local compute tile interface, yielding physical radix $k = 5$.
+    - *Microarchitectural Trade-Off*: Because internal crossbar switch area and power scale quadratically ($O(k^2)$), low-radix designs minimize router area, whereas high-radix topologies ($k \ge 16\text{–}64$) require larger switch fabrics but dramatically compress network diameter.
 
 - **Network Diameter ($D$)**:
-  - The maximum shortest-path distance between any arbitrary pair of nodes in the network graph:
+    - The maximum shortest-path distance between any arbitrary pair of nodes in the network graph:
     $$D = \max_{u, v \in V} d(u, v)$$
-  - Represents the worst-case zero-load communication distance across the chip.
-  - In an $N$-node 2D mesh, $D = 2(\sqrt{N} - 1)$ (e.g., $D = 14$ hops for an $8 \times 8$ mesh), whereas in a 2D torus, wrap-around channels slash diameter in half to $D = 2\lfloor\frac{\sqrt{N}}{2}\rfloor$ ($D = 8$ hops).
+    - Represents the worst-case zero-load communication distance across the chip.
+    - In an $N$-node 2D mesh, $D = 2(\sqrt{N} - 1)$ (e.g., $D = 14$ hops for an $8 \times 8$ mesh), whereas in a 2D torus, wrap-around channels slash diameter in half to $D = 2\lfloor\frac{\sqrt{N}}{2}\rfloor$ ($D = 8$ hops).
 
 - **Average Hop Distance ($\bar{h}$)**:
-  - The expected hop count between randomly chosen source-destination pairs under a spatial traffic distribution $p(u, v)$:
+    - The expected hop count between randomly chosen source-destination pairs under a spatial traffic distribution $p(u, v)$:
     $$\bar{h} = \sum_{u \in V} \sum_{v \in V, v \ne u} p(u, v) \cdot d(u, v)$$
-  - Under **Uniform Random (UR)** traffic, every node communicates with every other node with equal probability $p(u, v) = \frac{1}{N(N-1)}$:
+    - Under **Uniform Random (UR)** traffic, every node communicates with every other node with equal probability $p(u, v) = \frac{1}{N(N-1)}$:
     $$\bar{h}_{UR} = \frac{1}{N(N-1)} \sum_{u \ne v} d(u, v)$$
-  - Direct energy impact: dynamic flit transmission energy across the chip scales proportionally with average hops ($E_{total} \propto \bar{h} \cdot E_{hop}$).
+    - Direct energy impact: dynamic flit transmission energy across the chip scales proportionally with average hops ($E_{total} \propto \bar{h} \cdot E_{hop}$).
 
 - **Bisection Bandwidth ($B_C$)**:
-  - The minimum aggregate bandwidth across any cut that partitions the node set $V$ into two equal subsets $V_1$ and $V_2$ ($|V_1| = |V_2| = N/2$):
+    - The minimum aggregate bandwidth across any cut that partitions the node set $V$ into two equal subsets $V_1$ and $V_2$ ($|V_1| = |V_2| = N/2$):
     $$B_C = \min_{V_1, V_2} \sum_{u \in V_1, v \in V_2, (u, v) \in E} C(u, v)$$
-  - For symmetric topologies with uniform channel width $W$ bits and clock frequency $f_{clk}$, bisection bandwidth is defined by the count of physical channels crossing the bisection cut $N_C$:
+    - For symmetric topologies with uniform channel width $W$ bits and clock frequency $f_{clk}$, bisection bandwidth is defined by the count of physical channels crossing the bisection cut $N_C$:
     $$B_C = N_C \cdot W \cdot f_{clk}$$
-  - Serves as the ultimate hardware bottleneck under global or adversarial traffic patterns (e.g., matrix transpose, bit-reversal, or deep neural network all-to-all collective reductions).
+    - Serves as the ultimate hardware bottleneck under global or adversarial traffic patterns (e.g., matrix transpose, bit-reversal, or deep neural network all-to-all collective reductions).
 
 - **Maximum Channel Load ($\gamma_{max}$) and Saturation Throughput ($\Theta_{sat}$)**:
-  - Let $\gamma_e$ denote the expected traffic volume traversing physical channel $e \in E$ when each node injects 1 flit per cycle. The maximum channel load is:
+    - Let $\gamma_e$ denote the expected traffic volume traversing physical channel $e \in E$ when each node injects 1 flit per cycle. The maximum channel load is:
     $$\gamma_{max} = \max_{e \in E} \gamma_e$$
-  - Because a physical channel carries at most 1 flit per cycle, the maximum achievable injection rate per node before queues diverge to infinity (the **saturation throughput** $\Theta_{sat}$) is strictly bounded by:
+    - Because a physical channel carries at most 1 flit per cycle, the maximum achievable injection rate per node before queues diverge to infinity (the **saturation throughput** $\Theta_{sat}$) is strictly bounded by:
     $$\Theta_{sat} \le \frac{1}{\gamma_{max}} \le \frac{2 B_C}{N} \quad \text{[flits/node/cycle]}$$
-  - Under uniform random traffic across a bisection cut dividing the network in half, exactly half of all injected packets cross the cut, leading directly to the upper bound $\Theta_{sat} \le \frac{2 B_C}{N}$.
+    - Under uniform random traffic across a bisection cut dividing the network in half, exactly half of all injected packets cross the cut, leading directly to the upper bound $\Theta_{sat} \le \frac{2 B_C}{N}$.
 
 - **Zero-Load Latency ($T_0$)**:
-  - The average latency experienced by a packet of length $L$ flits traversing the network under zero contention:
+    - The average latency experienced by a packet of length $L$ flits traversing the network under zero contention:
     $$T_0 = (\bar{h} + 1) \cdot t_{router} + \bar{h} \cdot t_{wire} + \left( \frac{L - 1}{\text{Rate}} \right)$$
-  - Decouples into three physical components: per-hop router pipeline latency ($t_{router}$), inter-router link flight time ($t_{wire}$), and packet serialization delay ($\frac{L - 1}{\text{Rate}}$).
+    - Decouples into three physical components: per-hop router pipeline latency ($t_{router}$), inter-router link flight time ($t_{wire}$), and packet serialization delay ($\frac{L - 1}{\text{Rate}}$).
 
 ---
 
@@ -268,7 +267,7 @@ graph LR
 
 ### 4.4.1 Flattened Butterfly (FBfly)
 
-Proposed by John Kim et al. (ISCA 2007), the **Flattened Butterfly** projects a multi-stage butterfly network into a direct topology by combining the switches in each row into a single high-radix router.
+Proposed by John Kim et al. [[Kim2007](#ref-kim2007)], the **Flattened Butterfly** projects a multi-stage butterfly network into a direct topology by combining the switches in each row into a single high-radix router.
 - In a $k \times k$ Flattened Butterfly, each router connects directly to every other router in the same row and the same column.
 - **Diameter**: $D_{FBfly} = 2$ (any node is at most 2 hops away).
 - **Routing**: Minimal routing requires at most 1 hop along dimension $X$ and 1 hop along dimension $Y$.
@@ -276,11 +275,18 @@ Proposed by John Kim et al. (ISCA 2007), the **Flattened Butterfly** projects a 
 
 ### 4.4.2 The Dragonfly Topology
 
-The **Dragonfly** topology (Kim, Dally et al., ISCA 2008) organizes high-radix routers into a hierarchical two-level network:
+The **Dragonfly** topology (Kim et al. [[Kim2008](#ref-kim2008)]) organizes high-radix routers into a hierarchical two-level network:
 - **Local Groups (Intra-Group Cliques)**: Inside each group, $a$ routers are fully interconnected with high-density, low-latency local channels.
 - **Global Link Interconnect**: Each router provisions $h$ global channels connecting directly to routers situated in disparate groups, forming a virtual complete graph across groups.
 - **Node Concentration**: Each router directly multiplexes traffic from $p$ local compute nodes or cache slices.
-- **Adaptive Path Diversity via UGAL**: Under **Universal Globally-Adaptive Routing (UGAL)**, the Dragonfly routes minimally when global channels are uncongested, but dynamically deflects packets non-minimally through a random intermediate group under adversarial traffic (such as nearest-neighbor or transpose patterns), effectively doubling saturation throughput by eliminating hot links.
+- **Adaptive Path Diversity via UGAL**: Under **Universal Globally-Adaptive Routing (UGAL)** [[Kim2008]](#ref-kim2008), the Dragonfly routes minimally when global channels are uncongested, but dynamically deflects packets non-minimally through a random intermediate group under adversarial traffic (such as nearest-neighbor or transpose patterns), effectively doubling saturation throughput by eliminating hot links.
+
+### 4.4.3 Extremal & Industrial High-Radix Fabrics: Slim Fly, PolarFly & NVSwitch
+
+Beyond canonical butterflies and dragonflies, extremal graph constructions approach the theoretical Moore bound ($N \le k^2 + 1$ for diameter 2):
+- **Slim Fly**: Besta and Hoefler [[Besta2014]](#ref-besta2014) introduced Slim Fly based on McKay-Miller-Siran (MMS) graphs over Galois fields $\mathbb{F}_q$, achieving diameter $D = 2$ and approaching nearly 50% of the Moore bound while cutting router counts by 25% over dragonflies.
+- **PolarFly**: Besta et al. [[Besta2022]](#ref-besta2022) synthesized PolarFly using Erdős-Rényi polarity graphs from projective geometry $PG(2, q)$, eliminating bipartite constraints and achieving non-blocking diameter 2 with optimal algebraic connectivity $\lambda_2$.
+- **Industrial GPU Crossbars (NVIDIA NVSwitch)**: Modern multi-GPU fabrics employ dedicated high-radix crossbar ASICs (NVSwitch 1/2/3) delivering up to 28.8 Tb/s non-blocking aggregate bandwidth and hardware-accelerated SHARP reduction collectives across NVLink channels [[Foley2023]](#ref-foley2023).
 
 ---
 
@@ -353,7 +359,55 @@ The following table summarizes the graph-theoretic, microarchitectural, and phys
 
 ---
 
-## 4.8 Checkpoint Assessment
+## 4.8 Interactive Lab & Hands-on Challenges
+
+<div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.65)); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+  <div>
+    <div style="font-weight: 700; color: #93c5fd; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
+      <span>🌐 Dedicated Interactive Lab: Topology Titans: Graph Architect</span>
+    </div>
+    <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 800px; line-height: 1.5;">
+      Construct and benchmark high-performance network graphs: 2D Mesh, 2D Torus, Hypercube, Dragonfly, and Flattened Butterfly under real-time synthetic traffic stress.
+    </div>
+  </div>
+  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+    <a href="../../interactive/topology.md" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+      <span>Launch Topology Titans →</span>
+    </a>
+  </div>
+</div>
+
+Complete the following three hands-on laboratory missions in **[Topology Titans](../../interactive/topology.md)**:
+
+### Challenge Mission 4.1: Topological Metric Trade-offs: Bisection Bandwidth vs Router Radix
+- **Objective:** Quantify the trade-offs between router degree $k_R$, network diameter $D$, and bisection bandwidth $\mathcal{B}_C$ across 64-node networks.
+- **Setup & Procedure:**
+  1. In **Topology Titans**, synthesize an $8 \times 8$ **2D Mesh**. Record diameter ($D = 14$), bisection channels ($B_C = 8$), and maximum router degree ($k = 4$).
+  2. Switch topology to **2D Torus ($8 \times 8$)**. Observe that adding wrap-around links cuts diameter in half ($D = 8$) and doubles bisection bandwidth ($B_C = 16$).
+  3. Synthesize a **6-Cube Hypercube** ($N = 64$).
+- **Architectural Observation:** The hypercube achieves a tiny diameter ($D = 6$) and massive bisection ($B_C = 32$), but requires router degree $k = 6$ with high wiring complexity. On 2D planar silicon, hypercube channels require complex wire crossings on upper metal layers, illustrating why planar 2D Torus and cMesh topologies are often preferred for monolithic silicon dies.
+- **Verification Formula:** $\mathcal{B}_{Mesh} = k \cdot w, \quad \mathcal{B}_{Torus} = 2k \cdot w, \quad \mathcal{B}_{Hypercube} = \frac{N}{2} \cdot w$.
+
+### Challenge Mission 4.2: Adversarial Traffic Patterns & Center Bisection Bottlenecks
+- **Objective:** Compare saturation throughput of a 2D Mesh against a Dragonfly under non-uniform traffic workloads.
+- **Setup & Procedure:**
+  1. In **Topology Titans**, inject **Uniform Random Traffic** into the $8 \times 8$ Mesh. Observe smooth packet dispersal.
+  2. Switch traffic to **Bit-Complement Traffic** (node $(x,y)$ transmits exclusively to $(k-1-x, k-1-y)$).
+  3. Compare queue occupancies at edge routers versus center routers $(3,3)$ and $(4,4)$.
+- **Architectural Observation:** Under Bit-Complement and Transpose traffic, all communication flows must cross the central bisection cut. Center routers in the 2D mesh suffer acute buffer overflow and saturate at $\le 25\%$ of peak capacity. Conversely, in the Dragonfly network with UGAL adaptive deflection, non-minimal global links dynamically distribute adversarial flows across intermediate groups, eliminating the bisection hotspot!
+
+### Challenge Mission 4.3: Node Concentration & High-Radix cMesh Optimization
+- **Objective:** Evaluate how concentrator routers (cMesh) reduce network diameter and hop counts by clustering 4 compute cores per router.
+- **Setup & Procedure:**
+  1. Synthesize a standard $8 \times 8$ 2D Mesh ($64$ routers).
+  2. Synthesize a concentrated cMesh ($4 \times 4$ routers, concentration factor $C = 4$).
+  3. Compare zero-load average hop latency $\bar{h}$ and total router silicon area.
+- **Architectural Observation:** Concentrating 4 cores per router slashes router count from 64 to 16, cutting average network hop count from $5.33$ hops down to $2.67$ hops! While router radix increases from 5 to 8 (4 network ports + 4 local injection ports), modern multi-metal CMOS layers easily accommodate the $8 \times 8$ crossbars over standard cells, saving over $40\%$ total NoC buffer area!
+- **Hardware RTL & Python Reference:** Run `python code/topology_metrics_sim.py` and inspect `code/topology_graph_metrics.v` for synthesizable graph metric calculation RTL.
+
+---
+
+## 4.9 Checkpoint Assessment
 
 Test your mastery of Chapter 4 concepts against the official certification questions (mirroring the 3-Tier Exam Engine in [`quiz.md`](../../quiz.md)):
 
@@ -430,18 +484,40 @@ Test your mastery of Chapter 4 concepts against the official certification quest
     **3. Silicon Architect's Takeaway:**
     Crossbar NoCs scale beyond 100 nodes when decomposed into distributed 3-stage Clos networks with O(N^1.5) crosspoint complexity.
 
-    *(Reference: G. Passas, M. Katevenis, and D. Pnevmatikatos, 'Crossbar NoCs Are Scalable Beyond 100 Nodes,' IEEE TCAD, Vol. 31, No. 4, pp. 573–585, Apr. 2012. DOI: 10.1109/TCAD.2011.2176730.)*
+    *(Reference: [[Passas2012](#ref-passas2012)] G. Passas, M. Katevenis, and D. Pnevmatikatos, "Crossbar NoCs Are Scalable Beyond 100 Nodes," IEEE TCAD, Vol. 31, No. 4, pp. 573–585, Apr. 2012. DOI: 10.1109/TCAD.2011.2176730.)*
+
+---
+
+### Application-Specific Topology Synthesis and Intelligent Mapping
+<a id="synthesis-mapping"></a>
+
+While regular topologies (Mesh, Torus, Fat-Tree) dominate general-purpose CMPs, specialized SoCs and AI inference engines demand application-specific custom interconnects:
+- **Automated Full-Chip Custom NoC Generation (CusNoC)**: Li~[[Li2013CusNoC](#ref-li2013cusnoc)] developed CusNoC, an automated synthesis framework that maps irregular task communication graphs into floorplan-aware, minimum-power custom NoC topologies in linear runtime. Automated synthesis methodologies established by Chatha et al.~[[Chatha2008](#ref-chatha2008)] further proved that tailoring router radix and link capacities to bandwidth requirements cuts router area by $40\\%$ compared to regular 2D meshes.
+- **Discrete Particle Swarm Optimization (PSO) Mapping**: Sahu et al.~[[Sahu2014](#ref-sahu2014)] demonstrated that discrete PSO meta-heuristics map IP cores onto mesh nodes with minimal communication energy, outperforming simulated annealing and genetic algorithms in convergence speed and quality.
+- **Fine-Grain Task Scheduling in MPSoCs**: Yang et al.~[[Yang2016](#ref-yang2016)] combined communication-aware task scheduling with voltage scaling, optimizing both communication latency and task makespan in multi-core SoCs.
+- **Multicast Routing Architectures**: Custom architectures with hardware multicast routing by Yan et al.~[[Yan2009Multicast](#ref-yan2009multicast)] replicate flits inside switch nodes, cutting broadcast traffic energy by over $50\\%$.
+- **Spike-Sharing Partitions and Robotics Heterogeneity**: Recent breakthroughs including SNNcut by Xing et al.~[[Xing2026SNNcut](#ref-xing2026snncut)], analytical SNN topology modeling by Yan et al.~[[Yan2026SNN](#ref-yan2026snn)], and the 19-core MAVERIC robotics SoC by Kim et al.~[[Kim2026Mav](#ref-kim2026mav)] illustrate how application-aware interconnect co-design enables ultra-dense edge intelligence.
 
 ---
 
 ## References & Bibliography
 
-1. **[Passas2012]** G. Passas, M. Katevenis, and D. Pnevmatikatos, "Crossbar NoCs Are Scalable Beyond 100 Nodes," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 31, no. 4, pp. 573–585, Apr. 2012. [DOI: 10.1109/TCAD.2011.2176730](https://doi.org/10.1109/TCAD.2011.2176730).
-2. **[Jun2009]** M. Jun, S. Yoo, and E.-Y. Chung, "Topology Synthesis of Cascaded Crossbar Switches," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 28, no. 6, pp. 926–930, June 2009. [DOI: 10.1109/TCAD.2009.2017079](https://doi.org/10.1109/TCAD.2009.2017079).
-3. **[Dumitriu2009]** V. Dumitriu and G. N. Khan, "Throughput-Oriented NoC Topology Generation and Analysis for High Performance SoCs," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 17, no. 10, pp. 1433–1446, Oct. 2009. [DOI: 10.1109/TVLSI.2008.2006798](https://doi.org/10.1109/TVLSI.2008.2006798).
-4. **[Kim2007]** J. Kim, J. Balfour, and W. J. Dally, "Flattened Butterfly Topology for On-Chip Networks," in *Proceedings of the 40th Annual IEEE/ACM International Symposium on Microarchitecture (MICRO)*, 2007, pp. 172–182. [DOI: 10.1109/MICRO.2007.28](https://doi.org/10.1109/MICRO.2007.28).
-5. **[Kim2008]** J. Kim, W. J. Dally, S. Scott, and D. Abts, "Technology-Driven, Highly-Scalable Dragonfly Topology," in *Proceedings of the 35th Annual International Symposium on Computer Architecture (ISCA)*, 2008, pp. 77–88. [DOI: 10.1109/ISCA.2008.19](https://doi.org/10.1109/ISCA.2008.19).
-6. **[Besta2014]** M. Besta and T. Hoefler, "Slim Fly: A Low-Diameter Network for High-Performance Computing," in *Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis (SC)*, 2014, pp. 343–354. [DOI: 10.1109/SC.2014.34](https://doi.org/10.1109/SC.2014.34).
-7. **[Clos1953]** C. Clos, "A Study of Non-Blocking Switching Networks," *Bell System Technical Journal*, vol. 32, no. 2, pp. 406–424, 1953.
-8. **[Leiserson1985]** C. E. Leiserson, "Fat-Trees: Universal Networks for Hardware-Efficient Supercomputing," *IEEE Transactions on Computers*, vol. C-34, no. 10, pp. 892–901, Oct. 1985. [DOI: 10.1109/TC.1985.1676519](https://doi.org/10.1109/TC.1985.1676519).
-9. **[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann, San Francisco, CA, 2004.
+1. <a id="ref-passas2012"></a>**[Passas2012]** G. Passas, M. Katevenis, and D. Pnevmatikatos, "Crossbar NoCs Are Scalable Beyond 100 Nodes," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 31, no. 4, pp. 573–585, Apr. 2012. [DOI: 10.1109/TCAD.2011.2176730](https://doi.org/10.1109/TCAD.2011.2176730).
+2. <a id="ref-jun2009"></a>**[Jun2009]** M. Jun, S. Yoo, and E.-Y. Chung, "Topology Synthesis of Cascaded Crossbar Switches," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 28, no. 6, pp. 926–930, June 2009. [DOI: 10.1109/TCAD.2009.2017079](https://doi.org/10.1109/TCAD.2009.2017079).
+3. <a id="ref-dumitriu2009"></a>**[Dumitriu2009]** V. Dumitriu and G. N. Khan, "Throughput-Oriented NoC Topology Generation and Analysis for High Performance SoCs," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 17, no. 10, pp. 1433–1446, Oct. 2009. [DOI: 10.1109/TVLSI.2008.2006798](https://doi.org/10.1109/TVLSI.2008.2006798).
+4. <a id="ref-kim2007"></a>**[Kim2007]** J. Kim, J. Balfour, and W. J. Dally, "Flattened Butterfly Topology for On-Chip Networks," in *Proceedings of the 40th Annual IEEE/ACM International Symposium on Microarchitecture (MICRO)*, 2007, pp. 172–182. [DOI: 10.1109/MICRO.2007.28](https://doi.org/10.1109/MICRO.2007.28).
+5. <a id="ref-kim2008"></a>**[Kim2008]** J. Kim, W. J. Dally, S. Scott, and D. Abts, "Technology-Driven, Highly-Scalable Dragonfly Topology," in *Proceedings of the 35th Annual International Symposium on Computer Architecture (ISCA)*, 2008, pp. 77–88. [DOI: 10.1109/ISCA.2008.19](https://doi.org/10.1109/ISCA.2008.19).
+6. <a id="ref-besta2014"></a>**[Besta2014]** M. Besta and T. Hoefler, "Slim Fly: A Low-Diameter Network for High-Performance Computing," in *Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis (SC)*, 2014, pp. 343–354. [DOI: 10.1109/SC.2014.34](https://doi.org/10.1109/SC.2014.34).
+7. <a id="ref-besta2022"></a>**[Besta2022]** M. Besta, E. Peter, R. Kanakagiri, R. B. H., L. John, and T. Hoefler, "PolarFly: A Cost-Effective and Scalable Low-Diameter Topology," in *Proceedings of the 49th Annual International Symposium on Computer Architecture (ISCA)*, 2022, pp. 709–724. [DOI: 10.1145/3470496.3527415](https://doi.org/10.1145/3470496.3527415).
+8. <a id="ref-clos1953"></a>**[Clos1953]** C. Clos, "A Study of Non-Blocking Switching Networks," *Bell System Technical Journal*, vol. 32, no. 2, pp. 406–424, 1953. [DOI: 10.1002/j.1538-7305.1953.tb01433.x](https://doi.org/10.1002/j.1538-7305.1953.tb01433.x).
+9. <a id="ref-leiserson1985"></a>**[Leiserson1985]** C. E. Leiserson, "Fat-Trees: Universal Networks for Hardware-Efficient Supercomputing," *IEEE Transactions on Computers*, vol. C-34, no. 10, pp. 892–901, Oct. 1985. [DOI: 10.1109/TC.1985.1676519](https://doi.org/10.1109/TC.1985.1676519).
+10. <a id="ref-foley2023"></a>**[Foley2023]** D. Foley, B. Khailany, and J. Dally, "Ultra-High-Speed NVLink Interconnects for Modern Scalable GPU Computing," *IEEE Micro*, vol. 43, no. 4, pp. 45–54, 2023. [DOI: 10.1109/MM.2023.3275811](https://doi.org/10.1109/MM.2023.3275811).
+11. <a id="ref-dallyprinciples"></a>**[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann, San Francisco, CA, 2004.
+12. <a id="ref-li2013cusnoc"></a>**[Li2013CusNoC]** K. S.-M. Li, \"CusNoC: Fast Full-Chip Custom NoC Generation,\" *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 21, no. 4, pp. 692–705, Apr. 2013. [DOI: 10.1109/TVLSI.2012.2195688](https://doi.org/10.1109/TVLSI.2012.2195688).
+13. <a id="ref-chatha2008"></a>**[Chatha2008]** K. S. Chatha et al., \"Automated Techniques for Synthesis of Application-Specific Network-on-Chip Architectures,\" *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 27, no. 8, pp. 1425–1438, Aug. 2008. [DOI: 10.1109/TCAD.2008.925775](https://doi.org/10.1109/TCAD.2008.925775).
+14. <a id="ref-sahu2014"></a>**[Sahu2014]** P. K. Sahu et al., \"Application Mapping Onto Mesh-Based Network-on-Chip Using Discrete Particle Swarm Optimization,\" *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 22, no. 2, pp. 300–312, Feb. 2014. [DOI: 10.1109/TVLSI.2013.2240708](https://doi.org/10.1109/TVLSI.2013.2240708).
+15. <a id="ref-yang2016"></a>**[Yang2016]** Y. Yang et al., \"Application Mapping and Scheduling for Network-on-Chip-Based Multiprocessor System-on-Chip With Fine-Grain Communication Optimization,\" *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 24, no. 8, pp. 2650–2662, Aug. 2016. [DOI: 10.1109/TVLSI.2016.2535359](https://doi.org/10.1109/TVLSI.2016.2535359).
+16. <a id="ref-yan2009multicast"></a>**[Yan2009Multicast]** S. Yan et al., \"Custom Networks-on-Chip Architectures With Multicast Routing,\" *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 28, no. 8, pp. 1225–1238, Aug. 2009. [DOI: 10.1109/TCAD.2009.2021124](https://doi.org/10.1109/TCAD.2009.2021124).
+17. <a id="ref-xing2026snncut"></a>**[Xing2026SNNcut]** Q. Xing et al., \"SNNcut: An Efficient Partitioning Method for Large-Scale Spiking Neural Networks Using Spike-Sharing,\" *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 4, pp. 1420–1433, Apr. 2026. [DOI: 10.1109/TCAD.2025.3621105](https://doi.org/10.1109/TCAD.2025.3621105).
+18. <a id="ref-yan2026snn"></a>**[Yan2026SNN]** Z. Yan et al., \"Reconsidering the Energy Efficiency of Spiking Neural Networks Inference from Analytical Perspectives,\" *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 5, pp. 1910–1923, May 2026. [DOI: 10.1109/TCAD.2025.3619902](https://doi.org/10.1109/TCAD.2025.3619902).
+19. <a id="ref-kim2026mav"></a>**[Kim2026Mav]** S. Kim et al., \"MAVERIC: A Heterogeneous Robotics SoC With 4 CPU Cores and 15 Accelerator Cores in 28-nm CMOS,\" *IEEE Journal of Solid-State Circuits*, vol. 61, no. 4, pp. 1010–1023, Apr. 2026. [DOI: 10.1109/JSSC.2025.3620015](https://doi.org/10.1109/JSSC.2025.3620015).

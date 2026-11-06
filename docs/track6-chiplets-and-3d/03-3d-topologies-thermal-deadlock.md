@@ -35,12 +35,12 @@ In a fully symmetric 3D mesh, every tile on every tier contains a 7-port router 
 #### Comparison: 64-Node 2D Mesh vs 64-Node 3D Mesh
 Consider connecting 64 compute cores:
 - **2D Mesh ($8 \times 8 \times 1$):**
-  - Diameter: $(8 - 1) + (8 - 1) = 14 \ \text{hops}$.
-  - Average hops: $\approx \frac{8 + 8}{3} \approx 5.33 \ \text{hops}$.
+    - Diameter: $(8 - 1) + (8 - 1) = 14 \ \text{hops}$.
+    - Average hops: $\approx \frac{8 + 8}{3} \approx 5.33 \ \text{hops}$.
 - **3D Mesh ($4 \times 4 \times 4$):**
-  - Diameter: $(4 - 1) + (4 - 1) + (4 - 1) = 9 \ \text{hops} \ (\mathbf{35.7\% \text{ reduction}})$.
-  - Average hops: $\approx \frac{4 + 4 + 4}{3} = 4.0 \ \text{hops} \ (\mathbf{25\% \text{ reduction}})$.
-  - Bisection bandwidth expands by $4\times$ because cross-tier traffic traverses 16 parallel vertical channels!
+    - Diameter: $(4 - 1) + (4 - 1) + (4 - 1) = 9 \ \text{hops} \ (\mathbf{35.7\% \text{ reduction}})$.
+    - Average hops: $\approx \frac{4 + 4 + 4}{3} = 4.0 \ \text{hops} \ (\mathbf{25\% \text{ reduction}})$.
+    - Bisection bandwidth expands by $4\times$ because cross-tier traffic traverses 16 parallel vertical channels!
 
 ### 2. Partial / Hybrid 3D NoC (Sparse TSV Elevators)
 While full 3D meshes minimize hop counts, placing vertical TSVs at every router incurs heavy silicon penalties:

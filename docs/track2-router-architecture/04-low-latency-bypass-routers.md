@@ -14,7 +14,7 @@ In a classical router, a Head Flit must sequentially complete:
 1. **Virtual Channel Allocation (VA)**: Win an available downstream VC.
 2. **Switch Allocation (SA)**: Once a VC is guaranteed, compete for the physical crossbar switch.
 
-In 2001, **Li-Shiuan Peh and William J. Dally** introduced **Speculative Switch Allocation**:
+In 2001, **Li-Shiuan Peh and William J. Dally** introduced **Speculative Switch Allocation** [[Peh2001]](#ref-peh2001):
 
 ```mermaid
 graph TD
@@ -57,7 +57,7 @@ If a Head Flit wins the crossbar in the switch allocator but **fails to win a do
 
 Can we eliminate buffer delays altogether under uncontended conditions?
 
-In a **1-Stage Bypass Router** (such as the Intel Skylake-SP / Ice Lake mesh architecture):
+In a **1-Stage Bypass Router** (such as the Intel Skylake-SP / Ice Lake mesh architecture, and single-cycle architectures [[Matsutani2011]](#ref-matsutani2011), [[Mullins2006]](#ref-mullins2006)):
 - When a flit arrives from an incoming inter-router link, the router checks two simple conditions:
   1. Is the local input buffer queue for this port **empty**?
   2. Is the desired output crossbar port **uncontended** (no buffered flits requesting it)?
@@ -85,7 +85,7 @@ graph LR
 
 Even with a 1-cycle router, traversing an 8-hop path requires 8 clock cycles for router logic plus 8 clock cycles for wire links ($8 + 8 = 16\text{ cycles}$). 
 
-In 2013, researchers from MIT and Stanford (Tushar Krishna et al., *HPCA 2013 / IEEE Micro Top Picks*) asked a radical question:  
+In 2013, researchers from MIT and Stanford (Tushar Krishna et al., *HPCA 2013 / IEEE Micro Top Picks* [[Krishna2013]](#ref-krishna2013)) asked a radical question:  
 **Can a packet traverse MULTIPLE routers within a SINGLE clock cycle?**
 
 The result was **SMART (Single-Cycle Multi-hop Asynchronous Repeated Traversal)**:
@@ -616,6 +616,18 @@ function checkQuiz24_Q3(idx) {
 Test your low-latency and bypass routing intuition in arcade simulations:
 - ⚔️ **[Deflection Duel: Bufferless NoC](../interactive/deflection.md):** Experience extreme low-latency packet forwarding without input buffers using dynamic deflection routing.
 - 🌡️ **[Hotspot Hero: Silicon Thermal Defender](../interactive/hotspot.md):** Balance dynamic frequency scaling (DVFS) and power gating when aggressive low-latency bypass routers create local thermal hotspots.
+
+---
+
+## References & Further Reading
+<a id="ref-peh2001"></a>
+
+1. **[Peh2001]** L.-S. Peh and W. J. Dally, "A Delay Model and Speculative Architecture for Pipelined Routers," in *Proceedings of the 7th IEEE International Symposium on High-Performance Computer Architecture (HPCA)*, 2001, pp. 255–266. [DOI: 10.1109/HPCA.2001.903268](https://doi.org/10.1109/HPCA.2001.903268).
+2. <a id="ref-matsutani2011"></a>**[Matsutani2011]** H. Matsutani, M. Koibuchi, D. Wang, and H. Amano, "Ultra-Low-Latency Router Specially Designed for On-Chip Networks," *IEEE Transactions on Parallel and Distributed Systems*, vol. 22, no. 8, pp. 1336–1349, Aug. 2011. [DOI: 10.1109/TPDS.2010.204](https://doi.org/10.1109/TPDS.2010.204).
+3. <a id="ref-mullins2006"></a>**[Mullins2006]** R. D. Mullins, A. West, and S. W. Moore, "Low-Latency Virtual-Channel Routers for On-Chip Networks," in *Proceedings of the 31st Annual International Symposium on Computer Architecture (ISCA)*, 2004, pp. 188–197. [DOI: 10.1109/ISCA.2004.1310773](https://doi.org/10.1109/ISCA.2004.1310773).
+4. <a id="ref-krishna2013"></a>**[Krishna2013]** T. Krishna, C.-H. O. Chen, W. C. Kwon, and L.-S. Peh, "Single-Cycle Multihop Asynchronous Repeated Traversal: A Case Study for Designing Low-Latency On-Chip Networks," *IEEE Micro*, vol. 34, no. 3, pp. 8–20, May/Jun. 2014. [DOI: 10.1109/MM.2014.19](https://doi.org/10.1109/MM.2014.19).
+5. <a id="ref-kumar2007"></a>**[Kumar2007]** A. Kumar, L.-S. Peh, P. Kundu, and N. K. Jha, "Express Virtual Channels: Towards the Ideal Interconnection Fabric," in *Proceedings of the 34th Annual International Symposium on Computer Architecture (ISCA)*, 2007, pp. 150–161. [DOI: 10.1145/1250662.1250681](https://doi.org/10.1145/1250662.1250681).
+6. <a id="ref-fischer2025"></a>**[Fischer2025]** T. Fischer, M. Rogenmoser, T. Benz, F. K. Gürkaynak, and L. Benini, "FlooNoC: A 645-Gb/s/link 0.15-pJ/B/hop Open-Source NoC With Wide Physical Links and End-to-End AXI4 Parallel Multistream Support," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 33, no. 4, pp. 1094–1107, Apr. 2025. [DOI: 10.1109/TVLSI.2024.3524673](https://doi.org/10.1109/TVLSI.2024.3524673).
 
 ---
 

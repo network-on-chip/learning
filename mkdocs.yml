@@ -58,9 +58,11 @@ plugins:
             "Home": "首页"
             "Interactive Lab": "交互式实验"
             "2D Mesh Routing Visualizer": "二维网格路由仿真"
+            "Wire Wizard: Interconnect Physics": "导线向导：物理互连与RC延迟仿真"
             "Deadlock Buster Arcade Game": "死锁大作战游戏"
             "Packet Master: Routing Puzzle": "数据包路由解密挑战"
             "Hotspot Hero: Thermal Defense": "硅温保卫战：热管理游戏"
+            "TSV Titan: 3D-NoC & Thermal Stacking": "TSV泰坦：三维片上网络与热堆叠"
             "Chiplet Tycoon: 2.5D/3D Multi-Die": "芯粒大亨：先进封装设计挑战"
             "Arbiter Arena: Crossbar Clash": "仲裁竞技场：交叉开关调度挑战"
             "Topology Titans: Graph Architect": "拓扑巨人：超算图互连架构师"
@@ -169,9 +171,11 @@ nav:
           - "Chapter 10: Optical & Wireless Networks-on-Chip": textbook/ch10-optical-wireless/index.md
   - "Interactive Lab":
       - Overview: interactive/index.md
+      - "Wire Wizard: Interconnect Physics": interactive/wire.md
       - "Deadlock Buster Arcade Game": interactive/game.md
       - "Packet Master: Routing Puzzle": interactive/puzzle.md
       - "Hotspot Hero: Thermal Defense": interactive/hotspot.md
+      - "TSV Titan: 3D-NoC & Thermal Stacking": interactive/tsv3d.md
       - "Chiplet Tycoon: 2.5D/3D Multi-Die": interactive/chiplet.md
       - "Arbiter Arena: Crossbar Clash": interactive/arbiter.md
       - "Topology Titans: Graph Architect": interactive/topology.md

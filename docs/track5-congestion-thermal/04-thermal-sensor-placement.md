@@ -449,12 +449,12 @@ if (document.readyState === "loading") {
 
 ### Step 1: Physical Analysis
 - Under **Strategy 1 (Clustered at Tiles 1 & 2):**
-  - Sensors 1 and 2 provide redundant information because they are immediately adjacent (correlation $\rho = 2/4 = 0.5$).
-  - Tile 4 is three hops away from the nearest sensor, leaving it with high uncertainty ($\text{Var}(\hat{T}_4) \approx 3.75^\circ\text{C}^2$).
+    - Sensors 1 and 2 provide redundant information because they are immediately adjacent (correlation $\rho = 2/4 = 0.5$).
+    - Tile 4 is three hops away from the nearest sensor, leaving it with high uncertainty ($\text{Var}(\hat{T}_4) \approx 3.75^\circ\text{C}^2$).
 - Under **Strategy 2 (Spread at Tiles 1 & 4):**
-  - Sensor 1 anchors the left flank; Sensor 4 anchors the right flank.
-  - The unobserved tiles (2 and 3) are only 1 hop away from an active sensor!
-  - Spatial correlation from both flanks interpolates tiles 2 and 3 with high confidence ($\text{Var}(\hat{T}_2) = \text{Var}(\hat{T}_3) \approx 1.80^\circ\text{C}^2$).
+    - Sensor 1 anchors the left flank; Sensor 4 anchors the right flank.
+    - The unobserved tiles (2 and 3) are only 1 hop away from an active sensor!
+    - Spatial correlation from both flanks interpolates tiles 2 and 3 with high confidence ($\text{Var}(\hat{T}_2) = \text{Var}(\hat{T}_3) \approx 1.80^\circ\text{C}^2$).
 
 ### Conclusion:
 Spreading sensors across spatial centroids maximizes the determinant of the Fisher Information Matrix, cutting unobserved reconstruction variance by **over $50\%$**!

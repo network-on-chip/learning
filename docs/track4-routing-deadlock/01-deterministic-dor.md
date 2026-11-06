@@ -7,7 +7,7 @@ Routing algorithms fall into three fundamental classes:
 2. **Oblivious:** The path is chosen without regard to current network state, but may incorporate randomized intermediate nodes (e.g., Valiant's algorithm).
 3. **Adaptive:** The path dynamically responds to network congestion, buffer fullness, and hardware faults in real time.
 
-The most widely deployed routing policy in commercial silicon—from Intel Xeon to AMD EPYC and Tilera TILE-Gx—is **Dimension-Order Routing (DOR)**, universally known as **XY Routing**.
+The most widely deployed routing policy in commercial silicon—from Intel Xeon to AMD EPYC and Tilera TILE-Gx—is **Dimension-Order Routing (DOR)**, universally known as **XY Routing** [[Sullivan1977]](#ref-sullivan1977), [[Dally1986]](#ref-dally1986), [[Dally1987]](#ref-dally1987).
 
 In this lesson, we examine the algorithmic mechanics of DOR, synthesize single-cycle lookahead route computation hardware in Verilog, prove its mathematical deadlock freedom, and benchmark its strengths and limitations.
 
@@ -64,7 +64,7 @@ $$\text{Arrive} \longrightarrow [\mathbf{RC}] \longrightarrow [\text{VCA}] \long
 
 This adds a full clock cycle (or sub-cycle combinational delay) to the critical path!
 
-To eliminate this overhead, modern routers use **Lookahead Routing** (Peh & Dally, 2001). Instead of computing its *own* output port, Router $R_i$ computes the output port for the **next downstream router ($R_{i+1}$)** and writes that direction directly into the packet header flit:
+To eliminate this overhead, modern routers use **Lookahead Routing** (Galles, 1996 [[Galles1996]](#ref-galles1996); Peh & Dally, 2001 [[Peh2001]](#ref-peh2001)). Instead of computing its *own* output port, Router $R_i$ computes the output port for the **next downstream router ($R_{i+1}$)** and writes that direction directly into the packet header flit:
 
 ```
 +----------------------------------------------------------------------------+
@@ -488,24 +488,24 @@ if (document.readyState === "loading") {
 ### Step 1: Evaluate Pure Horizontal Flow
 For the pure horizontal flow ($y_s = y_d$):
 - Under **XY Routing**, packets travel along rows: $(x_s, y) \rightarrow (x_s+1, y) \dots \rightarrow (x_s+4, y)$.
-  - Traffic crosses the horizontal bisection between column 3 and column 4.
-  - There are 8 horizontal bisection links (one per row).
-  - Each link carries exactly $\frac{32}{8} = \mathbf{4\text{ packets per injection round}}$.
+    - Traffic crosses the horizontal bisection between column 3 and column 4.
+    - There are 8 horizontal bisection links (one per row).
+    - Each link carries exactly $\frac{32}{8} = \mathbf{4\text{ packets per injection round}}$.
 - Under **YX Routing**, $\Delta y = 0$, so packets also immediately traverse along $X$.
-  - Maximum channel load is identical: $\gamma_{max} = 4$.
+    - Maximum channel load is identical: $\gamma_{max} = 4$.
 
 ### Step 2: Evaluate Diagonal Shift Flow
 Now consider destination $(x_d, y_d) = (x_s + 4, (y_s + 4) \bmod 8)$:
 - **Under XY Routing:**
-  - Packets first move horizontally across columns $0 \rightarrow 1 \rightarrow 2 \rightarrow 3 \rightarrow 4$.
-  - All 32 packets cross the 8 horizontal bisection channels at column $3 \rightarrow 4$.
-  - Load per horizontal bisection channel: $\gamma_{X} = \frac{32}{8} = \mathbf{4\text{ pkts/channel}}$.
-  - Then, at column 4, packets turn South or North to resolve the $Y$ offset.
-  - The vertical bisection channels in column 4 now experience severe congestion because all turning packets converge on column 4!
+    - Packets first move horizontally across columns $0 \rightarrow 1 \rightarrow 2 \rightarrow 3 \rightarrow 4$.
+    - All 32 packets cross the 8 horizontal bisection channels at column $3 \rightarrow 4$.
+    - Load per horizontal bisection channel: $\gamma_{X} = \frac{32}{8} = \mathbf{4\text{ pkts/channel}}$.
+    - Then, at column 4, packets turn South or North to resolve the $Y$ offset.
+    - The vertical bisection channels in column 4 now experience severe congestion because all turning packets converge on column 4!
 - **Under YX Routing:**
-  - Packets first move vertically within their source columns $X \in [0, 3]$.
-  - The vertical movement is spread evenly across all 4 source columns ($0, 1, 2, 3$).
-  - Once vertical alignment is reached, packets cross the horizontal bisection channels into columns $4\text{–}7$.
+    - Packets first move vertically within their source columns $X \in [0, 3]$.
+    - The vertical movement is spread evenly across all 4 source columns ($0, 1, 2, 3$).
+    - Once vertical alignment is reached, packets cross the horizontal bisection channels into columns $4\text{–}7$.
 
 ### Takeaway:
 Deterministic routing has zero flexibility to balance load dynamically. If a workload's communication pattern aligns unfavorably with the routing dimension order (e.g. all packets turning in the same column), severe localized hotspots emerge!
@@ -647,6 +647,18 @@ function getQ41Explanation(qNum, wasCorrect) {
   }
 }
 </script>
+
+---
+
+## References & Further Reading
+
+1. <a id="ref-sullivan1977"></a>**[Sullivan1977]** H. Sullivan and T. R. Bashkow, "A Large Scale, Homogeneous, Fully Distributed Parallel Machine, I," in *Proceedings of the 4th Annual Symposium on Computer Architecture (ISCA)*, 1977, pp. 105–117. [DOI: 10.1145/800254.807776](https://doi.org/10.1145/800254.807776).
+2. <a id="ref-dally1986"></a>**[Dally1986]** W. J. Dally and C. L. Seitz, "The Torus Routing Chip," *Distributed Computing*, vol. 1, no. 4, pp. 187–196, Oct. 1986. [DOI: 10.1007/BF01660031](https://doi.org/10.1007/BF01660031).
+3. <a id="ref-dally1987"></a>**[Dally1987]** W. J. Dally and C. L. Seitz, "Deadlock-Free Message Routing in Multiprocessor Interconnection Networks," *IEEE Transactions on Computers*, vol. C-36, no. 5, pp. 547–553, May 1987. [DOI: 10.1109/TC.1987.1676939](https://doi.org/10.1109/TC.1987.1676939).
+4. <a id="ref-galles1996"></a>**[Galles1996]** M. Galles, "Spider: A High-Speed Network Interconnect," *IEEE Micro*, vol. 17, no. 1, pp. 34–39, Jan./Feb. 1997. [DOI: 10.1109/40.566164](https://doi.org/10.1109/40.566164).
+5. <a id="ref-peh2001"></a>**[Peh2001]** L.-S. Peh and W. J. Dally, "A Delay Model and Speculative Architecture for Pipelined Routers," in *Proceedings of the 7th IEEE International Symposium on High-Performance Computer Architecture (HPCA)*, 2001, pp. 255–266. [DOI: 10.1109/HPCA.2001.903268](https://doi.org/10.1109/HPCA.2001.903268).
+6. <a id="ref-valiant1982"></a>**[Valiant1982]** L. G. Valiant, "A Scheme for Fast Parallel Communication," *SIAM Journal on Computing*, vol. 11, no. 2, pp. 350–361, May 1982. [DOI: 10.1137/0211027](https://doi.org/10.1137/0211027).
+7. <a id="ref-dallyprinciples"></a>**[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann, 2004.
 
 ---
 

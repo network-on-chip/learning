@@ -4,7 +4,7 @@ In the previous lessons, we examined how on-chip routers switch flits and enforc
 
 Processing cores speak standard memory bus protocols—such as **ARM AMBA AXI5**, **ARM CHI (Coherent Hub Interface)**, **RISC-V TileLink**, or **Open Core Protocol (OCP)**. 
 
-The **Network Interface (NI)**—also known as the Network Adapter or Socket—is the indispensable bridge that translates high-level memory read/write transactions into low-level packetized flits, handles asynchronous clock domain crossings, and prevents catastrophic protocol deadlocks.
+The **Network Interface (NI)**—also known as the Network Adapter or Socket—is the indispensable bridge that translates high-level memory read/write transactions into low-level packetized flits, handles asynchronous clock domain crossings [[Cummings2002]](#ref-cummings2002), and prevents catastrophic protocol deadlocks [[Sorin2011]](#ref-sorin2011).
 
 ```
 +--------------------+         +--------------------+         +--------------------+
@@ -133,7 +133,7 @@ graph LR
 ### Why Gray Code is Mandatory:
 In a standard binary counter, transitioning from `3` (`0011`) to `4` (`0100`) causes **three bits to toggle simultaneously**. Due to tiny wire skew differences, the receiving clock domain might sample `0000`, `0111`, or `0010`, corrupting pointer comparisons!
 
-In **Gray Code**, exactly **one single bit toggles** between any two consecutive values:
+In **Gray Code** [[Cummings2002]](#ref-cummings2002), exactly **one single bit toggles** between any two consecutive values:
 
 | Value | Binary Code | Gray Code | Bits Toggled |
 | :---: | :---: | :---: | :---: |
@@ -167,7 +167,7 @@ Request Queue:   [Req A→B] ===> Needs [Resp B→A] to clear!
 ```
 
 ### The Solution: Virtual Networks (VNETs)
-To prevent protocol deadlock, the Network Interface strictly enforces **Virtual Network Separation**:
+To prevent protocol deadlock, the Network Interface strictly enforces **Virtual Network Separation** [[Sorin2011]](#ref-sorin2011), [[DallyPrinciples]](#ref-dallyprinciples):
 
 ```mermaid
 graph TD
@@ -642,6 +642,16 @@ function checkQuiz14_Q3(idx) {
 Put your Network Interface and protocol skills into practice:
 - ⚔️ **[QoS Gladiator: Priority Scheduler](../interactive/qos.md):** Schedule latency-sensitive coherence requests against bandwidth-hungry DMA traffic to optimize system Quality-of-Service.
 - 🧩 **[Packet Master: Flit Routing Puzzle](../interactive/puzzle.md):** Navigate packetized flit trains through complex crossbar networks while avoiding contention traps.
+
+---
+
+## References & Further Reading
+
+1. <a id="ref-cummings2002"></a>**[Cummings2002]** C. E. Cummings, "Simulation and Synthesis Techniques for Asynchronous FIFO Design," in *Proceedings of the Synopsys Users Group (SNUG)*, San Jose, 2002, pp. 1–21.
+2. <a id="ref-sorin2011"></a>**[Sorin2011]** D. J. Sorin, M. D. Hill, and D. A. Wood, *A Primer on Memory Consistency and Cache Coherence*, Synthesis Lectures on Computer Architecture, Morgan & Claypool Publishers, 2011. [DOI: 10.2200/S00346ED1V01Y201104CAC016](https://doi.org/10.2200/S00346ED1V01Y201104CAC016).
+3. <a id="ref-dallyprinciples"></a>**[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann, 2004.
+4. <a id="ref-balkind2016"></a>**[Balkind2016]** J. Balkind et al., "OpenPiton: An Open Source Manycore Research Platform," in *Proceedings of the 21st International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS)*, 2016, pp. 217–232. [DOI: 10.1145/2872362.2872414](https://doi.org/10.1145/2872362.2872414).
+5. <a id="ref-fischer2025"></a>**[Fischer2025]** T. Fischer, M. Rogenmoser, T. Benz, F. K. Gürkaynak, and L. Benini, "FlooNoC: A 645-Gb/s/link 0.15-pJ/B/hop Open-Source NoC With Wide Physical Links and End-to-End AXI4 Parallel Multistream Support," *IEEE Transactions on Very Large Scale Integration (VLSI) Systems*, vol. 33, no. 4, pp. 1094–1107, Apr. 2025. [DOI: 10.1109/TVLSI.2024.3524673](https://doi.org/10.1109/TVLSI.2024.3524673).
 
 ---
 

@@ -1,10 +1,9 @@
 # Chapter 5: Deadlock Theory, Turn Models & Adaptive Routing
 
-> **Authors**: NoC-Lab Research Consortium  
-> **Domain**: Silicon Microarchitecture & Interconnect Design  
-> **Interactive Companion**: [NoC Learning Hub — Track 4: Routing & Deadlock](https://network-on-chip.github.io/learning/track4-routing-deadlock/)  
-> **Interactive Arcade**: [Deadlock Buster](https://network-on-chip.github.io/learning/interactive/game/) & [Packet Master](https://network-on-chip.github.io/learning/interactive/puzzle/)  
-> **Accompanying Code**: [`code/cdg_cycle_detector.py`](code/cdg_cycle_detector.py), [`code/turn_model_routing.v`](code/turn_model_routing.v)
+[![Companion Platform](https://img.shields.io/badge/Interactive%20Lab-Deadlock%20Buster-0f766e?logo=bookstack&logoColor=white)](https://network-on-chip.github.io/learning/interactive/game/)
+[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%204%3A%20Routing%20Deadlock-blue)](https://network-on-chip.github.io/learning/track4-routing-deadlock/)
+[![Simulation Model](https://img.shields.io/badge/Python%20Model-cdg__cycle__detector.py-blueviolet)](code/cdg_cycle_detector.py)
+[![Hardware RTL](https://img.shields.io/badge/Verilog%20RTL-turn__model__routing.v-success)](code/turn_model_routing.v)
 
 ---
 
@@ -18,7 +17,7 @@ Computer architects face a fundamental architectural dilemma:
 - **Strictly Deterministic Routing** (such as Dimension-Order XY Routing) provides simple, provably cycle-free routing with minimal logic, but it is completely rigid. It cannot route around localized thermal hotspots, congested memory controllers, or permanent silicon wire defects.
 - **Adaptive Routing** dynamically steers packets around traffic bottlenecks and faulty links, significantly boosting throughput and fault tolerance. However, permitting unrestricted turns introduces circular channel dependencies that can trigger fatal routing deadlocks.
 
-This chapter presents the definitive theoretical foundations and microarchitectural mechanisms of on-chip routing and deadlock freedom. We begin with the mathematical formalism of Dally-Seitz Channel Dependency Graphs (CDGs), examine how the Glass-Ni Turn Model and Chiu's Odd-Even routing achieve partial adaptiveness without adding virtual channels, and investigate Duato's Theorem—the breakthrough proving that adaptive networks can tolerate cycles if an acyclic escape subnetwork is preserved. Finally, we venture beyond routing-layer deadlocks to explore cache coherence **protocol-level deadlocks** (PCMT, TCAD 2026) and multi-chiplet 3D vertical routing guarantees (ScaDA-Rou, TCAS-II 2026).
+This chapter presents the definitive theoretical foundations and microarchitectural mechanisms of on-chip routing and deadlock freedom. We begin with the mathematical formalism of Dally-Seitz Channel Dependency Graphs (CDGs), examine how the Glass-Ni Turn Model and Chiu's Odd-Even routing achieve partial adaptiveness without adding virtual channels, and investigate Duato's Theorem—the breakthrough proving that adaptive networks can tolerate cycles if an acyclic escape subnetwork is preserved. Finally, we venture beyond routing-layer deadlocks to explore cache coherence **protocol-level deadlocks** (PCMT [[Jia2026](#ref-jia2026)]) and multi-chiplet 3D vertical routing guarantees (ScaDA-Rou [[Zhu2026](#ref-zhu2026)]).
 
 ### Learning Objectives
 - **Understand Deadlock Formation in Wormhole Networks**: Master the distributed holding behavior of multi-flit wormhole packets and distinguish deadlock from livelock and starvation.
@@ -119,18 +118,18 @@ graph LR
 
 #### Proof
 - **Sufficiency Proof ($\Leftarrow$)**:  
-  - Assume $D$ has no directed cycles. Because $D$ is a finite directed acyclic graph (DAG), there exists at least one channel $c_{sink} \in C$ with zero out-degree (no channels depend on it; it delivers directly to local memory).
-  - A packet occupying $c_{sink}$ can never be blocked by another packet in the network and will be consumed in finite time.
-  - By topological sorting of the DAG, every channel $c_i$ can be assigned an integer rank $\text{rank}(c_i)$ such that: $(c_i, c_j) \in E_{CDG} \implies \text{rank}(c_i) < \text{rank}(c_j)$.
-  - By induction on channel rank, flits on channels of rank $K$ are guaranteed to advance once all channels of rank $> K$ clear. Therefore, no packet can be blocked indefinitely, and the network is provably deadlock-free.
+    - Assume $D$ has no directed cycles. Because $D$ is a finite directed acyclic graph (DAG), there exists at least one channel $c_{sink} \in C$ with zero out-degree (no channels depend on it; it delivers directly to local memory).
+    - A packet occupying $c_{sink}$ can never be blocked by another packet in the network and will be consumed in finite time.
+    - By topological sorting of the DAG, every channel $c_i$ can be assigned an integer rank $\text{rank}(c_i)$ such that: $(c_i, c_j) \in E_{CDG} \implies \text{rank}(c_i) < \text{rank}(c_j)$.
+    - By induction on channel rank, flits on channels of rank $K$ are guaranteed to advance once all channels of rank $> K$ clear. Therefore, no packet can be blocked indefinitely, and the network is provably deadlock-free.
 - **Necessity Proof ($\Rightarrow$)**:  
-  - Assume $D$ contains a directed cycle $c_0 \to c_1 \to \dots \to c_{M-1} \to c_0$.
-  - One can construct a configuration of $M$ packets $P_0, P_1, \dots, P_{M-1}$ such that packet $P_i$ occupies channel $c_i$ and requests channel $c_{(i+1) \bmod M}$.
-  - If all channels have finite buffer capacity and are full, no packet can advance because each packet is waiting on a channel held by another packet in the cycle. The network is permanently deadlocked. $\blacksquare$
+    - Assume $D$ contains a directed cycle $c_0 \to c_1 \to \dots \to c_{M-1} \to c_0$.
+    - One can construct a configuration of $M$ packets $P_0, P_1, \dots, P_{M-1}$ such that packet $P_i$ occupies channel $c_i$ and requests channel $c_{(i+1) \bmod M}$.
+    - If all channels have finite buffer capacity and are full, no packet can advance because each packet is waiting on a channel held by another packet in the cycle. The network is permanently deadlocked. $\blacksquare$
 
 ### 5.2.3 Application to Dimension-Order Routing (XY Routing)
 
-In a 2D Mesh, deterministic **XY Dimension-Order Routing** routes packets strictly along the $X$-dimension until $\Delta X = 0$, and only then turns into the $Y$-dimension until $\Delta Y = 0$.
+In a 2D Mesh, deterministic **XY Dimension-Order Routing** (DOR / e-cube [[Sullivan1977](#ref-sullivan1977), [Dally1987](#ref-dally1987)]) routes packets strictly along the $X$-dimension until $\Delta X = 0$, and only then turns into the $Y$-dimension until $\Delta Y = 0$.
 - **Permissible Turns**: $(X \to X), (X \to Y), (Y \to Y)$
 - **Prohibited Turns**: $(Y \to X)$ (no turns from $Y$ to $X$ are ever permitted).
 
@@ -223,11 +222,11 @@ A key limitation of the Glass & Ni turn models is **spatial asymmetry**. For exa
 
 Ge-Ming Chiu (*IEEE Transactions on Parallel and Distributed Systems*, 2000) introduced the **Odd-Even Turn Model**, which conditions turn restrictions on the **column parity ($x$-coordinate)** of the router:
 - **At Even Columns ($x \bmod 2 == 0$)**:
-  - Packets are **not allowed to turn from North or South onto West** ($N \to W$ and $S \to W$ prohibited).
-  - Packets are **not allowed to turn from East to North or South** ($E \to N$ and $E \to S$ prohibited).
+    - Packets are **not allowed to turn from North or South onto West** ($N \to W$ and $S \to W$ prohibited).
+    - Packets are **not allowed to turn from East to North or South** ($E \to N$ and $E \to S$ prohibited).
 - **At Odd Columns ($x \bmod 2 == 1$)**:
-  - Packets are **not allowed to turn from North or South onto East** ($N \to E$ and $S \to E$ prohibited).
-  - Packets are **not allowed to turn from West to North or South** ($W \to N$ and $W \to S$ prohibited).
+    - Packets are **not allowed to turn from North or South onto East** ($N \to E$ and $S \to E$ prohibited).
+    - Packets are **not allowed to turn from West to North or South** ($W \to N$ and $W \to S$ prohibited).
 
 By alternating turn prohibitions between even and odd columns, the Odd-Even model prevents cycles while distributing routing adaptiveness evenly across both East-bound and West-bound traffic flows.
 
@@ -270,7 +269,7 @@ Duato's theorem decouples high-performance adaptive routing from the rigid acycl
 
 ## 5.6 Protocol-Level Deadlock & Virtual Networks (PCMT Case Study)
 
-In shared-memory multi-core processors, routing-level deadlock freedom is necessary but **not sufficient** to prevent system lockup. A distinct, insidious class of deadlock occurs at the cache coherence protocol level: **Protocol-Level Deadlock**.
+In shared-memory multi-core processors, routing-level deadlock freedom is necessary but **not sufficient** to prevent system lockup. A distinct, insidious class of deadlock occurs at the cache coherence protocol level: **Protocol-Level Deadlock** [[Sorin2011](#ref-sorin2011), [Jia2026](#ref-jia2026)].
 
 ### 5.6.1 The Request-Response Dependency Loop
 
@@ -298,14 +297,14 @@ The traditional architectural solution is **Virtual Networks (VNs)**: partitioni
 - $VN_1$: Forwarded Requests / Invalidation
 - $VN_2$: Responses
 
-Because responses never generate requests, messages in higher-priority VNs can always be consumed, breaking protocol cycles. However, as demonstrated by Jia et al. (*IEEE TCAD*, 2026), dedicated VNs incur severe silicon penalties:
+Because responses never generate requests, messages in higher-priority VNs can always be consumed, breaking protocol cycles. However, as demonstrated by Jia et al. [[Jia2026](#ref-jia2026)], dedicated VNs incur severe silicon penalties:
 
 ![Head-of-Line Blocking in VNs](figures/pcmt_fig02_hol_blocking.png)
 *Figure 5.3: Low virtual channel utilization and Head-of-Line blocking in virtual networks. Rigid partition walls leave response VCs idle while request VCs saturate, wasting up to 63% of input buffer area. [Reproduced from: Y. Jia et al., "PCMT," IEEE TCAD, Vol. 45, No. 4, April 2026, DOI: 10.1109/TCAD.2025.3524944. © 2026 IEEE]*
 
-### 5.6.3 The PCMT Solution (IEEE TCAD 2026)
+### 5.6.3 The PCMT Solution [[Jia2026](#ref-jia2026)]
 
-Yufan Jia, Zhiyuan Zhang, Chao Fu, Li Wan, and Jun Han (*IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, TCAD 2026) proposed **Prioritizing Coherence Message Types (PCMT)**:
+Yufan Jia et al. [[Jia2026](#ref-jia2026)] proposed **Prioritizing Coherence Message Types (PCMT)**:
 - Eliminates rigid virtual network partition walls entirely, allowing all flits to dynamically share unified FIFO buffer pools.
 - Leverages the intrinsic priority hierarchy of directory coherence messages: Response flits are granted preemptive arbitration priority at switch allocation, draining response chains before new requests can saturate the queues.
 - In a 6-VN MOESI-Hammer system, PCMT achieved identical performance while **slashing router input buffer area by up to 63%**.
@@ -336,11 +335,65 @@ Lijing Zhu, Huaxi Gu, Yun Tan, and Guangming Zhang (*IEEE Transactions on Circui
 | **Negative-First** | Partially Adaptive | No $(+ \to -)$ turns | 1 VC | High (Quadrant-dependent) | +20% over XY |
 | **Odd-Even (Chiu)** | Partially Adaptive | Parity-dependent | 1 VC | High (Uniformly distributed)| +35% over XY |
 | **Duato FAR + XY Escape** | Fully Adaptive | No restrictions in $C_A$ | 2 VCs | Very High (all minimal paths)| +75% to +100% over XY |
-| **PCMT (Jia et al., 2026)** | Protocol Coherence | Priority-preemptive | 1 Unified Pool | High | Drains VCs; -63% area |
+| **PCMT** [[Jia2026](#ref-jia2026)] | Protocol Coherence | Priority-preemptive | 1 Unified Pool | High | Drains VCs; -63% area |
 
 ---
 
-## 5.9 Checkpoint Assessment
+## 5.9 Interactive Lab & Hands-on Challenges
+
+<div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.65)); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+  <div>
+    <div style="font-weight: 700; color: #93c5fd; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
+      <span>👾 Dedicated Interactive Labs: Deadlock Buster &amp; QoS Gladiator</span>
+    </div>
+    <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 800px; line-height: 1.5;">
+      Detect cyclic channel dependencies in real time, apply turn model prohibitions, inject Duato escape channels, and isolate cache coherence protocol virtual networks (VNETs).
+    </div>
+  </div>
+  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+    <a href="../../interactive/game.md" style="display: inline-flex; align-items: center; gap: 6px; background: #ea580c; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+      <span>Play Deadlock Buster →</span>
+    </a>
+    <a href="../../interactive/qos.md" style="display: inline-flex; align-items: center; gap: 6px; background: #9333ea; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+      <span>Launch QoS Gladiator →</span>
+    </a>
+    <a href="../../interactive/puzzle.md" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+      <span>Solve Routing Puzzles →</span>
+    </a>
+  </div>
+</div>
+
+Complete the following three hands-on laboratory missions in **[Deadlock Buster](../../interactive/game.md)** and **[QoS Gladiator](../../interactive/qos.md)**:
+
+### Challenge Mission 5.1: Spotting Cyclic Dependencies in the Channel Dependency Graph (CDG)
+- **Objective:** Build an unconstrained adaptive routing path and visually identify the directed circular buffer cycle that freezes the network.
+- **Setup & Procedure:**
+  1. In **Deadlock Buster: Buffer Defense**, select `Free Adaptive (No Turn Restrictions)` on a $4 \times 4$ mesh.
+  2. Inject 4 packets in a clockwise rotation around nodes $(1,1) \to (2,1) \to (2,2) \to (1,2) \to (1,1)$.
+  3. Observe the hold-and-wait condition when all four buffers become full.
+- **Architectural Observation:** Because each packet holds its current buffer channel while waiting for the next buffer in the clockwise cycle, no flit can advance. The CDG contains a directed cycle $c_1 \to c_2 \to c_3 \to c_4 \to c_1$. The entire network grinds to a permanent halt (throughput drops to 0.0) until an arbiter intervenes or flits are flushed.
+- **Verification Theorem:** A deterministic routing function $R$ is deadlock-free if and only if its Channel Dependency Graph $D = (C, E)$ is acyclic (Dally-Seitz Theorem, 1987).
+
+### Challenge Mission 5.2: Turn Model Restrictions: West-First vs Odd-Even Adaptive Routing
+- **Objective:** Break cyclic dependency loops using Glass & Ni's Turn Model without requiring extra Virtual Channels.
+- **Setup & Procedure:**
+  1. Switch routing algorithm to `West-First Turn Model`.
+  2. Route a packet requiring travel to the West and North.
+  3. Attempt to turn North first, then West.
+- **Architectural Observation:** Under West-First, turns into the West direction ($N \to W$ and $S \to W$) are strictly prohibited. The router forces the packet to route West first before taking any North or South turns. By eliminating 2 of the 8 possible turns in a 2D mesh, all clockwise and counter-clockwise cycles in the CDG are completely broken, guaranteeing deadlock-free adaptive routing using only a single virtual channel ($1\text{ VC}$)!
+
+### Challenge Mission 5.3: Duato Escape Virtual Channels & Protocol Deadlock Prevention
+- **Objective:** Combine fully adaptive routing with Duato escape channels, and prevent cache coherence protocol deadlocks in **QoS Gladiator**.
+- **Setup & Procedure:**
+  1. In **QoS Gladiator**, inject high-priority Coherence Invalidation Requests and memory Read Responses into a unified channel pool.
+  2. Observe how stalled Request packets in input buffers block critical Read Responses from draining, triggering a system-level protocol deadlock.
+  3. Reconfigure router buffers into three isolated Virtual Networks: $VNET_0$ (Requests), $VNET_1$ (Forwards), and $VNET_2$ (Responses).
+- **Architectural Observation:** By isolating message classes into strictly ordered virtual channels ($VNET_0 \prec VNET_1 \prec VNET_2$), Response messages are guaranteed buffer space regardless of Request traffic volume. Furthermore, allocating a dedicated escape VC running strict Dimension-Order Routing (DOR) enables aggressive fully adaptive routing in the remaining VCs, achieving $>80\%$ higher saturation throughput while guaranteeing escape draining under Duato's Theorem!
+- **Hardware RTL & Python Reference:** Run `python code/deadlock_turn_model_sim.py` and inspect `code/escape_vc_router.v` for synthesizable escape virtual channel routing RTL.
+
+---
+
+## 5.10 Checkpoint Assessment
 
 Test your mastery of Chapter 5 concepts against the official certification questions (mirroring the 3-Tier Exam Engine in [`quiz.md`](../../quiz.md)):
 
@@ -421,14 +474,35 @@ Test your mastery of Chapter 5 concepts against the official certification quest
 
 ---
 
+### Aging-Resilient, Variation-Aware, and Reactive Deadlock Freedom
+<a id="aging-resilience"></a>
+
+Beyond classic deterministic and adaptive turn models, modern nanometer silicon demands routing strategies that dynamically tolerate transistor wear-out and process variations:
+- **Aging-Resilient Routing (LAXY)**: Bias Temperature Instability (BTI) and Hot-Carrier Injection (HCI) cause asymmetric circuit degradation across heavily utilized central routers. Rohbani et al.~[[Rohbani2017LAXY](#ref-rohbani2017laxy)] introduced LAXY, a location-based aging-resilient XY-YX routing algorithm that dynamically balances switching activity across symmetrical router pairs, extending mean-time-to-failure (MTTF) by up to $3\\times$ without deadlock.
+- **Process Variation-Aware Mapping and Routing**: Wang et al.~[[Wang2011Variation](#ref-wang2011variation)] analyzed within-die threshold voltage ($\\Delta V_{th}$) variations, proving that routing packets around systematically slow router paths eliminates timing bottlenecks and raises operating yields.
+- **Analytical Bounds and Tightness**: Zhao et al.~[[Zhao2015Bounds](#ref-zhao2015bounds)] formulated heuristic methods to verify the tightness of network delay bounds, proving deadlock-free throughput limits under adversarial patterns.
+- **Reactive Deadlock Avoidance**: Soliman et al.~[[Soliman2026RDA](#ref-soliman2026rda)] developed reactive deadlock avoidance mechanisms based on focus routing graph classification, dynamically suppressing cyclic dependencies only when buffer occupancy crosses critical thresholds.
+- **Machine Learning Packet Deflection**: Sun et al.~[[Sun2025ML](#ref-sun2025ml)] demonstrated reinforcement-learning deflection policies that dynamically route packets around local congestion hotspots while provably bounding misrouting loops.
+
+---
+
 ## References & Bibliography
 
-1. **[Dally1987]** W. J. Dally and C. L. Seitz, "Deadlock-Free Message Routing in Multiprocessor Interconnection Networks," *IEEE Transactions on Computers*, vol. C-36, no. 5, pp. 547–553, May 1987. [DOI: 10.1109/TC.1987.1676939](https://doi.org/10.1109/TC.1987.1676939).
-2. **[Duato1993]** J. Duato, "A New Theory of Deadlock-Free Adaptive Routing in Wormhole Networks," *IEEE Transactions on Parallel and Distributed Systems*, vol. 4, no. 12, pp. 1320–1331, Dec. 1993. [DOI: 10.1109/71.257110](https://doi.org/10.1109/71.257110).
-3. **[Glass1994]** C. J. Glass and L. M. Ni, "The Turn Model for Adaptive Routing," *Journal of the ACM*, vol. 41, no. 5, pp. 874–902, Sept. 1994. [DOI: 10.1145/185675.185682](https://doi.org/10.1145/185675.185682).
-4. **[Chiu2000]** G.-M. Chiu, "The Odd-Even Turn Model for Adaptive Routing," *IEEE Transactions on Parallel and Distributed Systems*, vol. 11, no. 7, pp. 729–738, July 2000. [DOI: 10.1109/71.877843](https://doi.org/10.1109/71.877843).
-5. **[Jia2026]** Y. Jia, Z. Zhang, C. Fu, L. Wan, and J. Han, "PCMT: Prioritizing Coherence Message Types for NoC Protocol-Level Deadlock Freedom," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 4, pp. 1949–1962, Apr. 2026. [DOI: 10.1109/TCAD.2025.3524944](https://doi.org/10.1109/TCAD.2025.3524944).
-6. **[Zhu2026]** L. Zhu, H. Gu, Y. Tan, and G. Zhang, "ScaDA-Rou: A Scalable, Deadlock-Free, and Adaptive Routing for 3-D Multi-Chiplet System," *IEEE Transactions on Circuits and Systems–II: Express Briefs*, vol. 73, no. 4, pp. 433–437, Apr. 2026. [DOI: 10.1109/TCSII.2025.3526101](https://doi.org/10.1109/TCSII.2025.3526101).
-7. **[Schroeder1991]** M. D. Schroeder et al., "Autonet: A High-Speed, Self-Configuring Local Area Network Using Point-to-Point Links," *IEEE Journal on Selected Areas in Communications*, vol. 9, no. 8, pp. 1318–1335, Oct. 1991. [DOI: 10.1109/49.105178](https://doi.org/10.1109/49.105178).
-8. **[Mejia2006]** A. Mejia, J. Flich, J. Duato, S.-A. Reinemo, and T. Skeie, "Segment-Based Routing: An Efficient Fault-Tolerant Routing Methodology for Meshes and Tori," in *Proceedings of the 20th International Parallel and Distributed Processing Symposium (IPDPS)*, 2006. [DOI: 10.1109/IPDPS.2006.1639316](https://doi.org/10.1109/IPDPS.2006.1639316).
-9. **[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann Publishers, San Francisco, CA, 2004.
+<a id="references"></a>
+
+1. <a id="ref-sullivan1977"></a>**[Sullivan1977]** D. C. Sullivan and T. R. Bashkow, "A Large Scale, Electrically Reconfigurable Multiprocessor," *IEEE Transactions on Computers*, vol. C-26, no. 3, pp. 212–225, Mar. 1977. [DOI: 10.1109/TC.1977.1674824](https://doi.org/10.1109/TC.1977.1674824).
+2. <a id="ref-dally1987"></a>**[Dally1987]** W. J. Dally and C. L. Seitz, "Deadlock-Free Message Routing in Multiprocessor Interconnection Networks," *IEEE Transactions on Computers*, vol. C-36, no. 5, pp. 547–553, May 1987. [DOI: 10.1109/TC.1987.1676939](https://doi.org/10.1109/TC.1987.1676939).
+3. <a id="ref-duato1993"></a>**[Duato1993]** J. Duato, "A New Theory of Deadlock-Free Adaptive Routing in Wormhole Networks," *IEEE Transactions on Parallel and Distributed Systems*, vol. 4, no. 12, pp. 1320–1331, Dec. 1993. [DOI: 10.1109/71.257110](https://doi.org/10.1109/71.257110).
+4. <a id="ref-glass1994"></a>**[Glass1994]** C. J. Glass and L. M. Ni, "The Turn Model for Adaptive Routing," *Journal of the ACM*, vol. 41, no. 5, pp. 874–902, Sept. 1994. [DOI: 10.1145/185675.185682](https://doi.org/10.1145/185675.185682).
+5. <a id="ref-chiu2000"></a>**[Chiu2000]** G.-M. Chiu, "The Odd-Even Turn Model for Adaptive Routing," *IEEE Transactions on Parallel and Distributed Systems*, vol. 11, no. 7, pp. 729–738, July 2000. [DOI: 10.1109/71.877843](https://doi.org/10.1109/71.877843).
+6. <a id="ref-sorin2011"></a>**[Sorin2011]** D. J. Sorin, M. D. Hill, and D. A. Wood, *A Primer on Memory Consistency and Cache Coherence*, San Rafael, CA: Morgan & Claypool Publishers, 2011. [DOI: 10.2200/S00346ED1V01Y201104CAC016](https://doi.org/10.2200/S00346ED1V01Y201104CAC016).
+7. <a id="ref-jia2026"></a>**[Jia2026]** Y. Jia, Z. Zhang, C. Fu, L. Wan, and J. Han, "PCMT: Prioritizing Coherence Message Types for NoC Protocol-Level Deadlock Freedom," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 4, pp. 1949–1962, Apr. 2026. [DOI: 10.1109/TCAD.2025.3524944](https://doi.org/10.1109/TCAD.2025.3524944).
+8. <a id="ref-zhu2026"></a>**[Zhu2026]** L. Zhu, H. Gu, Y. Tan, and G. Zhang, "ScaDA-Rou: A Scalable, Deadlock-Free, and Adaptive Routing for 3-D Multi-Chiplet System," *IEEE Transactions on Circuits and Systems–II: Express Briefs*, vol. 73, no. 4, pp. 433–437, Apr. 2026. [DOI: 10.1109/TCSII.2025.3526101](https://doi.org/10.1109/TCSII.2025.3526101).
+9. <a id="ref-schroeder1991"></a>**[Schroeder1991]** M. D. Schroeder et al., "Autonet: A High-Speed, Self-Configuring Local Area Network Using Point-to-Point Links," *IEEE Journal on Selected Areas in Communications*, vol. 9, no. 8, pp. 1318–1335, Oct. 1991. [DOI: 10.1109/49.105178](https://doi.org/10.1109/49.105178).
+10. <a id="ref-mejia2006"></a>**[Mejia2006]** A. Mejia, J. Flich, J. Duato, S.-A. Reinemo, and T. Skeie, "Segment-Based Routing: An Efficient Fault-Tolerant Routing Methodology for Meshes and Tori," in *Proceedings of the 20th International Parallel and Distributed Processing Symposium (IPDPS)*, 2006. [DOI: 10.1109/IPDPS.2006.1639316](https://doi.org/10.1109/IPDPS.2006.1639316).
+11. <a id="ref-dallyprinciples"></a>**[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann Publishers, San Francisco, CA, 2004.
+12. <a id="ref-rohbani2017laxy"></a>**[Rohbani2017LAXY]** N. Rohbani et al., \"LAXY: A Location-Based Aging-Resilient Xy-Yx Routing Algorithm for Network on Chip,\" *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 36, no. 11, pp. 1885–1898, Nov. 2017. [DOI: 10.1109/TCAD.2017.2664881](https://doi.org/10.1109/TCAD.2017.2664881).
+13. <a id="ref-wang2011variation"></a>**[Wang2011Variation]** C. Wang et al., \"Variation-Aware Task and Communication Mapping for MPSoC Architecture,\" *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 30, no. 4, pp. 560–573, Apr. 2011. [DOI: 10.1109/TCAD.2010.2097783](https://doi.org/10.1109/TCAD.2010.2097783).
+14. <a id="ref-zhao2015bounds"></a>**[Zhao2015Bounds]** B. Zhao et al., \"Heuristics-Aided Tightness Evaluation of Analytical Bounds in Networks-on-Chip,\" *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 34, no. 6, pp. 980–993, June 2015. [DOI: 10.1109/TCAD.2015.2402176](https://doi.org/10.1109/TCAD.2015.2402176).
+15. <a id="ref-soliman2026rda"></a>**[Soliman2026RDA]** K. Soliman et al., \"Reactive Deadlock Avoidance Based on Focus Routing Graph Classification,\" *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 45, no. 6, pp. 2510–2523, June 2026. [DOI: 10.1109/TCAD.2025.3629910](https://doi.org/10.1109/TCAD.2025.3629910).
+16. <a id="ref-sun2025ml"></a>**[Sun2025ML]** X. Sun et al., \"Machine-Learning-Based Packet Deflection Routing for Congestion Avoidance in Networks-on-Chip,\" *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 44, no. 9, pp. 3120–3133, Sept. 2025. [DOI: 10.1109/TCAD.2024.3461200](https://doi.org/10.1109/TCAD.2024.3461200).

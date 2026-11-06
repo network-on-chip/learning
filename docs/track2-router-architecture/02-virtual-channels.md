@@ -2,7 +2,7 @@
 
 Wormhole switching delivers exceptional buffer area efficiency by allowing flits to advance as soon as a single buffer slot is free. However, as discovered in early multicore designs, unadorned wormhole switching suffers from a devastating flaw: **Head-of-Line (HoL) Blocking**.
 
-In this lesson, we explore how **Virtual Channels (VCs)**—introduced by William J. Dally in 1992—eliminate Head-of-Line blocking, provide independent flow control on shared wires, and establish **Virtual Networks (VNETs)** to isolate cache coherence protocols.
+In this lesson, we explore how **Virtual Channels (VCs)**—introduced by William J. Dally in 1992 [[Dally1992]](#ref-dally1992)—eliminate Head-of-Line blocking, provide independent flow control on shared wires [[DallyPrinciples]](#ref-dallyprinciples), and establish **Virtual Networks (VNETs)** to isolate cache coherence protocols [[Sorin2011]](#ref-sorin2011).
 
 ---
 
@@ -514,7 +514,7 @@ $$\text{Total Router Buffer Memory} = 5\text{ ports} \times 2,048\text{ bits} = 
 $$\text{Buffer Transistors} = 10,240\text{ bits} \times 12\text{ transistors/bit} \approx \mathbf{122,880\text{ transistors}}$$
 
 ### Architectural Takeaway:
-Buffers account for **over 60% of an on-chip router's total silicon area**! This is why architects carefully optimize VC counts ($V = 2\text{–}4$) and evaluate dynamic buffer pooling (DAMQ) to avoid silicon waste.
+Buffers account for **over 60% of an on-chip router's total silicon area** [[Wang2002]](#ref-wang2002), [[Kahng2009]](#ref-kahng2009)! This is why architects carefully optimize VC counts ($V = 2\text{–}4$) and evaluate dynamic buffer pooling architectures such as DAMQ [[Tamir1988]](#ref-tamir1988) and ViChaR [[Nicopoulos2006]](#ref-nicopoulos2006) to avoid silicon waste.
 
 ---
 
@@ -745,6 +745,18 @@ function checkQuiz22_Q3(idx) {
 Test your Virtual Channel and protocol scheduling skills:
 - ⚔️ **[Arbiter Arena: Crossbar Clash](../interactive/arbiter.md):** Master virtual channel arbitration and input-output matching across competing flit queues.
 - 🛡️ **[QoS Gladiator: Traffic Arbiter](../interactive/qos.md):** Prioritize virtual channels for real-time traffic and isolate cache coherence protocol classes into dedicated VNETs.
+
+---
+
+## References & Further Reading
+
+1. <a id="ref-dally1992"></a>**[Dally1992]** W. J. Dally, "Virtual-Channel Flow Control," *IEEE Transactions on Parallel and Distributed Systems*, vol. 3, no. 2, pp. 194–205, Mar. 1992. [DOI: 10.1109/71.127260](https://doi.org/10.1109/71.127260).
+2. <a id="ref-dallyprinciples"></a>**[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann, 2004.
+3. <a id="ref-wang2002"></a>**[Wang2002]** H.-S. Wang, X. Zhu, L.-S. Peh, and S. Malik, "Orion: A Power-Performance Simulator for Interconnection Networks," in *Proceedings of the 35th Annual IEEE/ACM International Symposium on Microarchitecture (MICRO)*, 2002, pp. 294–305. [DOI: 10.1109/MICRO.2002.1176258](https://doi.org/10.1109/MICRO.2002.1176258).
+4. <a id="ref-kahng2009"></a>**[Kahng2009]** A. B. Kahng, B. Lin, and S. Nath, "ORION 2.0: A Power-Area Simulator for Interconnection Networks," in *Proceedings of the Conference on Design, Automation and Test in Europe (DATE)*, 2009, pp. 423–428. [DOI: 10.1109/DATE.2009.5090710](https://doi.org/10.1109/DATE.2009.5090710).
+5. <a id="ref-tamir1988"></a>**[Tamir1988]** Y. Tamir and G. L. Frazier, "High-Performance Multi-Queue Buffers for VLSI Communication Switches," in *Proceedings of the 15th Annual International Symposium on Computer Architecture (ISCA)*, 1988, pp. 343–354. [DOI: 10.1145/52400.52440](https://doi.org/10.1145/52400.52440).
+6. <a id="ref-nicopoulos2006"></a>**[Nicopoulos2006]** C. A. Nicopoulos, D. Park, J. Kim, N. Vijaykrishnan, M. S. Yousif, and C. R. Das, "ViChaR: A Dynamic Virtual Channel Architecture for On-Chip Networks," in *Proceedings of the 39th Annual IEEE/ACM International Symposium on Microarchitecture (MICRO)*, 2006, pp. 211–222. [DOI: 10.1109/MICRO.2006.47](https://doi.org/10.1109/MICRO.2006.47).
+7. <a id="ref-sorin2011"></a>**[Sorin2011]** D. J. Sorin, M. D. Hill, and D. A. Wood, *A Primer on Memory Consistency and Cache Coherence*, Synthesis Lectures on Computer Architecture, Morgan & Claypool Publishers, 2011. [DOI: 10.2200/S00346ED1V01Y201104CAC016](https://doi.org/10.2200/S00346ED1V01Y201104CAC016).
 
 ---
 

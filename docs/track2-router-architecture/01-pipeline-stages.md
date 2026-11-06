@@ -6,15 +6,15 @@
       <span>📖 Companion Textbook Chapter Available</span>
     </div>
     <div style="font-size: 0.88rem; color: #cbd5e1; margin-top: 4px;">
-      Read <strong>Chapter 3: High-Performance Router Microarchitecture & Arbitration</strong> in our open textbook, featuring full mathematical proofs for iSLIP matching, single-cycle SMART traversal limits, HyPA asynchronous routers (TVLSI 2026), and BuffeRS bypass scheduling (TCAD 2026).
+      Read <strong>Chapter 3: High-Performance Router Microarchitecture & Arbitration</strong> in our open textbook, featuring full mathematical proofs for iSLIP matching, single-cycle SMART traversal limits, HyPA asynchronous routers, and BuffeRS bypass scheduling.
     </div>
   </div>
-  <a href="https://github.com/network-on-chip/book/blob/main/chapters/ch03-router-microarchitecture/index.md" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
+  <a href="../textbook/ch03-router-microarchitecture/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;">
     <span>Explore Chapter 3 →</span>
   </a>
 </div>
 
-To understand how a flit navigates a silicon on-chip router, we first examine the classic **canonical 5-stage router pipeline** popularized by William J. Dally and Li-Shiuan Peh, and then analyze how modern aggressive designs compress this pipeline down to a single clock cycle.
+To understand how a flit navigates a silicon on-chip router, we first examine the classic **canonical 5-stage router pipeline** popularized by William J. Dally and Li-Shiuan Peh [[Peh2001]](#ref-peh2001), [[DallyPrinciples]](#ref-dallyprinciples), and then analyze how modern aggressive designs compress this pipeline down to a single clock cycle.
 
 The router's core task is to move flits from input physical links to output physical links while resolving contention, managing buffer allocations, and preserving packet ordering.
 
@@ -107,20 +107,20 @@ graph TD
 ```
 
 ### A. Lookahead Routing (Eliminating RC from the Critical Path)
-In a standard router, Route Computation occurs after the flit arrives. In **Lookahead Routing**:
+In a standard router, Route Computation occurs after the flit arrives. In **Lookahead Routing** (pioneered in the SGI Spider chip [[Galles1996]](#ref-galles1996)):
 - **Router $N-1$ computes the routing decision for Router $N$ in advance!**
 - Before transmitting the Head Flit across the physical link, Router $N-1$ evaluates the next hop's routing direction and embeds it as a pre-computed 1-hot vector into the flit header.
 - When the flit arrives at Router $N$, **its output port is already known**.
 - Route Computation (RC) is completely eliminated from the critical path, allowing **Buffer Write (BW) and Virtual Channel Allocation (VA) to execute in parallel in Cycle 1**!
 
 ### B. Speculative Switch Allocation (Parallel VA + SA)
-In a non-speculative router, a flit must win a downstream VC (**VA**) *before* it can request the crossbar (**SA**). In **Speculative Routers** (pioneered by Li-Shiuan Peh and William J. Dally in 2001):
+In a non-speculative router, a flit must win a downstream VC (**VA**) *before* it can request the crossbar (**SA**). In **Speculative Routers** (pioneered by Li-Shiuan Peh and William J. Dally in 2001 [[Peh2001]](#ref-peh2001)):
 - A flit bids for a downstream VC and bids for the crossbar switch **simultaneously in the very same clock cycle**, *speculating* that it will successfully win both!
 - **If the speculation succeeds:** The flit traverses the crossbar immediately in Cycle 2, cutting an entire clock cycle.
 - **If the speculation fails:** The switch grant is annulled and awarded to a non-speculative flit. The losing flit buffers in the queue and retries non-speculatively.
 
 ### C. 1-Stage Speculative Crossbar Bypass (SMART)
-Under low-to-moderate network injection rates, the majority of router buffers are empty. In modern **1-Stage Bypass Routers** (e.g., Intel Skylake mesh, SMART NoC):
+Under low-to-moderate network injection rates, the majority of router buffers are empty. In modern **1-Stage Bypass Routers** (e.g., Intel Skylake mesh, single-cycle routers [[Matsutani2011]](#ref-matsutani2011), [[Mullins2006]](#ref-mullins2006), and SMART NoC [[Krishna2013]](#ref-krishna2013)):
 - When an incoming flit arrives at an input port whose buffer is empty and there is no crossbar contention, the flit **bypasses the input FIFO entirely**.
 - The flit shoots straight through the crossbar multiplexer to the output register in the **very same clock cycle ($t_r = 1\text{ cycle}$)**!
 
@@ -619,6 +619,17 @@ function checkQuiz21_Q3(idx) {
 Test your router pipeline mastery with interactive simulations:
 - 🧩 **[Packet Master: Flit Routing Puzzle](../interactive/puzzle.md):** Guide head and body flits through multi-stage router pipelines, resolving crossbar conflicts in real time.
 - 🎮 **[Deadlock Buster Arcade](../interactive/game.md):** Defend the router fabric against pipeline stalls and buffer deadlock knots.
+
+---
+
+## References & Further Reading
+
+1. <a id="ref-peh2001"></a>**[Peh2001]** L.-S. Peh and W. J. Dally, "A Delay Model and Speculative Architecture for Pipelined Routers," in *Proceedings of the 7th IEEE International Symposium on High-Performance Computer Architecture (HPCA)*, 2001, pp. 255–266. [DOI: 10.1109/HPCA.2001.903268](https://doi.org/10.1109/HPCA.2001.903268).
+2. <a id="ref-dallyprinciples"></a>**[DallyPrinciples]** W. J. Dally and B. Towles, *Principles and Practices of Interconnection Networks*, Morgan Kaufmann, 2004.
+3. <a id="ref-galles1996"></a>**[Galles1996]** M. Galles, "Spider: A High-Speed Network Interconnect," *IEEE Micro*, vol. 17, no. 1, pp. 34–39, Jan./Feb. 1997. [DOI: 10.1109/40.566164](https://doi.org/10.1109/40.566164).
+4. <a id="ref-matsutani2011"></a>**[Matsutani2011]** H. Matsutani, M. Koibuchi, D. Wang, and H. Amano, "Ultra-Low-Latency Router Specially Designed for On-Chip Networks," *IEEE Transactions on Parallel and Distributed Systems*, vol. 22, no. 8, pp. 1336–1349, Aug. 2011. [DOI: 10.1109/TPDS.2010.204](https://doi.org/10.1109/TPDS.2010.204).
+5. <a id="ref-mullins2006"></a>**[Mullins2006]** R. D. Mullins, A. West, and S. W. Moore, "Low-Latency Virtual-Channel Routers for On-Chip Networks," in *Proceedings of the 31st Annual International Symposium on Computer Architecture (ISCA)*, 2004, pp. 188–197. [DOI: 10.1109/ISCA.2004.1310773](https://doi.org/10.1109/ISCA.2004.1310773).
+6. <a id="ref-krishna2013"></a>**[Krishna2013]** T. Krishna, C.-H. O. Chen, W. C. Kwon, and L.-S. Peh, "Single-Cycle Multihop Asynchronous Repeated Traversal: A Case Study for Designing Low-Latency On-Chip Networks," *IEEE Micro*, vol. 34, no. 3, pp. 8–20, May/Jun. 2014. [DOI: 10.1109/MM.2014.19](https://doi.org/10.1109/MM.2014.19).
 
 ---
 
