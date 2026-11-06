@@ -3,7 +3,7 @@
 [![Interactive Lab](https://img.shields.io/badge/Arcade%20Game-Transformer%20Titan-0284c7?logo=gamepad&logoColor=white)](../../interactive/transformer.md)
 [![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%209%3A%20AI%20Interconnects-purple)](../../interactive/transformer.md)
 [![Hardware RTL](https://img.shields.io/badge/SystemVerilog%20RTL-in__network__reduction__router.sv-success)](code/in_network_reduction_router.sv)
-[![Monograph PDF](https://img.shields.io/badge/Springer%20Monograph-262%20Pages-0284c7)](../../assets/book.pdf)
+[![Monograph PDF](https://img.shields.io/badge/Springer%20Monograph-266%20Pages-0284c7)](../../assets/book.pdf?v=266)
 
 ---
 

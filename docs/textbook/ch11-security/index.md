@@ -3,7 +3,7 @@
 [![Interactive Lab](https://img.shields.io/badge/Arcade%20Game-Silicon%20Sentinel-e11d48?logo=gamepad&logoColor=white)](../../interactive/security.md)
 [![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%208%3A%20Hardware%20Security-indigo)](../../interactive/security.md)
 [![Hardware RTL](https://img.shields.io/badge/SystemVerilog%20RTL-wma__thermal__detector.sv-success)](code/wma_thermal_detector.sv)
-[![Monograph PDF](https://img.shields.io/badge/Springer%20Monograph-262%20Pages-0284c7)](../../assets/book.pdf)
+[![Monograph PDF](https://img.shields.io/badge/Springer%20Monograph-266%20Pages-0284c7)](../../assets/book.pdf?v=266)
 
 ---
 

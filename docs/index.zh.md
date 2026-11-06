@@ -6,7 +6,7 @@
   </p>
   <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
     <a href="textbook/" class="noc-sim-btn" style="text-decoration: none; background: #2563eb;">📖 阅读官方教材 (全十二章)</a>
-    <a href="../assets/book.pdf" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 下载教材 PDF (262页)</a>
+    <a href="../assets/book.pdf?v=266" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 下载教材 PDF (266页)</a>
     <a href="track1-fundamentals/" class="noc-sim-btn secondary" style="text-decoration: none;">🚀 开始系统学习</a>
     <a href="quiz/" class="noc-sim-btn secondary" style="text-decoration: none;">🎯 架构认证考核</a>
     <a href="interactive/game/" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 死锁大作战</a>
@@ -21,7 +21,7 @@
     <span class="noc-stat-label">教材核心章节</span>
   </div>
   <div class="noc-stat-card">
-    <span class="noc-stat-number">262</span>
+    <span class="noc-stat-number">266</span>
     <span class="noc-stat-label">教材出版总页数</span>
   </div>
   <div class="noc-stat-card">
@@ -46,15 +46,15 @@
       <span>📘 完整出版排版 PDF 现已开放下载</span>
     </div>
     <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 800px; line-height: 1.5;">
-      采用施普林格·自然（Springer Nature）<code>svmono</code> 专著版式编译（共 262 页），系统涵盖线物理延时、路由器微架构、高基数拓扑、转向模型死锁证明、暗硅低功耗、热敏建模、3D 硅通孔、UCIe 芯粒互连、纳米光子学、零信任硬件安全与面向大模型/类脑计算的领域专用互连。
+      采用施普林格·自然（Springer Nature）<code>svmono</code> 专著版式编译（共 266 页），系统涵盖线物理延时、路由器微架构、高基数拓扑、转向模型死锁证明、暗硅低功耗、热敏建模、3D 硅通孔、UCIe 芯粒互连、纳米光子学、零信任硬件安全与面向大模型/类脑计算的领域专用互连。
     </div>
   </div>
   <div style="display: flex; gap: 10px; flex-wrap: wrap;">
     <a href="textbook/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
       <span>在线阅读教材 →</span>
     </a>
-    <a href="../assets/book.pdf" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #0284c7; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
-      <span>下载 PDF 电子书 (262页) ↓</span>
+    <a href="../assets/book.pdf?v=266" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #0284c7; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+      <span>下载 PDF 电子书 (266页) ↓</span>
     </a>
   </div>
 </div>
