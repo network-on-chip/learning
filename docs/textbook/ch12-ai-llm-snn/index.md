@@ -1,7 +1,7 @@
 # Chapter 12: Domain-Specific NoCs for LLMs, Transformers & Neuromorphic SNNs
 
-[![Interactive Lab](https://img.shields.io/badge/Arcade%20Game-Transformer%20Titan-0284c7?logo=gamepad&logoColor=white)](../../interactive/transformer.md)
-[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%209%3A%20AI%20Interconnects-purple)](../../interactive/transformer.md)
+[![Interactive Lab](https://img.shields.io/badge/Arcade%20Game-Transformer%20Titan-0284c7?logo=gamepad&logoColor=white)](../../track12-ai-llm-snn/)
+[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%2012%3A%20AI%20Interconnects-purple)](../../track12-ai-llm-snn/)
 [![Hardware RTL](https://img.shields.io/badge/SystemVerilog%20RTL-in__network__reduction__router.sv-success)](code/in_network_reduction_router.sv)
 [![Monograph PDF](https://img.shields.io/badge/Springer%20Monograph-266%20Pages-0284c7)](../../assets/book.pdf?v=266)
 
@@ -235,14 +235,14 @@ Explore the interactive AI accelerator simulator and games on the **NoC Learning
     </div>
   </div>
   <div>
-    <a href="../../interactive/transformer.md" style="display: inline-flex; align-items: center; gap: 6px; background: #0284c7; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+    <a href="../../track12-ai-llm-snn/" style="display: inline-flex; align-items: center; gap: 6px; background: #0284c7; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
       <span>Launch Transformer Titan →</span>
     </a>
   </div>
 </div>
 
-- **[Transformer Titan: LLM & AI Collective Accelerator Arcade](../../interactive/transformer.md)**: Accelerate 100-Billion parameter LLM training! Deploy hierarchical in-network reduction trees to eliminate AllReduce congestion, trigger low-latency Ruche express bypass hops, and scale 3D hybrid bonding memory silos to conquer the memory wall. Features dynamic collective flit rendering, Web Audio sound effects, and local storage leaderboards.
-- **[Neuromorphic Nexus: SNN Spikes & Multicast Routing](../../interactive/neuromorphic.md)**: Route event-driven AER action potential spikes across bio-inspired neuromorphic arrays, optimizing hypergraph multicast fanout and minimizing synaptic spike latency.
+- **[Transformer Titan: LLM & AI Collective Accelerator Arcade](../../track12-ai-llm-snn/)**: Accelerate 100-Billion parameter LLM training! Deploy hierarchical in-network reduction trees to eliminate AllReduce congestion, trigger low-latency Ruche express bypass hops, and scale 3D hybrid bonding memory silos to conquer the memory wall. Features dynamic collective flit rendering, Web Audio sound effects, and local storage leaderboards.
+- **[Neuromorphic Nexus: SNN Spikes & Multicast Routing](../../interactive/neuromorphic/)**: Route event-driven AER action potential spikes across bio-inspired neuromorphic arrays, optimizing hypergraph multicast fanout and minimizing synaptic spike latency.
 
 ---
 
@@ -252,7 +252,7 @@ Explore the interactive AI accelerator simulator and games on the **NoC Learning
 2. **In-Network Computing**: Performing gradient reduction directly inside router crossbars reduces collective flit traffic by up to $75\%$, eliminating memory bandwidth bottlenecks.
 3. **Ruche Networks**: Upper metal routing tracks can be exploited to bypass intermediate routers without increasing crossbar switch radix.
 4. **Hybrid Bonding**: Face-to-face copper pillar bonding delivers over $16\text{ TB/s}$ of vertical DRAM bandwidth, breaking the memory wall for on-device LLM serving.
-5. **Interactive Laboratories**: Readers can experience AI collective acceleration in **Transformer Titan** ([../../interactive/transformer.md](../../interactive/transformer.md)) and spike multicasting in **Neuromorphic Nexus** ([../../interactive/neuromorphic.md](../../interactive/neuromorphic.md)).
+5. **Interactive Laboratories**: Readers can experience AI collective acceleration in **Transformer Titan** ([../../track12-ai-llm-snn/](../../track12-ai-llm-snn/)) and spike multicasting in **Neuromorphic Nexus** ([../../interactive/neuromorphic/](../../interactive/neuromorphic/)).
 
 ---
 

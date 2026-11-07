@@ -1,7 +1,7 @@
 # Chapter 6: Low-Power Architectures & Dark Silicon Dynamics
 
 [![Companion Platform](https://img.shields.io/badge/Interactive%20Lab-Power%20Pavilion-0f766e?logo=bookstack&logoColor=white)](https://network-on-chip.github.io/learning/interactive/power/)
-[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%205%3A%20Energy-blue)](https://network-on-chip.github.io/learning/track5-thermal-congestion/)
+[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%206%3A%20Dark%20Silicon-blue)](../../track6-low-power-dark-silicon/)
 [![Simulation Model](https://img.shields.io/badge/Python%20Model-dvfs__vfi__power__sim.py-blueviolet)](code/dvfs_vfi_power_sim.py)
 [![Hardware RTL](https://img.shields.io/badge/Verilog%20RTL-power__gating__router__fsm.v-success)](code/power_gating_router_fsm.v)
 

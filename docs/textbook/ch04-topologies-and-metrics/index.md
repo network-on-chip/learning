@@ -1,7 +1,7 @@
 # Chapter 4: Direct, Indirect & High-Radix Interconnect Topologies
 
 [![Companion Platform](https://img.shields.io/badge/Interactive%20Lab-Topology%20Titans-0f766e?logo=bookstack&logoColor=white)](https://network-on-chip.github.io/learning/interactive/topology/)
-[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%203%3A%20Topologies-blue)](https://network-on-chip.github.io/learning/track3-topologies/)
+[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%203%3A%20Topologies-blue)](../../track4-topologies-and-metrics/)
 [![Simulation Model](https://img.shields.io/badge/Python%20Model-topology__metrics__sim.py-blueviolet)](code/topology_metrics_sim.py)
 [![Hardware RTL](https://img.shields.io/badge/Verilog%20RTL-topology__router__mesh__torus.v-success)](code/topology_router_mesh_torus.v)
 

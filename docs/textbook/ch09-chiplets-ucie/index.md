@@ -1,7 +1,7 @@
 # Chapter 9: Multi-Chiplet Interconnects, 2.5D Systems & UCIe
 
 [![Companion Platform](https://img.shields.io/badge/Interactive%20Lab-Chiplet%20Tycoon-0f766e?logo=bookstack&logoColor=white)](https://network-on-chip.github.io/learning/interactive/chiplet/)
-[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%206%3A%20Chiplets%20%26%203D-blue)](https://network-on-chip.github.io/learning/track6-chiplets-and-3d/)
+[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%209%3A%20UCIe%20Chiplets-blue)](../../track9-chiplets-ucie/)
 [![Simulation Model](https://img.shields.io/badge/Python%20Model-ucie__d2d__latency__model.py-blueviolet)](code/ucie_d2d_latency_model.py)
 [![Hardware RTL](https://img.shields.io/badge/Verilog%20RTL-chiplet__bridge__protocol.v-success)](code/chiplet_bridge_protocol.v)
 

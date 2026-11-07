@@ -8,7 +8,7 @@
     <a href="textbook/" class="noc-sim-btn" style="text-decoration: none; background: #2563eb;">📖 阅读官方教材 (全十二章)</a>
     <a href="../assets/book.pdf?v=266" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 下载教材 PDF (266页)</a>
     <a href="interactive/terminal/" class="noc-sim-btn" style="text-decoration: none; background: #059669;">💻 网页 EDA 终端</a>
-    <a href="track1-fundamentals/" class="noc-sim-btn secondary" style="text-decoration: none;">🚀 开始系统学习</a>
+    <a href="track1-interconnect-crisis/" class="noc-sim-btn secondary" style="text-decoration: none;">🚀 开始系统学习</a>
     <a href="quiz/" class="noc-sim-btn secondary" style="text-decoration: none;">🎯 架构认证考核</a>
     <a href="interactive/game/" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 死锁大作战</a>
     <a href="interactive/visualizer/" class="noc-sim-btn secondary" style="text-decoration: none;">🎮 二维网格仿真器</a>
@@ -204,99 +204,183 @@
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge">第一模块</span>
-      <div class="noc-track-title">片上互连基础</div>
+      <div class="noc-track-title">多核通信危机与物理线互连</div>
       <div class="noc-track-desc">
-        从共享总线瓶颈到片上网络架构。数据包（Packet）、微元（Flit）与物理传输单元（Phit）。存储转发、虚拟直通与虫洞交换（Wormhole）、信用（Credit）回路与网络接口（NI）微架构。
+        共享总线退役背后的物理根源。导线缩放效应、Elmore RC 延迟建模、最优中继器（Repeater）插入算法及片上能耗-延迟极限推导。
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 包含 4 大交互式仿真器与计算器
+        ⚡ 4 节深度课时 • 可综合 Elmore Verilog • 导线物理仿真器
       </div>
     </div>
-    <a href="track1-fundamentals/" class="noc-track-link">进入模块一 →</a>
+    <a href="track1-interconnect-crisis/" class="noc-track-link">进入模块一 →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge">第二模块</span>
-      <div class="noc-track-title">路由器微架构</div>
+      <div class="noc-track-title">交换技术、流控与缓存管理</div>
       <div class="noc-track-desc">
-        标准五级流水线路由器（BW-RC-VA-SA-ST）、虚通道（Virtual Channel）管理、亚200ps矩阵仲裁器（Matrix Arbiter）与SMART单周期多跳旁路微架构。
+        数据包（Packet）、微元（Flit）与物理单元（Phit）。存储转发、虚拟直通与虫洞交换（Wormhole）对比，信用（Credit）回路与 AXI 网络接口。
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 包含 4 大交互式仿真器与 Verilog RTL 实现
+        ⚡ 4 节深度课时 • 信用计数器 RTL • 信用指挥官仿真器
       </div>
     </div>
-    <a href="track2-router-architecture/" class="noc-track-link">进入模块二 →</a>
+    <a href="track2-switching-flow-control/" class="noc-track-link">进入模块二 →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge">第三模块</span>
-      <div class="noc-track-title">拓扑结构与互连指标</div>
+      <div class="noc-track-title">路由器微架构与仲裁调度</div>
       <div class="noc-track-desc">
-        直接拓扑（Mesh, Torus, 折叠环）、间接与集中拓扑（Fat-Tree, cMesh）与高基数拓扑（Dragonfly, 扁平蝶式网络）。深入推导 $T_0$、$\Theta_{sat}$、对分带宽与 UGAL 自适应路由。
+        经典五级流水线路由器（BW-RC-VA-SA-ST）、虚通道（Virtual Channel）组织、亚 200ps 矩阵仲裁器与 SMART 单周期多跳旁路路由。
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 包含 4 大可综合 Verilog RTL • 4 大交互式仿真器与高基数权衡分析仪
+        ⚡ 4 节深度课时 • 五级流水线 SystemVerilog • 仲裁竞技场
       </div>
     </div>
-    <a href="track3-topologies/" class="noc-track-link">进入模块三 →</a>
+    <a href="track3-router-microarchitecture/" class="noc-track-link">进入模块三 →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge">第四模块</span>
-      <div class="noc-track-title">路由算法与死锁避免</div>
+      <div class="noc-track-title">直接/间接与高基数互连拓扑</div>
       <div class="noc-track-desc">
-        确定性维序路由（XY 路由）、转向模型（西向优先、北向最后）、奇偶路由、杜阿托逃逸信道定理（Duato's Theorem）、生成树容错路由与缓存一致性协议死锁消除（VNET）。
+        直接拓扑（Mesh, Torus）、间接集中拓扑（Clos, Fat-Tree, cMesh）与高基数超算互连（Dragonfly, 扁平蝶式）。深入推导 $T_0$、$\Theta_{sat}$ 与 UGAL 路由。
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 包含 4 大可综合 Verilog RTL 模块、4 大交互式仿真器与街机实战链接
+        ⚡ 4 节深度课时 • 拓扑图指标 RTL • 交互式拓扑架构师
       </div>
     </div>
-    <a href="track4-routing-deadlock/" class="noc-track-link">进入模块四 →</a>
+    <a href="track4-topologies-and-metrics/" class="noc-track-link">进入模块四 →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge">第五模块</span>
-      <div class="noc-track-title">热管理与拥塞控制</div>
+      <div class="noc-track-title">死锁理论、转向模型与自适应路由</div>
       <div class="noc-track-desc">
-        傅里叶热扩散定律、RC紧凑热网络、区域拥塞感知（RCA）、源端限流压制、机器学习热点前瞻预测与非高斯噪声下稀疏传感器重构（深度融合实验室开源复现成果）。
+        确定性 XY 路由、转向模型（西向优先、北向最后、奇偶路由）、杜阿托（Duato）逃逸信道定理、信道依赖图（CDG）证明与缓存一致性 VNET 隔离。
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 包含 4 大可综合 Verilog RTL 模块、4 大交互式仿真器与街机实战链接
+        ⚡ 4 节深度课时 • SMT CDG 形式化验证器 • 死锁大作战街机
       </div>
     </div>
-    <a href="track5-congestion-thermal/" class="noc-track-link">进入模块五 →</a>
+    <a href="track5-routing-deadlock/" class="noc-track-link">进入模块五 →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge">第六模块</span>
-      <div class="noc-track-title">芯粒与三维片上网络</div>
+      <div class="noc-track-title">低功耗架构与暗硅动态管理</div>
       <div class="noc-track-desc">
-        三维硅通孔（TSV）寄生与热应力禁放区（KOZ）、七端口三维路由器、负二项式良率经济学、先进封装（CoWoS/EMIB）、UCIe 协议栈、3D 堆叠热沉陷、光互连片上网络（ONoC）与无线射频（WNoC）前沿。
+        暗硅物理极限、热设计功耗（TDP）、多电压频率岛（V/F 岛）、路由器微架构电源门控、唤醒状态机与电感性 $L\cdot di/dt$ 电压突降防护。
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 包含 4 大可综合 Verilog RTL 模块、4 大交互式仿真器与街机实战链接
+        ⚡ 4 节深度课时 • 电源门控 FSM RTL • 电压旋涡仿真器
       </div>
     </div>
-    <a href="track6-chiplets-and-3d/" class="noc-track-link">进入模块六 →</a>
+    <a href="track6-low-power-dark-silicon/" class="noc-track-link">进入模块六 →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge">第七模块</span>
-      <div class="noc-track-title">经典论文深度精读</div>
+      <div class="noc-track-title">热学建模、热点防御与容错弹性</div>
       <div class="noc-track-desc">
-        顶刊论文精读手册：英特尔 48 核 SCC 处理器（2-TB/s DVFS 网格）、英伟达 Simba 36 芯粒 GRS 封装、三维光互连片上网络（3D ONoC）以及类脑网内计算路由器。
+        傅里叶热扩散定律、RC 紧凑热网、区域拥塞感知（RCA）、源端限流压制、机器学习热点预测与非高斯噪声下稀疏传感器重构。
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 包含 4 大可综合 Verilog RTL 模块、4 大真实芯片仿真器与街机实战链接
+        ⚡ 4 节深度课时 • 热偏斜 Verilog RTL • 硅温保卫战与故障防御
       </div>
     </div>
-    <a href="track7-paper-walkthroughs/" class="noc-track-link">进入模块七 →</a>
+    <a href="track7-thermal-fault-tolerance/" class="noc-track-link">进入模块七 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">第八模块</span>
+      <div class="noc-track-title">三维片上网络 (3D-NoC) 与硅通孔</div>
+      <div class="noc-track-desc">
+        三维硅通孔（TSV）寄生参数、热机械应力禁放区（KOZ）、七端口 3D 交叉开关、垂直串行化传输与 3D 纵向热沉陷抑制技术。
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 4 节深度课时 • 7端口三维交叉开关 RTL • TSV 泰坦仿真器
+      </div>
+    </div>
+    <a href="track8-3d-noc-tsvs/" class="noc-track-link">进入模块八 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">第九模块</span>
+      <div class="noc-track-title">多芯粒先进互连与 UCIe 规范</div>
+      <div class="noc-track-desc">
+        2.5D 先进封装（CoWoS/EMIB）、负二项良率经济学、UCIe 标准物理与 D2D 适配层、跨芯粒 In/Outbound Swap 死锁回溯恢复与多芯粒旁路机制。
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 4 节深度课时 • In/Outbound Swap RTL • 芯粒大亨实验室
+      </div>
+    </div>
+    <a href="track9-chiplets-ucie/" class="noc-track-link">进入模块九 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">第十模块</span>
+      <div class="noc-track-title">光子与无线片上网络前沿</div>
+      <div class="noc-track-desc">
+        硅基纳米光子微环谐振腔（MRR）、波长路由光互连（WRONoC）、激光器电源门控与闭环 APC 热微调控、毫米波/太赫兹片上无线互连。
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 4 节深度课时 • 光子微环开关 RTL • 光子领航员与无线电波
+      </div>
+    </div>
+    <a href="track10-optical-wireless/" class="noc-track-link">进入模块十 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">第十一模块</span>
+      <div class="noc-track-title">硬件安全与零信任防御</div>
+      <div class="noc-track-desc">
+        片上威胁模型：窃听、欺骗与拒绝服务（DoS）。时间、缓存与物理热隐蔽信道。HeatSense 无乘法器 EWMA 热木马实时检测与硬件隔离区技术。
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 4 节深度课时 • HeatSense EWMA Verilog • 硅基哨兵街机
+      </div>
+    </div>
+    <a href="track11-security/" class="noc-track-link">进入模块十一 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">第十二模块</span>
+      <div class="noc-track-title">大模型与类脑计算领域专用互连</div>
+      <div class="noc-track-desc">
+        大语言模型集合通信（AllReduce, AllGather）通信模式。网内归约路由器、超密晶圆级（Wafer-Scale）Ruche 织网与类脑脉冲（SNN）多播网络。
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 4 节深度课时 • 网内归约 SystemVerilog • 变形泰坦加速实验室
+      </div>
+    </div>
+    <a href="track12-ai-llm-snn/" class="noc-track-link">进入模块十二 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3);">第十三模块 • 毕业设计</span>
+      <div class="noc-track-title">毕业设计：经典芯片实测与全栈系统综合</div>
+      <div class="noc-track-desc">
+        精读经典芯片（英特尔 SCC 48核、英伟达 Simba 36芯粒、三维光互连、网内计算TVLSI），挑战终极毕业设计：零信任多芯粒 MoE 混合专家加速器全栈综合。
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 5 节深度课时 • 完整 SystemVerilog SoC RTL • 网页 EDA 终端自动评分
+      </div>
+    </div>
+    <a href="track13-capstone/" class="noc-track-link">进入第十三模块毕业设计 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -473,12 +557,12 @@
 
 ```mermaid
 graph LR
-  A["片上互连理论<br/>与体系结构"] --> B["体系化课程模块<br/>(模块 1–7)"]
+  A["片上互连理论<br/>与体系结构"] --> B["体系化课程模块<br/>(全13大模块)"]
   B --> C["网页交互式实验<br/>(二维网格路由仿真器)"]
   B --> D["硬件开源实现<br/>(projects/ 下 Verilog & Python)"]
   D --> E["基准测试与芯片实测<br/>(热学、延迟与能效数据)"]
 ```
 
 ### 准备好开始了吗？
-立即开启你的第一步：[第一模块：片上网络基础](track1-fundamentals/index.md)，或者前往体验 [交互式二维路由仿真器](interactive/visualizer.md)！
+立即开启你的第一步：[第一模块：多核通信危机与物理线互连](track1-interconnect-crisis/index.md)，或者前往体验 [交互式二维路由仿真器](interactive/visualizer.md)！
 

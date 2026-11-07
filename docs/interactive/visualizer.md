@@ -597,4 +597,4 @@ function resetStats() {
    - Switch between **Uniform Random**, **Transpose Traffic**, and **Hotspot Traffic** to observe how link loads (red/orange links) heat up under non-uniform communication.
 
 > [!TIP]
-> Dive deeper into the mathematical proof of deadlock freedom in [Track 4: Routing & Deadlock Avoidance](../track4-routing-deadlock/01-deterministic-dor.md).
+> Dive deeper into the mathematical proof of deadlock freedom in [Track 5: Deadlock Theory, Turn Models & Routing](../track5-routing-deadlock/01-deterministic-dor.md).

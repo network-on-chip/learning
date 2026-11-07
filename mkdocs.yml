@@ -78,13 +78,19 @@ plugins:
             "Certification & Quiz": "认证考核与答题"
             "Public Leaderboard": "荣誉排行榜"
             "Architecture Glossary": "专业术语词典"
-            "Track 1: Interconnect Fundamentals": "第一模块：片上网络基础"
-            "Track 2: Router Microarchitecture": "第二模块：路由器微架构"
-            "Track 3: Topologies & Metrics": "第三模块：拓扑结构与互连指标"
-            "Track 4: Routing & Deadlock": "第四模块：路由算法与死锁避免"
-            "Track 5: Thermal & Congestion": "第五模块：热管理与拥塞控制"
-            "Track 6: Chiplets & 3D NoC": "第六模块：芯粒与三维片上网络"
-            "Track 7: Landmark Papers": "第七模块：经典论文精读"
+            "Track 1: Interconnect Crisis & Wire Physics": "第一模块：多核通信危机与物理线互连"
+            "Track 2: Switching, Flow Control & Buffers": "第二模块：交换技术、流控与缓存管理"
+            "Track 3: Router Microarchitecture & Arbitration": "第三模块：高性能路由器微架构与仲裁调度"
+            "Track 4: Direct, Indirect & High-Radix Topologies": "第四模块：直接/间接与高基数互连拓扑"
+            "Track 5: Deadlock Theory, Turn Models & Routing": "第五模块：死锁理论、转向模型与自适应路由"
+            "Track 6: Low-Power Architectures & Dark Silicon": "第六模块：低功耗架构与暗硅动态管理"
+            "Track 7: Thermal Modeling & Fault Tolerance": "第七模块：热学建模、热点防御与容错弹性"
+            "Track 8: 3D Networks-on-Chip (3D-NoC) & TSVs": "第八模块：三维片上网络 (3D-NoC) 与硅通孔"
+            "Track 9: Multi-Chiplet Interconnects & UCIe": "第九模块：多芯粒先进互连与 UCIe 规范"
+            "Track 10: Optical & Wireless Networks-on-Chip": "第十模块：光子与无线片上网络前沿"
+            "Track 11: Hardware Security & Trust in NoCs": "第十一模块：硬件安全与零信任防御"
+            "Track 12: Domain-Specific NoCs for AI & LLMs": "第十二模块：大模型与类脑计算领域专用互连"
+            "Track 13: Capstone System Synthesis": "第十三模块：毕业设计：经典芯片实测与全栈系统综合"
             "Overview": "总览"
             "Official Textbook (12 Chapters)": "官方开源教材 (全十二章)"
             "Part I: Foundations & Microarchitecture": "第一部分：互连基础与微架构"
@@ -201,45 +207,82 @@ nav:
   - "Certification & Quiz": quiz.md
   - "Public Leaderboard": leaderboard.md
   - "Architecture Glossary": glossary.md
-  - "Track 1: Interconnect Fundamentals":
-      - Overview: track1-fundamentals/index.md
-      - "1.1 Why Network-on-Chip?": track1-fundamentals/01-why-noc.md
-      - "1.2 Packets, Flits & Switching": track1-fundamentals/02-packet-switching-flits.md
-      - "1.3 Flow Control & Credit Mechanism": track1-fundamentals/03-flow-control-credit.md
-      - "1.4 Network Interface & Packetization": track1-fundamentals/04-network-interface-packetization.md
-  - "Track 2: Router Microarchitecture":
-      - Overview: track2-router-architecture/index.md
-      - "2.1 Canonical Router Pipeline": track2-router-architecture/01-pipeline-stages.md
-      - "2.2 Virtual Channel (VC) Design": track2-router-architecture/02-virtual-channels.md
-      - "2.3 Arbitration & Crossbar Switching": track2-router-architecture/03-arbitration-crossbar.md
-      - "2.4 Low-Latency & Bypass Routers": track2-router-architecture/04-low-latency-bypass-routers.md
-  - "Track 3: Topologies & Metrics":
-      - Overview: track3-topologies/index.md
-      - "3.1 Direct Topologies (Mesh & Torus)": track3-topologies/01-direct-topologies.md
-      - "3.2 Indirect & Concentrated Networks": track3-topologies/02-indirect-hierarchical.md
-      - "3.3 Interconnect Metrics & Traffic Patterns": track3-topologies/03-metrics-traffic-patterns.md
-      - "3.4 High-Radix (Dragonfly & Flattened Butterfly)": track3-topologies/04-high-radix-topologies.md
-  - "Track 4: Routing & Deadlock":
-      - Overview: track4-routing-deadlock/index.md
-      - "4.1 Deterministic Dimension-Order Routing (DOR)": track4-routing-deadlock/01-deterministic-dor.md
-      - "4.2 Adaptive Routing & The Turn Model": track4-routing-deadlock/02-adaptive-turn-model.md
-      - "4.3 Deadlock Theory & Channel Dependency Graphs": track4-routing-deadlock/03-deadlock-theory-cdg.md
-      - "4.4 Fault-Tolerant Routing & Protocol Deadlock": track4-routing-deadlock/04-fault-tolerant-protocol-deadlock.md
-  - "Track 5: Thermal & Congestion":
-      - Overview: track5-congestion-thermal/index.md
-      - "5.1 Thermal Physics & Compact RC Modeling": track5-congestion-thermal/01-thermal-physics-rc-modeling.md
-      - "5.2 Congestion Detection & Source Quenching": track5-congestion-thermal/02-congestion-detection-throttling.md
-      - "5.3 Proactive Hotspot Prediction (ML-DTM)": track5-congestion-thermal/03-hotspot-prediction-ml.md
-      - "5.4 Optimal Sensor Placement & Reconstruction": track5-congestion-thermal/04-thermal-sensor-placement.md
-  - "Track 6: Chiplets & 3D NoC":
-      - Overview: track6-chiplets-and-3d/index.md
-      - "6.1 3D TSV Interconnects & Microarchitecture": track6-chiplets-and-3d/01-3d-tsv-interconnects.md
-      - "6.2 Multi-Chiplet Interconnects & UCIe": track6-chiplets-and-3d/02-chiplets-ucie-interconnects.md
-      - "6.3 3D Topologies, Thermal Stacking & Deadlock": track6-chiplets-and-3d/03-3d-topologies-thermal-deadlock.md
-      - "6.4 Emerging Frontiers: ONoC & WNoC": track6-chiplets-and-3d/04-optical-wireless-frontiers.md
-  - "Track 7: Landmark Papers":
-      - Overview: track7-paper-walkthroughs/index.md
-      - "7.1 Intel 48-Core SCC Mesh (JSSC)": track7-paper-walkthroughs/01-intel-scc-mesh.md
-      - "7.2 NVIDIA Simba Multi-Chiplet NoC (JSSC)": track7-paper-walkthroughs/02-nvidia-simba-mcm.md
-      - "7.3 3D Optical NoC for MPSoCs (TCAD)": track7-paper-walkthroughs/03-3d-optical-noc.md
-      - "7.4 In-Network Computing Router (TVLSI)": track7-paper-walkthroughs/04-in-network-neuromorphic.md
+  - "Track 1: Interconnect Crisis & Wire Physics":
+      - Overview: track1-interconnect-crisis/index.md
+      - "1.1 Why Network-on-Chip? Physics & Shared Bus Limits": track1-interconnect-crisis/01-why-noc.md
+      - "1.2 Wire Scaling, RC Delay & Elmore Modeling": track1-interconnect-crisis/02-wire-scaling-elmore.md
+      - "1.3 Optimal Repeater Insertion & Buffer Sizing": track1-interconnect-crisis/03-repeater-insertion.md
+      - "1.4 Physical Limits & Energy-Delay Breakdown": track1-interconnect-crisis/04-energy-limits-interconnect.md
+  - "Track 2: Switching, Flow Control & Buffers":
+      - Overview: track2-switching-flow-control/index.md
+      - "2.1 Packets, Flits, Phits & Packetization": track2-switching-flow-control/01-packet-switching-flits.md
+      - "2.2 Switching Mechanisms: SAF vs VCT vs Wormhole": track2-switching-flow-control/02-switching-mechanisms.md
+      - "2.3 Credit-Based Flow Control & Turnaround Latency": track2-switching-flow-control/03-flow-control-credit.md
+      - "2.4 Network Interface Architecture & AXI Protocol": track2-switching-flow-control/04-network-interface-packetization.md
+  - "Track 3: Router Microarchitecture & Arbitration":
+      - Overview: track3-router-microarchitecture/index.md
+      - "3.1 Canonical 5-Stage Router Pipeline": track3-router-microarchitecture/01-pipeline-stages.md
+      - "3.2 Virtual Channel Allocation & Buffer Management": track3-router-microarchitecture/02-virtual-channels.md
+      - "3.3 Fast Switch Allocation & Crossbar Design": track3-router-microarchitecture/03-arbitration-crossbar.md
+      - "3.4 SMART Single-Cycle Multi-Hop Bypassing": track3-router-microarchitecture/04-low-latency-bypass-routers.md
+  - "Track 4: Direct, Indirect & High-Radix Topologies":
+      - Overview: track4-topologies-and-metrics/index.md
+      - "4.1 Direct Topologies: Mesh, Torus & Folded Torus": track4-topologies-and-metrics/01-direct-topologies.md
+      - "4.2 Indirect & Hierarchical Networks: Clos, Fat-Tree & cMesh": track4-topologies-and-metrics/02-indirect-hierarchical.md
+      - "4.3 Mathematical Derivation of Zero-Load Latency & Saturation": track4-topologies-and-metrics/03-metrics-traffic-patterns.md
+      - "4.4 High-Radix Topologies: Dragonfly & Flattened Butterfly": track4-topologies-and-metrics/04-high-radix-topologies.md
+  - "Track 5: Deadlock Theory, Turn Models & Routing":
+      - Overview: track5-routing-deadlock/index.md
+      - "5.1 Deterministic Dimension-Order Routing (DOR)": track5-routing-deadlock/01-deterministic-dor.md
+      - "5.2 Turn Models: West-First, North-Last & Odd-Even": track5-routing-deadlock/02-adaptive-turn-model.md
+      - "5.3 CDG Theory & Duato Escape Channel Theorem": track5-routing-deadlock/03-deadlock-theory-cdg.md
+      - "5.4 Fault-Tolerant Routing & Protocol Deadlock": track5-routing-deadlock/04-fault-tolerant-protocol-deadlock.md
+  - "Track 6: Low-Power Architectures & Dark Silicon":
+      - Overview: track6-low-power-dark-silicon/index.md
+      - "6.1 Dark Silicon Physics & Thermal Design Power (TDP)": track6-low-power-dark-silicon/01-dark-silicon-physics.md
+      - "6.2 Multiple Voltage/Frequency Domains (V/F Islands)": track6-low-power-dark-silicon/02-dvfs-voltage-islands.md
+      - "6.3 Router Microarchitectural Power Gating & Wakeup": track6-low-power-dark-silicon/03-power-gating-router.md
+      - "6.4 Voltage Emergencies, L-di/dt & Energy-Efficient Encoding": track6-low-power-dark-silicon/04-voltage-emergencies-energy.md
+  - "Track 7: Thermal Modeling & Fault Tolerance":
+      - Overview: track7-thermal-fault-tolerance/index.md
+      - "7.1 Heat Dissipation, Compact RC Models & HotSpot": track7-thermal-fault-tolerance/01-thermal-physics-rc-modeling.md
+      - "7.2 Congestion Awareness (RCA) & Source Throttling": track7-thermal-fault-tolerance/02-congestion-detection-throttling.md
+      - "7.3 Proactive Thermal Forecasting & Dynamic Thermal Management": track7-thermal-fault-tolerance/03-hotspot-prediction-ml.md
+      - "7.4 Sensor Placement & Temperature Field Reconstruction": track7-thermal-fault-tolerance/04-thermal-sensor-placement.md
+  - "Track 8: 3D Networks-on-Chip (3D-NoC) & TSVs":
+      - Overview: track8-3d-noc-tsvs/index.md
+      - "8.1 3D Integration: Through-Silicon Vias & Microbumps": track8-3d-noc-tsvs/01-3d-tsv-interconnects.md
+      - "8.2 TSV Parasitics, Keep-Out Zones & Thermo-Mechanical Stress": track8-3d-noc-tsvs/02-tsv-parasitics-koz.md
+      - "8.3 3D Router Microarchitecture: 7-Port Crossbars & Serialization": track8-3d-noc-tsvs/03-3d-router-microarchitecture.md
+      - "8.4 3D Topologies, Vertical Stacking & Thermal Hotspots": track8-3d-noc-tsvs/04-3d-topologies-thermal-deadlock.md
+  - "Track 9: Multi-Chiplet Interconnects & UCIe":
+      - Overview: track9-chiplets-ucie/index.md
+      - "9.1 2.5D Packaging Economics & Die-to-Die Yield Analysis": track9-chiplets-ucie/01-25d-packaging-economics.md
+      - "9.2 The Universal Chiplet Interconnect Express (UCIe) Standard": track9-chiplets-ucie/02-chiplets-ucie-interconnects.md
+      - "9.3 Cross-Die Routing Deadlock & In/Outbound Swap Recovery": track9-chiplets-ucie/03-cross-die-deadlock-recovery.md
+      - "9.4 Multi-Chiplet Router Bypassing & Latency Reduction": track9-chiplets-ucie/04-multichiplet-router-bypassing.md
+  - "Track 10: Optical & Wireless Networks-on-Chip":
+      - Overview: track10-optical-wireless/index.md
+      - "10.1 Silicon Nanophotonics: Microring Resonators & Waveguides": track10-optical-wireless/01-silicon-nanophotonics-mrrs.md
+      - "10.2 Wavelength-Routed ONoCs (WRONoCs) & Crossbar Topologies": track10-optical-wireless/02-wronoc-optical-crossbars.md
+      - "10.3 Laser Power Management, Thermal Tuning & APC Loops": track10-optical-wireless/03-laser-power-gating-apc.md
+      - "10.4 Wireless NoCs (WNoCs): On-Chip Antennas & mmWave/THz Fabric": track10-optical-wireless/04-wireless-noc-frontiers.md
+  - "Track 11: Hardware Security & Trust in NoCs":
+      - Overview: track11-security/index.md
+      - "11.1 Threat Models: Eavesdropping, Spoofing & DoS in NoCs": track11-security/01-security-threat-models.md
+      - "11.2 Covert Channels: Timing, Buffer & Thermal Leakage Paths": track11-security/02-thermal-timing-covert-channels.md
+      - "11.3 HeatSense: Zero-Multiplier EWMA Thermal Trojan Detection": track11-security/03-heatsense-wma-anomaly-detection.md
+      - "11.4 Hardware Trojan Mitigation: Silicon Quarantine & Dynamic Isolation": track11-security/04-trojan-defense-quarantine.md
+  - "Track 12: Domain-Specific NoCs for AI & LLMs":
+      - Overview: track12-ai-llm-snn/index.md
+      - "12.1 Large Language Models & Collective Communication Patterns": track12-ai-llm-snn/01-llm-collective-communication.md
+      - "12.2 In-Network Reduction Routers for AllReduce & Ring/Tree Collectives": track12-ai-llm-snn/02-in-network-reduction-crossbars.md
+      - "12.3 Wafer-Scale Interconnects: Ultra-Dense Ruche Fabrics": track12-ai-llm-snn/03-wafer-scale-ruche-fabrics.md
+      - "12.4 Neuromorphic & Spiking Neural Network (SNN) Multicast NoCs": track12-ai-llm-snn/04-neuromorphic-snn-multicast.md
+  - "Track 13: Capstone System Synthesis":
+      - Overview: track13-capstone/index.md
+      - "13.1 Intel 48-Core SCC 2-TB/s Dual-Frequency Mesh Router (JSSC)": track13-capstone/01-intel-scc-mesh.md
+      - "13.2 NVIDIA Simba 36-Chiplet 0.11-pJ/b Ground-Referenced Signaling MCM (JSSC)": track13-capstone/02-nvidia-simba-mcm.md
+      - "13.3 3D Optical NoC with TSV Vertical Links & Micro-Rings (TCAD)": track13-capstone/03-3d-optical-noc.md
+      - "13.4 In-Network Neuromorphic Computing Router with Spike Reduction (TVLSI)": track13-capstone/04-in-network-neuromorphic.md
+      - "13.5 Grand Capstone: Zero-Trust Multi-Chiplet MoE Accelerator Synthesis": track13-capstone/05-grand-synthesis-moe.md

@@ -1,7 +1,7 @@
 # Chapter 10: Optical & Wireless Networks-on-Chip (ONoC / WNoC)
 
 [![Companion Platform](https://img.shields.io/badge/Interactive%20Lab-Photon%20Pilot-0f766e?logo=bookstack&logoColor=white)](https://network-on-chip.github.io/learning/interactive/optical/)
-[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%207%3A%20Emerging%20Frontiers-blue)](https://network-on-chip.github.io/learning/track7-emerging-frontiers/)
+[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%2010%3A%20Optical%20%26%20Wireless-blue)](../../track10-optical-wireless/)
 [![Simulation Model](https://img.shields.io/badge/Python%20Model-onoc__optical__loss__sim.py-blueviolet)](code/onoc_optical_loss_sim.py)
 [![Hardware RTL](https://img.shields.io/badge/Verilog%20RTL-photonic__mrr__switch.v-success)](code/photonic_mrr_switch.v)
 

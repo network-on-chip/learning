@@ -1,7 +1,7 @@
 # Chapter 8: Three-Dimensional Networks-on-Chip (3D-NoC) & TSVs
 
 [![Companion Platform](https://img.shields.io/badge/Interactive%20Lab-Chiplet%20Tycoon-0f766e?logo=bookstack&logoColor=white)](https://network-on-chip.github.io/learning/interactive/chiplet/)
-[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%206%3A%20Chiplets%20%26%203D-blue)](https://network-on-chip.github.io/learning/track6-chiplets-and-3d/)
+[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%208%3A%203D%20TSVs-blue)](../../track8-3d-noc-tsvs/)
 [![Simulation Model](https://img.shields.io/badge/Python%20Model-tsv__vertical__mesh__sim.py-blueviolet)](code/tsv_vertical_mesh_sim.py)
 [![Hardware RTL](https://img.shields.io/badge/Verilog%20RTL-tsv__arbiter__3d.v-success)](code/tsv_arbiter_3d.v)
 

@@ -1,7 +1,7 @@
 # Chapter 5: Deadlock Theory, Turn Models & Adaptive Routing
 
 [![Companion Platform](https://img.shields.io/badge/Interactive%20Lab-Deadlock%20Buster-0f766e?logo=bookstack&logoColor=white)](https://network-on-chip.github.io/learning/interactive/game/)
-[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%204%3A%20Routing%20Deadlock-blue)](https://network-on-chip.github.io/learning/track4-routing-deadlock/)
+[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%204%3A%20Routing%20Deadlock-blue)](../../track5-routing-deadlock/)
 [![Simulation Model](https://img.shields.io/badge/Python%20Model-cdg__cycle__detector.py-blueviolet)](code/cdg_cycle_detector.py)
 [![Hardware RTL](https://img.shields.io/badge/Verilog%20RTL-turn__model__routing.v-success)](code/turn_model_routing.v)
 

@@ -8,7 +8,7 @@
     <a href="textbook/" class="noc-sim-btn" style="text-decoration: none; background: #2563eb;">📖 Read Official Textbook (12 Chaps)</a>
     <a href="assets/book.pdf?v=266" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 Download PDF (266 Pages)</a>
     <a href="interactive/terminal/" class="noc-sim-btn" style="text-decoration: none; background: #059669;">💻 Web EDA Terminal</a>
-    <a href="track1-fundamentals/" class="noc-sim-btn secondary" style="text-decoration: none;">🚀 Start Curriculum</a>
+    <a href="track1-interconnect-crisis/" class="noc-sim-btn secondary" style="text-decoration: none;">🚀 Start Curriculum</a>
     <a href="quiz/" class="noc-sim-btn secondary" style="text-decoration: none;">🎯 Certification Quiz</a>
     <a href="interactive/game/" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 Deadlock Buster</a>
     <a href="interactive/visualizer/" class="noc-sim-btn secondary" style="text-decoration: none;">🎮 2D Mesh Simulator</a>
@@ -27,12 +27,12 @@
     <span class="noc-stat-label">Monograph Pages</span>
   </div>
   <div class="noc-stat-card">
-    <span class="noc-stat-number">20</span>
-    <span class="noc-stat-label">Interactive Labs &amp; Games</span>
+    <span class="noc-stat-number">13</span>
+    <span class="noc-stat-label">Curriculum Tracks</span>
   </div>
   <div class="noc-stat-card">
-    <span class="noc-stat-number">100%</span>
-    <span class="noc-stat-label">Open &amp; Reproducible</span>
+    <span class="noc-stat-number">53</span>
+    <span class="noc-stat-label">Lessons &amp; RTL Cores</span>
   </div>
 </div>
 
@@ -205,99 +205,183 @@ Explore our structured learning pathways designed for undergraduate and graduate
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge">Track 1</span>
-      <div class="noc-track-title">Interconnect Fundamentals</div>
+      <div class="noc-track-title">Interconnect Crisis &amp; Wire Physics</div>
       <div class="noc-track-desc">
-        Why shared buses failed. Packets, flits, and phits. Store-and-Forward vs Virtual Cut-Through vs Wormhole switching, credit turnaround latency loops, and Network Interface (NI) AXI packetization.
+        Why shared buses failed. Wire scaling, Elmore RC delay modeling, optimal repeater insertion, and fundamental limits of on-chip energy and latency.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Interactive Simulators &amp; Calculators
+        ⚡ 4 Lessons • Synthesizable Elmore Verilog • Interactive Wire Simulator
       </div>
     </div>
-    <a href="track1-fundamentals/" class="noc-track-link">Explore Track 1 →</a>
+    <a href="track1-interconnect-crisis/" class="noc-track-link">Explore Track 1 →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge">Track 2</span>
-      <div class="noc-track-title">Router Microarchitecture</div>
+      <div class="noc-track-title">Switching, Flow Control &amp; Buffers</div>
       <div class="noc-track-desc">
-        Canonical 5-stage router pipelines (BW-RC-VA-SA-ST), Virtual Channel allocation, sub-200ps LRU matrix arbiters, and SMART single-cycle multi-hop bypass routers.
+        Packets, flits, and phits. Store-and-Forward vs Virtual Cut-Through vs Wormhole switching, credit turnaround latency loops, and Network Interface (NI) AXI packetization.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Interactive Simulators &amp; Verilog RTL
+        ⚡ 4 Lessons • Credit Counter RTL • Credit Commander Simulator
       </div>
     </div>
-    <a href="track2-router-architecture/" class="noc-track-link">Explore Track 2 →</a>
+    <a href="track2-switching-flow-control/" class="noc-track-link">Explore Track 2 →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge">Track 3</span>
-      <div class="noc-track-title">Topologies &amp; Interconnect Metrics</div>
+      <div class="noc-track-title">Router Microarchitecture &amp; Arbitration</div>
       <div class="noc-track-desc">
-        Direct (Mesh, Torus, Folded Torus), Indirect (Clos, Fat-Tree, cMesh), and High-Radix (Dragonfly, Flattened Butterfly). Mathematical derivations of $T_0$, $\Theta_{sat}$, bisection bandwidth, and UGAL adaptive routing.
+        Canonical 5-stage router pipelines (BW-RC-VA-SA-ST), Virtual Channel allocation, sub-200ps LRU matrix arbiters, and SMART single-cycle multi-hop bypass routers.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Synthesizable Verilog RTLs • 4 Interactive Simulators &amp; High-Radix Analyzer
+        ⚡ 4 Lessons • 5-Stage SystemVerilog Router • Arbiter Arena Lab
       </div>
     </div>
-    <a href="track3-topologies/" class="noc-track-link">Explore Track 3 →</a>
+    <a href="track3-router-microarchitecture/" class="noc-track-link">Explore Track 3 →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge">Track 4</span>
-      <div class="noc-track-title">Routing &amp; Deadlock Avoidance</div>
+      <div class="noc-track-title">Direct, Indirect &amp; High-Radix Topologies</div>
       <div class="noc-track-desc">
-        Deterministic Dimension-Order Routing (DOR), Glass &amp; Ni's Turn Model, Chiu's Odd-Even algorithm, Duato's Escape Channels, Up*/Down* tree routing, and Cache Coherence VNET isolation.
+        Direct (Mesh, Torus, Folded Torus), Indirect (Clos, Fat-Tree, cMesh), and High-Radix (Dragonfly, Flattened Butterfly). Mathematical derivations of $T_0$, $\Theta_{sat}$, and UGAL routing.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Synthesizable Verilog RTLs • 4 Interactive Simulators &amp; Arcade Links
+        ⚡ 4 Lessons • Topology Graph Metrics RTL • Interactive Topology Architect
       </div>
     </div>
-    <a href="track4-routing-deadlock/" class="noc-track-link">Explore Track 4 →</a>
+    <a href="track4-topologies-and-metrics/" class="noc-track-link">Explore Track 4 →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge">Track 5</span>
-      <div class="noc-track-title">Thermal &amp; Congestion Management</div>
+      <div class="noc-track-title">Deadlock Theory, Turn Models &amp; Routing</div>
       <div class="noc-track-desc">
-        Fourier heat diffusion, compact RC ladder models, Regional Congestion Awareness (RCA), source quenching, proactive ML hotspot forecasting, and sparse sensor reconstruction under non-Gaussian noise.
+        Deterministic Dimension-Order Routing (DOR), Glass &amp; Ni's Turn Model, Chiu's Odd-Even algorithm, Duato's Escape Channels, CDG acyclic proofs, and VNET isolation.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Synthesizable Verilog RTLs • 4 Interactive Simulators &amp; Arcade Links
+        ⚡ 4 Lessons • SMT CDG Verifier • Deadlock Buster Arcade Game
       </div>
     </div>
-    <a href="track5-congestion-thermal/" class="noc-track-link">Explore Track 5 →</a>
+    <a href="track5-routing-deadlock/" class="noc-track-link">Explore Track 5 →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge">Track 6</span>
-      <div class="noc-track-title">Chiplets, 3D NoC &amp; Frontiers</div>
+      <div class="noc-track-title">Low-Power Architectures &amp; Dark Silicon</div>
       <div class="noc-track-desc">
-        Through-Silicon Vias (TSVs), 7-port 3D routers, negative binomial yield economics, 2.5D packaging (CoWoS, EMIB), the UCIe standard stack, 3D thermal stacking, Optical NoC (ONoC), and Wireless NoC (WNoC).
+        Dark silicon physics, Thermal Design Power (TDP), multiple V/F islands, microarchitectural power gating, sleep state wakeups, and inductive $L\cdot di/dt$ emergencies.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Synthesizable Verilog RTLs • 4 Interactive Simulators &amp; Arcade Links
+        ⚡ 4 Lessons • Power Gating FSM RTL • Volt Vortex Simulator
       </div>
     </div>
-    <a href="track6-chiplets-and-3d/" class="noc-track-link">Explore Track 6 →</a>
+    <a href="track6-low-power-dark-silicon/" class="noc-track-link">Explore Track 6 →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge">Track 7</span>
-      <div class="noc-track-title">Landmark Paper Deep Dives</div>
+      <div class="noc-track-title">Thermal Modeling &amp; Fault Tolerance</div>
       <div class="noc-track-desc">
-        Undergraduate-readable walkthroughs of seminal IEEE JSSC, TCAD, and TVLSI papers: Intel 48-Core SCC (2-TB/s DVFS Mesh), NVIDIA Simba (36-chiplet GRS MCM), 3D Optical NoC (TSVs + Micro-Rings), and In-Network Computing neuromorphic routers.
+        Fourier heat diffusion, compact RC ladder models, Regional Congestion Awareness (RCA), source quenching, proactive ML hotspot forecasting, and sparse sensor reconstruction.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Synthesizable Verilog RTLs • 4 Interactive Simulators &amp; Arcade Links
+        ⚡ 4 Lessons • Thermal Deflection RTL • Hotspot Hero &amp; Fault Defender
       </div>
     </div>
-    <a href="track7-paper-walkthroughs/" class="noc-track-link">Explore Track 7 →</a>
+    <a href="track7-thermal-fault-tolerance/" class="noc-track-link">Explore Track 7 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Track 8</span>
+      <div class="noc-track-title">3D Networks-on-Chip (3D-NoC) &amp; TSVs</div>
+      <div class="noc-track-desc">
+        Through-Silicon Vias (TSVs), Keep-Out Zones (KOZ), thermo-mechanical stress, 7-port 3D crossbars, vertical serialization, and 3D thermal stacking mitigation.
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 4 Lessons • 7-Port 3D Crossbar RTL • TSV Titan Simulator
+      </div>
+    </div>
+    <a href="track8-3d-noc-tsvs/" class="noc-track-link">Explore Track 8 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Track 9</span>
+      <div class="noc-track-title">Multi-Chiplet Interconnects &amp; UCIe</div>
+      <div class="noc-track-desc">
+        2.5D packaging economics, negative binomial yield, UCIe standard physical &amp; D2D adapter stacks, In/Outbound Swap deadlock recovery, and multi-chiplet bypassing.
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 4 Lessons • In/Outbound Swap RTL • Chiplet Tycoon Lab
+      </div>
+    </div>
+    <a href="track9-chiplets-ucie/" class="noc-track-link">Explore Track 9 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Track 10</span>
+      <div class="noc-track-title">Optical &amp; Wireless Networks-on-Chip</div>
+      <div class="noc-track-desc">
+        Silicon nanophotonic microring resonators (MRRs), wavelength-routed ONoCs (WRONoCs), laser power gating with APC loops, and on-chip mmWave/THz fabrics.
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 4 Lessons • Photonic MRR Switch RTL • Photon Pilot &amp; Wireless Wave
+      </div>
+    </div>
+    <a href="track10-optical-wireless/" class="noc-track-link">Explore Track 10 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Track 11</span>
+      <div class="noc-track-title">Hardware Security &amp; Trust in NoCs</div>
+      <div class="noc-track-desc">
+        On-chip threat models: eavesdropping, spoofing, and DoS. Timing, buffer, and thermal covert channels. HeatSense zero-multiplier EWMA thermal Trojan detection.
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 4 Lessons • HeatSense EWMA Verilog • Silicon Sentinel Arcade
+      </div>
+    </div>
+    <a href="track11-security/" class="noc-track-link">Explore Track 11 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge">Track 12</span>
+      <div class="noc-track-title">Domain-Specific NoCs for AI &amp; LLMs</div>
+      <div class="noc-track-desc">
+        Large Language Models &amp; Collective Communication (AllReduce, AllGather). In-Network Reduction Routers, ultra-dense wafer-scale Ruche fabrics, and SNN multicasting.
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 4 Lessons • In-Network Reduction SystemVerilog • Transformer Titan Lab
+      </div>
+    </div>
+    <a href="track12-ai-llm-snn/" class="noc-track-link">Explore Track 12 →</a>
+  </div>
+
+  <div class="noc-track-card">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3);">Track 13 • Capstone</span>
+      <div class="noc-track-title">Capstone: Landmark Systems &amp; MoE Synthesis</div>
+      <div class="noc-track-desc">
+        Walkthroughs of seminal chips (Intel SCC 48-Core, NVIDIA Simba 36-Chiplet, 3D Optical NoC, In-Network TVLSI) culminating in the Grand Capstone: Zero-Trust Multi-Chiplet MoE Accelerator.
+      </div>
+      <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
+        ⚡ 5 Lessons • Full SystemVerilog SoC RTL • Web EDA Auto-Grader Verification
+      </div>
+    </div>
+    <a href="track13-capstone/" class="noc-track-link">Explore Capstone Track 13 →</a>
   </div>
 
   <div class="noc-track-card">
@@ -503,4 +587,4 @@ graph LR
 ```
 
 ### Ready to Start?
-Begin your journey with [Track 1: Interconnect Fundamentals](track1-fundamentals/index.md) or try out the [Interactive Simulator](interactive/visualizer.md)!
+Begin your journey with [Track 1: Interconnect Crisis & Wire Physics](track1-interconnect-crisis/index.md) or try out the [Interactive Simulator](interactive/visualizer.md)!

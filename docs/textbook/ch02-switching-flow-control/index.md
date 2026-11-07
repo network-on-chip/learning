@@ -1,7 +1,7 @@
 # Chapter 2: Switching Techniques, Flow Control & Buffer Management
 
 [![Companion Platform](https://img.shields.io/badge/Interactive%20Lab-Credit%20Commander-0f766e?logo=bookstack&logoColor=white)](https://network-on-chip.github.io/learning/interactive/credits/)
-[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%201%3A%20Fundamentals-blue)](https://network-on-chip.github.io/learning/track1-fundamentals/)
+[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%202%3A%20Switching%20%26%20Flow-blue)](../../track2-switching-flow-control/)
 [![Simulation Model](https://img.shields.io/badge/Python%20Model-switching__techniques__sim.py-blueviolet)](code/switching_techniques_sim.py)
 [![Hardware RTL](https://img.shields.io/badge/Verilog%20RTL-credit__flow__control.v-success)](code/credit_flow_control.v)
 

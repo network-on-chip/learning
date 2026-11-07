@@ -1,7 +1,7 @@
 # Chapter 11: Hardware Security & Trust in On-Chip Networks
 
-[![Interactive Lab](https://img.shields.io/badge/Arcade%20Game-Silicon%20Sentinel-e11d48?logo=gamepad&logoColor=white)](../../interactive/security.md)
-[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%208%3A%20Hardware%20Security-indigo)](../../interactive/security.md)
+[![Interactive Lab](https://img.shields.io/badge/Arcade%20Game-Silicon%20Sentinel-e11d48?logo=gamepad&logoColor=white)](../../track11-security/)
+[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%2011%3A%20Hardware%20Security-indigo)](../../track11-security/)
 [![Hardware RTL](https://img.shields.io/badge/SystemVerilog%20RTL-wma__thermal__detector.sv-success)](code/wma_thermal_detector.sv)
 [![Monograph PDF](https://img.shields.io/badge/Springer%20Monograph-266%20Pages-0284c7)](../../assets/book.pdf?v=266)
 
@@ -260,13 +260,13 @@ Explore the interactive security simulator and game on the **NoC Learning Hub**:
     </div>
   </div>
   <div>
-    <a href="../../interactive/security.md" style="display: inline-flex; align-items: center; gap: 6px; background: #e11d48; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+    <a href="../../track11-security/" style="display: inline-flex; align-items: center; gap: 6px; background: #e11d48; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
       <span>Launch Silicon Sentinel →</span>
     </a>
   </div>
 </div>
 
-- **[Silicon Sentinel: NoC Security & Threat Defense Arcade](../../interactive/security.md)**: Take command of the router defense grid! Intercept thermal Hardware Trojans, deploy random phase jitter to scramble timing covert channels, and fire PUF challenge nonces to neutralize malicious counterfeit chiplets. Features retro 8-bit Web Audio synthesizers, particle explosions, and local storage leaderboards.
+- **[Silicon Sentinel: NoC Security & Threat Defense Arcade](../../track11-security/)**: Take command of the router defense grid! Intercept thermal Hardware Trojans, deploy random phase jitter to scramble timing covert channels, and fire PUF challenge nonces to neutralize malicious counterfeit chiplets. Features retro 8-bit Web Audio synthesizers, particle explosions, and local storage leaderboards.
 
 ---
 
@@ -275,7 +275,7 @@ Explore the interactive security simulator and game on the **NoC Learning Hub**:
 1. **Zero-Trust Interconnects**: Modern multi-tenant and multi-chiplet SoCs require hardware-level trust verification; software encryption cannot protect timing, packet headers, or thermal dissipation.
 2. **Hardware-Friendly WMA Math**: By constraining EWMA parameters to powers of two ($\alpha = 2^{-S}$), thermal anomaly detection is achieved using shift-and-add arithmetic without multipliers.
 3. **Intrinsic PUFs**: Interconnect wire delay variation provides an unclonable physical fingerprint for chiplet identity verification.
-4. **Interactive Laboratory**: Readers can experience these defense mechanisms live in the **Silicon Sentinel Arcade Game** ([../../interactive/security.md](../../interactive/security.md)).
+4. **Interactive Laboratory**: Readers can experience these defense mechanisms live in the **Silicon Sentinel Arcade Game** ([../../track11-security/](../../track11-security/)).
 
 ---
 

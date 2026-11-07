@@ -366,18 +366,19 @@ graph TD
 
 | Book Chapter | Learning Hub Track | Accompanying Interactive Lab | Hardware RTL Module |
 | :--- | :--- | :--- | :--- |
-| **Ch 1: Interconnect Crisis & Wire Physics** | [Track 1: Fundamentals](../track1-fundamentals/index.md) | [Wire Wizard: Interconnect Physics](../interactive/wire.md) | `bus_arbiter_contention.v` |
-| **Ch 2: Switching, Flow Control & Buffers** | [Track 1: Fundamentals](../track1-fundamentals/index.md) | [Credit Commander: Flow Control](../interactive/credits.md) | `credit_counter.v` |
-| **Ch 3: Router Microarchitecture & Arbitration** | [Track 2: Router Microarchitecture](../track2-router-architecture/index.md) | [Arbiter Arena: Crossbar Clash](../interactive/arbiter.md) | `matrix_arbiter_4x4.v` |
-| **Ch 4: Direct, Indirect & High-Radix Topologies** | [Track 3: Topologies & Metrics](../track3-topologies/index.md) | [Topology Titans: Graph Architect](../interactive/topology.md) | `topology_graph_metrics.v` |
-| **Ch 5: Deadlock Theory & Turn Models** | [Track 4: Routing & Deadlock](../track4-routing-deadlock/index.md) | [Deadlock Buster & Packet Master](../interactive/game.md) | `escape_vc_router.v` |
-| **Ch 6: Low Power & Dark Silicon** | [Track 5: Thermal & Congestion](../track5-congestion-thermal/index.md) | [Volt Vortex & Deflection Duel](../interactive/power.md) | `power_gating_router_fsm.v` |
-| **Ch 7: Thermal Modeling & Fault Tolerance** | [Track 5: Thermal & Congestion](../track5-congestion-thermal/index.md) | [Hotspot Hero & Fault Defender](../interactive/hotspot.md) | `fault_tolerant_router_bypass.v` |
-| **Ch 8: 3D-NoC & TSVs** | [Track 6: Chiplets & 3D NoC](../track6-chiplets-and-3d/index.md) | [TSV Titan: 3D-NoC Architect](../interactive/tsv3d.md) | `tsv_arbiter_3d.v` |
-| **Ch 9: Multi-Chiplets & UCIe** | [Track 6: Chiplets & 3D NoC](../track6-chiplets-and-3d/index.md) | [Chiplet Tycoon: Advanced Packaging](../interactive/chiplet.md) | `chiplet_bridge_protocol.v` |
-| **Ch 10: Optical & Wireless NoC** | [Track 6: Chiplets & 3D NoC](../track6-chiplets-and-3d/index.md) | [Photon Pilot & Wireless Wave](../interactive/optical.md) | `photonic_mrr_switch.v` |
-| **Ch 11: Hardware Security & Trust** | [Track 8: Hardware Security](../interactive/security.md) | [Silicon Sentinel Arcade Game](../interactive/security.md) | `wma_thermal_detector.sv` |
-| **Ch 12: AI, LLM & Neuromorphic NoC** | [Track 9: AI Interconnects](../interactive/transformer.md) | [Transformer Titan & Neuromorphic Nexus](../interactive/transformer.md) | `in_network_reduction_router.sv` |
+| **Ch 1: Interconnect Crisis & Wire Physics** | [Track 1: Interconnect Crisis](../track1-interconnect-crisis/index.md) | [Wire Wizard: Interconnect Physics](../interactive/wire.md) | `bus_arbiter_contention.v` |
+| **Ch 2: Switching, Flow Control & Buffers** | [Track 2: Switching & Flow Control](../track2-switching-flow-control/index.md) | [Credit Commander: Flow Control](../interactive/credits.md) | `credit_counter.v` |
+| **Ch 3: Router Microarchitecture & Arbitration** | [Track 3: Router Microarchitecture](../track3-router-microarchitecture/index.md) | [Arbiter Arena: Crossbar Clash](../interactive/arbiter.md) | `matrix_arbiter_4x4.v` |
+| **Ch 4: Direct, Indirect & High-Radix Topologies** | [Track 4: Topologies & Metrics](../track4-topologies-and-metrics/index.md) | [Topology Titans: Graph Architect](../interactive/topology.md) | `topology_graph_metrics.v` |
+| **Ch 5: Deadlock Theory & Turn Models** | [Track 5: Deadlock Theory & Routing](../track5-routing-deadlock/index.md) | [Deadlock Buster & Packet Master](../interactive/game.md) | `escape_vc_router.v` |
+| **Ch 6: Low Power & Dark Silicon** | [Track 6: Low Power & Dark Silicon](../track6-low-power-dark-silicon/index.md) | [Volt Vortex & Deflection Duel](../interactive/power.md) | `power_gating_router_fsm.v` |
+| **Ch 7: Thermal Modeling & Fault Tolerance** | [Track 7: Thermal & Fault Tolerance](../track7-thermal-fault-tolerance/index.md) | [Hotspot Hero & Fault Defender](../interactive/hotspot.md) | `fault_tolerant_router_bypass.v` |
+| **Ch 8: 3D-NoC & TSVs** | [Track 8: 3D-NoC & TSVs](../track8-3d-noc-tsvs/index.md) | [TSV Titan: 3D-NoC Architect](../interactive/tsv3d.md) | `tsv_arbiter_3d.v` |
+| **Ch 9: Multi-Chiplets & UCIe** | [Track 9: Multi-Chiplets & UCIe](../track9-chiplets-ucie/index.md) | [Chiplet Tycoon: Advanced Packaging](../interactive/chiplet.md) | `chiplet_bridge_protocol.v` |
+| **Ch 10: Optical & Wireless NoC** | [Track 10: Optical & Wireless NoC](../track10-optical-wireless/index.md) | [Photon Pilot & Wireless Wave](../interactive/optical.md) | `photonic_mrr_switch.v` |
+| **Ch 11: Hardware Security & Trust** | [Track 11: Hardware Security](../track11-security/index.md) | [Silicon Sentinel Arcade Game](../interactive/security.md) | `wma_thermal_detector.sv` |
+| **Ch 12: AI, LLM & Neuromorphic NoC** | [Track 12: AI & LLM Interconnects](../track12-ai-llm-snn/index.md) | [Transformer Titan & Neuromorphic Nexus](../interactive/transformer.md) | `in_network_reduction_router.sv` |
+| **Synthesis: Capstone Systems** | [Track 13: Capstone System Synthesis](../track13-capstone/index.md) | [Web EDA Unix Terminal Workbench](../interactive/terminal.md) | `secure_moe_router_top.sv` |
 
 ---
 

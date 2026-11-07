@@ -1,7 +1,7 @@
 # Chapter 3: High-Performance Router Microarchitecture & Arbitration
 
 [![Companion Platform](https://img.shields.io/badge/Interactive%20Lab-Router%20Pipeline-0f766e?logo=bookstack&logoColor=white)](https://network-on-chip.github.io/learning/interactive/router/)
-[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%202%3A%20Router%20Microarch-blue)](https://network-on-chip.github.io/learning/track2-router-architecture/)
+[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%202%3A%20Router%20Microarch-blue)](../../track3-router-microarchitecture/)
 [![Simulation Model](https://img.shields.io/badge/Python%20Model-matrix__arbiter__islip__sim.py-blueviolet)](code/matrix_arbiter_islip_sim.py)
 [![Hardware RTL](https://img.shields.io/badge/Verilog%20RTL-matrix__arbiter__4port.v-success)](code/matrix_arbiter_4port.v)
 

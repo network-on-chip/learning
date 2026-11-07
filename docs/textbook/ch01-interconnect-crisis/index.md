@@ -1,7 +1,7 @@
 # Chapter 1: The Multi-Core Communication Crisis & Interconnect Physics
 
 [![Companion Platform](https://img.shields.io/badge/Interactive%20Lab-Topology%20Playground-0f766e?logo=bookstack&logoColor=white)](https://network-on-chip.github.io/learning/interactive/topology/)
-[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%201%3A%20Fundamentals-blue)](https://network-on-chip.github.io/learning/track1-fundamentals/)
+[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%201%3A%20Fundamentals-blue)](../../track1-interconnect-crisis/)
 [![Simulation Model](https://img.shields.io/badge/Python%20Model-elmore__bus__vs__noc.py-blueviolet)](code/elmore_bus_vs_noc.py)
 [![Hardware RTL](https://img.shields.io/badge/Verilog%20RTL-bus__arbiter__contention.v-success)](code/bus_arbiter_contention.v)
 

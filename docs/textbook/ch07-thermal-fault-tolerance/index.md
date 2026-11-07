@@ -1,7 +1,7 @@
 # Chapter 7: Thermal Modeling, Hotspots & Fault-Tolerant Resilience
 
 [![Companion Platform](https://img.shields.io/badge/Interactive%20Lab-Hotspot%20Hero%20%26%20Fault%20Defender-0f766e?logo=bookstack&logoColor=white)](https://network-on-chip.github.io/learning/interactive/hotspot/)
-[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%205%3A%20Thermal%20%26%20Congestion-blue)](https://network-on-chip.github.io/learning/track5-congestion-thermal/)
+[![Curriculum Track](https://img.shields.io/badge/Learning%20Track-Track%207%3A%20Thermal%20%26%20Faults-blue)](../../track7-thermal-fault-tolerance/)
 [![Simulation Model](https://img.shields.io/badge/Python%20Model-thermal__rc__mesh__sim.py-blueviolet)](code/thermal_rc_mesh_sim.py)
 [![Hardware RTL](https://img.shields.io/badge/Verilog%20RTL-fault__tolerant__router__bypass.v-success)](code/fault_tolerant_router_bypass.v)
 
