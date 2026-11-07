@@ -19,7 +19,7 @@ SEED_REGISTRY = [
     {
         "rank": 1,
         "name": "Golden Key: Architecture Exam",
-        "org": "NoC-Lab Golden Model Verifier",
+        "org": "NoC Golden Model Verifier",
         "track": "Comprehensive Exam",
         "score": 2200,
         "accuracy": 100,

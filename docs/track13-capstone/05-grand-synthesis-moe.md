@@ -42,7 +42,7 @@ flowchart TD
 You can verify and grade this complete design directly in the browser:
 
 ```bash
-guest@noc-lab:~$ grade-capstone
+guest@noc:~$ grade-capstone
 ```
 
 Expected Output:

@@ -26,7 +26,7 @@
       <span class="noc-term-dot green" title="Maximize / Fullscreen" onclick="toggleTermFullscreen()"></span>
     </div>
     <div class="noc-term-title">
-      <span>🖥️ <span id="termUserHost">guest@noc-lab</span>: <span id="termPwdTitle">/workspace</span> (bash)</span>
+      <span>🖥️ <span id="termUserHost">guest@noc</span>: <span id="termPwdTitle">/workspace</span> (bash)</span>
     </div>
     <div class="noc-term-controls">
       <button class="noc-term-btn" title="Decrease Font Size (A-)" onclick="termAdjustFontSize(-1)">A−</button>
@@ -57,7 +57,7 @@
   <div id="termBody" class="noc-term-body" onclick="document.getElementById('termInput').focus()">
     <div id="termOutput"></div>
     <div class="noc-term-input-line">
-      <span class="noc-term-prompt" id="termPrompt">guest@noc-lab:~$ </span>
+      <span class="noc-term-prompt" id="termPrompt">guest@noc:~$ </span>
       <input type="text" id="termInput" class="noc-term-input" autocomplete="off" spellcheck="false" autofocus />
     </div>
   </div>
@@ -144,7 +144,7 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
 
 <script>
 // ============================================================================
-// NoC-Lab Web EDA Unix Terminal & Interactive Telemetry Visualizer
+// NoC Web EDA Unix Terminal & Interactive Telemetry Visualizer
 // ============================================================================
 
 (function () {
@@ -154,7 +154,7 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
     "/workspace/README.txt": {
       type: "file",
       content: "----------------------------------------\n" +
-               "  NoC-Lab Web EDA Unix Terminal v2.6\n" +
+               "  NoC Web EDA Unix Terminal v2.6\n" +
                "----------------------------------------\n" +
                "Preloaded with synthesizable RTL from\n" +
                "all 12 textbook chapters, TCAD/TVLSI\n" +
@@ -426,7 +426,7 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
     if (isMobile) {
       promptEl.innerText = "noc:" + dirDisplay + "$ ";
     } else {
-      promptEl.innerText = "guest@noc-lab:" + dirDisplay + "$ ";
+      promptEl.innerText = "guest@noc:" + dirDisplay + "$ ";
     }
     const titleEl = document.getElementById("termPwdTitle");
     if (titleEl) titleEl.innerText = currentDir;
@@ -472,12 +472,12 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
     const inner = Math.max(26, cols - 2);
     if (cols < 52) {
       printLine("<span class='term-cyan term-bold'>┌" + "─".repeat(inner) + "┐</span>");
-      printLine("<span class='term-cyan term-bold'>│</span> <span class='term-white term-bold'>⚡ NoC-Lab Web EDA Terminal (v2.6)</span>");
+      printLine("<span class='term-cyan term-bold'>│</span> <span class='term-white term-bold'>⚡ NoC Web EDA Terminal (v2.6)</span>");
       printLine("<span class='term-cyan term-bold'>│</span> <span class='term-dim'>Simulation &amp; Silicon Verification</span>");
       printLine("<span class='term-cyan term-bold'>└" + "─".repeat(inner) + "┘</span>");
     } else {
       printLine("<span class='term-cyan term-bold'>┌" + "─".repeat(inner) + "┐</span>");
-      printLine("<span class='term-cyan term-bold'>│  ⚡ NoC-Lab Web EDA Unix Terminal &amp; Interactive Workbench (v2.6)</span>");
+      printLine("<span class='term-cyan term-bold'>│  ⚡ NoC Web EDA Unix Terminal &amp; Interactive Workbench (v2.6)</span>");
       printLine("<span class='term-cyan term-bold'>│  Open-Source Discrete-Event Simulator &amp; Silicon Verification Suite</span>");
       printLine("<span class='term-cyan term-bold'>└" + "─".repeat(inner) + "┘</span>");
     }
@@ -508,7 +508,7 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
 
     const isMobile = window.innerWidth < 640;
     const dirDisplay = (currentDir === "/workspace") ? "~" : currentDir;
-    const promptPrefix = isMobile ? ("noc:" + dirDisplay + "$ ") : ("guest@noc-lab:" + currentDir + "$ ");
+    const promptPrefix = isMobile ? ("noc:" + dirDisplay + "$ ") : ("guest@noc:" + currentDir + "$ ");
     printLine("<span class='term-cyan term-bold'>" + escapeHtml(promptPrefix) + "</span>" + escapeHtml(trimmed));
 
     if (trimmed.includes("|")) {
@@ -572,7 +572,7 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
       case "uname":
         {
           const un = args.includes("-a")
-            ? "Linux noc-lab-eda 6.8.0-webasm #1 SMP PREEMPT WebAssembly x86_64 GNU/Linux"
+            ? "Linux noc-eda 6.8.0-webasm #1 SMP PREEMPT WebAssembly x86_64 GNU/Linux"
             : "Linux";
           if (returnOutput) return [un];
           printLine(un);
@@ -1417,7 +1417,7 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
   }
 
   function runHelp(args) {
-    printLine("<span class='term-bold term-white'>=== Available NoC-Lab Terminal &amp; EDA Commands ===</span>");
+    printLine("<span class='term-bold term-white'>=== Available NoC Terminal &amp; EDA Commands ===</span>");
     printLine("<span class='term-cyan term-bold'>[EDA &amp; Silicon Verification]</span>");
     printLine("  <span class='term-yellow'>run-sim</span>           Discrete-event cycle-accurate NoC simulation &amp; animation");
     printLine("  <span class='term-yellow'>verify-deadlock</span>   Channel Dependency Graph (CDG) &amp; Tarjan SCC cycle check");

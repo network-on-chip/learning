@@ -182,7 +182,7 @@ Grounded in IEEE TCAD 2026 (*BuffeRS: A Buffer Reservation Scheduling Strategy f
 
 Test this directly in our Web EDA Terminal:
 ```bash
-guest@noc-lab:~$ buffers-eval --hops 4 --bypass-slots 2
+guest@noc:~$ buffers-eval --hops 4 --bypass-slots 2
 ```
 
 ---
@@ -588,7 +588,7 @@ flowchart TD
 You can verify and grade this complete design directly in the browser:
 
 ```bash
-guest@noc-lab:~$ grade-capstone
+guest@noc:~$ grade-capstone
 ```
 
 Expected Output:

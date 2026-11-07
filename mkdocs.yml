@@ -1,6 +1,6 @@
 site_name: "Network-on-Chip Learning Hub"
 site_description: "An open, interactive curriculum bridging Network-on-Chip theory, silicon microarchitecture, and open-source reproducible research."
-site_author: "NoC-Lab Community"
+site_author: "NoC Community"
 site_url: "https://network-on-chip.github.io/learning/"
 repo_url: "https://github.com/network-on-chip/learning"
 repo_name: "network-on-chip/learning"
@@ -158,7 +158,7 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/network-on-chip
-      name: NoC-Lab GitHub
+      name: NoC GitHub
     - icon: fontawesome/solid/graduation-cap
       link: https://network-on-chip.github.io/.github/
       name: Interactive NoC Papers Map

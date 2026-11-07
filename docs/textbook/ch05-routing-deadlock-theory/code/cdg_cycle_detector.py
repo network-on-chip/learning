@@ -207,7 +207,7 @@ def build_mesh_cdg(k: int, routing_policy: str) -> ChannelDependencyGraph:
 def main():
     print("=" * 80)
     print("  Chapter 5: Channel Dependency Graph (CDG) Deadlock Verification")
-    print("  NoC-Lab Research Consortium (Dally-Seitz & Duato Formulations)")
+    print("  NoC Research Consortium (Dally-Seitz & Duato Formulations)")
     print("=" * 80)
 
     mesh_k = 3

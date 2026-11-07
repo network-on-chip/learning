@@ -85,7 +85,7 @@ The diagram below outlines how the core concepts in this track interface from lo
 You can directly simulate, verify, and inspect the synthesizable SystemVerilog implementations for Track {track_num} using our integrated in-browser terminal:
 
 <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 14px 18px; margin: 16px 0; font-family: 'JetBrains Mono', monospace; font-size: 0.86rem; color: #e2e8f0;">
-  <span style="color: #38bdf8; font-weight: 700;">guest@noc-lab:~$</span> sta-timing --module canonical_router_5stage --clock 1.5GHz<br/>
+  <span style="color: #38bdf8; font-weight: 700;">guest@noc:~$</span> sta-timing --module canonical_router_5stage --clock 1.5GHz<br/>
   <span style="color: #64748b;">[STA-ENGINE] Target: Nangate45 Open Cell Library • fmax: 1.72 GHz (Slack: +84 ps MET)</span>
 </div>
 

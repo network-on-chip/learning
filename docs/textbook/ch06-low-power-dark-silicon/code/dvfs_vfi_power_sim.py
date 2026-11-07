@@ -191,7 +191,7 @@ def simulate_traffic_profile(
 def main():
     print("=" * 80)
     print("  Chapter 6: NoC Low-Power Architecture & Dark Silicon Simulator")
-    print("  NoC-Lab Research Consortium (IEEE TCAD / TVLSI / TCAS-II Benchmarks)")
+    print("  NoC Research Consortium (IEEE TCAD / TVLSI / TCAS-II Benchmarks)")
     print("=" * 80)
 
     # Instantiate an 8x8 (64-router) fabric

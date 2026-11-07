@@ -2,7 +2,7 @@
 """
 Switching Techniques & Credit Flow Control Simulation.
 Accompanying Code for Chapter 2: Switching Techniques, Flow Control & Buffer Management.
-Author: NoC-Lab Community
+Author: NoC Community
 """
 
 import math

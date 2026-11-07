@@ -584,10 +584,10 @@ If you use this open textbook or its accompanying Verilog RTL models and Python 
 
 ```bibtex
 @book{noc_lab_consortium_2026,
-  author    = {NoC-Lab Research Consortium},
+  author    = {NoC Research Consortium},
   title     = {Network-on-Chip and Advanced Interconnects: Architecture, Co-Design \& Emerging Frontiers},
   series    = {Springer Monographs in Computer Architecture},
-  publisher = {NoC-Lab Open Publishing},
+  publisher = {NoC Open Publishing},
   year      = {2026},
   pages     = {1--266},
   url       = {https://network-on-chip.github.io/learning/textbook/},

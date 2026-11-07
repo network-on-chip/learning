@@ -2,7 +2,7 @@
 """
 Matrix Arbiter & iSLIP Crossbar Allocation Simulator.
 Accompanying Code for Chapter 3: High-Performance Router Microarchitecture & Arbitration.
-Author: NoC-Lab Community
+Author: NoC Community
 """
 
 import random

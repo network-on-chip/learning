@@ -257,7 +257,7 @@ def build_flattened_butterfly(k: int) -> InterconnectGraph:
 def main():
     print("=" * 80)
     print("  Chapter 4: On-Chip Interconnect Topology & Traffic Metric Evaluation")
-    print("  NoC-Lab Research Consortium (IEEE TCAD / TVLSI Benchmarks)")
+    print("  NoC Research Consortium (IEEE TCAD / TVLSI Benchmarks)")
     print("=" * 80)
 
     topologies = [

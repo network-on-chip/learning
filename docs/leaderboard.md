@@ -93,7 +93,7 @@ const DEFAULT_REGISTRY = [
   {
     "rank": 1,
     "name": "Golden Key: Architecture Exam",
-    "org": "NoC-Lab Golden Model Verifier",
+    "org": "NoC Golden Model Verifier",
     "track": "Comprehensive Exam",
     "score": 2200,
     "accuracy": 100,
@@ -660,14 +660,14 @@ function verifyHash() {
     resBox.style.border = "1px solid rgba(34, 197, 94, 0.3)";
     resBox.style.color = "#166534";
     resBox.innerHTML = '<strong>✓ VALID CLIENT-GENERATED CREDENTIAL</strong><br>' +
-      'Credential ID: <code>' + escapeHtml(hash) + '</code> conforms to official NoC-Lab 2026 cryptographic formatting.<br>' +
+      'Credential ID: <code>' + escapeHtml(hash) + '</code> conforms to official NoC 2026 cryptographic formatting.<br>' +
       'Issued via dynamic session.';
   } else {
     resBox.style.background = "rgba(239, 68, 68, 0.1)";
     resBox.style.border = "1px solid rgba(239, 68, 68, 0.3)";
     resBox.style.color = "#991b1b";
     resBox.innerHTML = '<strong>✗ INVALID OR UNRECOGNIZED CERTIFICATE HASH</strong><br>' +
-      'No matching record found in the official NoC-Lab credential registry.';
+      'No matching record found in the official NoC credential registry.';
   }
 }
 

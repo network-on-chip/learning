@@ -1,7 +1,7 @@
 {
   "certificate": {
     "issuer": "Network-on-Chip Learning Hub",
-    "endorsement_name": "SJTU NoC-Lab & Open Silicon Community",
+    "endorsement_name": "SJTU NoC & Open Silicon Community",
     "endorsement_url": "https://github.com/network-on-chip/learning",
     "course_label": "NoC Architecture & Silicon Interconnect Certification"
   },

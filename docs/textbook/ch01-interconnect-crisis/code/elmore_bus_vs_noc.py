@@ -2,7 +2,7 @@
 """
 Elmore Delay & Scaling Comparison: Shared Multi-Drop Bus vs. Crossbar vs. 2D Mesh NoC.
 Accompanying Code for Chapter 1: The Multi-Core Communication Crisis & Interconnect Physics.
-Author: NoC-Lab Community
+Author: NoC Community
 """
 
 import math
