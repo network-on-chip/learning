@@ -687,3 +687,4 @@ zh_content = zh_content.replace(
 with open('share/learning/docs/index.zh.md', 'w', encoding='utf-8') as f:
     f.write(zh_content)
 print('Updated index.zh.md successfully!')
+

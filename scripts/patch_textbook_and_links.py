@@ -110,3 +110,4 @@ for ch_rel, old_s, new_s in badge_updates:
             print(f'Updated badge in {ch_rel}')
         else:
             print(f'Badge target not in {ch_rel}: {old_s[:30]}...')
+

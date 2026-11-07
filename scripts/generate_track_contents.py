@@ -95,3 +95,4 @@ You can directly simulate, verify, and inspect the synthesizable SystemVerilog i
 # Run generation
 if __name__ == "__main__":
     print("Track index template ready.")
+
