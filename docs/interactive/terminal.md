@@ -18,24 +18,27 @@
 ---
 
 <!-- TERMINAL WINDOW -->
-<div class="noc-term-window">
+<div class="noc-term-window" id="termWindow">
   <div class="noc-term-header">
     <div class="noc-term-dots">
       <span class="noc-term-dot red" title="Clear Buffer" onclick="termClear()"></span>
       <span class="noc-term-dot yellow" title="Reset Session" onclick="termReset()"></span>
-      <span class="noc-term-dot green" title="Toggle Height" onclick="toggleTermExpand()"></span>
+      <span class="noc-term-dot green" title="Maximize / Fullscreen" onclick="toggleTermFullscreen()"></span>
     </div>
     <div class="noc-term-title">
-      <span>🖥️ guest@noc-lab: <span id="termPwdTitle">/workspace</span> (bash)</span>
+      <span>🖥️ <span id="termUserHost">guest@noc-lab</span>: <span id="termPwdTitle">/workspace</span> (bash)</span>
     </div>
-    <div style="font-size:0.75rem; color:#64748b; font-family:inherit;">
-      UTF-8 • VT100 Emulation
+    <div class="noc-term-controls">
+      <button class="noc-term-btn" title="Decrease Font Size (A-)" onclick="termAdjustFontSize(-1)">A−</button>
+      <button class="noc-term-btn" title="Increase Font Size (A+)" onclick="termAdjustFontSize(1)">A+</button>
+      <button class="noc-term-btn" id="termFullscreenBtn" title="Toggle Fullscreen Mode" onclick="toggleTermFullscreen()">⛶ Expand</button>
+      <span class="noc-term-vt" style="font-size:0.72rem; color:#64748b; margin-left:0.25rem;">VT100</span>
     </div>
   </div>
 
   <!-- Quick Command Launcher Toolbar -->
   <div class="noc-term-toolbar">
-    <span style="font-size:0.76rem; color:#94a3b8; font-weight:700; margin-right:0.2rem;">⚡ Quick Runs:</span>
+    <span style="font-size:0.76rem; color:#94a3b8; font-weight:700; margin-right:0.2rem; flex-shrink:0;">⚡ Quick Runs:</span>
     <button class="noc-term-pill" onclick="quickRun('run-sim --topo mesh4x4 --algo xy --traffic uniform --inj 0.05')">🚀 run-sim 4x4 (Mesh)</button>
     <button class="noc-term-pill" onclick="quickRun('run-sim --topo torus4x4 --algo adaptive --traffic hotspot --inj 0.10')">⚡ run-sim Torus (Hotspot)</button>
     <button class="noc-term-pill" onclick="quickRun('verify-deadlock --topo mesh --algo west-first')">🛡️ verify-deadlock</button>
@@ -43,6 +46,8 @@
     <button class="noc-term-pill accent" onclick="quickRun('heatsense --trace /workspace/benchmarks/thermal_trojan_attack.dat')">🌡️ heatsense (TCAD '26)</button>
     <button class="noc-term-pill accent" onclick="quickRun('buffers-eval --hops 4 --bypass-slots 2')">📦 buffers-eval (TCAD '26)</button>
     <button class="noc-term-pill purple" onclick="quickRun('grade-capstone')">🎓 grade-capstone</button>
+    <button class="noc-term-pill" onclick="quickRun('more /workspace/README.txt')">📄 more README.txt</button>
+    <button class="noc-term-pill" onclick="quickRun('tree /workspace')">🌲 tree /workspace</button>
     <button class="noc-term-pill" onclick="quickRun('ls -la /workspace/rtl')">📁 ls /workspace/rtl</button>
     <button class="noc-term-pill" onclick="quickRun('clear')">🧹 clear</button>
     <button class="noc-term-pill" onclick="quickRun('help')">❓ help</button>
@@ -106,12 +111,32 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
 | `buffers-eval` | `--hops [2..8]` `--bypass-slots [1..4]` | Router bypassing evaluator reproducing IEEE TCAD 2026 (*BuffeRS*). Evaluates multi-die 2.5D chiplet boundary wire-speed transit. | **Chapter 9** |
 | `grade-capstone` | *(none)* | Automated verification testbench executing 4 gates: MoE throughput, SMT deadlock freedom, Trojan defense, and Nangate45 timing closure. | **Track 13 (Capstone)** |
 
-### 📁 Standard Unix File Utilities
-* `ls [-la] [path]` — List directory contents with file permissions and sizes.
+### 📁 Standard Unix File Utilities & Pagers
+* `more [file]` — Display file page by page with interactive paging (`Space` for next page, `Enter` for line, `q` to quit, or touch buttons).
+* `less [file]` — Interactive terminal pager with screen scrolling and search.
+* `head [-n lines] [file]` — Display first N lines (default 10) of a file or pipeline stream.
+* `tail [-n lines] [file]` — Display last N lines (default 10) of a file or pipeline stream.
+* `wc [-l|-w|-c] [file]` — Count lines, words, and byte characters of a file or pipeline stream.
+* `tree [path]` — Visual ASCII recursive hierarchy of files and directories.
+* `find [path] [-name pattern]` — Search directory trees for files matching glob patterns.
+* `touch <file>` — Create new empty files or update timestamps in the VFS.
+* `mkdir [-p] <dir>` — Create new directories in the VFS (supports `-p` for parent paths).
+* `rm [-rf] <path>` — Remove files or directories from the VFS.
+* `cp [-r] <src> <dst>` — Copy files or directories within the VFS.
+* `mv <src> <dst>` — Move or rename files or directories within the VFS.
+* `diff <file1> <file2>` — Compare two files line-by-line with colored additions and deletions.
 * `cat <file>` — Display synthesizable Verilog RTL source files and benchmark traces.
+* `ls [-la] [path]` — List directory contents with file permissions and sizes.
 * `pwd` — Print current working directory.
 * `cd [dir]` — Navigate virtual file tree (`..`, `/workspace/rtl`, `/workspace/benchmarks`).
-* `grep <pattern> <file>` — Search Verilog code for ports, registers, or parameters.
+* `grep <pattern> [file]` — Search files or pipe streams for matching lines.
+* `file <path>` — Determine file classification and encoding.
+* `stat <path>` — Display detailed inode, permission, and timestamp metadata.
+* `env` / `export [VAR=VAL]` — View or configure shell environment variables.
+* `top` / `htop` — Monitor simulated EDA processes, CPU load, and memory allocation.
+* `df -h` / `free -h` — Inspect VFS storage capacity and virtual memory allocation.
+* `man <command>` — Display detailed manual pages and parameter documentation.
+* `|` (Pipe operator) — Chain commands together (e.g. `cat file | grep pattern | wc -l`).
 * `clear` / `Ctrl+L` — Wipe terminal buffer.
 * `help [command]` — Display detailed flag syntax and usage examples.
 
@@ -128,14 +153,18 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
     "/workspace": { type: "dir", children: ["rtl", "benchmarks", "reports", "README.txt"] },
     "/workspace/README.txt": {
       type: "file",
-      content: "================================================================\n" +
-               "  NoC-Lab Web EDA Unix Terminal & Simulation Workbench\n" +
-               "================================================================\n" +
-               "Preloaded with synthesizable SystemVerilog router RTL from all\n" +
-               "12 textbook chapters, reproduction benchmark traces from\n" +
-               "IEEE TCAD/TVLSI papers, and an automated Capstone testbench.\n\n" +
-               "Type 'help' to inspect available simulation commands.\n" +
-               "Type 'ls -la /workspace/rtl' to inspect synthesizable hardware.\n"
+      content: "----------------------------------------\n" +
+               "  NoC-Lab Web EDA Unix Terminal v2.6\n" +
+               "----------------------------------------\n" +
+               "Preloaded with synthesizable RTL from\n" +
+               "all 12 textbook chapters, TCAD/TVLSI\n" +
+               "benchmarks, and automated Capstone tests.\n\n" +
+               "Useful commands:\n" +
+               " • help          - List available tools\n" +
+               " • more <file>   - Page through a file\n" +
+               " • tree          - Display file tree\n" +
+               " • run-sim       - Run 4x4 mesh sim\n" +
+               " • ls -la /workspace/rtl - Inspect RTL\n"
     },
     "/workspace/rtl": {
       type: "dir",
@@ -313,19 +342,67 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
     slack: 84
   };
 
-  // --- TERMINAL FUNCTIONS ---
+  // --- TERMINAL STATE & CONTROLS ---
+  let currentFontSize = 0.83; // rem
+  let pagerState = null;
+  let envVars = {
+    "USER": "guest",
+    "HOME": "/workspace",
+    "SHELL": "/bin/bash",
+    "TERM": "xterm-256color",
+    "LANG": "en_US.UTF-8",
+    "ARCH": "x86_64-wasm",
+    "PDK": "Nangate45_0.95V",
+    "SIM_KERNEL": "noc_event_v2.6",
+    "PATH": "/usr/local/bin:/usr/bin:/bin:/workspace/bin"
+  };
+  let aliases = {
+    "ll": "ls -la",
+    "la": "ls -la",
+    "cls": "clear"
+  };
+
   window.termClear = function () {
     const out = document.getElementById("termOutput");
     if (out) out.innerHTML = "";
+    if (pagerState) window.pagerQuit();
   };
 
   window.termReset = function () {
     window.termClear();
     currentDir = "/workspace";
+    updatePrompt();
     printBanner();
   };
 
+  window.termAdjustFontSize = function (delta) {
+    const body = document.getElementById("termBody");
+    if (!body) return;
+    currentFontSize = Math.max(0.68, Math.min(1.15, currentFontSize + delta * 0.05));
+    body.style.fontSize = currentFontSize.toFixed(2) + "rem";
+  };
+
+  window.toggleTermFullscreen = function () {
+    const win = document.getElementById("termWindow") || document.querySelector(".noc-term-window");
+    const btn = document.getElementById("termFullscreenBtn");
+    if (!win) return;
+    win.classList.toggle("noc-term-fullscreen");
+    const isFull = win.classList.contains("noc-term-fullscreen");
+    if (btn) {
+      btn.innerText = isFull ? "✕ Close" : "⛶ Expand";
+    }
+    const body = document.getElementById("termBody");
+    if (body) {
+      body.scrollTop = body.scrollHeight;
+    }
+  };
+
   window.toggleTermExpand = function () {
+    const win = document.getElementById("termWindow") || document.querySelector(".noc-term-window");
+    if (win && win.classList.contains("noc-term-fullscreen")) {
+      window.toggleTermFullscreen();
+      return;
+    }
     const body = document.getElementById("termBody");
     if (!body) return;
     if (body.style.maxHeight === "none") {
@@ -336,6 +413,24 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
       body.style.minHeight = "680px";
     }
   };
+
+  function updatePrompt() {
+    const promptEl = document.getElementById("termPrompt");
+    if (!promptEl) return;
+    if (pagerState) {
+      promptEl.innerText = "-- More -- ";
+      return;
+    }
+    const isMobile = window.innerWidth < 640;
+    const dirDisplay = (currentDir === "/workspace") ? "~" : currentDir;
+    if (isMobile) {
+      promptEl.innerText = "noc:" + dirDisplay + "$ ";
+    } else {
+      promptEl.innerText = "guest@noc-lab:" + dirDisplay + "$ ";
+    }
+    const titleEl = document.getElementById("termPwdTitle");
+    if (titleEl) titleEl.innerText = currentDir;
+  }
 
   function printLine(html) {
     const out = document.getElementById("termOutput");
@@ -348,11 +443,44 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
     if (body) body.scrollTop = body.scrollHeight;
   }
 
+  function getTermCols() {
+    const body = document.getElementById("termBody");
+    if (!body) return 46;
+    const width = body.clientWidth - 28;
+    const cols = Math.floor(width / (currentFontSize * 9.2));
+    return Math.max(28, Math.min(68, cols));
+  }
+
+  function makeDivider(title = "", char = "─") {
+    const cols = getTermCols();
+    if (!title) {
+      return char.repeat(cols);
+    }
+    const trimmed = title.trim();
+    const clean = " " + trimmed + " ";
+    if (clean.length >= cols - 4) {
+      return trimmed;
+    }
+    const remaining = cols - clean.length;
+    const left = Math.max(2, Math.floor(remaining / 2));
+    const right = Math.max(2, remaining - left);
+    return char.repeat(left) + clean + char.repeat(right);
+  }
+
   function printBanner() {
-    printLine("<span class='term-cyan term-bold'>╔═══════════════════════════════════════════════════════════════════════╗</span>");
-    printLine("<span class='term-cyan term-bold'>║  NoC-Lab Web EDA Unix Terminal &amp; Interactive Workbench (v2.6)         ║</span>");
-    printLine("<span class='term-cyan term-bold'>║  Open-Source Discrete-Event Simulator &amp; Silicon Verification Suite    ║</span>");
-    printLine("<span class='term-cyan term-bold'>╚═══════════════════════════════════════════════════════════════════════╝</span>");
+    const cols = getTermCols();
+    const inner = Math.max(26, cols - 2);
+    if (cols < 52) {
+      printLine("<span class='term-cyan term-bold'>┌" + "─".repeat(inner) + "┐</span>");
+      printLine("<span class='term-cyan term-bold'>│</span> <span class='term-white term-bold'>⚡ NoC-Lab Web EDA Terminal (v2.6)</span>");
+      printLine("<span class='term-cyan term-bold'>│</span> <span class='term-dim'>Simulation &amp; Silicon Verification</span>");
+      printLine("<span class='term-cyan term-bold'>└" + "─".repeat(inner) + "┘</span>");
+    } else {
+      printLine("<span class='term-cyan term-bold'>┌" + "─".repeat(inner) + "┐</span>");
+      printLine("<span class='term-cyan term-bold'>│  ⚡ NoC-Lab Web EDA Unix Terminal &amp; Interactive Workbench (v2.6)</span>");
+      printLine("<span class='term-cyan term-bold'>│  Open-Source Discrete-Event Simulator &amp; Silicon Verification Suite</span>");
+      printLine("<span class='term-cyan term-bold'>└" + "─".repeat(inner) + "┘</span>");
+    }
     printLine("<span class='term-dim'>Type </span><span class='term-yellow'>'help'</span><span class='term-dim'> for built-in simulation tools, or click any toolbar pill above.</span>");
     printLine("<span class='term-dim'>Simulation telemetry automatically reflects in the visualizer below!</span>\n");
   }
@@ -366,106 +494,184 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
     }
   };
 
+  // --- COMMAND EXECUTION & PIPELINE ENGINE ---
   function executeCommand(raw) {
     const trimmed = raw.trim();
     if (!trimmed) return;
 
+    if (pagerState) {
+      window.pagerQuit();
+    }
+
     history.push(trimmed);
     historyIndex = history.length;
 
-    printLine("<span class='term-cyan term-bold'>guest@noc-lab:" + currentDir + "$</span> " + escapeHtml(trimmed));
+    const isMobile = window.innerWidth < 640;
+    const dirDisplay = (currentDir === "/workspace") ? "~" : currentDir;
+    const promptPrefix = isMobile ? ("noc:" + dirDisplay + "$ ") : ("guest@noc-lab:" + currentDir + "$ ");
+    printLine("<span class='term-cyan term-bold'>" + escapeHtml(promptPrefix) + "</span>" + escapeHtml(trimmed));
 
-    const parts = trimmed.split(/\s+/);
-    const cmd = parts[0];
-    const args = parts.slice(1);
+    if (trimmed.includes("|")) {
+      executePipeline(trimmed);
+      return;
+    }
+
+    executeSingleCommand(trimmed, null, false);
+  }
+
+  function executePipeline(pipelineStr) {
+    const stages = pipelineStr.split("|").map(s => s.trim()).filter(Boolean);
+    if (!stages.length) return;
+
+    let currentStdin = null;
+    for (let i = 0; i < stages.length; i++) {
+      const isLast = (i === stages.length - 1);
+      const stageCmd = stages[i];
+      const result = executeSingleCommand(stageCmd, currentStdin, !isLast);
+      if (result === null) {
+        return;
+      }
+      currentStdin = Array.isArray(result) ? result : [String(result)];
+    }
+  }
+
+  function executeSingleCommand(cmdStr, stdinLines, returnOutput) {
+    let parts = cmdStr.split(/\s+/);
+    let cmd = parts[0];
+    let args = parts.slice(1);
+
+    if (aliases[cmd]) {
+      const expanded = aliases[cmd] + (args.length ? " " + args.join(" ") : "");
+      return executeSingleCommand(expanded, stdinLines, returnOutput);
+    }
 
     switch (cmd) {
       case "help":
-        runHelp(args);
-        break;
+        return runHelp(args);
       case "clear":
         window.termClear();
-        break;
+        return [];
       case "pwd":
+        if (returnOutput) return [currentDir];
         printLine(currentDir);
-        break;
+        return [currentDir];
       case "whoami":
-        printLine("guest (Silicon Verification Architect)");
-        break;
-      case "date":
-        printLine(new Date().toUTCString());
-        break;
-      case "uname":
-        if (args.includes("-a")) {
-          printLine("Linux noc-lab-eda 6.8.0-webasm #1 SMP PREEMPT WebAssembly x86_64 GNU/Linux");
-        } else {
-          printLine("Linux");
+        {
+          const out = envVars["USER"] + " (Silicon Verification Architect)";
+          if (returnOutput) return [out];
+          printLine(out);
+          return [out];
         }
-        break;
+      case "date":
+        {
+          const d = new Date().toUTCString();
+          if (returnOutput) return [d];
+          printLine(d);
+          return [d];
+        }
+      case "uname":
+        {
+          const un = args.includes("-a")
+            ? "Linux noc-lab-eda 6.8.0-webasm #1 SMP PREEMPT WebAssembly x86_64 GNU/Linux"
+            : "Linux";
+          if (returnOutput) return [un];
+          printLine(un);
+          return [un];
+        }
       case "echo":
-        printLine(args.join(" "));
-        break;
+        {
+          let text = args.join(" ");
+          text = text.replace(/\$([A-Za-z0-9_]+)/g, (_, v) => envVars[v] || "");
+          if (returnOutput) return [text];
+          printLine(escapeHtml(text));
+          return [text];
+        }
       case "history":
         history.forEach((h, i) => printLine("<span class='term-dim'>" + (i + 1) + "</span>  " + escapeHtml(h)));
-        break;
+        return history;
+      case "more":
+        return runMore(args, stdinLines);
+      case "less":
+        return runMore(args, stdinLines);
+      case "head":
+        return runHead(args, stdinLines, returnOutput);
+      case "tail":
+        return runTail(args, stdinLines, returnOutput);
+      case "wc":
+        return runWc(args, stdinLines, returnOutput);
+      case "tree":
+        return runTree(args);
+      case "find":
+        return runFind(args);
+      case "touch":
+        return runTouch(args);
+      case "mkdir":
+        return runMkdir(args);
+      case "rm":
+        return runRm(args);
+      case "cp":
+        return runCp(args);
+      case "mv":
+        return runMv(args);
+      case "diff":
+        return runDiff(args);
+      case "file":
+        return runFile(args);
+      case "stat":
+        return runStat(args);
+      case "top":
+      case "htop":
+        return runTop();
+      case "df":
+        return runDf();
+      case "free":
+        return runFree();
+      case "env":
+      case "printenv":
+        return runEnv(args, returnOutput);
+      case "export":
+        return runExport(args);
+      case "alias":
+        return runAlias(args);
+      case "unalias":
+        if (args[0] && aliases[args[0]]) delete aliases[args[0]];
+        return [];
+      case "man":
+        return runMan(args);
       case "ls":
-        runLs(args);
-        break;
+        return runLs(args, returnOutput);
       case "cd":
-        runCd(args);
-        break;
+        return runCd(args);
       case "cat":
-        runCat(args);
-        break;
+        return runCat(args, stdinLines, returnOutput);
       case "grep":
-        runGrep(args);
-        break;
+        return runGrep(args, stdinLines, returnOutput);
       case "run-sim":
-        runSimulator(args);
-        break;
+        return runSimulator(args);
       case "verify-deadlock":
-        runDeadlockVerifier(args);
-        break;
+        return runDeadlockVerifier(args);
       case "sta-timing":
-        runStaTiming(args);
-        break;
+        return runStaTiming(args);
       case "heatsense":
-        runHeatSense(args);
-        break;
+        return runHeatSense(args);
       case "buffers-eval":
-        runBuffersEval(args);
-        break;
+        return runBuffersEval(args);
       case "grade-capstone":
-        runGradeCapstone();
-        break;
+        return runGradeCapstone();
       default:
         printLine("<span class='term-red'>bash: " + escapeHtml(cmd) + ": command not found. Type 'help' for available tools.</span>");
+        return null;
     }
   }
 
   function escapeHtml(str) {
-    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  }
-
-  function runHelp(args) {
-    printLine("<span class='term-bold term-white'>Available NoC-Lab Simulation &amp; Verification Commands:</span>");
-    printLine("  <span class='term-yellow'>run-sim</span>           Run discrete-event cycle-accurate network simulation &amp; animate flit flows");
-    printLine("                    Flags: --topo [mesh4x4|torus4x4|mesh8x8|dragonfly|ruche]");
-    printLine("                           --algo [xy|west-first|odd-even|adaptive|ugal]");
-    printLine("                           --traffic [uniform|transpose|hotspot|moe]");
-    printLine("                           --inj [0.01..0.6]  --cycles [100..5000]");
-    printLine("  <span class='term-yellow'>verify-deadlock</span>   Channel Dependency Graph (CDG) &amp; SMT turn-model analysis with cycle visualizer");
-    printLine("                    Flags: --topo [mesh|torus]  --algo [xy|west-first|odd-even|adaptive]");
-    printLine("  <span class='term-yellow'>sta-timing</span>        Nangate45 Static Timing Analysis &amp; fmax critical path waterfall");
-    printLine("                    Flags: --module [name]  --clock [1.0GHz|1.5GHz|2.0GHz]");
-    printLine("  <span class='term-yellow'>heatsense</span>         IEEE TCAD '26 WMA thermal anomaly filter reproduction &amp; 2D die heatmap");
-    printLine("  <span class='term-yellow'>buffers-eval</span>      IEEE TCAD '26 multi-die router bypassing wire-speed evaluator");
-    printLine("  <span class='term-yellow'>grade-capstone</span>    Execute 4-gate automated Capstone verification suite");
-    printLine("  <span class='term-yellow'>ls, cd, cat, grep</span> Virtual File System (VFS) navigation of synthesizable RTL\n");
+    return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
   function resolvePath(p) {
     if (!p) return currentDir;
+    if (p === "~") return "/workspace";
+    if (p.startsWith("~/")) p = "/workspace/" + p.slice(2);
     if (p.startsWith("/")) return p.replace(/\/+$/, "") || "/";
     let cur = currentDir === "/" ? "" : currentDir;
     let parts = (cur + "/" + p).split("/");
@@ -481,7 +687,773 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
     return "/" + resolved.join("/");
   }
 
-  function runLs(args) {
+  // --- INTERACTIVE PAGER (more / less) ---
+  function runMore(args, stdinLines) {
+    if (args.includes("-h") || args.includes("--help") || args.includes("help")) {
+      printLine("<span class='term-bold term-white'>Usage: more [-n lines] [file ...]</span>");
+      printLine("  Display and page through text files one screen at a time.");
+      printLine("  <span class='term-yellow'>Controls:</span> [Space] Next page  |  [Enter] Next line  |  [q] Quit pager\n");
+      return [];
+    }
+
+    let customPageSize = null;
+    let target = null;
+    for (let i = 0; i < args.length; i++) {
+      if (args[i] === "-n" && args[i + 1]) {
+        customPageSize = parseInt(args[++i], 10);
+      } else if (args[i].startsWith("-") && /^\d+$/.test(args[i].slice(1))) {
+        customPageSize = parseInt(args[i].slice(1), 10);
+      } else if (!args[i].startsWith("-")) {
+        target = args[i];
+      }
+    }
+
+    let lines = [];
+    let name = target || "README.txt";
+    if (stdinLines) {
+      lines = stdinLines;
+      name = target || "(standard input)";
+    } else if (target) {
+      let path = resolvePath(target);
+      let node = VFS[path];
+      if (!node) {
+        // Fallback search across all files in VFS
+        const found = Object.keys(VFS).find(k => (k.endsWith("/" + target) || k === target) && VFS[k].type === "file");
+        if (found) {
+          path = found;
+          node = VFS[path];
+          printLine("<span class='term-dim'>[more] Resolved: " + path + "</span>");
+        }
+      }
+      if (!node) {
+        printLine("<span class='term-red'>more: cannot open '" + escapeHtml(target) + "': No such file or directory</span>");
+        printLine("<span class='term-dim'>Type 'ls -la /workspace' or 'tree' to see available files.</span>");
+        return null;
+      }
+      if (node.type === "dir") {
+        printLine("<span class='term-red'>more: " + escapeHtml(target) + ": Is a directory</span>");
+        return null;
+      }
+      lines = node.content.split("\n");
+      name = target;
+    } else {
+      // Default to /workspace/README.txt if no file argument provided
+      printLine("<span class='term-yellow'>[more] Paging default file: /workspace/README.txt</span>");
+      printLine("<span class='term-dim'>Tip: You can pass any file path, e.g. 'more /workspace/rtl/canonical_router_5stage.sv'</span>\n");
+      let path = "/workspace/README.txt";
+      let node = VFS[path];
+      if (node) {
+        lines = node.content.split("\n");
+        name = "README.txt";
+      }
+    }
+
+    const pageSize = customPageSize || (window.innerWidth < 640 ? 12 : 18);
+    if (lines.length <= pageSize) {
+      lines.forEach(l => printLine(escapeHtml(l)));
+      return lines;
+    }
+
+    const firstSlice = lines.slice(0, pageSize);
+    firstSlice.forEach(l => printLine(escapeHtml(l)));
+
+    pagerState = {
+      lines: lines,
+      offset: pageSize,
+      pageSize: pageSize,
+      targetName: name
+    };
+
+    showPagerBar();
+    updatePrompt();
+    return lines;
+  }
+
+  function showPagerBar() {
+    removePagerBar();
+    if (!pagerState) return;
+    const percent = Math.min(100, Math.round((pagerState.offset / pagerState.lines.length) * 100));
+    const barHtml = "<div class='term-pager-bar' id='termPagerBar'>" +
+      "<span class='term-pager-info'>-- More (" + percent + "%) -- [" + escapeHtml(pagerState.targetName) + "]</span>" +
+      "<div class='term-pager-actions'>" +
+        "<button class='term-pager-btn' onclick='window.pagerNextPage()'>Next Page (Space)</button>" +
+        "<button class='term-pager-btn' onclick='window.pagerNextLine()'>+1 Line (Enter)</button>" +
+        "<button class='term-pager-btn' onclick='window.pagerQuit()'>Quit (q)</button>" +
+      "</div>" +
+    "</div>";
+    printLine(barHtml);
+  }
+
+  function removePagerBar() {
+    const el = document.getElementById("termPagerBar");
+    if (el) el.remove();
+  }
+
+  window.pagerNextPage = function () {
+    if (!pagerState) return;
+    removePagerBar();
+    const nextSlice = pagerState.lines.slice(pagerState.offset, pagerState.offset + pagerState.pageSize);
+    nextSlice.forEach(l => printLine(escapeHtml(l)));
+    pagerState.offset += nextSlice.length;
+
+    if (pagerState.offset >= pagerState.lines.length) {
+      printLine("<span class='term-dim'>-- More (100%) -- Done (End of file)</span>");
+      pagerState = null;
+      updatePrompt();
+    } else {
+      showPagerBar();
+    }
+  };
+
+  window.pagerNextLine = function () {
+    if (!pagerState) return;
+    removePagerBar();
+    const nextLine = pagerState.lines[pagerState.offset];
+    if (nextLine !== undefined) {
+      printLine(escapeHtml(nextLine));
+      pagerState.offset++;
+    }
+    if (pagerState.offset >= pagerState.lines.length) {
+      printLine("<span class='term-dim'>-- More (100%) -- Done (End of file)</span>");
+      pagerState = null;
+      updatePrompt();
+    } else {
+      showPagerBar();
+    }
+  };
+
+  window.pagerQuit = function () {
+    if (!pagerState) return;
+    removePagerBar();
+    printLine("<span class='term-dim'>[Quit pager]</span>");
+    pagerState = null;
+    updatePrompt();
+  };
+
+  // --- STANDARD UNIX COMMAND IMPLEMENTATIONS ---
+  function runHead(args, stdinLines, returnOutput) {
+    let n = 10;
+    let target = null;
+    for (let i = 0; i < args.length; i++) {
+      if (args[i] === "-n" && args[i + 1]) {
+        n = parseInt(args[++i], 10) || 10;
+      } else if (args[i].startsWith("-") && /^\d+$/.test(args[i].slice(1))) {
+        n = parseInt(args[i].slice(1), 10) || 10;
+      } else if (!args[i].startsWith("-")) {
+        target = args[i];
+      }
+    }
+    let lines = [];
+    if (stdinLines) {
+      lines = stdinLines;
+    } else if (target) {
+      let path = resolvePath(target);
+      let node = VFS[path];
+      if (!node || node.type !== "file") {
+        printLine("<span class='term-red'>head: cannot open '" + escapeHtml(target) + "': No such file</span>");
+        return null;
+      }
+      lines = node.content.split("\n");
+    } else {
+      printLine("<span class='term-red'>head: missing file operand</span>");
+      return null;
+    }
+    let res = lines.slice(0, n);
+    if (!returnOutput) {
+      res.forEach(l => printLine(escapeHtml(l)));
+    }
+    return res;
+  }
+
+  function runTail(args, stdinLines, returnOutput) {
+    let n = 10;
+    let target = null;
+    for (let i = 0; i < args.length; i++) {
+      if (args[i] === "-n" && args[i + 1]) {
+        n = parseInt(args[++i], 10) || 10;
+      } else if (args[i].startsWith("-") && /^\d+$/.test(args[i].slice(1))) {
+        n = parseInt(args[i].slice(1), 10) || 10;
+      } else if (!args[i].startsWith("-")) {
+        target = args[i];
+      }
+    }
+    let lines = [];
+    if (stdinLines) {
+      lines = stdinLines;
+    } else if (target) {
+      let path = resolvePath(target);
+      let node = VFS[path];
+      if (!node || node.type !== "file") {
+        printLine("<span class='term-red'>tail: cannot open '" + escapeHtml(target) + "': No such file</span>");
+        return null;
+      }
+      lines = node.content.split("\n");
+    } else {
+      printLine("<span class='term-red'>tail: missing file operand</span>");
+      return null;
+    }
+    let res = lines.slice(-n);
+    if (!returnOutput) {
+      res.forEach(l => printLine(escapeHtml(l)));
+    }
+    return res;
+  }
+
+  function runWc(args, stdinLines, returnOutput) {
+    let countLines = false, countWords = false, countChars = false;
+    let target = null;
+    for (let a of args) {
+      if (a === "-l") countLines = true;
+      else if (a === "-w") countWords = true;
+      else if (a === "-c") countChars = true;
+      else if (!a.startsWith("-")) target = a;
+    }
+    if (!countLines && !countWords && !countChars) {
+      countLines = true; countWords = true; countChars = true;
+    }
+    let text = "";
+    let name = "";
+    if (stdinLines) {
+      text = stdinLines.join("\n");
+      name = "";
+    } else if (target) {
+      let path = resolvePath(target);
+      let node = VFS[path];
+      if (!node || node.type !== "file") {
+        printLine("<span class='term-red'>wc: '" + escapeHtml(target) + "': No such file</span>");
+        return null;
+      }
+      text = node.content;
+      name = target;
+    } else {
+      printLine("<span class='term-red'>wc: missing file operand</span>");
+      return null;
+    }
+    let numLines = text ? text.split("\n").length : 0;
+    let numWords = text.trim() ? text.trim().split(/\s+/).length : 0;
+    let numChars = text.length;
+    let outParts = [];
+    if (countLines) outParts.push(numLines.toString().padStart(5));
+    if (countWords) outParts.push(numWords.toString().padStart(5));
+    if (countChars) outParts.push(numChars.toString().padStart(6));
+    if (name) outParts.push(name);
+    let out = outParts.join(" ");
+    if (!returnOutput) {
+      printLine(escapeHtml(out));
+    }
+    return [out];
+  }
+
+  function runTree(args) {
+    let target = resolvePath(args[0] || currentDir);
+    let rootNode = VFS[target];
+    if (!rootNode || rootNode.type !== "dir") {
+      printLine("<span class='term-red'>tree: [" + escapeHtml(target) + "] not a directory</span>");
+      return;
+    }
+    printLine("<span class='term-blue term-bold'>" + escapeHtml(target) + "</span>");
+    let dirCount = 0;
+    let fileCount = 0;
+
+    function buildTree(dirPath, prefix) {
+      let node = VFS[dirPath];
+      if (!node || !node.children) return;
+      let sorted = [...node.children].sort();
+      sorted.forEach((item, idx) => {
+        let isLast = (idx === sorted.length - 1);
+        let connector = isLast ? "└── " : "├── ";
+        let itemPath = dirPath === "/" ? "/" + item : dirPath + "/" + item;
+        let itemNode = VFS[itemPath];
+        let isDir = itemNode && itemNode.type === "dir";
+        if (isDir) {
+          dirCount++;
+          printLine(prefix + connector + "<span class='term-blue term-bold'>" + item + "</span>");
+          buildTree(itemPath, prefix + (isLast ? "    " : "│   "));
+        } else {
+          fileCount++;
+          printLine(prefix + connector + "<span class='term-white'>" + item + "</span>");
+        }
+      });
+    }
+
+    buildTree(target, "");
+    printLine("\n<span class='term-dim'>" + dirCount + " directories, " + fileCount + " files</span>");
+  }
+
+  function runFind(args) {
+    let target = currentDir;
+    let namePattern = null;
+    let typeFilter = null;
+    for (let i = 0; i < args.length; i++) {
+      if (args[i] === "-name" && args[i + 1]) {
+        namePattern = args[++i];
+      } else if (args[i] === "-type" && args[i + 1]) {
+        typeFilter = args[++i];
+      } else if (!args[i].startsWith("-")) {
+        target = resolvePath(args[i]);
+      }
+    }
+    if (!VFS[target]) {
+      printLine("<span class='term-red'>find: '" + escapeHtml(target) + "': No such file or directory</span>");
+      return;
+    }
+    let results = [];
+    function matchName(name, pat) {
+      if (!pat) return true;
+      if (pat.startsWith("*") && pat.endsWith("*")) return name.includes(pat.slice(1, -1));
+      if (pat.startsWith("*")) return name.endsWith(pat.slice(1));
+      if (pat.endsWith("*")) return name.startsWith(pat.slice(0, -1));
+      return name === pat;
+    }
+    function walk(dirPath) {
+      let node = VFS[dirPath];
+      if (!node) return;
+      if (!typeFilter || typeFilter === "d") {
+        let base = dirPath.split("/").pop() || "/";
+        if (matchName(base, namePattern)) results.push(dirPath);
+      }
+      if (node.type === "dir" && node.children) {
+        for (let c of node.children) {
+          let cPath = dirPath === "/" ? "/" + c : dirPath + "/" + c;
+          let cNode = VFS[cPath];
+          if (cNode && cNode.type === "dir") {
+            walk(cPath);
+          } else if (cNode && cNode.type === "file") {
+            if ((!typeFilter || typeFilter === "f") && matchName(c, namePattern)) {
+              results.push(cPath);
+            }
+          }
+        }
+      }
+    }
+    walk(target);
+    if (results.length === 0) {
+      printLine("<span class='term-dim'>[No files found matching criteria]</span>");
+    } else {
+      results.forEach(r => printLine(escapeHtml(r)));
+    }
+  }
+
+  function runTouch(args) {
+    if (!args.length) {
+      printLine("<span class='term-red'>touch: missing file operand</span>");
+      return;
+    }
+    for (let a of args) {
+      let p = resolvePath(a);
+      if (VFS[p]) continue;
+      let parent = p.substring(0, p.lastIndexOf("/")) || "/";
+      let base = p.substring(p.lastIndexOf("/") + 1);
+      if (!VFS[parent] || VFS[parent].type !== "dir") {
+        printLine("<span class='term-red'>touch: cannot touch '" + escapeHtml(a) + "': No such directory</span>");
+        continue;
+      }
+      VFS[p] = { type: "file", content: "" };
+      if (!VFS[parent].children.includes(base)) {
+        VFS[parent].children.push(base);
+      }
+    }
+  }
+
+  function runMkdir(args) {
+    let parents = false;
+    let targets = [];
+    for (let a of args) {
+      if (a === "-p") parents = true;
+      else targets.push(a);
+    }
+    if (!targets.length) {
+      printLine("<span class='term-red'>mkdir: missing operand</span>");
+      return;
+    }
+    for (let t of targets) {
+      let p = resolvePath(t);
+      if (VFS[p]) {
+        printLine("<span class='term-red'>mkdir: cannot create directory '" + escapeHtml(t) + "': File exists</span>");
+        continue;
+      }
+      let parent = p.substring(0, p.lastIndexOf("/")) || "/";
+      let base = p.substring(p.lastIndexOf("/") + 1);
+      if (!VFS[parent]) {
+        if (parents) {
+          let segs = p.split("/").filter(Boolean);
+          let cur = "";
+          for (let s of segs) {
+            let nxt = cur + "/" + s;
+            if (!VFS[nxt]) {
+              let par = cur || "/";
+              VFS[nxt] = { type: "dir", children: [] };
+              if (VFS[par] && !VFS[par].children.includes(s)) VFS[par].children.push(s);
+            }
+            cur = nxt;
+          }
+          continue;
+        } else {
+          printLine("<span class='term-red'>mkdir: cannot create directory '" + escapeHtml(t) + "': No such file or directory</span>");
+          continue;
+        }
+      }
+      VFS[p] = { type: "dir", children: [] };
+      if (!VFS[parent].children.includes(base)) {
+        VFS[parent].children.push(base);
+      }
+    }
+  }
+
+  function runRm(args) {
+    let recursive = false;
+    let targets = [];
+    for (let a of args) {
+      if (a === "-r" || a === "-rf" || a === "-fr" || a === "-f") recursive = true;
+      else targets.push(a);
+    }
+    if (!targets.length) {
+      printLine("<span class='term-red'>rm: missing operand</span>");
+      return;
+    }
+    for (let t of targets) {
+      let p = resolvePath(t);
+      if (p === "/" || p === "/workspace") {
+        printLine("<span class='term-red'>rm: refusing to remove system root directory: " + escapeHtml(p) + "</span>");
+        continue;
+      }
+      let node = VFS[p];
+      if (!node) {
+        printLine("<span class='term-red'>rm: cannot remove '" + escapeHtml(t) + "': No such file or directory</span>");
+        continue;
+      }
+      if (node.type === "dir" && !recursive) {
+        printLine("<span class='term-red'>rm: cannot remove '" + escapeHtml(t) + "': Is a directory (use -r)</span>");
+        continue;
+      }
+      let parent = p.substring(0, p.lastIndexOf("/")) || "/";
+      let base = p.substring(p.lastIndexOf("/") + 1);
+      if (VFS[parent] && VFS[parent].children) {
+        VFS[parent].children = VFS[parent].children.filter(c => c !== base);
+      }
+      delete VFS[p];
+    }
+  }
+
+  function runCp(args) {
+    if (args.length < 2) {
+      printLine("<span class='term-red'>cp: missing file operand</span>");
+      return;
+    }
+    let src = resolvePath(args[0]);
+    let dst = resolvePath(args[1]);
+    let srcNode = VFS[src];
+    if (!srcNode || srcNode.type !== "file") {
+      printLine("<span class='term-red'>cp: cannot stat '" + escapeHtml(args[0]) + "': No such file</span>");
+      return;
+    }
+    let dstNode = VFS[dst];
+    let targetPath = dst;
+    if (dstNode && dstNode.type === "dir") {
+      let base = src.substring(src.lastIndexOf("/") + 1);
+      targetPath = (dst === "/" ? "/" : dst + "/") + base;
+    }
+    let parent = targetPath.substring(0, targetPath.lastIndexOf("/")) || "/";
+    let base = targetPath.substring(targetPath.lastIndexOf("/") + 1);
+    if (!VFS[parent] || VFS[parent].type !== "dir") {
+      printLine("<span class='term-red'>cp: destination directory does not exist</span>");
+      return;
+    }
+    VFS[targetPath] = { type: "file", content: srcNode.content };
+    if (!VFS[parent].children.includes(base)) VFS[parent].children.push(base);
+  }
+
+  function runMv(args) {
+    if (args.length < 2) {
+      printLine("<span class='term-red'>mv: missing file operand</span>");
+      return;
+    }
+    runCp(args);
+    runRm([args[0]]);
+  }
+
+  function runDiff(args) {
+    if (args.length < 2) {
+      printLine("<span class='term-red'>diff: missing operands</span>");
+      return;
+    }
+    let p1 = resolvePath(args[0]);
+    let p2 = resolvePath(args[1]);
+    let n1 = VFS[p1], n2 = VFS[p2];
+    if (!n1 || n1.type !== "file") {
+      printLine("<span class='term-red'>diff: " + escapeHtml(args[0]) + ": No such file</span>");
+      return;
+    }
+    if (!n2 || n2.type !== "file") {
+      printLine("<span class='term-red'>diff: " + escapeHtml(args[1]) + ": No such file</span>");
+      return;
+    }
+    let l1 = n1.content.split("\n");
+    let l2 = n2.content.split("\n");
+    printLine("<span class='term-dim'>--- " + escapeHtml(args[0]) + "</span>");
+    printLine("<span class='term-dim'>+++ " + escapeHtml(args[1]) + "</span>");
+    let maxLen = Math.max(l1.length, l2.length);
+    let diffFound = false;
+    for (let i = 0; i < maxLen; i++) {
+      let line1 = l1[i];
+      let line2 = l2[i];
+      if (line1 !== line2) {
+        diffFound = true;
+        if (line1 !== undefined) printLine("<span class='term-red'>- " + escapeHtml(line1) + "</span>");
+        if (line2 !== undefined) printLine("<span class='term-green'>+ " + escapeHtml(line2) + "</span>");
+      }
+    }
+    if (!diffFound) {
+      printLine("<span class='term-dim'>[Files are identical]</span>");
+    }
+  }
+
+  function runFile(args) {
+    if (!args.length) {
+      printLine("<span class='term-red'>file: missing file operand</span>");
+      return;
+    }
+    for (let a of args) {
+      let p = resolvePath(a);
+      let node = VFS[p];
+      if (!node) {
+        printLine(escapeHtml(a) + ": cannot open (No such file or directory)");
+        continue;
+      }
+      if (node.type === "dir") {
+        printLine(escapeHtml(a) + ": directory");
+      } else if (p.endsWith(".sv")) {
+        printLine(escapeHtml(a) + ": SystemVerilog HDL hardware source text (IEEE 1800-2017), ASCII text");
+      } else if (p.endsWith(".trace")) {
+        printLine(escapeHtml(a) + ": ASCII discrete-event packet trace dataset");
+      } else if (p.endsWith(".dat")) {
+        printLine(escapeHtml(a) + ": ASCII floating-point thermal telemetry matrix");
+      } else {
+        printLine(escapeHtml(a) + ": ASCII English text document");
+      }
+    }
+  }
+
+  function runStat(args) {
+    if (!args.length) {
+      printLine("<span class='term-red'>stat: missing operand</span>");
+      return;
+    }
+    let p = resolvePath(args[0]);
+    let node = VFS[p];
+    if (!node) {
+      printLine("<span class='term-red'>stat: cannot stat '" + escapeHtml(args[0]) + "': No such file or directory</span>");
+      return;
+    }
+    let isDir = (node.type === "dir");
+    let size = isDir ? 4096 : node.content.length;
+    let blocks = Math.ceil(size / 512);
+    let now = new Date().toISOString().replace("T", " ").substring(0, 19);
+    printLine("  File: " + escapeHtml(p));
+    printLine("  Size: " + size.toString().padEnd(10) + "Blocks: " + blocks.toString().padEnd(8) + "IO Block: 4096   " + (isDir ? "directory" : "regular file"));
+    printLine("Device: 0x801/2049d   Inode: 1048576     Links: " + (isDir ? 2 : 1));
+    printLine("Access: (" + (isDir ? "0755/drwxr-xr-x" : "0644/-rw-r--r--") + ")  Uid: ( 1000/    noc)   Gid: ( 1000/    noc)");
+    printLine("Access: " + now + " +0000");
+    printLine("Modify: " + now + " +0000");
+    printLine("Change: " + now + " +0000");
+  }
+
+  function runTop() {
+    const cols = getTermCols();
+    printLine("<span class='term-dim'>top - " + new Date().toLocaleTimeString() + " up 42 days, 1 user, load avg: 0.12, 0.08, 0.05</span>");
+    printLine("<span class='term-dim'>Tasks: 6 total, 1 running, 5 sleeping, 0 stopped, 0 zombie</span>");
+    printLine("<span class='term-dim'>%Cpu(s):  6.4 us,  2.1 sy, 91.2 id,  0.2 wa,  0.1 hi</span>");
+    printLine("<span class='term-dim'>MiB Mem :   8192.0 total,   5120.4 free,   1842.1 used</span>\n");
+    printLine("<span class='term-cyan term-bold'>" + "PID USER      PR  NI    VIRT    RES S  %CPU  %MEM     TIME+ COMMAND".substring(0, cols) + "</span>");
+    const procs = [
+      " 1042 noc       20   0  145.2m  42.1m S   7.2   0.5   0:14.22 noc-sim-kernel",
+      " 1088 noc       20   0  210.8m  68.4m S   3.8   0.8   0:08.55 opensta-45nm",
+      " 1104 noc       20   0   94.5m  28.0m S   1.4   0.3   0:02.19 z3-deadlock-scc",
+      " 1115 noc       20   0   82.1m  22.6m S   0.8   0.3   0:01.04 wma-tcad26-mon",
+      "  980 guest     20   0   18.4m   6.2m R   0.4   0.1   0:00.32 bash (web-vt100)",
+      "    1 root      20   0   24.1m   4.8m S   0.0   0.1   0:01.88 systemd-init"
+    ];
+    procs.forEach(p => printLine("<span class='term-white'>" + escapeHtml(p.substring(0, cols)) + "</span>"));
+  }
+
+  function runDf() {
+    printLine("<span class='term-cyan term-bold'>Filesystem      Size  Used Avail Use% Mounted on</span>");
+    printLine("/dev/root        32G   12G   19G  38% /");
+    printLine("tmpfs           4.0G  120M  3.9G   3% /dev/shm");
+    printLine("noc-vfs-wasm    2.0G  148M  1.9G   8% /workspace");
+  }
+
+  function runFree() {
+    printLine("<span class='term-cyan term-bold'>               total        used        free      shared  buff/cache</span>");
+    printLine("Mem:         8192Mi      1842Mi      5120Mi       120Mi      1229Mi");
+    printLine("Swap:        2048Mi           0Mi      2048Mi");
+  }
+
+  function runEnv(args, returnOutput) {
+    let lines = Object.entries(envVars).map(([k, v]) => k + "=" + v);
+    if (!returnOutput) {
+      lines.forEach(l => printLine(escapeHtml(l)));
+    }
+    return lines;
+  }
+
+  function runExport(args) {
+    if (!args.length) return runEnv([], false);
+    for (let a of args) {
+      let idx = a.indexOf("=");
+      if (idx !== -1) {
+        let k = a.substring(0, idx);
+        let v = a.substring(idx + 1);
+        envVars[k] = v;
+      }
+    }
+  }
+
+  function runAlias(args) {
+    if (!args.length) {
+      Object.entries(aliases).forEach(([k, v]) => printLine("alias " + k + "='" + v + "'"));
+      return;
+    }
+    let joined = args.join(" ");
+    let idx = joined.indexOf("=");
+    if (idx !== -1) {
+      let k = joined.substring(0, idx).trim();
+      let v = joined.substring(idx + 1).trim().replace(/^['"]|['"]$/g, "");
+      aliases[k] = v;
+    }
+  }
+
+  function runMan(args) {
+    if (!args[0]) {
+      printLine("<span class='term-red'>What manual page do you want? Try 'man more' or 'man run-sim'</span>");
+      return;
+    }
+    const topic = args[0];
+    const manPages = {
+      "more": {
+        name: "more - file perusal filter for crt viewing & interactive paging",
+        synopsis: "more [-n lines] [file ...]",
+        desc: "more is a filter for paging through text one screenful at a time. It supports keyboard controls and mobile touch buttons.",
+        controls: "Space: Next page | Enter: Next line | q: Quit pager"
+      },
+      "less": {
+        name: "less - opposite of more; terminal pager",
+        synopsis: "less [file ...]",
+        desc: "Interactive viewer allowing bidirectional navigation through simulation logs and Verilog RTL files.",
+        controls: "Space: Next page | Enter: Next line | q: Quit pager"
+      },
+      "head": {
+        name: "head - output the first part of files",
+        synopsis: "head [-n lines] [file ...]",
+        desc: "Print the first 10 lines of each FILE to standard output. With -n, print the first N lines."
+      },
+      "tail": {
+        name: "tail - output the last part of files",
+        synopsis: "tail [-n lines] [file ...]",
+        desc: "Print the last 10 lines of each FILE to standard output. With -n, print the last N lines."
+      },
+      "wc": {
+        name: "wc - print newline, word, and byte counts",
+        synopsis: "wc [-l|-w|-c] [file ...]",
+        desc: "Print newline, word, and byte counts for each FILE, and a total line if more than one FILE is specified."
+      },
+      "tree": {
+        name: "tree - list contents of directories in a tree-like format",
+        synopsis: "tree [directory]",
+        desc: "Recursive directory listing program producing a depth-indented listing of files."
+      },
+      "find": {
+        name: "find - search for files in a directory hierarchy",
+        synopsis: "find [path] [-name pattern] [-type f|d]",
+        desc: "Walks file tree evaluating matching expressions for names and file types."
+      },
+      "run-sim": {
+        name: "run-sim - discrete-event cycle-accurate NoC network simulator",
+        synopsis: "run-sim [--topo topo] [--algo algo] [--traffic traffic] [--inj rate] [--cycles n]",
+        desc: "Executes flit-level discrete-event network simulation. Animates live flit flow across routers, evaluates buffer backpressure, and graphs throughput."
+      },
+      "verify-deadlock": {
+        name: "verify-deadlock - Channel Dependency Graph (CDG) deadlock verification engine",
+        synopsis: "verify-deadlock [--topo mesh|torus] [--algo xy|west-first|odd-even|adaptive]",
+        desc: "Constructs virtual Channel Dependency Graphs and executes Tarjan's SCC cycle detector under Duato's Theorem."
+      },
+      "sta-timing": {
+        name: "sta-timing - Nangate45 Static Timing Analysis engine",
+        synopsis: "sta-timing [--module name] [--clock freq]",
+        desc: "Evaluates standard cell delays across router pipeline stages (BW, RC, VA, SA, ST) and checks setup slack margin."
+      },
+      "heatsense": {
+        name: "heatsense - TCAD 2026 Weighted Moving Average thermal anomaly filter",
+        synopsis: "heatsense [--trace path] [--threshold val]",
+        desc: "Reproduces IEEE TCAD 2026 HeatSense online thermal Trojan covert channel isolation."
+      },
+      "buffers-eval": {
+        name: "buffers-eval - TCAD 2026 router bypassing evaluator",
+        synopsis: "buffers-eval [--hops n] [--bypass-slots slots]",
+        desc: "Evaluates multi-die 2.5D chiplet boundary wire-speed transit speedup."
+      },
+      "grade-capstone": {
+        name: "grade-capstone - automated 4-gate verification testbench",
+        synopsis: "grade-capstone",
+        desc: "Executes 4 formal verification gates across MoE throughput, CDG deadlock freedom, Trojan defense, and Nangate45 timing closure."
+      }
+    };
+
+    const doc = manPages[topic];
+    if (!doc) {
+      printLine("<span class='term-yellow'>No manual entry for " + escapeHtml(topic) + ". Try 'help' for summary.</span>");
+      return;
+    }
+    printLine("<span class='term-bold term-white'>NAME</span>");
+    printLine("    " + escapeHtml(doc.name) + "\n");
+    printLine("<span class='term-bold term-white'>SYNOPSIS</span>");
+    printLine("    " + escapeHtml(doc.synopsis) + "\n");
+    printLine("<span class='term-bold term-white'>DESCRIPTION</span>");
+    printLine("    " + escapeHtml(doc.desc) + "\n");
+    if (doc.controls) {
+      printLine("<span class='term-bold term-white'>CONTROLS</span>");
+      printLine("    " + escapeHtml(doc.controls) + "\n");
+    }
+  }
+
+  function runHelp(args) {
+    printLine("<span class='term-bold term-white'>=== Available NoC-Lab Terminal &amp; EDA Commands ===</span>");
+    printLine("<span class='term-cyan term-bold'>[EDA &amp; Silicon Verification]</span>");
+    printLine("  <span class='term-yellow'>run-sim</span>           Discrete-event cycle-accurate NoC simulation &amp; animation");
+    printLine("  <span class='term-yellow'>verify-deadlock</span>   Channel Dependency Graph (CDG) &amp; Tarjan SCC cycle check");
+    printLine("  <span class='term-yellow'>sta-timing</span>        Nangate45 Static Timing Analysis &amp; stage delay waterfall");
+    printLine("  <span class='term-yellow'>heatsense</span>         IEEE TCAD '26 online WMA thermal Trojan filter");
+    printLine("  <span class='term-yellow'>buffers-eval</span>      IEEE TCAD '26 router bypassing multi-die evaluator");
+    printLine("  <span class='term-yellow'>grade-capstone</span>    Execute 4-gate automated Capstone verification suite\n");
+
+    printLine("<span class='term-cyan term-bold'>[Pagers &amp; File Inspection]</span>");
+    printLine("  <span class='term-yellow'>more, less</span>        Page through file content interactively (Space/Enter/q)");
+    printLine("  <span class='term-yellow'>cat</span>               Concatenate and print file contents");
+    printLine("  <span class='term-yellow'>head, tail</span>        Display first or last N lines (-n <lines>)");
+    printLine("  <span class='term-yellow'>grep</span>              Search files or stream for matching regex/pattern");
+    printLine("  <span class='term-yellow'>wc</span>                Count lines (-l), words (-w), and characters (-c)");
+    printLine("  <span class='term-yellow'>diff</span>              Compare two files line by line (colored diff)\n");
+
+    printLine("<span class='term-cyan term-bold'>[File Tree &amp; VFS Management]</span>");
+    printLine("  <span class='term-yellow'>ls [-la]</span>          List directory contents with sizes and permissions");
+    printLine("  <span class='term-yellow'>tree</span>              Visual recursive ASCII directory hierarchy");
+    printLine("  <span class='term-yellow'>find</span>              Search for files matching name pattern (-name)");
+    printLine("  <span class='term-yellow'>cd, pwd</span>           Change and display current working directory");
+    printLine("  <span class='term-yellow'>touch, mkdir</span>      Create files and directories (-p for nested)");
+    printLine("  <span class='term-yellow'>cp, mv, rm</span>        Copy, move/rename, and remove files/directories\n");
+
+    printLine("<span class='term-cyan term-bold'>[System &amp; Environment Diagnostics]</span>");
+    printLine("  <span class='term-yellow'>file, stat</span>        Display file type classification and inode metadata");
+    printLine("  <span class='term-yellow'>top, htop</span>         Monitor active simulated EDA processes and memory");
+    printLine("  <span class='term-yellow'>df -h, free</span>       Show VFS disk partition capacity and memory status");
+    printLine("  <span class='term-yellow'>env, export</span>       Print or set shell environment variables");
+    printLine("  <span class='term-yellow'>alias, unalias</span>    Define and manage command aliases");
+    printLine("  <span class='term-yellow'>man &lt;command&gt;</span>     Display detailed UNIX manual documentation");
+    printLine("  <span class='term-yellow'>clear, history</span>    Clear screen buffer / view command history");
+    printLine("  <span class='term-yellow'>| (pipeline)</span>      Pipe output: e.g. 'cat file.sv | grep parameter | wc -l'\n");
+  }
+
+  function runLs(args, returnOutput) {
     let target = currentDir;
     let longFormat = false;
     for (let a of args) {
@@ -495,36 +1467,44 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
     const node = VFS[target];
     if (!node) {
       printLine("<span class='term-red'>ls: cannot access '" + escapeHtml(target) + "': No such file or directory</span>");
-      return;
+      return null;
     }
 
     if (node.type === "file") {
-      printLine(target);
-      return;
+      if (!returnOutput) printLine(escapeHtml(target));
+      return [target];
     }
 
+    let outLines = [];
     if (longFormat) {
-      printLine("<span class='term-dim'>total " + node.children.length * 4 + "</span>");
+      outLines.push("total " + (node.children.length * 4));
+      if (!returnOutput) printLine("<span class='term-dim'>total " + node.children.length * 4 + "</span>");
       for (let child of node.children) {
         let childPath = target === "/" ? "/" + child : target + "/" + child;
         let childNode = VFS[childPath];
         if (childNode && childNode.type === "dir") {
-          printLine("<span class='term-blue'>drwxr-xr-x</span>  2 noc noc  4096 Nov 07 14:00  <span class='term-blue term-bold'>" + child + "/</span>");
+          let line = "drwxr-xr-x  2 noc noc  4096 Nov 07 14:00  " + child + "/";
+          outLines.push(line);
+          if (!returnOutput) printLine("<span class='term-blue'>drwxr-xr-x</span>  2 noc noc  4096 Nov 07 14:00  <span class='term-blue term-bold'>" + child + "/</span>");
         } else {
           let size = childNode ? childNode.content.length : 1024;
-          printLine("<span class='term-dim'>-rw-r--r--</span>  1 noc noc  " + size.toString().padStart(5) + " Nov 07 14:00  <span class='term-white'>" + child + "</span>");
+          let line = "-rw-r--r--  1 noc noc  " + size.toString().padStart(5) + " Nov 07 14:00  " + child;
+          outLines.push(line);
+          if (!returnOutput) printLine("<span class='term-dim'>-rw-r--r--</span>  1 noc noc  " + size.toString().padStart(5) + " Nov 07 14:00  <span class='term-white'>" + child + "</span>");
         }
       }
     } else {
       let entries = node.children.map(c => {
-        let childPath = target === "/" ? "/" + childPath : target + "/" + c;
+        let childPath = target === "/" ? "/" + c : target + "/" + c;
         let childNode = VFS[childPath];
         return (childNode && childNode.type === "dir")
           ? "<span class='term-blue term-bold'>" + c + "/</span>"
           : "<span class='term-white'>" + c + "</span>";
       });
-      printLine(entries.join("    "));
+      outLines = node.children;
+      if (!returnOutput) printLine(entries.join("    "));
     }
+    return outLines;
   }
 
   function runCd(args) {
@@ -538,54 +1518,76 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
         printLine("<span class='term-red'>cd: " + escapeHtml(args[0]) + ": No such directory</span>");
       }
     }
-    const titleEl = document.getElementById("termPwdTitle");
-    if (titleEl) titleEl.innerText = currentDir;
-    const promptEl = document.getElementById("termPrompt");
-    if (promptEl) promptEl.innerText = "guest@noc-lab:" + (currentDir === "/workspace" ? "~" : currentDir) + "$ ";
+    updatePrompt();
+    return [currentDir];
   }
 
-  function runCat(args) {
-    if (!args[0]) {
+  function runCat(args, stdinLines, returnOutput) {
+    let target = args[0];
+    let lines = [];
+    if (stdinLines) {
+      lines = stdinLines;
+    } else if (target) {
+      let path = resolvePath(target);
+      let node = VFS[path];
+      if (!node) {
+        printLine("<span class='term-red'>cat: " + escapeHtml(target) + ": No such file or directory</span>");
+        return null;
+      }
+      if (node.type === "dir") {
+        printLine("<span class='term-red'>cat: " + escapeHtml(target) + ": Is a directory</span>");
+        return null;
+      }
+      lines = node.content.split("\n");
+    } else {
       printLine("<span class='term-red'>cat: missing file operand</span>");
-      return;
+      return null;
     }
-    let target = resolvePath(args[0]);
-    let node = VFS[target];
-    if (!node) {
-      printLine("<span class='term-red'>cat: " + escapeHtml(args[0]) + ": No such file or directory</span>");
-      return;
+
+    if (!returnOutput) {
+      lines.forEach(l => printLine(escapeHtml(l)));
     }
-    if (node.type === "dir") {
-      printLine("<span class='term-red'>cat: " + escapeHtml(args[0]) + ": Is a directory</span>");
-      return;
-    }
-    printLine(escapeHtml(node.content));
+    return lines;
   }
 
-  function runGrep(args) {
-    if (args.length < 2) {
-      printLine("<span class='term-red'>grep: usage: grep &lt;pattern&gt; &lt;file&gt;</span>");
-      return;
+  function runGrep(args, stdinLines, returnOutput) {
+    if (!args.length) {
+      printLine("<span class='term-red'>grep: usage: grep &lt;pattern&gt; [file]</span>");
+      return null;
     }
     let pattern = args[0];
-    let target = resolvePath(args[1]);
-    let node = VFS[target];
-    if (!node || node.type !== "file") {
-      printLine("<span class='term-red'>grep: " + escapeHtml(args[1]) + ": No such file</span>");
-      return;
+    let target = args[1];
+    let lines = [];
+    if (stdinLines) {
+      lines = stdinLines;
+    } else if (target) {
+      let path = resolvePath(target);
+      let node = VFS[path];
+      if (!node || node.type !== "file") {
+        printLine("<span class='term-red'>grep: " + escapeHtml(target) + ": No such file</span>");
+        return null;
+      }
+      lines = node.content.split("\n");
+    } else {
+      printLine("<span class='term-red'>grep: missing file or pipe operand</span>");
+      return null;
     }
-    let lines = node.content.split("\n");
-    let matches = 0;
+
+    let matchingLines = [];
     lines.forEach((line, idx) => {
       if (line.includes(pattern)) {
-        matches++;
-        let highlighted = line.split(pattern).join("<span class='term-red term-bold'>" + pattern + "</span>");
-        printLine("<span class='term-dim'>" + (idx + 1) + ":</span> " + highlighted);
+        matchingLines.push(line);
+        if (!returnOutput) {
+          let highlighted = line.split(pattern).join("<span class='term-red term-bold'>" + escapeHtml(pattern) + "</span>");
+          printLine("<span class='term-dim'>" + (idx + 1) + ":</span> " + highlighted);
+        }
       }
     });
-    if (matches === 0) {
+
+    if (matchingLines.length === 0 && !returnOutput) {
       printLine("<span class='term-dim'>[No matches found]</span>");
     }
+    return matchingLines;
   }
 
   // --- DISCRETE-EVENT SIMULATOR KERNEL ---
@@ -630,8 +1632,8 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
     let deliveredFlits = isSaturated ? Math.round(totalFlits * (satThreshold / inj)) : totalFlits;
     let throughput = (deliveredFlits / (numNodes * cycles));
 
-    printLine("<span class='term-dim'>[SIM-EXEC] Progress: [========================================] 100% (" + cycles + "/" + cycles + " cyc)</span>");
-    printLine("\n<span class='term-green term-bold'>═════════════════════ SIMULATION BENCHMARK REPORT ═════════════════════</span>");
+    printLine("<span class='term-dim'>[SIM-EXEC] Progress: [====================] 100% (" + cycles + "/" + cycles + " cyc)</span>");
+    printLine("\n<span class='term-green term-bold'>" + makeDivider("SIMULATION BENCHMARK REPORT", "═") + "</span>");
     printLine("  Network Nodes (Routers)        : " + numNodes);
     printLine("  Total Injected Flits           : " + totalFlits.toLocaleString());
     printLine("  Total Delivered Flits          : " + deliveredFlits.toLocaleString() + " (" + ((deliveredFlits / totalFlits) * 100).toFixed(1) + "%)");
@@ -641,7 +1643,7 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
     printLine("  Delivered Bisection Throughput : <span class='term-cyan term-bold'>" + throughput.toFixed(4) + " flits/node/cycle</span>");
     printLine("  Saturation Knee Threshold (Θsat): " + satThreshold.toFixed(3) + " flits/node/cycle");
     printLine("  Buffer Status                  : " + (isSaturated ? "<span class='term-red'>CONGESTION DETECTED (High Backpressure)</span>" : "<span class='term-green'>NOMINAL (Headroom Available)</span>"));
-    printLine("<span class='term-green term-bold'>═══════════════════════════════════════════════════════════════════════</span>\n");
+    printLine("<span class='term-green term-bold'>" + makeDivider("", "═") + "</span>\n");
 
     // Update Live Visualizer State
     vizState.topo = topo;
@@ -844,9 +1846,10 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
     let stages = stageDelays[mod] || stageDelays["canonical_router_5stage"];
     let critPath = 0;
     printLine("<span class='term-dim'>Pipeline Critical Path Delay Breakdown:</span>");
+    let padWidth = Math.max(20, Math.min(36, getTermCols() - 14));
     stages.forEach(([stg, dly]) => {
       critPath = Math.max(critPath, dly + 60);
-      printLine("  • " + stg.padEnd(40) + ": <span class='term-cyan'>" + dly + " ps</span>");
+      printLine("  • " + stg.padEnd(padWidth) + ": <span class='term-cyan'>" + dly + " ps</span>");
     });
 
     let targetPeriod = (1000 / targetClock);
@@ -941,9 +1944,9 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
 
   // --- CAPSTONE GRADING ---
   function runGradeCapstone() {
-    printLine("<span class='term-magenta term-bold'>╔═══════════════════════════════════════════════════════════════════════╗</span>");
-    printLine("<span class='term-magenta term-bold'>║  CAPSTONE VERIFICATION SUITE: Zero-Trust MoE Collective Accelerator   ║</span>");
-    printLine("<span class='term-magenta term-bold'>╚═══════════════════════════════════════════════════════════════════════╝</span>");
+    printLine("<span class='term-magenta term-bold'>" + makeDivider("CAPSTONE VERIFICATION SUITE", "═") + "</span>");
+    printLine("<span class='term-magenta term-bold'>  Zero-Trust MoE Collective Accelerator Verification</span>");
+    printLine("<span class='term-magenta term-bold'>" + makeDivider("", "═") + "</span>");
     printLine("<span class='term-dim'>Executing 4 Formal Verification Gates across RTL and Simulation Kernels...\n</span>");
 
     let gates = [
@@ -960,10 +1963,10 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
     });
 
     let hash = "SHA256: 8f9b4c2e17a30598" + Math.random().toString(16).substring(2, 10) + "d4e7f1";
-    printLine("\n<span class='term-green term-bold'>═══════════════════════════════════════════════════════════════════════</span>");
+    printLine("\n<span class='term-green term-bold'>" + makeDivider("FINAL VERIFICATION SCORE", "═") + "</span>");
     printLine("  FINAL SCORE: <span class='term-yellow term-bold'>100 / 100</span> • <span class='term-white'>STATUS: SILICON GRANDMASTER CERTIFIED</span>");
     printLine("  Verification Token: <span class='term-dim'>" + hash + "</span>");
-    printLine("<span class='term-green term-bold'>═══════════════════════════════════════════════════════════════════════</span>\n");
+    printLine("<span class='term-green term-bold'>" + makeDivider("", "═") + "</span>\n");
 
     updateHud();
     switchVizView("topology");
@@ -1326,10 +2329,33 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
     const input = document.getElementById("termInput");
     if (!input) return;
 
+    updatePrompt();
     printBanner();
     initVisualizer();
 
+    window.addEventListener("resize", function () {
+      updatePrompt();
+    });
+
     input.addEventListener("keydown", function (e) {
+      if (pagerState) {
+        if (e.key === " " || e.key === "PageDown") {
+          e.preventDefault();
+          window.pagerNextPage();
+          return;
+        }
+        if (e.key === "Enter") {
+          e.preventDefault();
+          window.pagerNextLine();
+          return;
+        }
+        if (e.key === "q" || e.key === "Q" || e.key === "Escape" || (e.ctrlKey && e.key === "c")) {
+          e.preventDefault();
+          window.pagerQuit();
+          return;
+        }
+      }
+
       if (e.key === "Enter") {
         executeCommand(input.value);
         input.value = "";
@@ -1362,7 +2388,13 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
     const val = input.value;
     const tokens = val.split(" ");
     const last = tokens[tokens.length - 1];
-    const commands = ["run-sim", "verify-deadlock", "sta-timing", "heatsense", "buffers-eval", "grade-capstone", "ls", "cd", "cat", "grep", "help", "clear", "pwd"];
+    const commands = [
+      "run-sim", "verify-deadlock", "sta-timing", "heatsense", "buffers-eval", "grade-capstone",
+      "more", "less", "head", "tail", "wc", "tree", "find", "touch", "mkdir", "rm", "cp", "mv",
+      "diff", "file", "stat", "top", "htop", "env", "printenv", "export", "df", "free",
+      "alias", "unalias", "man", "ls", "cd", "cat", "grep", "help", "clear", "pwd", "whoami",
+      "date", "uname", "echo", "history"
+    ];
     
     if (tokens.length === 1) {
       const match = commands.filter(c => c.startsWith(last));
