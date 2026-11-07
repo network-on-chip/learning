@@ -6,6 +6,7 @@
   </p>
   <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
     <a href="textbook/" class="noc-sim-btn" style="text-decoration: none; background: #2563eb;">📖 阅读官方教材 (全十二章)</a>
+    <a href="tracks/" class="noc-sim-btn" style="text-decoration: none; background: #7c3aed;">📚 系统化课程体系 (全13大模块)</a>
     <a href="../assets/book.pdf?v=266" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 下载教材 PDF (266页)</a>
     <a href="interactive/terminal/" class="noc-sim-btn" style="text-decoration: none; background: #059669;">💻 网页 EDA 终端</a>
     <a href="track1-interconnect-crisis/" class="noc-sim-btn secondary" style="text-decoration: none;">🚀 开始系统学习</a>
@@ -564,5 +565,5 @@ graph LR
 ```
 
 ### 准备好开始了吗？
-立即开启你的第一步：[第一模块：多核通信危机与物理线互连](track1-interconnect-crisis/index.md)，或者前往体验 [交互式二维路由仿真器](interactive/visualizer.md)！
+立即浏览 [全13大教学模块大纲](tracks/index.md)，开启 [第一模块：多核通信危机与物理线互连](track1-interconnect-crisis/index.md)，或前往体验 [网页 EDA Unix 仿真终端](interactive/terminal.md)！
 

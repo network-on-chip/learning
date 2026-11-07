@@ -2110,3 +2110,20 @@ canvas#nocCanvas {
 
 
 
+
+/* Ensure tab bar remains navigable and elegant on all viewport widths */
+.md-tabs__list {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.md-tabs__list::-webkit-scrollbar {
+  height: 4px !important;
+  display: block !important;
+}
+
+.md-tabs__list::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4) !important;
+  border-radius: 4px !important;
+}

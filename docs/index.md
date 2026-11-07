@@ -6,6 +6,7 @@
   </p>
   <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
     <a href="textbook/" class="noc-sim-btn" style="text-decoration: none; background: #2563eb;">📖 Read Official Textbook (12 Chaps)</a>
+    <a href="tracks/" class="noc-sim-btn" style="text-decoration: none; background: #7c3aed;">📚 All 13 Curriculum Tracks</a>
     <a href="assets/book.pdf?v=266" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 Download PDF (266 Pages)</a>
     <a href="interactive/terminal/" class="noc-sim-btn" style="text-decoration: none; background: #059669;">💻 Web EDA Terminal</a>
     <a href="track1-interconnect-crisis/" class="noc-sim-btn secondary" style="text-decoration: none;">🚀 Start Curriculum</a>
@@ -580,11 +581,11 @@ Every concept in this curriculum is paired with concrete, reproducible artifacts
 
 ```mermaid
 graph LR
-  A["Interconnect Theory<br/>& Architecture"] --> B["Curriculum Modules<br/>(Tracks 1–7)"]
+  A["Interconnect Theory<br/>& Architecture"] --> B["Curriculum Tracks<br/>(All 13 Tracks)"]
   B --> C["Interactive Browser Lab<br/>(Canvas Routing Simulator)"]
   B --> D["Hardware Implementations<br/>(projects/ in Verilog & Python)"]
   D --> E["Benchmarking & Silicon Data<br/>(Thermal, Latency, Energy)"]
 ```
 
 ### Ready to Start?
-Begin your journey with [Track 1: Interconnect Crisis & Wire Physics](track1-interconnect-crisis/index.md) or try out the [Interactive Simulator](interactive/visualizer.md)!
+Explore [All 13 Curriculum Tracks](tracks/index.md), dive directly into [Track 1: Interconnect Crisis & Wire Physics](track1-interconnect-crisis/index.md), or launch the [Web EDA Unix Terminal](interactive/terminal.md)!
