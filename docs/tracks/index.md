@@ -274,3 +274,4 @@ graph TD
 All 13 tracks are preloaded with SystemVerilog RTL modules and executable CLI simulation tools directly in your browser:
 
 👉 **[Launch Interactive Web EDA Unix Terminal &amp; Visualizer](../interactive/terminal/)**
+

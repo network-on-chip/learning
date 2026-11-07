@@ -658,34 +658,149 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
     spawnSimulationFlits(topo, isSaturated ? 30 : 12);
   }
 
-  // --- DEADLOCK VERIFIER ---
+  // --- DEADLOCK VERIFIER (CDG & TARJAN'S SCC ENGINE) ---
   function runDeadlockVerifier(args) {
     let topo = "mesh";
     let algo = "west-first";
+    let size = 4;
     for (let i = 0; i < args.length; i++) {
       if (args[i] === "--topo" && args[i + 1]) topo = args[++i];
       if (args[i] === "--algo" && args[i + 1]) algo = args[++i];
+      if (args[i] === "--size" && args[i + 1]) size = parseInt(args[++i], 10);
     }
 
-    printLine("<span class='term-cyan'>[SMT-VERIFY]</span> Building Channel Dependency Graph (CDG) for Topology: <span class='term-yellow'>" + topo + "</span>, Routing: <span class='term-yellow'>" + algo + "</span>...");
-    
-    if (algo === "full-adaptive") {
-      printLine("  [CDG] Full Minimal Adaptive without Escape Paths (All 8 turns permitted)...");
-      printLine("  <span class='term-red'>[SMT-ALERT] Cyclic Dependency Detected:</span>");
-      printLine("  <span class='term-red'>  Cycle: Channel(R0,North) -> Channel(R1,East) -> Channel(R5,South) -> Channel(R4,West) -> Channel(R0,North)</span>");
-      printLine("<span class='term-red term-bold'>[VIOLATION] SMT Check FAILED: Deadlock possible under saturation. Duato escape VCs required!</span>\n");
-      
+    printLine("<span class='term-cyan'>[SMT-VERIFY]</span> Building Channel Dependency Graph (CDG)...");
+    printLine("  Topology: <span class='term-yellow'>" + topo + " (" + size + "x" + size + ")</span> | Routing Algorithm: <span class='term-yellow'>" + algo + "</span>");
+
+    // 1. Construct physical directed channels
+    let channels = [];
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        let u = "R(" + x + "," + y + ")";
+        // East
+        if (x + 1 < size || topo === "torus") {
+          let nx = (x + 1) % size;
+          channels.push({ src: u, dst: "R(" + nx + "," + y + ")", dir: "E", id: u + "->R(" + nx + "," + y + ")" });
+        }
+        // West
+        if (x - 1 >= 0 || topo === "torus") {
+          let nx = (x - 1 + size) % size;
+          channels.push({ src: u, dst: "R(" + nx + "," + y + ")", dir: "W", id: u + "->R(" + nx + "," + y + ")" });
+        }
+        // South
+        if (y + 1 < size || topo === "torus") {
+          let ny = (y + 1) % size;
+          channels.push({ src: u, dst: "R(" + x + "," + ny + ")", dir: "S", id: u + "->R(" + x + "," + ny + ")" });
+        }
+        // North
+        if (y - 1 >= 0 || topo === "torus") {
+          let ny = (y - 1 + size) % size;
+          channels.push({ src: u, dst: "R(" + x + "," + ny + ")", dir: "N", id: u + "->R(" + x + "," + ny + ")" });
+        }
+      }
+    }
+
+    // 2. Evaluate turn model restrictions to build CDG adjacency list
+    function isTurnAllowed(dIn, dOut) {
+      if (algo === "full-adaptive") return true;
+      if (algo === "xy") {
+        // XY routing prohibits turns from Y (S, N) to X (E, W)
+        return !( (dIn === "S" || dIn === "N") && (dOut === "E" || dOut === "W") );
+      }
+      if (algo === "west-first") {
+        // West-first prohibits turning to West unless arriving from West
+        return !( dOut === "W" && dIn !== "W" );
+      }
+      if (algo === "north-last") {
+        // North-last prohibits turns from North to other directions
+        return !( dIn === "N" && dOut !== "N" );
+      }
+      if (algo === "negative-first") {
+        // Prohibits turning from positive (+X East, +Y South) to negative (-X West, -Y North)
+        return !( (dIn === "E" || dIn === "S") && (dOut === "W" || dOut === "N") );
+      }
+      return true;
+    }
+
+    let graph = {};
+    for (let c of channels) graph[c.id] = [];
+
+    let totalDependencies = 0;
+    for (let c1 of channels) {
+      for (let c2 of channels) {
+        if (c1.dst === c2.src && c2.dst !== c1.src) { // 180° turnaround forbidden in wormhole NoCs
+          if (isTurnAllowed(c1.dir, c2.dir)) {
+            graph[c1.id].push(c2.id);
+            totalDependencies++;
+          }
+        }
+      }
+    }
+
+    // 3. Execute Tarjan's Strongly Connected Components (SCC) Cycle Detector
+    let index = 0;
+    let indices = {};
+    let lowlink = {};
+    let onStack = {};
+    let stack = [];
+    let sccs = [];
+
+    function strongConnect(node) {
+      indices[node] = index;
+      lowlink[node] = index;
+      index++;
+      stack.push(node);
+      onStack[node] = true;
+
+      let neighbors = graph[node] || [];
+      for (let nbr of neighbors) {
+        if (indices[nbr] === undefined) {
+          strongConnect(nbr);
+          lowlink[node] = Math.min(lowlink[node], lowlink[nbr]);
+        } else if (onStack[nbr]) {
+          lowlink[node] = Math.min(lowlink[node], indices[nbr]);
+        }
+      }
+
+      if (lowlink[node] === indices[node]) {
+        let scc = [];
+        let w;
+        do {
+          w = stack.pop();
+          onStack[w] = false;
+          scc.push(w);
+        } while (w !== node);
+        sccs.push(scc);
+      }
+    }
+
+    for (let node of Object.keys(graph)) {
+      if (indices[node] === undefined) strongConnect(node);
+    }
+
+    let cycles = sccs.filter(s => s.length > 1);
+
+    printLine("  [CDG-STAT] Channels (Vertices): <span class='term-white'>" + channels.length + "</span> | Dependencies (Edges): <span class='term-white'>" + totalDependencies + "</span>");
+
+    if (cycles.length > 0) {
+      printLine("  <span class='term-red'>[SMT-ALERT] Cyclic Channel Dependency Detected! (Found " + cycles.length + " cyclic SCCs):</span>");
+      let sampleCycle = cycles[0];
+      let displayPath = sampleCycle.slice(0, 5).join(" &rarr; ");
+      if (sampleCycle.length > 5) displayPath += " &rarr; ... (" + sampleCycle.length + " hops)";
+      printLine("  <span class='term-red'>  Cycle Path: " + displayPath + " &rarr; " + sampleCycle[0] + "</span>");
+      printLine("<span class='term-red term-bold'>[VIOLATION] SMT Check FAILED: Deadlock possible under saturation! Escape VCs or turn restrictions required.</span>\n");
+
       vizState.deadlockCycle = true;
-      vizState.algo = "full-adaptive (Deadlock)";
+      vizState.algo = algo + " (" + topo + ": Deadlock Detected)";
       updateHud();
       switchVizView("topology");
     } else {
-      printLine("  [CDG] Turn Model (" + algo + "): Prohibits cyclic turns.");
-      printLine("  [SMT] Tarjan's SCC Check: Evaluated 144 directed channel pairs. 0 cycles detected.");
-      printLine("<span class='term-green term-bold'>[PROVED] Deadlock-Free: Turn restriction satisfies Duato's acyclic escape condition.</span>\n");
-      
+      printLine("  [SMT] Tarjan's SCC Check: Evaluated " + totalDependencies + " channel turn dependencies. 0 cycles detected.");
+      printLine("  [CDG] Channel Dependency Graph is mathematically a strict Directed Acyclic Graph (DAG).");
+      printLine("<span class='term-green term-bold'>[PROVED] Deadlock-Free: Routing turn restrictions satisfy Duato's acyclic condition.</span>\n");
+
       vizState.deadlockCycle = false;
-      vizState.algo = algo + " (Deadlock-Free)";
+      vizState.algo = algo + " (" + topo + ": Deadlock-Free)";
       updateHud();
       switchVizView("topology");
     }
@@ -786,21 +901,40 @@ The **Web EDA Unix Terminal** operates an in-memory Virtual File System (VFS) wi
 
   // --- BUFFERS EVALUATION ---
   function runBuffersEval(args) {
-    printLine("<span class='term-cyan'>[BUFFERS-TCAD26]</span> Evaluating Multi-Die Chiplet Router Bypassing...");
-    printLine("  Ground Truth: IEEE TCAD 2026 (BuffeRS: Router Bypassing in NoCs & Multichiplets)");
-    printLine("  Comparing 4-Hop Inter-Die Latency: Conventional Hop-by-Hop vs Buffer-Reserved Bypassing...\n");
+    let hops = 4;
+    let bypassSlots = 2;
+    let routerStages = 4;
+    let interDieCrossings = 1;
 
-    let baseline = 14;
-    let buffers = 8;
+    for (let i = 0; i < args.length; i++) {
+      if (args[i] === "--hops" && args[i + 1]) hops = parseInt(args[++i], 10);
+      if (args[i] === "--bypass-slots" && args[i + 1]) bypassSlots = parseInt(args[++i], 10);
+      if (args[i] === "--stages" && args[i + 1]) routerStages = parseInt(args[++i], 10);
+      if (args[i] === "--inter-die" && args[i + 1]) interDieCrossings = parseInt(args[++i], 10);
+    }
+
+    printLine("<span class='term-cyan'>[BUFFERS-TCAD26]</span> Evaluating Multi-Die Chiplet Router Bypassing...");
+    printLine("  Ground Truth: IEEE TCAD 2026 (BuffeRS: Router Bypassing in NoCs &amp; Multichiplets)");
+    printLine("  Parameters: <span class='term-yellow'>" + hops + " Hops</span>, <span class='term-yellow'>" + bypassSlots + " Bypass Slots</span>, <span class='term-yellow'>" + routerStages + "-Stage Routers</span>, <span class='term-yellow'>" + interDieCrossings + " D2D Crossings</span>...\n");
+
+    let wireLatencyPerHop = 1;
+    let d2dLatency = interDieCrossings * 2;
+    let baseline = (hops * routerStages) + (hops * wireLatencyPerHop) + d2dLatency;
+
+    // BuffeRS bypasses intermediate routers at 1 cycle wire-speed when slots are available
+    let bypassableRouters = Math.max(0, hops - 1);
+    let actuallyBypassed = Math.min(bypassableRouters, bypassSlots);
+    let nonBypassed = hops - actuallyBypassed;
+    let buffers = (nonBypassed * routerStages) + (actuallyBypassed * 1) + (hops * wireLatencyPerHop) + d2dLatency;
     let reduction = (((baseline - buffers) / baseline) * 100).toFixed(1);
 
     printLine("<span class='term-bold term-white'>Multi-Chiplet Latency Results:</span>");
-    printLine("  Baseline 4-Stage Store-and-Forward : " + baseline + " cycles");
-    printLine("  BuffeRS Router Bypassing           : <span class='term-green term-bold'>" + buffers + " cycles</span>");
+    printLine("  Baseline " + routerStages + "-Stage Store-and-Forward : " + baseline + " cycles");
+    printLine("  BuffeRS Router Bypassing           : <span class='term-green term-bold'>" + buffers + " cycles (" + actuallyBypassed + "/" + bypassableRouters + " intermediate routers bypassed)</span>");
     printLine("  Cross-Die Latency Reduction        : <span class='term-yellow term-bold'>" + reduction + "% Speedup (Near Wire-Speed)</span>\n");
 
     vizState.avgLatency = buffers;
-    vizState.throughput = 0.912;
+    vizState.throughput = Math.min(0.98, 0.72 + (actuallyBypassed * 0.08));
     updateHud();
     switchVizView("topology");
   }

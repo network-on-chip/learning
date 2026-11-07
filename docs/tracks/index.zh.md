@@ -274,3 +274,4 @@ graph TD
 全 13 大教学模块中配套的 SystemVerilog 硬件代码与测试激励，均可直接在网页内置的 Unix EDA 终端中一键编译与仿真验证：
 
 👉 **[启动网页 EDA Unix 终端与交互式仿真器](../interactive/terminal/)**
+

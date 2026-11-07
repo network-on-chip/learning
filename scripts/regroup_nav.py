@@ -80,3 +80,4 @@ with open('share/learning/mkdocs.yml', 'w', encoding='utf-8') as f:
     f.write(c_new)
 
 print("Updated mkdocs.yml navigation grouping successfully!")
+
