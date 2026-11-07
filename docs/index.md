@@ -7,6 +7,7 @@
   <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
     <a href="textbook/" class="noc-sim-btn" style="text-decoration: none; background: #2563eb;">📖 Read Official Textbook (12 Chaps)</a>
     <a href="assets/book.pdf?v=266" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 Download PDF (266 Pages)</a>
+    <a href="interactive/terminal/" class="noc-sim-btn" style="text-decoration: none; background: #059669;">💻 Web EDA Terminal</a>
     <a href="track1-fundamentals/" class="noc-sim-btn secondary" style="text-decoration: none;">🚀 Start Curriculum</a>
     <a href="quiz/" class="noc-sim-btn secondary" style="text-decoration: none;">🎯 Certification Quiz</a>
     <a href="interactive/game/" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 Deadlock Buster</a>
@@ -26,7 +27,7 @@
     <span class="noc-stat-label">Monograph Pages</span>
   </div>
   <div class="noc-stat-card">
-    <span class="noc-stat-number">19</span>
+    <span class="noc-stat-number">20</span>
     <span class="noc-stat-label">Interactive Labs &amp; Games</span>
   </div>
   <div class="noc-stat-card">

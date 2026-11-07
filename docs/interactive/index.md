@@ -1,13 +1,13 @@
 # 🎮 Interactive Labs & Arcade Simulator Hub
 
 <div class="noc-hero">
-  <div class="noc-track-badge">✨ 19 Hands-On Simulators, Mini-Games &amp; Architectural Toolkits</div>
+  <div class="noc-track-badge">✨ 20 Hands-On Simulators, Mini-Games &amp; Architectural Toolkits</div>
   <h1>Interactive NoC Laboratory &amp; Arcade</h1>
   <p class="subtitle">
-    Explore the inner workings of Network-on-Chip systems through 19 real-time, browser-native simulations and arcade challenges. Experience how packet collisions occur, dynamically balance thermal dissipation across silicon floorplans, defend against hardware Trojans, accelerate 100B+ LLM collective training, and design multi-die 2.5D/3D chiplet interconnects.
+    Explore the inner workings of Network-on-Chip systems through 20 real-time, browser-native simulations, Unix EDA terminals, and arcade challenges. Experience how packet collisions occur, dynamically balance thermal dissipation across silicon floorplans, defend against hardware Trojans, accelerate 100B+ LLM collective training, and design multi-die 2.5D/3D chiplet interconnects.
   </p>
   <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
-    <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">🔬 19 Interactive Simulators</span>
+    <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">🔬 20 Interactive Simulators</span>
     <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: rgba(16, 185, 129, 0.2);">⚡ 100% Client-Side Canvas &amp; Audio</span>
     <span class="noc-track-badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2);">💾 Synthesizable Verilog Mapped</span>
     <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">🏆 Local &amp; Global Leaderboard Linked</span>
@@ -17,7 +17,7 @@
 
 <div class="noc-stats-grid">
   <div class="noc-stat-card">
-    <span class="noc-stat-number">19</span>
+    <span class="noc-stat-number">20</span>
     <span class="noc-stat-label">Hands-On Labs &amp; Games</span>
   </div>
   <div class="noc-stat-card">
@@ -43,6 +43,15 @@ Every simulator below is paired with formal mathematical models, synthesizable S
 ### 1. Router Microarchitecture & Flow Control
 
 <div class="noc-tracks-grid">
+  <div class="noc-track-card" style="border: 1px solid rgba(59, 130, 246, 0.45); background: linear-gradient(135deg, rgba(30, 58, 138, 0.12), rgba(15, 23, 42, 0.25));">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.15); color: #3b82f6; border-color: rgba(37, 99, 235, 0.3);">💻 In-Browser Virtual Bash • All Chapters</span>
+      <h3>Web EDA Unix Terminal &amp; Workbench</h3>
+      <p>A full-fledged in-browser command-line environment for NoC architecture. Execute <code>run-sim</code> discrete-event sweeps, <code>verify-deadlock</code> SMT proofs, Nangate45 <code>sta-timing</code> closure, and TCAD '26 HeatSense &amp; BuffeRS benchmarks.</p>
+    </div>
+    <a href="terminal/" class="noc-track-link" style="color: #60a5fa; font-weight: 700;">Launch Web EDA Terminal →</a>
+  </div>
+
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">Physical Interconnect • Chapter 1</span>

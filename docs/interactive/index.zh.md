@@ -1,13 +1,13 @@
 # 🎮 交互式实验与街机仿真中心
 
 <div class="noc-hero">
-  <div class="noc-track-badge">✨ 19 款纯浏览器端微架构仿真器、迷你挑战与架构工具箱</div>
+  <div class="noc-track-badge">✨ 20 款纯浏览器端微架构仿真器、迷你挑战与架构工具箱</div>
   <h1>片上网络交互式实验与街机挑战中心</h1>
   <p class="subtitle">
-    通过 19 款即开即用的实时浏览器仿真实验与街机挑战，深入探索片上网络（NoC）的核心运转机制。实时观察数据包碰撞、动态平衡芯片热分布、拦截硬件木马与侧信道攻击、加速千亿级大模型集体通信，并亲手设计先进 2.5D/3D 芯粒互连网络。
+    通过 20 款即开即用的实时浏览器仿真实验、网页 EDA 终端与街机挑战，深入探索片上网络（NoC）的核心运转机制。实时观察数据包碰撞、动态平衡芯片热分布、拦截硬件木马与侧信道攻击、加速千亿级大模型集体通信，并亲手设计先进 2.5D/3D 芯粒互连网络。
   </p>
   <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
-    <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">🔬 19 款交互式仿真器</span>
+    <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">🔬 20 款交互式仿真器</span>
     <span class="noc-track-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: rgba(16, 185, 129, 0.2);">⚡ 100% 纯前端 Canvas 与音效</span>
     <span class="noc-track-badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2);">💾 对应可综合 Verilog RTL</span>
     <span class="noc-track-badge" style="background: rgba(234, 88, 12, 0.1); color: #ea580c; border-color: rgba(234, 88, 12, 0.2);">🏆 本地与云端排行榜同步</span>
@@ -17,7 +17,7 @@
 
 <div class="noc-stats-grid">
   <div class="noc-stat-card">
-    <span class="noc-stat-number">19</span>
+    <span class="noc-stat-number">20</span>
     <span class="noc-stat-label">交互式实验与挑战</span>
   </div>
   <div class="noc-stat-card">
@@ -43,6 +43,15 @@
 ### 1. 路由器微架构与流控机制
 
 <div class="noc-tracks-grid">
+  <div class="noc-track-card" style="border: 1px solid rgba(59, 130, 246, 0.45); background: linear-gradient(135deg, rgba(30, 58, 138, 0.12), rgba(15, 23, 42, 0.25));">
+    <div>
+      <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.15); color: #3b82f6; border-color: rgba(37, 99, 235, 0.3);">💻 网页虚拟 Bash 终端 • 覆盖全书各章</span>
+      <h3>网页 EDA 终端与仿真验证工作台</h3>
+      <p>面向片上网络体系结构研究的纯浏览器端命令行实验环境。直接运行 <code>run-sim</code> 离散事件仿真扫描、<code>verify-deadlock</code> 形式化 SMT 证明、Nangate45 <code>sta-timing</code> 静态时序分析，以及 TCAD '26 HeatSense 与 BuffeRS 复现基准测试。</p>
+    </div>
+    <a href="terminal/" class="noc-track-link" style="color: #60a5fa; font-weight: 700;">启动网页 EDA 终端 →</a>
+  </div>
+
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-color: rgba(37, 99, 235, 0.2);">物理互连 • 第1章</span>

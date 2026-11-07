@@ -57,6 +57,7 @@ plugins:
           nav_translations:
             "Home": "首页"
             "Interactive Lab": "交互式实验"
+            "Web EDA Unix Terminal": "网页 EDA 终端与仿真验证"
             "2D Mesh Routing Visualizer": "二维网格路由仿真"
             "Wire Wizard: Interconnect Physics": "导线向导：物理互连与RC延迟仿真"
             "Deadlock Buster Arcade Game": "死锁大作战游戏"
@@ -177,6 +178,7 @@ nav:
           - "Chapter 12: Domain-Specific NoCs for LLMs, Transformers & SNNs": textbook/ch12-ai-llm-snn/index.md
   - "Interactive Lab":
       - Overview: interactive/index.md
+      - "Web EDA Unix Terminal": interactive/terminal.md
       - "Wire Wizard: Interconnect Physics": interactive/wire.md
       - "Deadlock Buster Arcade Game": interactive/game.md
       - "Packet Master: Routing Puzzle": interactive/puzzle.md

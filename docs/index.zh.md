@@ -7,6 +7,7 @@
   <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
     <a href="textbook/" class="noc-sim-btn" style="text-decoration: none; background: #2563eb;">📖 阅读官方教材 (全十二章)</a>
     <a href="../assets/book.pdf?v=266" target="_blank" class="noc-sim-btn" style="text-decoration: none; background: #0284c7;">📥 下载教材 PDF (266页)</a>
+    <a href="interactive/terminal/" class="noc-sim-btn" style="text-decoration: none; background: #059669;">💻 网页 EDA 终端</a>
     <a href="track1-fundamentals/" class="noc-sim-btn secondary" style="text-decoration: none;">🚀 开始系统学习</a>
     <a href="quiz/" class="noc-sim-btn secondary" style="text-decoration: none;">🎯 架构认证考核</a>
     <a href="interactive/game/" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 死锁大作战</a>
@@ -25,7 +26,7 @@
     <span class="noc-stat-label">教材出版总页数</span>
   </div>
   <div class="noc-stat-card">
-    <span class="noc-stat-number">19</span>
+    <span class="noc-stat-number">20</span>
     <span class="noc-stat-label">交互式实验与游戏</span>
   </div>
   <div class="noc-stat-card">
