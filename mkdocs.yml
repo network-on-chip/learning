@@ -289,5 +289,5 @@ nav:
       - "Neuromorphic SNN Multicast & AER Router": interactive/neuromorphic.md
       - "2D Mesh Routing Visualizer": interactive/visualizer.md
   - "Certification & Quiz": quiz.md
-  - "Public Leaderboard": leaderboard.md
+  - "Architecture Benchmark Registry": leaderboard.md
   - "Architecture Glossary": glossary.md

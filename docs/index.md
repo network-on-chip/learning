@@ -11,7 +11,7 @@
     <a href="interactive/terminal/" class="noc-sim-btn" style="text-decoration: none; background: #059669;">💻 Web EDA Terminal</a>
     <a href="track1-interconnect-crisis/" class="noc-sim-btn secondary" style="text-decoration: none;">🚀 Start Curriculum</a>
     <a href="quiz/" class="noc-sim-btn secondary" style="text-decoration: none;">🎯 Certification Quiz</a>
-    <a href="interactive/game/" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 Deadlock Buster</a>
+    <a href="interactive/game/" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">🔒 Deadlock Verifier</a>
     <a href="interactive/visualizer/" class="noc-sim-btn secondary" style="text-decoration: none;">🎮 2D Mesh Simulator</a>
     <a href="leaderboard/" class="noc-sim-btn secondary" style="text-decoration: none;">🏆 Leaderboard</a>
     <a href="glossary/" class="noc-sim-btn secondary" style="text-decoration: none;">📖 Glossary</a>
@@ -267,7 +267,7 @@ Explore our structured learning pathways designed for undergraduate and graduate
         Deterministic Dimension-Order Routing (DOR), Glass &amp; Ni's Turn Model, Chiu's Odd-Even algorithm, Duato's Escape Channels, CDG acyclic proofs, and VNET isolation.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Lessons • SMT CDG Verifier • Deadlock Buster Arcade Game
+        ⚡ 4 Lessons • SMT CDG Verifier • Deadlock Verification & CDG Escape Engine
       </div>
     </div>
     <a href="track5-routing-deadlock/" class="noc-track-link">Explore Track 5 →</a>
@@ -295,7 +295,7 @@ Explore our structured learning pathways designed for undergraduate and graduate
         Fourier heat diffusion, compact RC ladder models, Regional Congestion Awareness (RCA), source quenching, proactive ML hotspot forecasting, and sparse sensor reconstruction.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Lessons • Thermal Deflection RTL • Hotspot Hero &amp; Fault Defender
+        ⚡ 4 Lessons • Thermal Deflection RTL • Silicon Thermal & Resilient Fault Routing CAD
       </div>
     </div>
     <a href="track7-thermal-fault-tolerance/" class="noc-track-link">Explore Track 7 →</a>
@@ -323,7 +323,7 @@ Explore our structured learning pathways designed for undergraduate and graduate
         2.5D packaging economics, negative binomial yield, UCIe standard physical &amp; D2D adapter stacks, In/Outbound Swap deadlock recovery, and multi-chiplet bypassing.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Lessons • In/Outbound Swap RTL • Chiplet Tycoon Lab
+        ⚡ 4 Lessons • In/Outbound Swap RTL • 2.5D/3D Multi-Die Chiplet CAD
       </div>
     </div>
     <a href="track9-chiplets-ucie/" class="noc-track-link">Explore Track 9 →</a>
@@ -387,90 +387,90 @@ Explore our structured learning pathways designed for undergraduate and graduate
 
   <div class="noc-track-card">
     <div>
-      <span class="noc-track-badge" style="background:rgba(234, 88, 12, 0.1); color:#ea580c; border-color:rgba(234, 88, 12, 0.2);">Arcade Game</span>
-      <div class="noc-track-title">Deadlock Buster Challenge</div>
+      <span class="noc-track-badge" style="background:rgba(234, 88, 12, 0.1); color:#ea580c; border-color:rgba(234, 88, 12, 0.2);">Deadlock Verification</span>
+      <div class="noc-track-title">Deadlock Verification &amp; CDG Escape Engine</div>
       <div class="noc-track-desc">
-        Act as the router arbiter under heavy traffic bursts. Flush escape channels using Duato's Theorem and prevent buffer lockups before time expires!
+        Construct Channel Dependency Graphs (CDG) and compute Tarjan Strongly Connected Components (SCC) to detect circular wait deadlocks and verify Duato escape channels.
       </div>
     </div>
-    <a href="interactive/game/" class="noc-track-link">Play Deadlock Buster →</a>
+    <a href="interactive/game/" class="noc-track-link">Launch Deadlock Engine →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
-      <span class="noc-track-badge" style="background:rgba(139, 92, 246, 0.1); color:#8b5cf6; border-color:rgba(139, 92, 246, 0.2);">Architect Puzzle</span>
-      <div class="noc-track-title">Packet Master Puzzle</div>
+      <span class="noc-track-badge" style="background:rgba(139, 92, 246, 0.1); color:#8b5cf6; border-color:rgba(139, 92, 246, 0.2);">Turn-Model Optimizer</span>
+      <div class="noc-track-title">Turn-Model Routing Restrictions &amp; Path Optimizer</div>
       <div class="noc-track-desc">
-        Configure turning preferences, resolve crossbar collisions, and route around faulty cores to solve 5 increasingly difficult routing puzzle levels!
+        Explore Glass &amp; Ni turn models (West-First, North-Last, Negative-First) and Chiu Odd-Even column-parity restrictions. Evaluate legal routing cones and defect detours.
       </div>
     </div>
-    <a href="interactive/puzzle/" class="noc-track-link">Play Packet Master →</a>
+    <a href="interactive/puzzle/" class="noc-track-link">Launch Turn-Model Optimizer →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
-      <span class="noc-track-badge" style="background:rgba(239, 68, 68, 0.1); color:#ef4444; border-color:rgba(239, 68, 68, 0.2);">Thermal Defense</span>
-      <div class="noc-track-title">Hotspot Hero Arcade</div>
+      <span class="noc-track-badge" style="background:rgba(239, 68, 68, 0.1); color:#ef4444; border-color:rgba(239, 68, 68, 0.2);">Thermal Physics</span>
+      <div class="noc-track-title">Silicon Thermal &amp; DTM Finite-Difference Solver</div>
       <div class="noc-track-desc">
-        Control Dynamic Voltage &amp; Frequency Scaling (DVFS), migrate boiling workloads, and deploy microfluidic cryo pulses to prevent thermal runaway meltdown!
+        Model 2D transient Fourier heat diffusion coupled with exponential leakage runaway. Deploy closed-loop PI-DVFS and TAAR thermal-aware routing.
       </div>
     </div>
-    <a href="interactive/hotspot/" class="noc-track-link">Play Hotspot Hero →</a>
+    <a href="interactive/hotspot/" class="noc-track-link">Launch Thermal Solver →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
-      <span class="noc-track-badge" style="background:rgba(16, 185, 129, 0.1); color:#10b981; border-color:rgba(16, 185, 129, 0.2);">Packaging Tycoon</span>
-      <div class="noc-track-title">Chiplet Tycoon Architect</div>
+      <span class="noc-track-badge" style="background:rgba(16, 185, 129, 0.1); color:#10b981; border-color:rgba(16, 185, 129, 0.2);">Packaging Architecture</span>
+      <div class="noc-track-title">2.5D/3D Multi-Die Chiplet CAD &amp; Yield Optimizer</div>
       <div class="noc-track-desc">
-        Construct modular multi-die Superchips on silicon interposers with UCIe and 3D TSVs. Balance bisection bandwidth, latency, yield economics, and packaging costs!
+        Model Murphy defect wafer yield, evaluate UCIe D2D physical latency and shoreline bandwidth density, and solve multi-die thermal coupling.
       </div>
     </div>
-    <a href="interactive/chiplet/" class="noc-track-link">Play Chiplet Tycoon →</a>
+    <a href="interactive/chiplet/" class="noc-track-link">Launch Chiplet Optimizer →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
-      <span class="noc-track-badge" style="background:rgba(234, 88, 12, 0.1); color:#ea580c; border-color:rgba(234, 88, 12, 0.2);">Microarchitecture Clash</span>
-      <div class="noc-track-title">Arbiter Arena Clash</div>
+      <span class="noc-track-badge" style="background:rgba(234, 88, 12, 0.1); color:#ea580c; border-color:rgba(234, 88, 12, 0.2);">Microarchitecture</span>
+      <div class="noc-track-title">Switch Allocation &amp; Crossbar Arbiter Simulator</div>
       <div class="noc-track-desc">
-        Arbitrate a 5×5 crossbar switch in real time! Bypass Head-of-Line (HOL) blocking using Virtual Channels and deploy iSLIP scheduling before FIFOs overflow.
+        Arbitrate competing packet requests across 5x5 crossbar switches. Compare Strict Priority, Round-Robin, Matrix Arbiter, and McKeown iSLIP scheduling.
       </div>
     </div>
-    <a href="interactive/arbiter/" class="noc-track-link">Play Arbiter Arena →</a>
+    <a href="interactive/arbiter/" class="noc-track-link">Launch Arbiter Simulator →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
-      <span class="noc-track-badge" style="background:rgba(59, 130, 246, 0.1); color:#3b82f6; border-color:rgba(59, 130, 246, 0.2);">Graph Architect</span>
-      <div class="noc-track-title">Topology Titans Exascale</div>
+      <span class="noc-track-badge" style="background:rgba(59, 130, 246, 0.1); color:#3b82f6; border-color:rgba(59, 130, 246, 0.2);">Graph Theory</span>
+      <div class="noc-track-title">Interconnect Topology CAD &amp; Spectral Graph Analyzer</div>
       <div class="noc-track-desc">
-        Wire exascale supercomputing topologies (Hypercube, Torus, Dragonfly, Fat-Tree). Minimize diameter and hop latency under physical radix and wire cost budgets!
+        Compute Graph Laplacian eigenvalues, evaluate algebraic connectivity (Fiedler lambda_2), bisection bandwidth, and diameter across 2D Torus, Hypercubes, and Dragonfly.
       </div>
     </div>
-    <a href="interactive/topology/" class="noc-track-link">Play Topology Titans →</a>
+    <a href="interactive/topology/" class="noc-track-link">Launch Topology CAD →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
-      <span class="noc-track-badge" style="background:rgba(236, 72, 153, 0.1); color:#ec4899; border-color:rgba(236, 72, 153, 0.2);">Silicon Photonics</span>
-      <div class="noc-track-title">Photon Pilot Optical Grid</div>
+      <span class="noc-track-badge" style="background:rgba(236, 72, 153, 0.1); color:#ec4899; border-color:rgba(236, 72, 153, 0.2);">Nanophotonics</span>
+      <div class="noc-track-title">Silicon Photonic &amp; Optical NoC (ONoC) Waveguide CAD</div>
       <div class="noc-track-desc">
-        Steer multi-wavelength laser beams ($\lambda_1 \dots \lambda_4$) through silicon waveguides! Tune micro-ring resonators, manage WDM, and counter thermal drift.
+        Model Lorentzian micro-ring resonator spectra, thermo-optic wavelength drift, micro-heater closed-loop tuning, optical insertion loss waterfall, and link BER.
       </div>
     </div>
-    <a href="interactive/optical/" class="noc-track-link">Play Photon Pilot →</a>
+    <a href="interactive/optical/" class="noc-track-link">Launch Optical CAD →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
-      <span class="noc-track-badge" style="background:rgba(16, 185, 129, 0.1); color:#10b981; border-color:rgba(16, 185, 129, 0.2);">Flow Control Defense</span>
-      <div class="noc-track-title">Credit Commander Link</div>
+      <span class="noc-track-badge" style="background:rgba(16, 185, 129, 0.1); color:#10b981; border-color:rgba(16, 185, 129, 0.2);">Flow Control</span>
+      <div class="noc-track-title">Credit-Based Flow Control &amp; Buffer Sizing CAD</div>
       <div class="noc-track-desc">
-        Govern link-level flow control across flight delays ($RTT=5$ cycles)! Track credit counters, batch credit returns, and defend against buffer overflow.
+        Simulate credit loop round-trip latency (B_min = ceil(RTT * BW)), space-time timing ladder progression, and credit bubble elimination.
       </div>
     </div>
-    <a href="interactive/credits/" class="noc-track-link">Play Credit Commander →</a>
+    <a href="interactive/credits/" class="noc-track-link">Launch Credit CAD →</a>
   </div>
 
   <div class="noc-track-card">
