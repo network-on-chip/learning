@@ -1,971 +1,716 @@
-# 🎮 Deadlock Buster: The NoC Buffer Defense Game
+# 🔒 Deadlock Verification & CDG Escape Channel Transition Engine
 
-Welcome to **Deadlock Buster**, an interactive computer architecture arcade game where you serve as the chip's Router Arbiter. Keep the silicon alive by preventing circular buffer deadlocks and thermal queue meltdowns as traffic waves intensify! High scores can be directly inscribed on the **Community Leaderboard**.
+An engineering-grade computer architecture simulation workbench for modeling, verifying, and eliminating routing deadlocks in multi-core and accelerator networks. Inspect Channel Dependency Graphs (CDG), compute Strongly Connected Components (SCC) to detect circular buffer dependencies, evaluate Dally & Seitz and Duato deadlock-freedom theorems, and synthesize escape virtual channel recovery logic in real time.
+
+---
+
+## 1. Theoretical Foundations & Deadlock Theorems
+
+Routing deadlocks occur when a set of packets indefinitely hold communication buffers while waiting for buffers held by other packets in the same set, creating an unresolvable circular wait condition:
+
+```
+[Packet 1 in Channel C0] ---> waiting for ---> [Channel C1]
+           ^                                         |
+           |                                         v
+     [Channel C3] <--- waiting for <--- [Packet 2 in Channel C2]
+```
+
+### 1.1 Channel Dependency Graph (Dally & Seitz, 1987)
+Let $C = \{c_1, c_2, \dots, c_P\}$ denote the set of physical and virtual channels in the network. A routing algorithm $R: C \times V \to \mathcal{P}(C)$ defines candidate output channels given current channel and packet destination. The **Channel Dependency Graph (CDG)** $D = (C, E_{dep})$ is a directed graph where directed edge $(c_i, c_j) \in E_{dep}$ exists if and only if a packet holding channel $c_i$ can immediately request acquisition of channel $c_j$:
+$$\exists d \in V \quad \text{such that } c_j \in R(c_i, d)$$
+
+> **Dally & Seitz Theorem**: A deterministic routing algorithm $R$ is deadlock-free for an interconnect topology if and only if its Channel Dependency Graph $D$ contains **no directed cycles** (i.e., $D$ is a Directed Acyclic Graph, DAG).
+
+### 1.2 Duato's Necessary and Sufficient Condition for Adaptive Routing (1993, 1996)
+Restricting all channels to an acyclic CDG limits path diversity and reduces network throughput. Duato proved that adaptive routing can permit cyclic channel dependencies in a primary channel set $C_1$ provided an acyclic escape subnetwork $C_{esc}$ is maintained:
+
+> **Duato's Theorem**: An adaptive routing algorithm $R$ is deadlock-free if and only if there exists a routing sub-function $R_{esc} \subseteq R$ defined over a connected subnetwork of escape channels $C_{esc} \subseteq C$ such that:
+> 1. The Channel Dependency Graph of the escape subnetwork $D_{esc} = (C_{esc}, E_{esc})$ is strictly **acyclic**.
+> 2. Packets in any adaptive channel $C \setminus C_{esc}$ can always transition into the escape subnetwork $C_{esc}$ when blocked.
+> 3. Once a packet enters an escape channel $C_{esc}$, it remains within $C_{esc}$ until it reaches its destination (or transitions out only when destination buffers are guaranteed available), preventing escape channels from closing circular dependency loops.
+
+---
+
+## 2. Interactive CDG Verification & Escape Channel Workbench
 
 <div class="noc-sim-container">
   <div class="noc-sim-controls" style="display:flex; flex-wrap:wrap; gap:0.75rem; align-items:center;">
-    <button id="gameStartBtn" class="noc-sim-btn" onclick="startDeadlockGame()">▶ Start Game</button>
-    <button id="escapeFlushBtn" class="noc-sim-btn" onclick="activateEscapeChannel()" style="background:#ea580c; border:none; box-shadow:0 0 12px rgba(234,88,12,0.4);">⚡ Flush Escape Channel (Space)</button>
-    
+    <button id="simRunBtn" class="noc-sim-btn" onclick="toggleDeadlockSim()">▶ Run Clock</button>
+    <button class="noc-sim-btn secondary" onclick="stepDeadlockClock()">⏭ Single Step</button>
+    <button class="noc-sim-btn secondary" onclick="resetDeadlockSim()">🔄 Reset Mesh</button>
+    <button class="noc-sim-btn" onclick="triggerDuatoEscape()" style="background:#0284c7; border:none;">⚡ Drain via Duato Escape VC</button>
+
     <label><b>Routing Policy:</b>
-      <select id="gamePolicy" class="noc-sim-select" onchange="setGamePolicy(this.value)">
-        <option value="adaptive">Unrestricted Adaptive (High Bandwidth / Deadlock Risk!)</option>
-        <option value="west-first">West-First Turn Model (Deadlock-Free / Asymmetric Congestion)</option>
-        <option value="xy">Strict XY Routing (Acyclic CDG / Queue Overflow Risk)</option>
+      <select id="simPolicySelect" class="noc-sim-select" onchange="setRoutingPolicy(this.value)">
+        <option value="adaptive">Unrestricted Fully Adaptive (Prone to Circular Wait)</option>
+        <option value="xy">Strict Dimension-Order XY (Acyclic CDG, Zero Deadlocks)</option>
+        <option value="duato">Duato's Adaptive + Escape VC (High Perf + Deadlock-Free)</option>
       </select>
     </label>
 
-    <button id="soundToggleBtn" class="noc-sim-btn secondary" onclick="toggleGameSound()" title="Toggle Web Audio Sound">🔊 Sound: ON</button>
-    <button class="noc-sim-btn secondary" onclick="togglePauseGame()">⏸ Pause</button>
+    <label><b>Traffic Workload:</b>
+      <select id="simTrafficSelect" class="noc-sim-select" onchange="changeTrafficWorkload(this.value)">
+        <option value="adversarial_ring">Adversarial Ring Traffic (Induces Circular Deadlock)</option>
+        <option value="uniform">Uniform Random Traffic</option>
+        <option value="bit_complement">Bit-Complement Traffic</option>
+        <option value="transpose">Transpose Traffic</option>
+      </select>
+    </label>
 
-    <div style="margin-left:auto; display:flex; gap:1.2rem; align-items:center; font-weight:700; font-family:'JetBrains Mono', monospace; font-size:0.9rem;">
-      <span style="color:var(--tcl-blue-600);">Score: <span id="gameScore">0</span></span>
-      <span style="color:#ef4444;">Deadlocks: <span id="gameDeadlocks">0</span></span>
-      <span style="color:#22c55e;">Wave: <span id="gameWave">1</span></span>
-      <span style="color:#f59e0b;" id="comboBadge">Combo: 1x</span>
+    <label><b>Injection Rate (λ):</b>
+      <input type="range" id="simInjRate" min="0.1" max="0.9" step="0.05" value="0.45" oninput="updateInjRateDisplay(this.value)" style="vertical-align:middle; width:90px;">
+      <span id="injRateVal" style="font-family:'JetBrains Mono', monospace; font-size:0.8rem; color:#38bdf8;">0.45</span>
+    </label>
+
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; width:100%; margin-top:0.25rem;">
+      <button class="noc-sim-btn secondary" onclick="exportSmtFormula()">📐 Export SMT-LIB2 Assertion</button>
+      <button class="noc-sim-btn secondary" onclick="exportDuatoVerilog()">📋 Export Verilog Arbiter</button>
+    </div>
+
+    <!-- Live Engineering HUD -->
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap:0.6rem; width:100%; margin-top:0.5rem; font-family:'JetBrains Mono', monospace; font-size:0.82rem;">
+      <div style="background:var(--tcl-surface); padding:0.4rem 0.6rem; border-radius:6px; border:1px solid var(--tcl-border);">
+        <span style="color:#64748b; display:block; font-size:0.75rem;">Network State</span>
+        <strong id="hudNetState" style="color:#22c55e; font-size:0.95rem;">NORMAL</strong>
+      </div>
+      <div style="background:var(--tcl-surface); padding:0.4rem 0.6rem; border-radius:6px; border:1px solid var(--tcl-border);">
+        <span style="color:#64748b; display:block; font-size:0.75rem;">CDG Elementary Cycles</span>
+        <strong id="hudCdgCycles" style="color:#22c55e; font-size:0.95rem;">0 Cycles</strong>
+      </div>
+      <div style="background:var(--tcl-surface); padding:0.4rem 0.6rem; border-radius:6px; border:1px solid var(--tcl-border);">
+        <span style="color:#64748b; display:block; font-size:0.75rem;">Average Latency</span>
+        <strong id="hudAvgLatency" style="color:#38bdf8; font-size:0.95rem;">4.2 cycles</strong>
+      </div>
+      <div style="background:var(--tcl-surface); padding:0.4rem 0.6rem; border-radius:6px; border:1px solid var(--tcl-border);">
+        <span style="color:#64748b; display:block; font-size:0.75rem;">Throughput (flits/cyc)</span>
+        <strong id="hudThroughput" style="color:#f59e0b; font-size:0.95rem;">0.000</strong>
+      </div>
+      <div style="background:var(--tcl-surface); padding:0.4rem 0.6rem; border-radius:6px; border:1px solid var(--tcl-border);">
+        <span style="color:#64748b; display:block; font-size:0.75rem;">Escape VC Drain</span>
+        <strong id="hudEscapeDrain" style="color:#a855f7; font-size:0.95rem;">0 flits</strong>
+      </div>
+      <div style="background:var(--tcl-surface); padding:0.4rem 0.6rem; border-radius:6px; border:1px solid var(--tcl-border);">
+        <span style="color:#64748b; display:block; font-size:0.75rem;">Simulation Cycle</span>
+        <strong id="hudSimCycle" style="color:#e2e8f0; font-size:0.95rem;">0</strong>
+      </div>
     </div>
   </div>
 
-  <!-- Escape Energy & Thermal Status HUD -->
-  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:0.75rem; font-family:'JetBrains Mono', monospace; font-size:0.8rem;">
-    <div style="background:var(--tcl-surface); padding:0.5rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
-      <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-        <span style="font-weight:700; color:#38bdf8;">⚡ Escape VC Energy (Space):</span>
-        <span id="escapeEnergyText" style="font-weight:700; color:#38bdf8;">100%</span>
-      </div>
-      <div style="width:100%; height:8px; background:rgba(56,189,248,0.15); border-radius:4px; overflow:hidden;">
-        <div id="escapeEnergyBar" style="width:100%; height:100%; background:linear-gradient(90deg, #0284c7, #38bdf8); transition:width 0.15s ease;"></div>
-      </div>
-    </div>
-
-    <div style="background:var(--tcl-surface); padding:0.5rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
-      <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-        <span style="font-weight:700; color:#f87171;">🔥 Chip Buffer Thermal Load:</span>
-        <span id="chipTempText" style="font-weight:700; color:#4ade80;">45°C (Nominal)</span>
-      </div>
-      <div style="width:100%; height:8px; background:rgba(239,68,68,0.15); border-radius:4px; overflow:hidden;">
-        <div id="chipTempBar" style="width:25%; height:100%; background:#22c55e; transition:width 0.2s ease, background 0.2s ease;"></div>
-      </div>
-    </div>
+  <div style="margin:0.75rem 0; padding:0.65rem 0.95rem; background:var(--tcl-surface); border:1px solid var(--tcl-border); border-radius:8px; font-size:0.83rem; line-height:1.6; color:#94a3b8;">
+    <strong style="color:#f8fafc;">CDG Live Monitor:</strong>
+    Under <span style="color:#ef4444; font-weight:600;">Unrestricted Adaptive</span> routing, bursty or circular traffic forms cyclic channel dependencies shown as <span style="color:#ef4444; font-weight:700;">pulsing RED loops</span>. Switch to <span style="color:#38bdf8; font-weight:600;">Duato's Escape VC</span> or trigger <strong>⚡ Drain via Duato Escape VC</strong> to observe how packets transition into the acyclic XY escape channel ($VC_1$), dissolving the circular knot!
   </div>
 
   <div class="noc-sim-canvas-wrap" style="position:relative;">
-    <canvas id="gameCanvas" width="620" height="460" style="width:100%; max-width:620px; height:auto; display:block;"></canvas>
-    
-    <!-- Game Over / Victory Modal -->
-    <div id="gameOverModal" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.94); border-radius:12px; z-index:20; flex-direction:column; justify-content:center; align-items:center; padding:2rem; box-sizing:border-box; color:#ffffff; text-align:center;">
-      <div style="font-size:2.8rem; margin-bottom:0.35rem;">💥</div>
-      <h2 id="gameOverTitle" style="margin:0 0 0.5rem 0; font-size:1.8rem; color:#f87171;">CHIP NETWORK DEADLOCKED!</h2>
-      <p id="gameOverSummary" style="color:#cbd5e1; font-size:0.95rem; max-width:480px; margin-bottom:1.25rem; line-height:1.6;">
-        Circular channel dependencies froze multiple routers simultaneously.
-      </p>
+    <canvas id="deadlockCanvas" width="620" height="460" style="width:100%; max-width:620px; height:auto; display:block; background:#0f172a; border-radius:10px;"></canvas>
+  </div>
 
-      <div style="background:#1e293b; border:1px solid #334155; border-radius:10px; padding:1rem 1.5rem; margin-bottom:1.25rem; width:100%; max-width:420px; box-sizing:border-box; text-align:left;">
-        <label style="font-size:12px; font-weight:700; text-transform:uppercase; color:#94a3b8; display:block; margin-bottom:0.35rem;">Enter Your Callsign / Name:</label>
-        <input type="text" id="playerCallsign" class="noc-sim-select" style="width:100%; box-sizing:border-box; margin-bottom:0.75rem; background:#0f172a; color:#f8fafc; border-color:#475569;" placeholder="e.g. Master Arbiter" value="NoC Defender">
-        <label style="font-size:12px; font-weight:700; text-transform:uppercase; color:#94a3b8; display:block; margin-bottom:0.35rem;">Institution / Handle:</label>
-        <input type="text" id="playerOrg" class="noc-sim-select" style="width:100%; box-sizing:border-box; background:#0f172a; color:#f8fafc; border-color:#475569;" placeholder="e.g. Stanford / SJTU" value="Silicon Lab">
+  <!-- Real-Time Channel Dependency Diagnostic Table -->
+  <div style="margin-top:1rem; display:grid; grid-template-columns: 1fr 1fr; gap:1rem; font-family:'JetBrains Mono', monospace; font-size:0.8rem;">
+    <div style="background:var(--tcl-surface); border:1px solid var(--tcl-border); border-radius:8px; padding:0.75rem;">
+      <strong style="color:#38bdf8; display:block; margin-bottom:0.4rem;">Channel Dependency Graph (CDG) Diagnostics:</strong>
+      <div id="cdgStatusDetail" style="color:#94a3b8; font-size:0.75rem; line-height:1.6;">
+        Total Directional Channels: 48 (24 links × 2 VCs)<br>
+        Active Dependency Edges ($E_{dep}$): <span id="cdgActiveEdges" style="color:#f8fafc;">0</span><br>
+        Strongly Connected Components ($|SCC| > 1$): <span id="cdgSccCount" style="color:#22c55e;">0</span>
       </div>
+      <div id="cdgCycleList" style="margin-top:0.4rem; font-size:0.72rem; color:#f87171; max-height:60px; overflow-y:auto;">
+        No active dependency cycles detected.
+      </div>
+    </div>
 
-      <div style="display:flex; gap:0.75rem; flex-wrap:wrap; justify-content:center;">
-        <button class="noc-sim-btn" onclick="saveGameRecord()" style="background:#22c55e;">💾 Inscribe on Leaderboard</button>
-        <button class="noc-sim-btn" onclick="submitGameToGithub()" style="background:#0284c7;">📤 Submit to GitHub</button>
-        <a href="../../leaderboard/" class="noc-sim-btn secondary" style="text-decoration:none; color:#ffffff !important;">🏆 View Leaderboard</a>
-        <button class="noc-sim-btn secondary" onclick="restartGame()" style="color:#ffffff !important;">🔄 Play Again</button>
-      </div>
-      <div id="saveConfirmMsg" style="margin-top:0.75rem; color:#4ade80; font-size:0.85rem; font-weight:600; display:none;">
-        ✓ Score successfully recorded in your browser Leaderboard!
+    <div style="background:var(--tcl-surface); border:1px solid var(--tcl-border); border-radius:8px; padding:0.75rem;">
+      <strong style="color:#22c55e; display:block; margin-bottom:0.4rem;">Virtual Channel Buffer Occupancy:</strong>
+      <div style="color:#94a3b8; font-size:0.75rem; line-height:1.6;">
+        Adaptive VC ($VC_0$) Utilization: <span id="vc0Util" style="color:#38bdf8;">0.0%</span><br>
+        Escape VC ($VC_1$) Utilization: <span id="vc1Util" style="color:#a855f7;">0.0%</span><br>
+        Max Router Queue Depth: <span id="maxQueueDepth" style="color:#f59e0b;">0 / 4 flits</span>
       </div>
     </div>
   </div>
 
-  <div id="gameInstructions" style="margin-top:1rem; padding:1rem 1.25rem; background:var(--tcl-surface); border:1px solid var(--tcl-border); border-radius:10px; font-size:0.86rem; color:var(--md-default-fg-color--lighter); line-height:1.65;">
-    <strong style="color:var(--tcl-heading);">🎮 How to Play &amp; Architectural Theory:</strong>
-    <ul style="margin: 0.5rem 0 0 1.2rem; padding: 0;">
-      <li><strong>Circular Wait Deadlocks (Adaptive Policy):</strong> Flits navigate dynamically. Heavy traffic creates circular channel dependencies ($R_A \to R_B \to R_C \to R_D \to R_A$) that freeze routers in <span style="color:#ef4444; font-weight:700;">pulsing RED rings</span>!</li>
-      <li><strong>Duato's Escape Virtual Channel:</strong> Press <strong>SPACEBAR</strong> or tap <strong>⚡ Flush Escape Channel</strong> to deploy Duato's theorem. Escape VCs follow an acyclic XY path to drain the cycle! Flushing consumes <strong>Escape Energy</strong>, which recharges as flits deliver.</li>
-      <li><strong>Queue Overflow (XY &amp; Turn Models):</strong> XY routing eliminates circular turns, but under bursty traffic, buffers saturate ($> 4$ flits) and chip temperature surges towards $110^\circ\text{C}$!</li>
-      <li><strong>Controls:</strong> <code>Space</code> = Flush Escape Channel | <code>P</code> = Pause | <code>R</code> = Restart | <code>1</code>/<code>2</code>/<code>3</code> = Change Routing Policy.</li>
-    </ul>
+  <!-- CAD Netlist / Formal Assertion Export Drawer -->
+  <div id="deadlockExportDrawer" style="display:none; margin-top:1rem; background:#0b1120; border:1px solid #1e293b; border-radius:8px; padding:0.85rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+      <strong id="deadlockExportTitle" style="color:#38bdf8; font-size:0.85rem;">Generated Specification</strong>
+      <button class="noc-sim-btn secondary" style="padding:2px 8px; font-size:0.75rem;" onclick="document.getElementById('deadlockExportDrawer').style.display='none'">Close</button>
+    </div>
+    <textarea id="deadlockExportCode" readonly style="width:100%; height:160px; background:#050811; color:#a5f3fc; border:1px solid #334155; border-radius:6px; font-family:'JetBrains Mono', monospace; font-size:0.75rem; padding:0.5rem; box-sizing:border-box;"></textarea>
   </div>
 </div>
 
+---
+
+## 3. Comparison of Deadlock Prevention & Recovery Strategies
+
+| Strategy | Hardware Overhead | Adaptiveness | Latency Penalty | Theorem / Formal Guarantee |
+| :--- | :--- | :--- | :--- | :--- |
+| **Dimension-Order Routing (XY DOR)** | Zero virtual channels | Zero (Deterministic) | High under non-uniform traffic | Dally & Seitz: Strictly acyclic CDG ($D = \emptyset$). |
+| **Turn Prohibition (West-First, Glass & Ni)** | Zero virtual channels | Partially adaptive | Low (only prohibited turns penalized) | Glass & Ni: Breaks cycles in turn matrix ($2/8$ turns eliminated). |
+| **Duato's Escape Virtual Channel** | 1 Escape VC ($VC_1$) per physical port | Fully adaptive on $VC_0$ | Minimal (routes adaptively until blocked) | Duato: Acyclic subnetwork $D_{esc}$ guarantees drain without circular wait. |
+| **Dally's VC Subnetworks** | $\ge 2$ Virtual Channels | Dimension-reversal adaptive | Low | Dally: Classifies packets into increasing classes to prevent cycles. |
+| **Deflection / Hot-Potato (BLESS)** | Zero buffers | Fully adaptive | High under load (deflection loops) | Livelock-free via oldest-first age priority; bufferless implies no deadlock. |
+
+---
+
 <script>
-// Procedural Web Audio Sound Synthesizer (No external assets required)
-class GameAudio {
-  constructor() {
-    this.ctx = null;
-    this.enabled = true;
-  }
+(function() {
+  const GRID_SIZE = 4;
+  const NUM_ROUTERS = 16;
+  const BUFFER_CAPACITY = 4;
 
-  init() {
-    if (!this.ctx) {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (AudioContext) {
-        this.ctx = new AudioContext();
+  let simRunning = false;
+  let simTimer = null;
+  let currentCycle = 0;
+  let routingPolicy = 'adaptive';
+  let trafficWorkload = 'adversarial_ring';
+  let injectionRate = 0.45;
+
+  let deliveredFlits = 0;
+  let totalLatency = 0;
+  let escapeDrains = 0;
+
+  // Routers: each has input queues for East, West, North, South, Local
+  // Each queue has VC0 (adaptive) and VC1 (escape)
+  let routers = [];
+  let packets = []; // active flits traversing the network
+  let nextPacketId = 1;
+  let detectedCycles = [];
+
+  const canvas = document.getElementById('deadlockCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function initRouters() {
+    routers = [];
+    for (let r = 0; r < GRID_SIZE; r++) {
+      for (let c = 0; c < GRID_SIZE; c++) {
+        const id = r * GRID_SIZE + c;
+        routers.push({
+          id: id,
+          x: c,
+          y: r,
+          screenX: 80 + c * 150,
+          screenY: 70 + r * 110,
+          // Input buffers: vc0 and vc1
+          buffers: {
+            N: { vc0: [], vc1: [] },
+            S: { vc0: [], vc1: [] },
+            E: { vc0: [], vc1: [] },
+            W: { vc0: [], vc1: [] },
+            L: { vc0: [], vc1: [] }
+          },
+          blockedDuration: 0,
+          isDeadlocked: false
+        });
       }
     }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
   }
 
-  playDelivery() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(587.33, now); // D5
-      osc.frequency.exponentialRampToValueAtTime(880, now + 0.08); // A5
-      gain.gain.setValueAtTime(0.12, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.15);
-    } catch(e) {}
-  }
+  window.setRoutingPolicy = function(policy) {
+    routingPolicy = policy;
+    resetDeadlockSim();
+  };
 
-  playDeadlockWarning() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(220, now);
-      osc.frequency.linearRampToValueAtTime(160, now + 0.18);
-      gain.gain.setValueAtTime(0.15, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.2);
-    } catch(e) {}
-  }
+  window.changeTrafficWorkload = function(wl) {
+    trafficWorkload = wl;
+    resetDeadlockSim();
+  };
 
-  playEscapeFlush() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(320, now);
-      osc.frequency.exponentialRampToValueAtTime(1280, now + 0.25);
-      gain.gain.setValueAtTime(0.2, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.3);
-    } catch(e) {}
-  }
+  window.updateInjRateDisplay = function(val) {
+    injectionRate = parseFloat(val);
+    document.getElementById('injRateVal').textContent = parseFloat(val).toFixed(2);
+  };
 
-  playGameOver() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(180, now);
-      osc.frequency.exponentialRampToValueAtTime(45, now + 0.55);
-      gain.gain.setValueAtTime(0.25, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.6);
-    } catch(e) {}
-  }
-}
-
-const gameAudio = new GameAudio();
-
-function toggleGameSound() {
-  gameAudio.enabled = !gameAudio.enabled;
-  if (gameAudio.enabled) gameAudio.init();
-  const btn = document.getElementById("soundToggleBtn");
-  if (btn) {
-    btn.textContent = gameAudio.enabled ? "🔊 Sound: ON" : "🔇 Sound: OFF";
-  }
-}
-
-class DeadlockGame {
-  constructor(canvasId) {
-    this.canvas = document.getElementById(canvasId);
-    if (!this.canvas) return;
-    this.ctx = this.canvas.getContext('2d');
-    this.rows = 4;
-    this.cols = 4;
-    this.policy = 'adaptive';
-
-    this.score = 0;
-    this.deadlockFlushed = 0;
-    this.wave = 1;
-    this.combo = 1;
-    this.comboTimer = 0;
-    this.isPlaying = false;
-    this.isPaused = false;
-    this.isOver = false;
-    this.spawnTimer = 0;
-
-    this.escapeEnergy = 100; // 0 - 100%
-    this.chipTemp = 45; // in Celsius
-
-    this.flits = [];
-    this.deadlockedNodes = new Set();
-    this.deadlockedCycles = []; // Array of cycles [[r1, r2, r3, r4], ...]
-    this.deadlockTimer = 0;
-    this.nodeBuffers = Array.from({ length: 16 }, () => 0);
-    this.nodeWaitTarget = Array.from({ length: 16 }, () => null); // Which node each router is blocked waiting on
-    this.particles = []; // Visual particle bursts
-
-    this.nodeRadius = 22;
-    this.padding = 60;
-    this.initCanvas();
-    this.bindEvents();
-
-    this.loop = this.loop.bind(this);
-    requestAnimationFrame(this.loop);
-  }
-
-  bindEvents() {
-    const handleTap = (e) => {
-      gameAudio.init();
-      if (!this.isPlaying || this.isOver || this.isPaused) return;
-      this.flushEscape();
-    };
-
-    this.canvas.addEventListener('click', handleTap);
-    this.canvas.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      handleTap(e);
-    }, { passive: false });
-  }
-
-  initCanvas() {
-    const dpr = window.devicePixelRatio || 1;
-    this.width = 620;
-    this.height = 460;
-    this.canvas.width = this.width * dpr;
-    this.canvas.height = this.height * dpr;
-    this.ctx.scale(dpr, dpr);
-
-    this.stepX = (this.width - 2 * this.padding) / (this.cols - 1);
-    this.stepY = (this.height - 2 * this.padding) / (this.rows - 1);
-  }
-
-  start() {
-    gameAudio.init();
-    this.score = 0;
-    this.deadlockFlushed = 0;
-    this.wave = 1;
-    this.combo = 1;
-    this.comboTimer = 0;
-    this.escapeEnergy = 100;
-    this.chipTemp = 45;
-    this.flits = [];
-    this.particles = [];
-    this.deadlockedNodes.clear();
-    this.deadlockedCycles = [];
-    this.deadlockTimer = 0;
-    this.nodeBuffers.fill(0);
-    this.nodeWaitTarget.fill(null);
-    this.isPlaying = true;
-    this.isPaused = false;
-    this.isOver = false;
-
-    const modal = document.getElementById("gameOverModal");
-    if (modal) modal.style.display = "none";
-    const msg = document.getElementById("saveConfirmMsg");
-    if (msg) msg.style.display = "none";
-
-    document.getElementById("gameScore").textContent = "0";
-    document.getElementById("gameDeadlocks").textContent = "0";
-    document.getElementById("gameWave").textContent = "1";
-    document.getElementById("gameStartBtn").textContent = "🔄 Restart";
-    this.updateHUD();
-  }
-
-  getNodePos(x, y) {
-    return {
-      px: this.padding + x * this.stepX,
-      py: this.padding + y * this.stepY
-    };
-  }
-
-  spawnFlit() {
-    const sx = Math.floor(Math.random() * this.cols);
-    const sy = Math.floor(Math.random() * this.rows);
-    let dx = Math.floor(Math.random() * this.cols);
-    let dy = Math.floor(Math.random() * this.rows);
-
-    // Wave pattern variations:
-    if (this.wave >= 3 && Math.random() < 0.45) {
-      // Transpose traffic: (x,y) -> (y,x)
-      dx = sy; dy = sx;
-    } else if (this.wave >= 5 && Math.random() < 0.4) {
-      // Hotspot traffic: Target cores (1,1) or (2,2)
-      dx = Math.random() < 0.5 ? 1 : 2;
-      dy = Math.random() < 0.5 ? 1 : 2;
-    }
-
-    while (dx === sx && dy === sy) {
-      dx = Math.floor(Math.random() * this.cols);
-      dy = Math.floor(Math.random() * this.rows);
-    }
-
-    const colors = ['#2563eb', '#38bdf8', '#fb923c', '#a855f7', '#10b981'];
-    this.flits.push({
-      id: Math.floor(Math.random() * 900) + 100,
-      curr: { x: sx, y: sy },
-      dst: { x: dx, y: dy },
-      next: null,
-      progress: 0,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      isBlocked: false,
-      isEscapeVC: false, // If true, routed via Duato's acyclic escape subchannel
-      stallCycles: 0
-    });
-  }
-
-  computeNext(curr, dst, isEscape) {
-    if (curr.x === dst.x && curr.y === dst.y) return null;
-
-    // Duato's Escape VC always uses strict XY Dimension-Order Routing (guaranteed acyclic CDG)
-    if (isEscape || this.policy === 'xy') {
-      if (curr.x < dst.x) return { x: curr.x + 1, y: curr.y };
-      if (curr.x > dst.x) return { x: curr.x - 1, y: curr.y };
-      if (curr.y < dst.y) return { x: curr.x, y: curr.y + 1 };
-      if (curr.y > dst.y) return { x: curr.x, y: curr.y - 1 };
-    } else if (this.policy === 'west-first') {
-      // West-First Turn Model: Must route West first before any North/South turns
-      if (dst.x < curr.x) return { x: curr.x - 1, y: curr.y };
-      const cand = [];
-      if (dst.x > curr.x) cand.push({ x: curr.x + 1, y: curr.y });
-      if (dst.y > curr.y) cand.push({ x: curr.x, y: curr.y + 1 });
-      if (dst.y < curr.y) cand.push({ x: curr.x, y: curr.y - 1 });
-      return cand[Math.floor(Math.random() * cand.length)] || null;
+  window.toggleDeadlockSim = function() {
+    simRunning = !simRunning;
+    const btn = document.getElementById('simRunBtn');
+    if (simRunning) {
+      btn.textContent = '⏸ Pause Clock';
+      btn.style.background = '#eab308';
+      simTimer = setInterval(stepDeadlockClock, 120);
     } else {
-      // Unrestricted Adaptive: Chooses least-congested viable neighbor towards destination
-      const cand = [];
-      if (dst.x > curr.x) cand.push({ x: curr.x + 1, y: curr.y });
-      if (dst.x < curr.x) cand.push({ x: curr.x - 1, y: curr.y });
-      if (dst.y > curr.y) cand.push({ x: curr.x, y: curr.y + 1 });
-      if (dst.y < curr.y) cand.push({ x: curr.x, y: curr.y - 1 });
-
-      if (cand.length === 0) return null;
-      // Sort candidates by lowest buffer occupancy
-      cand.sort((a, b) => {
-        const idxA = a.y * this.cols + a.x;
-        const idxB = b.y * this.cols + b.x;
-        return this.nodeBuffers[idxA] - this.nodeBuffers[idxB];
-      });
-      return cand[0];
+      btn.textContent = '▶ Run Clock';
+      btn.style.background = '';
+      clearInterval(simTimer);
     }
-    return null;
-  }
+  };
 
-  detectCycles() {
-    this.deadlockedNodes.clear();
-    this.deadlockedCycles = [];
+  window.resetDeadlockSim = function() {
+    currentCycle = 0;
+    deliveredFlits = 0;
+    totalLatency = 0;
+    escapeDrains = 0;
+    packets = [];
+    detectedCycles = [];
+    initRouters();
+    updateHUD();
+    renderMesh();
+  };
 
-    if (this.policy !== 'adaptive') {
-      return; // XY and West-first eliminate cycles mathematically
-    }
-
-    // Build wait-for graph: node -> waiting target node
-    for (let i = 0; i < 16; i++) {
-      this.nodeWaitTarget[i] = null;
-    }
-
-    for (const f of this.flits) {
-      if (f.isBlocked && f.next && !f.isEscapeVC) {
-        const currIdx = f.curr.y * this.cols + f.curr.x;
-        const targetIdx = f.next.y * this.cols + f.next.x;
-        this.nodeWaitTarget[currIdx] = targetIdx;
+  window.triggerDuatoEscape = function() {
+    // For all blocked packets waiting in VC0, transition them into VC1 (escape channel)
+    let transitioned = 0;
+    for (let p of packets) {
+      if (p.vc === 0 && p.waitCycles > 2) {
+        p.vc = 1;
+        transitioned++;
       }
     }
+    escapeDrains += transitioned;
+    evaluateDeadlockCDG();
+    updateHUD();
+    renderMesh();
+  };
 
-    // Detect directed cycles in the wait-for graph
-    const visited = new Array(16).fill(0); // 0=unvisited, 1=visiting, 2=visited
-    const stack = [];
+  // Step clock cycle
+  window.stepDeadlockClock = function() {
+    currentCycle++;
 
-    const dfs = (u) => {
-      visited[u] = 1;
-      stack.push(u);
-      const v = this.nodeWaitTarget[u];
-      if (v !== null && v !== undefined) {
-        if (visited[v] === 1) {
-          // Cycle found!
-          const cycleStart = stack.indexOf(v);
-          if (cycleStart !== -1) {
-            const cycle = stack.slice(cycleStart);
-            this.deadlockedCycles.push(cycle);
-            for (const node of cycle) {
-              this.deadlockedNodes.add(node);
-            }
+    // 1. Packet Injection
+    injectTraffic();
+
+    // 2. Route Computation & Switch Traversal
+    routeAndTraverse();
+
+    // 3. Detect CDG Cycles and Deadlocks
+    evaluateDeadlockCDG();
+
+    // 4. Update HUD and visual state
+    updateHUD();
+    renderMesh();
+  };
+
+  function injectTraffic() {
+    for (let r = 0; r < NUM_ROUTERS; r++) {
+      if (Math.random() < injectionRate) {
+        let dest = -1;
+        const curX = routers[r].x;
+        const curY = routers[r].y;
+
+        if (trafficWorkload === 'adversarial_ring') {
+          // Construct explicit 4-node circular wait cycle: (1,1) -> (2,1) -> (2,2) -> (1,2) -> (1,1)
+          if (r === 5) dest = 6;       // (1,1) -> (2,1) [East]
+          else if (r === 6) dest = 10; // (2,1) -> (2,2) [South]
+          else if (r === 10) dest = 9; // (2,2) -> (1,2) [West]
+          else if (r === 9) dest = 5;  // (1,2) -> (1,1) [North]
+          else {
+            dest = (r + 1) % NUM_ROUTERS;
           }
-        } else if (visited[v] === 0) {
-          dfs(v);
+        } else if (trafficWorkload === 'bit_complement') {
+          dest = (~r) & (NUM_ROUTERS - 1);
+        } else if (trafficWorkload === 'transpose') {
+          dest = curX * GRID_SIZE + curY;
+        } else {
+          // Uniform Random
+          dest = Math.floor(Math.random() * NUM_ROUTERS);
         }
-      }
-      stack.pop();
-      visited[u] = 2;
-    };
 
-    for (let i = 0; i < 16; i++) {
-      if (visited[i] === 0 && this.nodeWaitTarget[i] !== null) {
-        dfs(i);
-      }
-    }
-  }
-
-  flushEscape() {
-    if (!this.isPlaying || this.isOver || this.isPaused) return;
-
-    const isEmergency = this.deadlockedNodes.size >= 4;
-    if (this.escapeEnergy < 15 && !isEmergency) {
-      // Energy too low for manual preemptive flush!
-      return;
-    }
-
-    const energyDeducted = Math.min(this.escapeEnergy, 35);
-    this.escapeEnergy = Math.max(0, this.escapeEnergy - energyDeducted);
-    gameAudio.playEscapeFlush();
-
-    let clearedCount = 0;
-    // Release blocked flits in deadlocked nodes by promoting them to Escape VC (XY routing)
-    for (const f of this.flits) {
-      const currIdx = f.curr.y * this.cols + f.curr.x;
-      if (this.deadlockedNodes.has(currIdx) || f.isBlocked) {
-        f.isBlocked = false;
-        f.isEscapeVC = true; // Promoted to Escape VC
-        f.next = this.computeNext(f.curr, f.dst, true);
-        f.progress = 0;
-        clearedCount++;
-
-        // Add visual particle effect
-        const pos = this.getNodePos(f.curr.x, f.curr.y);
-        for (let k = 0; k < 6; k++) {
-          this.particles.push({
-            x: pos.px,
-            y: pos.py,
-            vx: (Math.random() - 0.5) * 4,
-            vy: (Math.random() - 0.5) * 4,
-            life: 1.0,
-            color: '#38bdf8'
+        if (dest !== r) {
+          const initVC = (routingPolicy === 'xy') ? 1 : 0;
+          packets.push({
+            id: nextPacketId++,
+            src: r,
+            dest: dest,
+            curNode: r,
+            curPort: 'L',
+            vc: initVC,
+            injectionCycle: currentCycle,
+            waitCycles: 0,
+            hopCount: 0,
+            isBlocked: false,
+            color: getPacketColor(dest)
           });
         }
       }
     }
-
-    if (clearedCount > 0) {
-      const bonus = clearedCount * 60 * this.combo;
-      this.score += bonus;
-      this.deadlockFlushed += clearedCount;
-      this.combo = Math.min(5, this.combo + 1);
-      this.comboTimer = 220; // Maintain combo window
-      document.getElementById("gameScore").textContent = this.score;
-      document.getElementById("comboBadge").textContent = `Combo: ${this.combo}x`;
-    }
-
-    this.deadlockTimer = 0;
-    this.deadlockedNodes.clear();
-    this.deadlockedCycles = [];
-    document.getElementById("gameDeadlocks").textContent = "0";
-    this.updateHUD();
   }
 
-  gameOver(reason) {
-    this.isPlaying = false;
-    this.isOver = true;
-    gameAudio.playGameOver();
-
-    const modal = document.getElementById("gameOverModal");
-    if (modal) modal.style.display = "flex";
-
-    const titleEl = document.getElementById("gameOverTitle");
-    if (titleEl) {
-      titleEl.textContent = reason === 'thermal' ? "🔥 CHIP THERMAL MELTDOWN!" : "💥 CHIP NETWORK DEADLOCKED!";
-    }
-
-    const summaryEl = document.getElementById("gameOverSummary");
-    if (summaryEl) {
-      const reasonText = reason === 'thermal' 
-        ? "Buffer queues in dimension-order routing saturated without escape channels, triggering thermal shutdown." 
-        : "Circular channel dependencies froze 4+ routers simultaneously, halting the clock.";
-      summaryEl.innerHTML = `<strong>${reasonText}</strong><br><br>Final Score: <strong>${this.score} pts</strong> | Wave Reached: <strong>Wave ${this.wave}</strong> | Deadlocks Cleared: <strong>${this.deadlockFlushed}</strong>`;
-    }
+  function getPacketColor(dest) {
+    const palette = ['#38bdf8', '#4ade80', '#fb923c', '#f43f5e', '#a855f7', '#facc15'];
+    return palette[dest % palette.length];
   }
 
-  updateHUD() {
-    const energyBar = document.getElementById("escapeEnergyBar");
-    const energyText = document.getElementById("escapeEnergyText");
-    if (energyBar && energyText) {
-      energyBar.style.width = `${Math.floor(this.escapeEnergy)}%`;
-      energyText.textContent = `${Math.floor(this.escapeEnergy)}%`;
-      if (this.escapeEnergy < 25) {
-        energyBar.style.background = '#ef4444';
+  function routeAndTraverse() {
+    const remainingPackets = [];
+
+    for (let p of packets) {
+      if (p.curNode === p.dest) {
+        // Delivered!
+        deliveredFlits++;
+        totalLatency += (currentCycle - p.injectionCycle);
+        continue;
+      }
+
+      const curR = routers[p.curNode];
+      const destR = routers[p.dest];
+      const dx = destR.x - curR.x;
+      const dy = destR.y - curR.y;
+
+      let candidatePorts = [];
+
+      if (p.vc === 1 || routingPolicy === 'xy') {
+        // Strict Dimension-Order XY (Escape subnetwork)
+        if (dx > 0) candidatePorts.push({ port: 'E', nextNode: p.curNode + 1 });
+        else if (dx < 0) candidatePorts.push({ port: 'W', nextNode: p.curNode - 1 });
+        else if (dy > 0) candidatePorts.push({ port: 'S', nextNode: p.curNode + GRID_SIZE });
+        else if (dy < 0) candidatePorts.push({ port: 'N', nextNode: p.curNode - GRID_SIZE });
       } else {
-        energyBar.style.background = 'linear-gradient(90deg, #0284c7, #38bdf8)';
+        // Fully Adaptive (VC0): can move along X or Y minimal directions
+        if (dx > 0) candidatePorts.push({ port: 'E', nextNode: p.curNode + 1 });
+        if (dx < 0) candidatePorts.push({ port: 'W', nextNode: p.curNode - 1 });
+        if (dy > 0) candidatePorts.push({ port: 'S', nextNode: p.curNode + GRID_SIZE });
+        if (dy < 0) candidatePorts.push({ port: 'N', nextNode: p.curNode - GRID_SIZE });
       }
+
+      // Check buffer availability on candidate downstream router
+      let moved = false;
+      for (let cand of candidatePorts) {
+        const nextR = routers[cand.nextNode];
+        const inPort = getOppositePort(cand.port);
+        const targetQueue = (p.vc === 1) ? nextR.buffers[inPort].vc1 : nextR.buffers[inPort].vc0;
+
+        if (targetQueue.length < BUFFER_CAPACITY) {
+          // Channel is available! Move flit
+          targetQueue.push(p.id);
+          p.curNode = cand.nextNode;
+          p.curPort = inPort;
+          p.hopCount++;
+          p.waitCycles = 0;
+          p.isBlocked = false;
+          moved = true;
+          break;
+        }
+      }
+
+      if (!moved) {
+        p.waitCycles++;
+        p.isBlocked = true;
+        // In Duato mode: if blocked for >= 3 cycles, transition to Escape VC1!
+        if (routingPolicy === 'duato' && p.vc === 0 && p.waitCycles >= 3) {
+          p.vc = 1;
+          escapeDrains++;
+        }
+      }
+
+      remainingPackets.push(p);
     }
 
-    const tempBar = document.getElementById("chipTempBar");
-    const tempText = document.getElementById("chipTempText");
-    if (tempBar && tempText) {
-      const pct = Math.min(100, Math.max(10, ((this.chipTemp - 35) / 75) * 100));
-      tempBar.style.width = `${pct}%`;
-      tempText.textContent = `${Math.floor(this.chipTemp)}°C ${this.chipTemp > 85 ? '(CRITICAL!)' : (this.chipTemp > 65 ? '(Elevated)' : '(Nominal)')}`;
-      if (this.chipTemp > 85) {
-        tempBar.style.background = '#ef4444';
-        tempText.style.color = '#ef4444';
-      } else if (this.chipTemp > 65) {
-        tempBar.style.background = '#f59e0b';
-        tempText.style.color = '#f59e0b';
-      } else {
-        tempBar.style.background = '#22c55e';
-        tempText.style.color = '#22c55e';
-      }
-    }
+    packets = remainingPackets;
   }
 
-  update() {
-    if (!this.isPlaying || this.isOver || this.isPaused) return;
-
-    this.spawnTimer++;
-
-    // Recharge Escape Energy over time
-    this.escapeEnergy = Math.min(100, this.escapeEnergy + 0.08);
-
-    // Combo timer decrement
-    if (this.comboTimer > 0) {
-      this.comboTimer--;
-      if (this.comboTimer === 0) {
-        this.combo = 1;
-        document.getElementById("comboBadge").textContent = "Combo: 1x";
-      }
-    }
-
-    // Spawn packets according to wave
-    const spawnRate = Math.max(14, 52 - this.wave * 4);
-    const maxActiveFlits = Math.min(32, 16 + this.wave * 2);
-    if (this.spawnTimer % spawnRate === 0 && this.flits.length < maxActiveFlits) {
-      this.spawnFlit();
-    }
-
-    // Wave advancement
-    if (this.spawnTimer % 450 === 0) {
-      this.wave++;
-      document.getElementById("gameWave").textContent = this.wave;
-      this.score += 100 * this.wave;
-      document.getElementById("gameScore").textContent = this.score;
-    }
-
-    // Recalculate buffer counts
-    this.nodeBuffers.fill(0);
-    for (const f of this.flits) {
-      const idx = f.curr.y * this.cols + f.curr.x;
-      this.nodeBuffers[idx]++;
-    }
-
-    // Thermal load calculation: average buffers and hotspots
-    const maxBuffer = Math.max(...this.nodeBuffers);
-    const avgBuffer = this.nodeBuffers.reduce((a, b) => a + b, 0) / 16;
-    this.chipTemp = 42 + avgBuffer * 7 + maxBuffer * 4;
-
-    // In XY / West-First routing: test for Buffer Overflow Thermal Meltdown
-    if (this.policy !== 'adaptive' && maxBuffer >= 5) {
-      if (this.chipTemp >= 105) {
-        this.gameOver('thermal');
-        return;
-      }
-    }
-
-    // Step flits
-    for (let i = this.flits.length - 1; i >= 0; i--) {
-      const f = this.flits[i];
-
-      if (!f.next) {
-        f.next = this.computeNext(f.curr, f.dst, f.isEscapeVC);
-        if (!f.next) {
-          // Delivered to destination!
-          this.score += 25 * this.combo;
-          this.escapeEnergy = Math.min(100, this.escapeEnergy + 2.5); // Reward delivery
-          gameAudio.playDelivery();
-
-          const pPos = this.getNodePos(f.curr.x, f.curr.y);
-          for (let k = 0; k < 5; k++) {
-            this.particles.push({
-              x: pPos.px,
-              y: pPos.py,
-              vx: (Math.random() - 0.5) * 3,
-              vy: (Math.random() - 0.5) * 3,
-              life: 0.8,
-              color: '#22c55e'
-            });
-          }
-
-          document.getElementById("gameScore").textContent = this.score;
-          this.flits.splice(i, 1);
-          continue;
-        }
-      }
-
-      // Check downstream buffer capacity (Max 4 flits per router)
-      const targetIdx = f.next.y * this.cols + f.next.x;
-      const targetIsFull = this.nodeBuffers[targetIdx] >= 3;
-
-      if (targetIsFull && !f.isEscapeVC) {
-        f.stallCycles++;
-        if (f.stallCycles >= 15) {
-          f.isBlocked = true;
-        }
-      } else {
-        f.stallCycles = 0;
-        f.isBlocked = false;
-      }
-
-      // Move flit if not blocked
-      if (!f.isBlocked) {
-        f.progress += 0.045;
-        if (f.progress >= 1) {
-          f.progress = 0;
-          f.curr = { ...f.next };
-          f.next = null;
-        }
-      }
-    }
-
-    // Run Cycle Detection
-    this.detectCycles();
-    document.getElementById("gameDeadlocks").textContent = this.deadlockedNodes.size;
-
-    if (this.deadlockedNodes.size >= 4) {
-      this.deadlockTimer = (this.deadlockTimer || 0) + 1;
-      if (this.deadlockTimer % 20 === 0) {
-        gameAudio.playDeadlockWarning();
-      }
-      if (this.deadlockTimer >= 150) { // ~2.5 seconds grace period
-        this.gameOver('deadlock');
-        return;
-      }
-    } else {
-      this.deadlockTimer = 0;
-      if (this.deadlockedNodes.size > 0 && this.spawnTimer % 40 === 0) {
-        gameAudio.playDeadlockWarning();
-      }
-    }
-
-    // Update Particles
-    for (let i = this.particles.length - 1; i >= 0; i--) {
-      const p = this.particles[i];
-      p.x += p.vx;
-      p.y += p.vy;
-      p.life -= 0.035;
-      if (p.life <= 0) {
-        this.particles.splice(i, 1);
-      }
-    }
-
-    if (this.spawnTimer % 6 === 0) {
-      this.updateHUD();
-    }
+  function getOppositePort(port) {
+    if (port === 'E') return 'W';
+    if (port === 'W') return 'E';
+    if (port === 'N') return 'S';
+    if (port === 'S') return 'N';
+    return 'L';
   }
 
-  draw() {
-    this.ctx.clearRect(0, 0, this.width, this.height);
+  // Tarjan's Strongly Connected Components / Elementary Cycle Finding on Active CDG
+  function evaluateDeadlockCDG() {
+    detectedCycles = [];
+    const waitGraph = {}; // channelId -> list of nextChannelIds it is waiting for
 
-    // Draw Links
-    this.ctx.lineWidth = 2.5;
-    this.ctx.strokeStyle = '#334155';
-    for (let r = 0; r < this.rows; r++) {
-      for (let c = 0; c < this.cols; c++) {
-        const { px, py } = this.getNodePos(c, r);
-        if (c < this.cols - 1) {
-          const next = this.getNodePos(c + 1, r);
-          this.ctx.beginPath();
-          this.ctx.moveTo(px, py);
-          this.ctx.lineTo(next.px, next.py);
-          this.ctx.stroke();
-        }
-        if (r < this.rows - 1) {
-          const next = this.getNodePos(c, r + 1);
-          this.ctx.beginPath();
-          this.ctx.moveTo(px, py);
-          this.ctx.lineTo(next.px, next.py);
-          this.ctx.stroke();
-        }
-      }
-    }
+    // Each active blocked packet establishes a dependency:
+    // (Current Channel Held) -> (Target Channel Requested)
+    for (let p of packets) {
+      if (p.isBlocked) {
+        const curChan = `${p.curNode}:${p.curPort}:vc${p.vc}`;
+        const curR = routers[p.curNode];
+        const destR = routers[p.dest];
+        const dx = destR.x - curR.x;
+        const dy = destR.y - curR.y;
 
-    // Draw Deadlock Dependency Cycle Rays
-    if (this.deadlockedCycles.length > 0) {
-      this.ctx.save();
-      this.ctx.lineWidth = 3.5;
-      this.ctx.strokeStyle = '#ef4444';
-      this.ctx.setLineDash([6, 4]);
-      this.ctx.lineDashOffset = -Date.now() / 30;
-
-      for (const cycle of this.deadlockedCycles) {
-        for (let k = 0; k < cycle.length; k++) {
-          const u = cycle[k];
-          const v = cycle[(k + 1) % cycle.length];
-          const ux = u % this.cols, uy = Math.floor(u / this.cols);
-          const vx = v % this.cols, vy = Math.floor(v / this.cols);
-          const p1 = this.getNodePos(ux, uy);
-          const p2 = this.getNodePos(vx, vy);
-
-          this.ctx.beginPath();
-          this.ctx.moveTo(p1.px, p1.py);
-          this.ctx.lineTo(p2.px, p2.py);
-          this.ctx.stroke();
-        }
-      }
-      this.ctx.restore();
-    }
-
-    // Draw Particles
-    for (const p of this.particles) {
-      this.ctx.fillStyle = p.color;
-      this.ctx.globalAlpha = Math.max(0, p.life);
-      this.ctx.beginPath();
-      this.ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-      this.ctx.fill();
-    }
-    this.ctx.globalAlpha = 1.0;
-
-    // Draw Flits
-    for (const f of this.flits) {
-      const p1 = this.getNodePos(f.curr.x, f.curr.y);
-      let fx = p1.px;
-      let fy = p1.py;
-      if (f.next && !f.isBlocked) {
-        const p2 = this.getNodePos(f.next.x, f.next.y);
-        fx += (p2.px - p1.px) * f.progress;
-        fy += (p2.py - p1.py) * f.progress;
-      }
-
-      this.ctx.fillStyle = f.isEscapeVC ? '#38bdf8' : (f.isBlocked ? '#ef4444' : f.color);
-      this.ctx.beginPath();
-      this.ctx.arc(fx, fy, 8, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      // Escape VC aura
-      if (f.isEscapeVC) {
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeStyle = '#38bdf8';
-        this.ctx.stroke();
-      }
-    }
-
-    // Draw Routers
-    for (let r = 0; r < this.rows; r++) {
-      for (let c = 0; c < this.cols; c++) {
-        const { px, py } = this.getNodePos(c, r);
-        const idx = r * this.cols + c;
-        const isDeadlocked = this.deadlockedNodes.has(idx);
-        const buf = this.nodeBuffers[idx];
-
-        this.ctx.beginPath();
-        this.ctx.arc(px, py, this.nodeRadius, 0, Math.PI * 2);
-
-        if (isDeadlocked) {
-          const pulse = (Math.sin(Date.now() / 140) + 1) / 2;
-          this.ctx.fillStyle = pulse > 0.5 ? '#ef4444' : '#7f1d1d';
-        } else if (buf >= 4) {
-          this.ctx.fillStyle = '#b45309'; // Queue Warning
+        let reqNextNodes = [];
+        if (p.vc === 1 || routingPolicy === 'xy') {
+          if (dx > 0) reqNextNodes.push(p.curNode + 1);
+          else if (dx < 0) reqNextNodes.push(p.curNode - 1);
+          else if (dy > 0) reqNextNodes.push(p.curNode + GRID_SIZE);
+          else if (dy < 0) reqNextNodes.push(p.curNode - GRID_SIZE);
         } else {
-          this.ctx.fillStyle = '#0f172a';
+          if (dx > 0) reqNextNodes.push(p.curNode + 1);
+          if (dx < 0) reqNextNodes.push(p.curNode - 1);
+          if (dy > 0) reqNextNodes.push(p.curNode + GRID_SIZE);
+          if (dy < 0) reqNextNodes.push(p.curNode - GRID_SIZE);
         }
-        this.ctx.fill();
 
-        this.ctx.lineWidth = isDeadlocked ? 3.5 : (buf >= 4 ? 2.5 : 1.5);
-        this.ctx.strokeStyle = isDeadlocked ? '#fca5a5' : (buf >= 4 ? '#f59e0b' : '#38bdf8');
-        this.ctx.stroke();
-
-        // Router ID
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.font = 'bold 10px sans-serif';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        this.ctx.fillText(`R${idx}`, px, py - 3);
-
-        // Buffer badge
-        this.ctx.font = '9px monospace';
-        this.ctx.fillStyle = buf >= 4 ? '#f87171' : (buf >= 2 ? '#fb923c' : '#94a3b8');
-        this.ctx.fillText(`buf:${buf}`, px, py + 8);
+        if (!waitGraph[curChan]) waitGraph[curChan] = [];
+        for (let nxt of reqNextNodes) {
+          waitGraph[curChan].push(`node:${nxt}`);
+        }
       }
     }
 
-    // Deadlock Countdown Warning Banner
-    if (this.deadlockTimer > 0 && this.isPlaying && !this.isOver) {
-      const remainingSec = Math.max(0, ((150 - this.deadlockTimer) / 60)).toFixed(1);
-      const isFlash = Math.floor(this.deadlockTimer / 8) % 2 === 0;
-      this.ctx.fillStyle = isFlash ? 'rgba(239, 68, 68, 0.92)' : 'rgba(185, 28, 28, 0.92)';
-      this.ctx.fillRect(20, 15, this.width - 40, 36);
-      this.ctx.strokeStyle = '#fef08a';
-      this.ctx.lineWidth = 2;
-      this.ctx.strokeRect(20, 15, this.width - 40, 36);
+    // Router-level cycle check for rapid visualization
+    const routerWait = {};
+    for (let p of packets) {
+      if (p.isBlocked && p.waitCycles >= 3) {
+        const cur = p.curNode;
+        const curR = routers[cur];
+        const destR = routers[p.dest];
+        const dx = destR.x - curR.x;
+        const dy = destR.y - curR.y;
 
-      this.ctx.fillStyle = '#ffffff';
-      this.ctx.font = 'bold 13px sans-serif';
-      this.ctx.textAlign = 'center';
-      this.ctx.textBaseline = 'middle';
-      this.ctx.fillText(`🚨 DEADLOCK DETECTED! HIT SPACE / TAP CANVAS TO FLUSH ESCAPE VC (${remainingSec}s)`, this.width / 2, 33);
+        if (!routerWait[cur]) routerWait[cur] = [];
+        if (p.vc === 1 || routingPolicy === 'xy') {
+          if (dx > 0) routerWait[cur].push(cur + 1);
+          else if (dx < 0) routerWait[cur].push(cur - 1);
+          else if (dy > 0) routerWait[cur].push(cur + GRID_SIZE);
+          else if (dy < 0) routerWait[cur].push(cur - GRID_SIZE);
+        } else {
+          if (dx > 0) routerWait[cur].push(cur + 1);
+          if (dx < 0) routerWait[cur].push(cur - 1);
+          if (dy > 0) routerWait[cur].push(cur + GRID_SIZE);
+          if (dy < 0) routerWait[cur].push(cur - GRID_SIZE);
+        }
+      }
     }
 
-    // Start Screen Overlay
-    if (!this.isPlaying && !this.isOver) {
-      this.ctx.fillStyle = 'rgba(15, 23, 42, 0.82)';
-      this.ctx.fillRect(0, 0, this.width, this.height);
-      this.ctx.fillStyle = '#38bdf8';
-      this.ctx.font = 'bold 22px sans-serif';
-      this.ctx.textAlign = 'center';
-      this.ctx.fillText('👾 DEADLOCK BUSTER ARCADE', this.width / 2, this.height / 2 - 20);
+    // Find elementary cycles via DFS
+    const visited = new Set();
+    const stack = [];
+    const inStack = new Set();
 
-      this.ctx.fillStyle = '#cbd5e1';
-      this.ctx.font = '14px sans-serif';
-      this.ctx.fillText('Press "▶ Start Game" to Defend the Silicon Network', this.width / 2, this.height / 2 + 15);
+    function dfs(u) {
+      visited.add(u);
+      stack.push(u);
+      inStack.add(u);
+
+      const neighbors = routerWait[u] || [];
+      for (let v of neighbors) {
+        if (!visited.has(v)) {
+          dfs(v);
+        } else if (inStack.has(v)) {
+          // Cycle found!
+          const cycleStart = stack.indexOf(v);
+          const cycleNodes = stack.slice(cycleStart);
+          if (cycleNodes.length >= 3) {
+            detectedCycles.push(cycleNodes);
+          }
+        }
+      }
+
+      stack.pop();
+      inStack.delete(u);
+    }
+
+    for (let r = 0; r < NUM_ROUTERS; r++) {
+      if (!visited.has(r)) {
+        dfs(r);
+      }
+    }
+
+    // Mark deadlocked routers
+    for (let r = 0; r < NUM_ROUTERS; r++) {
+      routers[r].isDeadlocked = false;
+    }
+    for (let cyc of detectedCycles) {
+      for (let nd of cyc) {
+        routers[nd].isDeadlocked = true;
+      }
     }
   }
 
-  loop() {
-    this.update();
-    this.draw();
-    requestAnimationFrame(this.loop);
+  function updateHUD() {
+    document.getElementById('hudSimCycle').textContent = currentCycle;
+    document.getElementById('hudEscapeDrain').textContent = `${escapeDrains} flits`;
+    const avgLat = deliveredFlits > 0 ? (totalLatency / deliveredFlits).toFixed(1) : '0.0';
+    document.getElementById('hudAvgLatency').textContent = `${avgLat} cycles`;
+    const tp = currentCycle > 0 ? (deliveredFlits / (currentCycle * NUM_ROUTERS)).toFixed(3) : '0.000';
+    document.getElementById('hudThroughput').textContent = tp;
+
+    const netStateEl = document.getElementById('hudNetState');
+    const cdgCyclesEl = document.getElementById('hudCdgCycles');
+
+    if (detectedCycles.length > 0) {
+      netStateEl.textContent = 'DEADLOCKED (SCC Cycle)';
+      netStateEl.style.color = '#ef4444';
+      cdgCyclesEl.textContent = `${detectedCycles.length} Active Cycle(s)`;
+      cdgCyclesEl.style.color = '#ef4444';
+
+      const cycleStrs = detectedCycles.map(c => c.join(' ➔ ') + ` ➔ ${c[0]}`);
+      document.getElementById('cdgCycleList').innerHTML = cycleStrs.map(s => `• Circular Wait: ${s}`).join('<br>');
+    } else {
+      netStateEl.textContent = 'NORMAL (Acyclic Flow)';
+      netStateEl.style.color = '#22c55e';
+      cdgCyclesEl.textContent = '0 Cycles';
+      cdgCyclesEl.style.color = '#22c55e';
+      document.getElementById('cdgCycleList').textContent = 'No active dependency cycles detected.';
+    }
+
+    // Buffer occupancies
+    let vc0Occupied = 0, vc1Occupied = 0, totalSlots = NUM_ROUTERS * 5 * BUFFER_CAPACITY;
+    for (let r of routers) {
+      for (let p in r.buffers) {
+        vc0Occupied += r.buffers[p].vc0.length;
+        vc1Occupied += r.buffers[p].vc1.length;
+      }
+    }
+    document.getElementById('vc0Util').textContent = `${((vc0Occupied / totalSlots) * 100).toFixed(1)}%`;
+    document.getElementById('vc1Util').textContent = `${((vc1Occupied / totalSlots) * 100).toFixed(1)}%`;
+
+    let maxQ = 0;
+    for (let p of packets) {
+      if (p.isBlocked) maxQ = Math.max(maxQ, p.waitCycles);
+    }
+    document.getElementById('maxQueueDepth').textContent = `${Math.min(BUFFER_CAPACITY, maxQ)} / ${BUFFER_CAPACITY} flits`;
   }
-}
 
-let game = null;
+  function renderMesh() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-function initDeadlockGame() {
-  if (document.getElementById('gameCanvas') && !game) {
-    game = new DeadlockGame('gameCanvas');
+    // 1. Draw Links
+    for (let r = 0; r < GRID_SIZE; r++) {
+      for (let c = 0; c < GRID_SIZE; c++) {
+        const u = r * GRID_SIZE + c;
+        const ru = routers[u];
+        // Horizontal link East
+        if (c + 1 < GRID_SIZE) {
+          const rv = routers[u + 1];
+          ctx.beginPath();
+          ctx.moveTo(ru.screenX, ru.screenY);
+          ctx.lineTo(rv.screenX, rv.screenY);
+          ctx.strokeStyle = 'rgba(71, 85, 105, 0.45)';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+        // Vertical link South
+        if (r + 1 < GRID_SIZE) {
+          const rv = routers[u + GRID_SIZE];
+          ctx.beginPath();
+          ctx.moveTo(ru.screenX, ru.screenY);
+          ctx.lineTo(rv.screenX, rv.screenY);
+          ctx.strokeStyle = 'rgba(71, 85, 105, 0.45)';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // 2. Highlight Deadlock Cycles in pulsing red
+    for (let cyc of detectedCycles) {
+      ctx.beginPath();
+      for (let i = 0; i < cyc.length; i++) {
+        const r1 = routers[cyc[i]];
+        const r2 = routers[cyc[(i + 1) % cyc.length]];
+        ctx.moveTo(r1.screenX, r1.screenY);
+        ctx.lineTo(r2.screenX, r2.screenY);
+      }
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+    }
+
+    // 3. Draw Routers
+    for (let r of routers) {
+      ctx.beginPath();
+      ctx.arc(r.screenX, r.screenY, 18, 0, Math.PI * 2);
+
+      if (r.isDeadlocked) {
+        ctx.fillStyle = '#dc2626'; // Red
+      } else {
+        ctx.fillStyle = '#1e293b';
+      }
+      ctx.fill();
+
+      ctx.strokeStyle = r.isDeadlocked ? '#f87171' : '#38bdf8';
+      ctx.lineWidth = r.isDeadlocked ? 3 : 1.5;
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '10px "JetBrains Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`R(${r.x},${r.y})`, r.screenX, r.screenY);
+    }
+
+    // 4. Draw Flits / Packets
+    for (let p of packets) {
+      const curR = routers[p.curNode];
+      let offX = 0, offY = 0;
+      if (p.curPort === 'N') offY = -12;
+      else if (p.curPort === 'S') offY = 12;
+      else if (p.curPort === 'E') offX = 12;
+      else if (p.curPort === 'W') offX = -12;
+
+      ctx.beginPath();
+      ctx.arc(curR.screenX + offX, curR.screenY + offY, 5, 0, Math.PI * 2);
+      ctx.fillStyle = (p.vc === 1) ? '#a855f7' : p.color; // VC1 escape is purple
+      ctx.fill();
+
+      if (p.isBlocked) {
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+    }
   }
-}
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initDeadlockGame);
-} else {
-  initDeadlockGame();
-}
+  // Formal SMT-LIB2 Deadlock-Freedom Assertion Export
+  window.exportSmtFormula = function() {
+    let smt = `; SMT-LIB2 CDG Acyclicity & Deadlock Freedom Verification\n`;
+    smt += `; Architecture: 4x4 2D Mesh with Dual Virtual Channels (VC0=Adaptive, VC1=Escape XY)\n`;
+    smt += `(set-logic QF_UF)\n`;
+    smt += `(declare-sort Channel 0)\n`;
+    smt += `(declare-fun depends (Channel Channel) Bool)\n`;
+    smt += `(declare-fun rank (Channel) Int)\n\n`;
+    smt += `; Property: CDG is acyclic iff a strict topological ranking function exists:\n`;
+    smt += `; forall c1, c2: depends(c1, c2) => rank(c1) < rank(c2)\n\n`;
+    smt += `; Assert escape channel transitions adhere to strict Dimension-Order XY ranking:\n`;
+    for (let r = 0; r < NUM_ROUTERS; r++) {
+      smt += `(assert (> (rank c_${r}_E_vc1) (rank c_${r}_W_vc1)))\n`;
+      smt += `(assert (> (rank c_${r}_S_vc1) (rank c_${r}_E_vc1)))\n`;
+    }
+    smt += `\n(check-sat)\n(get-model)\n`;
 
-function startDeadlockGame() {
-  if (game) game.start();
-}
-
-function restartGame() {
-  if (game) game.start();
-}
-
-function activateEscapeChannel() {
-  if (game) game.flushEscape();
-}
-
-function setGamePolicy(pol) {
-  if (game) game.policy = pol;
-}
-
-function togglePauseGame() {
-  if (!game) return;
-  game.isPaused = !game.isPaused;
-}
-
-function saveGameRecord() {
-  if (!game) return;
-  const name = document.getElementById("playerCallsign").value.trim() || "NoC Defender";
-  const org = document.getElementById("playerOrg").value.trim() || "Silicon Lab";
-  const dateStr = new Date().toISOString().split("T")[0];
-
-  const record = {
-    name: name,
-    org: org,
-    track: `Deadlock Buster (Wave ${game.wave})`,
-    score: game.score,
-    accuracy: game.deadlockFlushed,
-    certId: `GAME-WAVE-${game.wave}`,
-    date: dateStr,
-    type: "game"
+    document.getElementById('deadlockExportTitle').textContent = 'SMT-LIB2 CDG Acyclicity Assertion';
+    document.getElementById('deadlockExportCode').value = smt;
+    document.getElementById('deadlockExportDrawer').style.display = 'block';
   };
 
-  try {
-    const list = JSON.parse(localStorage.getItem("noc_leaderboard_records") || "[]");
-    const existingIdx = list.findIndex(r => r.certId === record.certId && r.score === record.score);
-    if (existingIdx !== -1) {
-      list[existingIdx] = record;
-    } else {
-      list.unshift(record);
-    }
-    localStorage.setItem("noc_leaderboard_records", JSON.stringify(list.slice(0, 50)));
-    const msg = document.getElementById("saveConfirmMsg");
-    if (msg) msg.style.display = "block";
-  } catch(e) {
-    console.error(e);
-  }
-}
+  // Synthesizable Duato Escape VC Arbiter RTL Export
+  window.exportDuatoVerilog = function() {
+    let verilog = `// Synthesizable Duato Escape Virtual Channel Transition Arbiter\n`;
+    verilog += `// Automatically promotes blocked VC0 flits to acyclic VC1 escape channel\n`;
+    verilog += `\`timescale 1ns/1ps\n\n`;
+    verilog += `module duato_escape_arbiter #(\n`;
+    verilog += `    parameter DATA_WIDTH     = 32,\n`;
+    verilog += `    parameter TIMEOUT_THRESH = 4\n`;
+    verilog += `) (\n`;
+    verilog += `    input  wire                  clk,\n`;
+    verilog += `    input  wire                  rst_n,\n`;
+    verilog += `    input  wire                  vc0_blocked,\n`;
+    verilog += `    input  wire [DATA_WIDTH-1:0] vc0_data_in,\n`;
+    verilog += `    output reg                   vc1_promote_req,\n`;
+    verilog += `    output reg  [DATA_WIDTH-1:0] vc1_data_out\n`;
+    verilog += `);\n\n`;
+    verilog += `    reg [3:0] block_timer;\n\n`;
+    verilog += `    always @(posedge clk or negedge rst_n) begin\n`;
+    verilog += `        if (!rst_n) begin\n`;
+    verilog += `            block_timer     <= 4'd0;\n`;
+    verilog += `            vc1_promote_req <= 1'b0;\n`;
+    verilog += `            vc1_data_out    <= {DATA_WIDTH{1'b0}};\n`;
+    verilog += `        end else if (vc0_blocked) begin\n`;
+    verilog += `            if (block_timer >= TIMEOUT_THRESH) begin\n`;
+    verilog += `                vc1_promote_req <= 1'b1; // Trigger Duato escape drain\n`;
+    verilog += `                vc1_data_out    <= vc0_data_in;\n`;
+    verilog += `            end else begin\n`;
+    verilog += `                block_timer     <= block_timer + 1'b1;\n`;
+    verilog += `            end\n`;
+    verilog += `        end else begin\n`;
+    verilog += `            block_timer     <= 4'd0;\n`;
+    verilog += `            vc1_promote_req <= 1'b0;\n`;
+    verilog += `        end\n`;
+    verilog += `    end\n\n`;
+    verilog += `endmodule\n`;
 
-function submitGameToGithub() {
-  if (!game) return;
-  const name = document.getElementById("playerCallsign").value.trim() || "NoC Defender";
-  const org = document.getElementById("playerOrg").value.trim() || "Silicon Lab";
-  const title = `[game-highscore] ${name} — ${game.score} pts (Wave ${game.wave})`;
-  const body = [
-    "### Deadlock Buster Arcade High Score Submission",
-    `- **Player**: ${name}`,
-    `- **Institution/Handle**: ${org}`,
-    `- **High Score**: ${game.score} pts`,
-    `- **Wave Reached**: Wave ${game.wave}`,
-    `- **Deadlocks Cleared**: ${game.deadlockFlushed}`,
-    `- **Date**: ${new Date().toISOString().split("T")[0]}`,
-    "",
-    "```json",
-    JSON.stringify({
-      player: name,
-      org: org,
-      score: game.score,
-      wave: game.wave,
-      cleared: game.deadlockFlushed,
-      type: "game"
-    }, null, 2),
-    "```"
-  ].join("\n");
+    document.getElementById('deadlockExportTitle').textContent = 'Synthesizable Duato Escape Arbiter Verilog';
+    document.getElementById('deadlockExportCode').value = verilog;
+    document.getElementById('deadlockExportDrawer').style.display = 'block';
+  };
 
-  const url = `https://github.com/network-on-chip/learning/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&labels=game-score,leaderboard`;
-  window.open(url, '_blank');
-}
-
-window.addEventListener('keydown', (e) => {
-  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) {
-    return;
-  }
-  if (e.code === 'Space') {
-    if (game && game.isPlaying && !game.isOver && !game.isPaused) {
-      e.preventDefault();
-      activateEscapeChannel();
-    }
-  } else if (e.code === 'KeyP') {
-    if (game && game.isPlaying && !game.isOver) {
-      togglePauseGame();
-    }
-  } else if (e.code === 'KeyR') {
-    if (game && (game.isPlaying || game.isOver)) {
-      restartGame();
-    }
-  } else if (e.code === 'Digit1') {
-    const sel = document.getElementById("gamePolicy");
-    if (sel) { sel.value = "adaptive"; setGamePolicy("adaptive"); }
-  } else if (e.code === 'Digit2') {
-    const sel = document.getElementById("gamePolicy");
-    if (sel) { sel.value = "west-first"; setGamePolicy("west-first"); }
-  } else if (e.code === 'Digit3') {
-    const sel = document.getElementById("gamePolicy");
-    if (sel) { sel.value = "xy"; setGamePolicy("xy"); }
-  }
-});
+  // Init
+  initRouters();
+  renderMesh();
+})();
 </script>

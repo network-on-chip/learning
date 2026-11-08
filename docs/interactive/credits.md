@@ -1,732 +1,442 @@
-# 💳 Credit Commander: Flow Control Defense
+# 💳 Credit-Based Flow Control & Buffer Sizing Simulator
 
-Master high-speed link-level flow control on silicon! Manage credit-based buffer allocations, tune credit batching, and prevent downstream buffer overrun under heavy traffic bursts with non-zero round-trip flight delays ($RTT = 2 \cdot t_{wire} + t_{proc}$). Keep the silicon pipeline running at 100% throughput without dropping a single flit! High scores can be inscribed directly onto the **Community Leaderboard**.
+An interactive microarchitectural simulator for Network-on-Chip (NoC) credit-based backpressure and flow control. Model forward flit flight latency, downstream router buffer consumption, reverse credit turn-around delays, quantify minimum buffer depth requirements to sustain line-rate throughput without stall bubbles ($B_{\text{min}} = \lceil t_{\text{RTD}} \times \text{BW} \rceil$), and observe space-time timing ladder waveforms under traffic bursts.
 
 <div class="noc-sim-container">
+  <!-- Controls Panel -->
   <div class="noc-sim-controls" style="display:flex; flex-wrap:wrap; gap:0.75rem; align-items:center;">
-    <button id="creditStartBtn" class="noc-sim-btn" onclick="startCreditGame()">▶ Start Command</button>
-    <button id="stepCreditClockBtn" class="noc-sim-btn" onclick="fireCreditClock()" style="background:#ea580c; border:none; box-shadow:0 0 12px rgba(234,88,12,0.4);">⚡ Step Cycle (Space)</button>
-    <button id="drainBoostBtn" class="noc-sim-btn" onclick="activateDrainBoost()" style="background:#10b981; border:none;">🚀 Drain Boost (D)</button>
+    <label><b>Downstream Buffer Depth (B):</b>
+      <input type="range" id="creditBufSlider" min="2" max="16" step="1" value="6" style="width:100px; vertical-align:middle;" oninput="document.getElementById('creditBufVal').textContent = this.value + ' flits'; updateCreditWorkbench();">
+      <span id="creditBufVal" style="font-family:'JetBrains Mono',monospace; font-size:0.85rem; color:#38bdf8;">6 flits</span>
+    </label>
 
-    <label><b>Flow Control Protocol:</b>
-      <select id="creditProtocolSelect" class="noc-sim-select" onchange="setCreditProtocol(this.value)">
-        <option value="credit_instant">Credit-Based (Instant Return / Zero Drops)</option>
-        <option value="credit_batched">Credit-Based (Batched x3 / Saves Wire Power)</option>
-        <option value="on_off">On/Off Flow Control (High/Low Watermarks)</option>
+    <label><b>Link Wire Flight Latency:</b>
+      <select id="creditWireSelect" class="noc-sim-select" onchange="updateCreditWorkbench()">
+        <option value="1">1 Cycle (Local On-Die Interconnect, L &lt; 2mm)</option>
+        <option value="2" selected>2 Cycles (Semi-Global Cross-Die Link, L ≈ 5mm)</option>
+        <option value="4">4 Cycles (2.5D Interposer / UCIe D2D Bridge)</option>
+        <option value="6">6 Cycles (Long Multi-Chiplet Interconnect)</option>
       </select>
     </label>
 
-    <label><b>Clock Speed:</b>
-      <select id="creditClockSpeed" class="noc-sim-select" onchange="setCreditClockSpeed(this.value)">
-        <option value="auto_1">Auto Clock (1.0 Hz)</option>
-        <option value="auto_2">Auto Clock (2.0 Hz Fast)</option>
-        <option value="manual">Manual Spacebar Only</option>
+    <label><b>Ingress Packet Burst Rate:</b>
+      <select id="creditRateSelect" class="noc-sim-select" onchange="updateCreditWorkbench()">
+        <option value="1.0" selected>1.0 flit/cyc (Full 100% Line-Rate Injection)</option>
+        <option value="0.75">0.75 flits/cyc (Heavy Burst Traffic)</option>
+        <option value="0.50">0.50 flits/cyc (Moderate Traffic)</option>
       </select>
     </label>
 
-    <button id="creditSoundBtn" class="noc-sim-btn secondary" onclick="toggleCreditSound()">🔊 Sound: ON</button>
-    <button class="noc-sim-btn secondary" onclick="toggleCreditPause()">⏸ Pause</button>
-
-    <div style="margin-left:auto; display:flex; gap:1.2rem; align-items:center; font-weight:700; font-family:'JetBrains Mono', monospace; font-size:0.9rem;">
-      <span style="color:var(--tcl-blue-600);">Score: <span id="creditScore">0</span></span>
-      <span style="color:#22c55e;">Efficiency: <span id="creditEfficiency">100%</span></span>
-      <span style="color:#ef4444;">Stalls: <span id="creditStalls">0</span></span>
-      <span style="color:#f59e0b;" id="creditWave">Wave 1</span>
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; width:100%; margin-top:0.25rem;">
+      <button class="noc-sim-btn" id="btnCredLadder" onclick="switchCreditView('space_time')" style="background:#0284c7;">🪜 Space-Time Timing Ladder</button>
+      <button class="noc-sim-btn secondary" id="btnCredCurve" onclick="switchCreditView('buffer_curve')">📈 Throughput vs. Buffer Depth</button>
+      <button class="noc-sim-btn secondary" onclick="stepCreditClock()">⏭ Step Clock Cycle</button>
+      <button class="noc-sim-btn secondary" onclick="resetCreditCAD()">🔄 Reset Buffer State</button>
+      <button class="noc-sim-btn secondary" onclick="exportCreditReport()" style="margin-left:auto;">📋 Export Flow Report</button>
     </div>
   </div>
 
-  <!-- Flow Control HUD: Credits & Buffer Fill Levels -->
-  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:0.75rem; font-family:'JetBrains Mono', monospace; font-size:0.8rem;">
-    <div style="background:var(--tcl-surface); padding:0.5rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
-      <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-        <span style="font-weight:700; color:#38bdf8;">💳 Upstream Credits Available (TX):</span>
-        <span id="txCreditsText" style="font-weight:700; color:#38bdf8;">8 / 8</span>
-      </div>
-      <div style="width:100%; height:8px; background:rgba(56,189,248,0.15); border-radius:4px; overflow:hidden;">
-        <div id="txCreditsBar" style="width:100%; height:100%; background:linear-gradient(90deg, #0284c7, #38bdf8); transition:width 0.15s ease;"></div>
-      </div>
+  <!-- Physical Metrics HUD -->
+  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; margin-top:0.75rem; margin-bottom:0.75rem; font-family:'JetBrains Mono', monospace; font-size:0.8rem;">
+    <div style="background:var(--tcl-surface); padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
+      <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase;">Minimum Sustained Buffer Depth</div>
+      <div style="font-size:1.05rem; font-weight:700; color:#38bdf8; margin:3px 0;" id="hudBmin">B_min = 6 flits</div>
+      <div style="color:#64748b; font-size:0.75rem;" id="hudRtdCycles">Round-Trip Delay: 6 Cycles</div>
     </div>
 
-    <div style="background:var(--tcl-surface); padding:0.5rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
-      <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-        <span style="font-weight:700; color:#f87171;">📦 Downstream Ingress FIFO Occupancy (RX):</span>
-        <span id="rxBufferText" style="font-weight:700; color:#4ade80;">0 / 8 Flits</span>
-      </div>
-      <div style="width:100%; height:8px; background:rgba(239,68,68,0.15); border-radius:4px; overflow:hidden;">
-        <div id="rxBufferBar" style="width:0%; height:100%; background:#22c55e; transition:width 0.2s ease, background 0.2s ease;"></div>
-      </div>
+    <div style="background:var(--tcl-surface); padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
+      <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase;">Effective Link Throughput</div>
+      <div style="font-size:1.05rem; font-weight:700; color:#22c55e; margin:3px 0;" id="hudThroughput">100.0% Line Rate (1.00 flit/cyc)</div>
+      <div style="color:#64748b; font-size:0.75rem;" id="hudStarveStatus">No Credit Starvation Bubbles</div>
+    </div>
+
+    <div style="background:var(--tcl-surface); padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
+      <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase;">Upstream Credit Counter</div>
+      <div style="font-size:1.05rem; font-weight:700; color:#eab308; margin:3px 0;" id="hudCredits">Credits: 4 / 6 Available</div>
+      <div style="color:#64748b; font-size:0.75rem;" id="hudDownstreamFifo">Downstream FIFO: 2 Flits Queued</div>
+    </div>
+
+    <div style="background:var(--tcl-surface); padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
+      <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase;">Buffer Area Overhead</div>
+      <div style="font-size:1.05rem; font-weight:700; color:#f87171; margin:3px 0;" id="hudAreaOverhead">384 Bits SRAM (48 Bytes)</div>
+      <div style="color:#64748b; font-size:0.75rem;" id="hudNangateArea">Area: 184 µm² (Nangate45 Cell)</div>
     </div>
   </div>
 
+  <!-- Simulation Canvas -->
   <div class="noc-sim-canvas-wrap" style="position:relative;">
-    <canvas id="creditCanvas" width="620" height="460" style="width:100%; max-width:620px; height:auto; display:block;"></canvas>
-
-    <!-- Game Over / Victory Modal -->
-    <div id="creditOverModal" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.94); border-radius:12px; z-index:20; flex-direction:column; justify-content:center; align-items:center; padding:2rem; box-sizing:border-box; color:#ffffff; text-align:center;">
-      <div style="font-size:3rem; margin-bottom:0.35rem;" id="creditModalIcon">💥</div>
-      <h2 id="creditModalTitle" style="margin:0 0 0.5rem 0; font-size:1.8rem; color:#f87171;">DOWNSTREAM BUFFER OVERFLOW!</h2>
-      <p id="creditModalSummary" style="color:#cbd5e1; font-size:0.95rem; max-width:480px; margin-bottom:1.25rem; line-height:1.6;">
-        Downstream ingress FIFO queue exceeded 8 flits! Packets were irreversibly dropped, violating credit flow control invariants.
-      </p>
-
-      <div style="background:#1e293b; border:1px solid #334155; border-radius:10px; padding:1rem 1.5rem; margin-bottom:1.25rem; width:100%; max-width:420px; box-sizing:border-box; text-align:left;">
-        <label style="font-size:12px; font-weight:700; text-transform:uppercase; color:#94a3b8; display:block; margin-bottom:0.35rem;">Flow Commander Callsign:</label>
-        <input type="text" id="creditCallsign" class="noc-sim-select" style="width:100%; box-sizing:border-box; margin-bottom:0.75rem; background:#0f172a; color:#f8fafc; border-color:#475569;" placeholder="e.g. Credit Master" value="Flow Commander">
-        <label style="font-size:12px; font-weight:700; text-transform:uppercase; color:#94a3b8; display:block; margin-bottom:0.35rem;">Institution / Handle:</label>
-        <input type="text" id="creditOrg" class="noc-sim-select" style="width:100%; box-sizing:border-box; background:#0f172a; color:#f8fafc; border-color:#475569;" placeholder="e.g. Intel Fabric / SJTU" value="Silicon Lab">
-      </div>
-
-      <div style="display:flex; gap:0.75rem; flex-wrap:wrap; justify-content:center;">
-        <button class="noc-sim-btn" onclick="saveCreditRecord()" style="background:#22c55e;">💾 Inscribe on Leaderboard</button>
-        <button class="noc-sim-btn" onclick="submitCreditToGithub()" style="background:#0284c7;">📤 Submit to GitHub</button>
-        <a href="../../leaderboard/" class="noc-sim-btn secondary" style="text-decoration:none; color:#ffffff !important;">🏆 View Leaderboard</a>
-        <button class="noc-sim-btn secondary" onclick="restartCreditGame()" style="color:#ffffff !important;">🔄 Play Again</button>
-      </div>
-      <div id="creditSaveConfirm" style="margin-top:0.75rem; color:#4ade80; font-size:0.85rem; font-weight:600; display:none;">
-        ✓ Score successfully recorded in your browser Leaderboard!
-      </div>
-    </div>
+    <canvas id="creditCanvas" width="700" height="420" style="width:100%; max-width:700px; height:auto; display:block; border-radius:8px; background:#0b1120; border:1px solid #1e293b;"></canvas>
   </div>
 
-  <div id="creditInstructions" style="margin-top:1rem; padding:1rem 1.25rem; background:var(--tcl-surface); border:1px solid var(--tcl-border); border-radius:10px; font-size:0.86rem; color:var(--md-default-fg-color--lighter); line-height:1.65;">
-    <strong style="color:var(--tcl-heading);">💳 Link Flow Control &amp; Credit Loop Architecture:</strong>
+  <!-- Flow Report Modal / Panel -->
+  <div id="creditReportWrap" style="display:none; margin-top:0.75rem; background:#0f172a; border:1px solid #334155; border-radius:8px; padding:0.9rem; font-family:'JetBrains Mono',monospace; font-size:0.78rem; color:#e2e8f0;">
+    <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+      <strong style="color:#38bdf8;">Credit Flow Control Timing Audit Log:</strong>
+      <button onclick="document.getElementById('creditReportWrap').style.display='none'" style="background:transparent; border:none; color:#94a3b8; cursor:pointer;">✕ Close</button>
+    </div>
+    <pre id="creditReportText" style="margin:0; white-space:pre-wrap; max-height:220px; overflow-y:auto; color:#a5f3fc;"></pre>
+  </div>
+
+  <!-- Theory & Formulation -->
+  <div style="margin-top:1rem; padding:1.1rem 1.25rem; background:var(--tcl-surface); border:1px solid var(--tcl-border); border-radius:10px; font-size:0.86rem; color:var(--md-default-fg-color--lighter); line-height:1.7;">
+    <strong style="color:var(--tcl-heading); font-size:0.95rem;">🔬 Credit-Based Flow Control Mathematics (Chapter 2 &amp; 3):</strong>
     <ul style="margin: 0.5rem 0 0 1.2rem; padding: 0;">
-      <li><strong>Credit Invariant:</strong> The transmitter holds a Credit Counter $C$. Transmitting a flit decrements $C \leftarrow C - 1$. When $C = 0$, transmission stalls to prevent buffer overflow. When the receiver consumes a flit, it returns a credit along the reverse link ($C \leftarrow C + 1$).</li>
-      <li><strong>Round-Trip Flight Delay ($RTT$):</strong> Because signals take cycles to propagate across wires and router pipelines ($RTT = 2 \cdot t_{flight} + t_{proc}$), the minimum buffer capacity to sustain 100% throughput is $B_{min} = RTT \cdot \text{Throughput}$. If $B &lt; RTT$, the link suffers credit starvation!</li>
-      <li><strong>Credit Batching:</strong> Sending credits individually wastes wire switching energy. Batching credits in groups of 3 cuts link transitions, but increases upstream stall vulnerability during burst waves.</li>
-      <li><strong>On/Off Signaling:</strong> An alternative to credit counting: the receiver asserts a single `STOP` signal when its buffer exceeds the high watermark ($6/8$), and resumes with `GO` when draining below the low watermark ($3/8$).</li>
+      <li><strong>Credit Round-Trip Delay ($t_{\text{RTD}}$):</strong> The total latency between an upstream router transmitting a flit and receiving the corresponding credit release notification spans four discrete pipeline segments:
+        $$t_{\text{RTD}} = t_{\text{wire, fwd}} + t_{\text{router, rx}} + t_{\text{consume}} + t_{\text{credit, rev}}$$
+        For a link with $2\text{ cycles}$ forward flight, $1\text{ cycle}$ input buffer write, $1\text{ cycle}$ crossbar traversal, and $2\text{ cycles}$ reverse credit flight, $t_{\text{RTD}} = 6\text{ cycles}$.</li>
+      <li><strong>Sustained Full-Throughput Buffer Depth ($B_{\text{min}}$):</strong> If the downstream buffer depth $B < B_{\text{min}}$, the upstream credit counter exhausts to zero before the first credit returns, forcing the transmitter to stall:
+        $$B_{\text{min}} = \lceil t_{\text{RTD}} \times \text{Bandwidth} \rceil, \quad \text{Throughput} = \min\left(1.0, \frac{B}{B_{\text{min}}}\right)$$
+        Sizing buffers below $B_{\text{min}}$ permanently throttles link utilization, while sizing buffers beyond $B_{\text{min}}$ consumes unnecessary silicon area without throughput benefit.</li>
     </ul>
   </div>
 </div>
 
 <script>
-// Procedural Web Audio Sound Synthesizer for Credit Commander
-class CreditAudio {
-  constructor() {
-    this.ctx = null;
-    this.enabled = true;
-  }
-
-  init() {
-    if (!this.ctx) {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (AudioContext) this.ctx = new AudioContext();
-    }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
-  }
-
-  playTx() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(520, now);
-      osc.linearRampToValueAtTime(780, now + 0.05);
-      gain.gain.setValueAtTime(0.09, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.06);
-    } catch(e) {}
-  }
-
-  playCreditReturn() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(1046.5, now); // C6
-      osc.exponentialRampToValueAtTime(1318.5, now + 0.06); // E6
-      gain.gain.setValueAtTime(0.08, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.08);
-    } catch(e) {}
-  }
-
-  playStall() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(160, now);
-      gain.gain.setValueAtTime(0.12, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.1);
-    } catch(e) {}
-  }
-
-  playGameOver() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(180, now);
-      osc.exponentialRampToValueAtTime(35, now + 0.6);
-      gain.gain.setValueAtTime(0.25, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.65);
-    } catch(e) {}
-  }
-}
-
-class CreditGame {
-  constructor(canvasId) {
-    this.canvas = document.getElementById(canvasId);
-    this.ctx = this.canvas.getContext('2d');
-    this.audio = new CreditAudio();
-
-    this.maxBuffer = 8;
-    this.txCredits = 8; // Available upstream credits
-    this.rxBuffer = []; // Ingress FIFO
-    this.forwardPipe = [null, null, null]; // 3-stage forward wire pipeline
-    this.creditWire = [null, null]; // 2-stage reverse credit wire
-
-    this.protocol = 'credit_instant'; // 'credit_instant', 'credit_batched', 'on_off'
-    this.batchedCreditCount = 0;
-    this.onOffState = 'GO'; // 'GO' or 'STOP'
-    this.clockSpeedMode = 'auto_1';
-    this.clockPeriod = 1.0;
-    this.clockAccumulator = 0.0;
-
-    this.state = 'idle';
-    this.score = 0;
-    this.cycles = 0;
-    this.deliveredCount = 0;
-    this.stalledCycles = 0;
-    this.wave = 1;
-    this.waveTimer = 25.0;
-    this.drainRate = 1; // Flits drained per cycle
-
-    this.particles = [];
-    this.lastTime = performance.now();
-    this.bindEvents();
-    this.loop = this.loop.bind(this);
-    requestAnimationFrame(this.loop);
-  }
-
-  bindEvents() {
-    window.addEventListener('keydown', (e) => {
-      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return;
-      if (e.code === 'Space') {
-        e.preventDefault();
-        this.audio.init();
-        this.stepCycle();
-      } else if (e.key === 'd' || e.key === 'D') {
-        this.activateDrainBoost();
-      } else if (e.key === 'p' || e.key === 'P') {
-        this.togglePause();
-      }
-    });
-  }
-
-  start() {
-    this.audio.init();
-    this.txCredits = 8;
-    this.rxBuffer = [];
-    this.forwardPipe = [null, null, null];
-    this.creditWire = [null, null];
-    this.batchedCreditCount = 0;
-    this.onOffState = 'GO';
-
-    this.state = 'running';
-    this.score = 0;
-    this.cycles = 0;
-    this.deliveredCount = 0;
-    this.stalledCycles = 0;
-    this.wave = 1;
-    this.waveTimer = 25.0;
-    this.drainRate = 1;
-    this.particles = [];
-
-    document.getElementById('creditOverModal').style.display = 'none';
-    document.getElementById('creditStartBtn').textContent = '🔄 Restart';
-    this.updateHUD();
-  }
-
-  togglePause() {
-    if (this.state === 'running') this.state = 'paused';
-    else if (this.state === 'paused') this.state = 'running';
-  }
-
-  activateDrainBoost() {
-    if (this.state !== 'running') return;
-    this.drainRate = Math.min(3, this.drainRate + 1);
-    this.addTextParticle(520, 200, `DRAIN x${this.drainRate}!`, '#10b981');
-    setTimeout(() => { this.drainRate = 1; }, 4000);
-  }
-
-  addTextParticle(x, y, text, color) {
-    this.particles.push({
-      x, y, vx: 0, vy: -0.8, life: 1.0, text, color, isText: true
-    });
-  }
-
-  stepCycle() {
-    if (this.state !== 'running') return;
-    this.cycles++;
-
-    // 1. Advance Reverse Credit Wire (Returns to Upstream TX)
-    const returnedCredit = this.creditWire.shift();
-    this.creditWire.push(null);
-
-    if (returnedCredit) {
-      if (typeof returnedCredit === 'number') {
-        this.txCredits = Math.min(this.maxBuffer, this.txCredits + returnedCredit);
-        this.audio.playCreditReturn();
-        this.addTextParticle(80, 290, `+${returnedCredit} CR`, '#38bdf8');
-      } else if (returnedCredit === 'ON') {
-        this.onOffState = 'GO';
-        this.addTextParticle(80, 290, `LINK GO!`, '#4ade80');
-      } else if (returnedCredit === 'OFF') {
-        this.onOffState = 'STOP';
-        this.addTextParticle(80, 290, `LINK STOP!`, '#ef4444');
-      }
-    }
-
-    // 2. Downstream Receiver Drains Flits & Generates Credits
-    for (let d = 0; d < this.drainRate; d++) {
-      if (this.rxBuffer.length > 0) {
-        this.rxBuffer.shift();
-        this.deliveredCount++;
-        this.score += 20 * this.wave;
-
-        // Credit generation logic based on protocol
-        if (this.protocol === 'credit_instant') {
-          this.creditWire[1] = 1; // Inject credit into wire
-        } else if (this.protocol === 'credit_batched') {
-          this.batchedCreditCount++;
-          if (this.batchedCreditCount >= 3) {
-            this.creditWire[1] = this.batchedCreditCount;
-            this.batchedCreditCount = 0;
-          }
-        }
-      }
-    }
-
-    // On/Off Signaling Watermark Checks
-    if (this.protocol === 'on_off') {
-      if (this.rxBuffer.length >= 6 && this.onOffState !== 'STOP') {
-        this.creditWire[1] = 'OFF';
-      } else if (this.rxBuffer.length <= 3 && this.onOffState !== 'GO') {
-        this.creditWire[1] = 'ON';
-      }
-    }
-
-    // 3. Advance Forward Wire Pipeline into Receiver
-    const arrivingFlit = this.forwardPipe.pop();
-    this.forwardPipe.unshift(null);
-
-    if (arrivingFlit) {
-      this.rxBuffer.push(arrivingFlit);
-      // Check for Buffer Overflow
-      if (this.rxBuffer.length > this.maxBuffer) {
-        this.triggerOverflow();
-        return;
-      }
-    }
-
-    // 4. Upstream Transmitter Decision: Transmit or Stall?
-    let canTransmit = false;
-    if (this.protocol === 'on_off') {
-      canTransmit = (this.onOffState === 'GO');
-    } else {
-      canTransmit = (this.txCredits > 0);
-    }
-
-    const trafficInject = (Math.random() < (0.65 + this.wave * 0.08));
-    if (trafficInject) {
-      if (canTransmit) {
-        if (this.protocol !== 'on_off') this.txCredits--;
-        this.forwardPipe[0] = { id: Math.floor(Math.random() * 900 + 100), color: '#38bdf8' };
-        this.audio.playTx();
-      } else {
-        // Transmitter Stalled!
-        this.stalledCycles++;
-        this.audio.playStall();
-        this.addTextParticle(120, 140, 'STALL (NO CR)', '#ef4444');
-      }
-    }
-
-    this.updateHUD();
-  }
-
-  triggerOverflow() {
-    this.state = 'over';
-    this.audio.playGameOver();
-    document.getElementById('creditModalTitle').textContent = 'DOWNSTREAM BUFFER OVERFLOW!';
-    document.getElementById('creditModalSummary').innerHTML = `
-      Ingress buffer exceeded maximum capacity (${this.maxBuffer} flits)!<br>
-      Round-trip flight delays broke credit invariants, causing irreversible data loss.
-      <br><br><b>Final Wave:</b> Wave ${this.wave} | <b>Flits Delivered:</b> ${this.deliveredCount} | <b>Score:</b> ${this.score} pts
-    `;
-    document.getElementById('creditOverModal').style.display = 'flex';
-  }
-
-  update(dt) {
-    if (this.state !== 'running') return;
-
-    // Progress Wave
-    this.waveTimer -= dt;
-    if (this.waveTimer <= 0) {
-      this.wave++;
-      this.waveTimer = 25.0;
-      this.score += 250 * this.wave;
-      this.addTextParticle(this.canvas.width / 2, 50, `WAVE ${this.wave} SPEEDUP!`, '#22c55e');
-    }
-
-    // Auto clock
-    if (this.clockSpeedMode !== 'manual') {
-      this.clockAccumulator += dt;
-      if (this.clockAccumulator >= this.clockPeriod) {
-        this.clockAccumulator = 0.0;
-        this.stepCycle();
-      }
-    }
-
-    // Update Particles
-    for (let i = this.particles.length - 1; i >= 0; i--) {
-      const pt = this.particles[i];
-      pt.y += pt.vy;
-      pt.life -= dt * 1.4;
-      if (pt.life <= 0) this.particles.splice(i, 1);
-    }
-  }
-
-  updateHUD() {
-    document.getElementById('creditScore').textContent = this.score;
-    document.getElementById('creditWave').textContent = `Wave ${this.wave}`;
-    document.getElementById('creditStalls').textContent = this.stalledCycles;
-
-    const eff = this.cycles > 0 ? Math.round(((this.cycles - this.stalledCycles) / this.cycles) * 100) : 100;
-    document.getElementById('creditEfficiency').textContent = `${eff}%`;
-
-    // Credits Bar
-    const crPct = Math.round((this.txCredits / this.maxBuffer) * 100);
-    document.getElementById('txCreditsBar').style.width = `${crPct}%`;
-    document.getElementById('txCreditsText').textContent = `${this.txCredits} / ${this.maxBuffer}`;
-
-    // Buffer Bar
-    const bufPct = Math.round((this.rxBuffer.length / this.maxBuffer) * 100);
-    const bBar = document.getElementById('rxBufferBar');
-    bBar.style.width = `${bufPct}%`;
-    document.getElementById('rxBufferText').textContent = `${this.rxBuffer.length} / ${this.maxBuffer} Flits`;
-
-    if (bufPct >= 75) {
-      bBar.style.background = '#ef4444';
-      document.getElementById('rxBufferText').style.color = '#ef4444';
-    } else if (bufPct >= 50) {
-      bBar.style.background = '#f59e0b';
-      document.getElementById('rxBufferText').style.color = '#f59e0b';
-    } else {
-      bBar.style.background = '#22c55e';
-      document.getElementById('rxBufferText').style.color = '#4ade80';
-    }
-  }
-
-  draw() {
-    this.ctx.fillStyle = '#0f172a';
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-    // 1. Draw Transmitter Core (TX) Box (Left)
-    this.ctx.fillStyle = '#1e293b';
-    this.ctx.beginPath();
-    this.ctx.roundRect(25, 100, 130, 230, 10);
-    this.ctx.fill();
-    this.ctx.strokeStyle = '#38bdf8';
-    this.ctx.lineWidth = 2;
-    this.ctx.stroke();
-
-    this.ctx.fillStyle = '#f8fafc';
-    this.ctx.font = 'bold 13px "JetBrains Mono", monospace';
-    this.ctx.textAlign = 'center';
-    this.ctx.fillText('UPSTREAM TX', 90, 126);
-
-    // Credit Counter Display inside TX
-    this.ctx.fillStyle = '#0f172a';
-    this.ctx.beginPath();
-    this.ctx.roundRect(40, 150, 100, 60, 6);
-    this.ctx.fill();
-    this.ctx.strokeStyle = '#334155';
-    this.ctx.lineWidth = 1.5;
-    this.ctx.stroke();
-
-    this.ctx.fillStyle = '#94a3b8';
-    this.ctx.font = '10px "Inter", sans-serif';
-    this.ctx.fillText('CREDIT COUNTER', 90, 168);
-    this.ctx.font = 'bold 22px "JetBrains Mono", monospace';
-    this.ctx.fillStyle = this.txCredits > 2 ? '#38bdf8' : (this.txCredits > 0 ? '#f59e0b' : '#ef4444');
-    this.ctx.fillText(this.txCredits, 90, 198);
-
-    // TX Status Tag
-    const isStalled = (this.txCredits === 0 && this.protocol !== 'on_off') || (this.protocol === 'on_off' && this.onOffState === 'STOP');
-    this.ctx.fillStyle = isStalled ? '#ef4444' : '#22c55e';
-    this.ctx.font = 'bold 11px "JetBrains Mono", monospace';
-    this.ctx.fillText(isStalled ? '● STALLED' : '● READY', 90, 240);
-
-    // 2. Draw Receiver Core (RX) Box (Right)
-    this.ctx.fillStyle = '#1e293b';
-    this.ctx.beginPath();
-    this.ctx.roundRect(465, 100, 130, 230, 10);
-    this.ctx.fill();
-    this.ctx.strokeStyle = '#10b981';
-    this.ctx.lineWidth = 2;
-    this.ctx.stroke();
-
-    this.ctx.fillStyle = '#f8fafc';
-    this.ctx.font = 'bold 13px "JetBrains Mono", monospace';
-    this.ctx.textAlign = 'center';
-    this.ctx.fillText('DOWNSTREAM RX', 530, 126);
-
-    // RX Ingress FIFO Stack
-    this.ctx.fillStyle = '#0f172a';
-    this.ctx.beginPath();
-    this.ctx.roundRect(480, 150, 100, 150, 6);
-    this.ctx.fill();
-    this.ctx.strokeStyle = '#334155';
-    this.ctx.lineWidth = 1.5;
-    this.ctx.stroke();
-
-    // Draw FIFO Slots from bottom up
-    const slotH = 14;
-    for (let s = 0; s < this.maxBuffer; s++) {
-      const sy = 280 - s * (slotH + 2);
-      if (s < this.rxBuffer.length) {
-        this.ctx.fillStyle = '#38bdf8';
-        this.ctx.beginPath();
-        this.ctx.roundRect(486, sy, 88, slotH, 3);
-        this.ctx.fill();
-      } else {
-        this.ctx.strokeStyle = '#334155';
-        this.ctx.strokeRect(486, sy, 88, slotH);
-      }
-    }
-
-    // 3. Draw Forward Data Pipeline Link (Top Wire)
-    this.ctx.strokeStyle = '#475569';
-    this.ctx.lineWidth = 3;
-    this.ctx.beginPath();
-    this.ctx.moveTo(155, 160);
-    this.ctx.lineTo(465, 160);
-    this.ctx.stroke();
-
-    this.ctx.fillStyle = '#94a3b8';
-    this.ctx.font = 'bold 10px "JetBrains Mono", monospace';
-    this.ctx.textAlign = 'center';
-    this.ctx.fillText('FORWARD DATA WIRE (3 STAGES)', 310, 145);
-
-    // Draw 3 Pipeline Registers along Forward Wire
-    const fStep = (465 - 155) / 4;
-    for (let r = 0; r < 3; r++) {
-      const rx = 155 + (r + 1) * fStep;
-      this.ctx.fillStyle = '#1e293b';
-      this.ctx.fillRect(rx - 16, 146, 32, 28);
-      this.ctx.strokeStyle = '#64748b';
-      this.ctx.lineWidth = 1.5;
-      this.ctx.strokeRect(rx - 16, 146, 32, 28);
-
-      if (this.forwardPipe[r]) {
-        this.ctx.fillStyle = '#38bdf8';
-        this.ctx.shadowColor = '#38bdf8';
-        this.ctx.shadowBlur = 8;
-        this.ctx.beginPath();
-        this.ctx.roundRect(rx - 12, 150, 24, 20, 4);
-        this.ctx.fill();
-        this.ctx.shadowBlur = 0;
-        this.ctx.fillStyle = '#0f172a';
-        this.ctx.font = 'bold 9px "JetBrains Mono", monospace';
-        this.ctx.fillText('FLIT', rx, 164);
-      }
-    }
-
-    // 4. Draw Reverse Credit Return Wire (Bottom Wire)
-    this.ctx.strokeStyle = '#10b981';
-    this.ctx.lineWidth = 2.5;
-    this.ctx.beginPath();
-    this.ctx.moveTo(465, 270);
-    this.ctx.lineTo(155, 270);
-    this.ctx.stroke();
-
-    this.ctx.fillStyle = '#10b981';
-    this.ctx.font = 'bold 10px "JetBrains Mono", monospace';
-    this.ctx.fillText('REVERSE CREDIT LINE (RTT = 5 CYCLES)', 310, 290);
-
-    // Draw 2 Stages along Credit Wire
-    const cStep = (465 - 155) / 3;
-    for (let c = 0; c < 2; c++) {
-      const cx = 465 - (c + 1) * cStep;
-      this.ctx.fillStyle = '#1e293b';
-      this.ctx.fillRect(cx - 14, 256, 28, 28);
-      this.ctx.strokeStyle = '#10b981';
-      this.ctx.strokeRect(cx - 14, 256, 28, 28);
-
-      if (this.creditWire[c]) {
-        this.ctx.fillStyle = '#4ade80';
-        this.ctx.shadowColor = '#4ade80';
-        this.ctx.shadowBlur = 8;
-        this.ctx.beginPath();
-        this.ctx.arc(cx, 270, 7, 0, Math.PI * 2);
-        this.ctx.fill();
-        this.ctx.shadowBlur = 0;
-      }
-    }
-
-    // 5. Draw Particles
-    this.particles.forEach(pt => {
-      this.ctx.globalAlpha = Math.max(0, pt.life);
-      this.ctx.fillStyle = pt.color;
-      this.ctx.font = 'bold 12px "JetBrains Mono", monospace';
-      this.ctx.textAlign = 'center';
-      this.ctx.fillText(pt.text, pt.x, pt.y);
-      this.ctx.globalAlpha = 1.0;
-    });
-
-    // Idle Watermark
-    if (this.state === 'idle') {
-      this.ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
-      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-      this.ctx.fillStyle = '#ffffff';
-      this.ctx.font = 'bold 20px "Inter", sans-serif';
-      this.ctx.textAlign = 'center';
-      this.ctx.fillText('Press "Start Command" to Play!', this.canvas.width / 2, this.canvas.height / 2 - 10);
-      this.ctx.font = '13px "Inter", sans-serif';
-      this.ctx.fillStyle = '#94a3b8';
-      this.ctx.fillText('Manage credit-based flow control with flight-time delay RTT = 5 cycles', this.canvas.width / 2, this.canvas.height / 2 + 18);
-    }
-  }
-
-  loop(timestamp) {
-    const dt = Math.min(0.08, (timestamp - this.lastTime) / 1000.0);
-    this.lastTime = timestamp;
-
-    this.update(dt);
-    this.draw();
-    requestAnimationFrame(this.loop);
-  }
-}
-
-let creditGame = null;
-window.addEventListener('DOMContentLoaded', () => {
-  if (document.getElementById('creditCanvas')) {
-    creditGame = new CreditGame('creditCanvas');
-  }
-});
-
-function startCreditGame() {
-  if (creditGame) creditGame.start();
-}
-
-function restartCreditGame() {
-  if (creditGame) creditGame.start();
-}
-
-function fireCreditClock() {
-  if (creditGame) creditGame.stepCycle();
-}
-
-function activateDrainBoost() {
-  if (creditGame) creditGame.activateDrainBoost();
-}
-
-function setCreditProtocol(proto) {
-  if (creditGame) creditGame.protocol = proto;
-}
-
-function setCreditClockSpeed(spd) {
-  if (creditGame) {
-    creditGame.clockSpeedMode = spd;
-    if (spd === 'auto_1') creditGame.clockPeriod = 1.0;
-    else if (spd === 'auto_2') creditGame.clockPeriod = 0.5;
-  }
-}
-
-function toggleCreditSound() {
-  if (!creditGame) return;
-  creditGame.audio.enabled = !creditGame.audio.enabled;
-  document.getElementById('creditSoundBtn').textContent = creditGame.audio.enabled ? '🔊 Sound: ON' : '🔈 Sound: OFF';
-}
-
-function toggleCreditPause() {
-  if (creditGame) creditGame.togglePause();
-}
-
-function saveCreditRecord() {
-  if (!creditGame) return;
-  const name = document.getElementById("creditCallsign").value.trim() || "Flow Commander";
-  const org = document.getElementById("creditOrg").value.trim() || "Silicon Lab";
-  const dateStr = new Date().toISOString().split("T")[0];
-
-  const eff = creditGame.cycles > 0 ? Math.round(((creditGame.cycles - creditGame.stalledCycles) / creditGame.cycles) * 100) : 100;
-  const record = {
-    name: name,
-    org: org,
-    track: `Credit Commander (Wave ${creditGame.wave})`,
-    score: creditGame.score,
-    accuracy: eff, // Link efficiency %
-    certId: `CREDIT-WAVE-${creditGame.wave}`,
-    date: dateStr,
-    type: "credit"
+// ============================================================================
+// Credit-Based Flow Control & Buffer Sizing Simulator Engine
+// ============================================================================
+
+(function () {
+  let activeView = "space_time"; // "space_time", "buffer_curve"
+  let currentCycle = 0;
+
+  // Discrete-event queues for Space-Time Ladder
+  // Forward link queue: [ { flitId, remainingCycles } ]
+  let fwdWireQueue = [];
+  // Reverse credit wire queue: [ { remainingCycles } ]
+  let revWireQueue = [];
+
+  let creditState = {
+    bufferDepth: 6,
+    wireLatency: 2,
+    rtdCycles: 6,
+    bMin: 6,
+    upstreamCredits: 6,
+    downstreamQueued: 0,
+    deliveredFlits: 0,
+    stalledCycles: 0,
+    historyEvents: [] // for space-time diagram
   };
 
-  try {
-    const list = JSON.parse(localStorage.getItem("noc_leaderboard_records") || "[]");
-    list.unshift(record);
-    localStorage.setItem("noc_leaderboard_records", JSON.stringify(list.slice(0, 50)));
-    document.getElementById("creditSaveConfirm").style.display = "block";
-  } catch(e) {
-    console.error(e);
+  const canvas = document.getElementById("creditCanvas");
+  const ctx = canvas.getContext("2d");
+
+  function computeCreditPhysics() {
+    creditState.bufferDepth = parseInt(document.getElementById("creditBufSlider").value, 10) || 6;
+    creditState.wireLatency = parseInt(document.getElementById("creditWireSelect").value, 10) || 2;
+
+    // t_RTD = wire_fwd (L) + rx_write (1) + consume (1) + wire_rev (L)
+    creditState.rtdCycles = 2 * creditState.wireLatency + 2;
+    creditState.bMin = creditState.rtdCycles;
+
+    let maxTp = Math.min(1.0, creditState.bufferDepth / creditState.bMin);
+    let isStarving = creditState.bufferDepth < creditState.bMin;
+
+    document.getElementById("hudBmin").textContent = "B_min = " + creditState.bMin + " flits";
+    document.getElementById("hudRtdCycles").textContent = "Round-Trip Delay: " + creditState.rtdCycles + " Cycles";
+    document.getElementById("hudThroughput").textContent = (maxTp * 100).toFixed(1) + "% Line Rate (" + maxTp.toFixed(2) + " flit/cyc)";
+    document.getElementById("hudStarveStatus").textContent = isStarving ? "STARVATION BUBBLES: Buffer Undersized!" : "Full Line-Rate Sustained";
+    document.getElementById("hudCredits").textContent = "Credits: " + creditState.upstreamCredits + " / " + creditState.bufferDepth;
+    document.getElementById("hudDownstreamFifo").textContent = "Downstream FIFO: " + creditState.downstreamQueued + " Flits";
+    document.getElementById("hudAreaOverhead").textContent = (creditState.bufferDepth * 64) + " Bits SRAM (" + (creditState.bufferDepth * 8) + " Bytes)";
+    document.getElementById("hudNangateArea").textContent = "Area: " + (creditState.bufferDepth * 30.5).toFixed(1) + " µm² (Nangate45)";
   }
-}
 
-function submitCreditToGithub() {
-  if (!creditGame) return;
-  const name = document.getElementById("creditCallsign").value.trim() || "Flow Commander";
-  const org = document.getElementById("creditOrg").value.trim() || "Silicon Lab";
-  const eff = creditGame.cycles > 0 ? Math.round(((creditGame.cycles - creditGame.stalledCycles) / creditGame.cycles) * 100) : 100;
-  const title = `[credit-highscore] ${name} — ${creditGame.score} pts (${eff}% Efficiency)`;
-  const body = [
-    "### Credit Commander Flow Control High Score",
-    `- **Commander**: ${name}`,
-    `- **Institution/Handle**: ${org}`,
-    `- **High Score**: ${creditGame.score} pts`,
-    `- **Link Efficiency**: ${eff}%`,
-    `- **Flits Delivered**: ${creditGame.deliveredCount}`,
-    `- **Wave Reached**: Wave ${creditGame.wave}`,
-    `- **Date**: ${new Date().toISOString().split("T")[0]}`,
-    "",
-    "```json",
-    JSON.stringify({
-      player: name,
-      org: org,
-      score: creditGame.score,
-      efficiency: eff,
-      delivered: creditGame.deliveredCount,
-      wave: creditGame.wave,
-      type: "credit"
-    }, null, 2),
-    "```"
-  ].join("\n");
+  function stepClockCycle() {
+    currentCycle++;
+    const injRate = parseFloat(document.getElementById("creditRateSelect").value) || 1.0;
 
-  const url = `https://github.com/network-on-chip/learning/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&labels=game-score,leaderboard`;
-  window.open(url, '_blank');
-}
+    // 1. Upstream Injection
+    let wantsInject = Math.random() < injRate;
+    let injected = false;
+    if (wantsInject) {
+      if (creditState.upstreamCredits > 0) {
+        creditState.upstreamCredits--;
+        injected = true;
+        fwdWireQueue.push({ id: currentCycle, remaining: creditState.wireLatency });
+      } else {
+        creditState.stalledCycles++;
+      }
+    }
+
+    // 2. Advance Forward Link Wires
+    for (let i = fwdWireQueue.length - 1; i >= 0; i--) {
+      fwdWireQueue[i].remaining--;
+      if (fwdWireQueue[i].remaining <= 0) {
+        // Arrived at downstream router
+        fwdWireQueue.splice(i, 1);
+        creditState.downstreamQueued++;
+      }
+    }
+
+    // 3. Downstream Router Consumes Flits & Generates Credit
+    if (creditState.downstreamQueued > 0) {
+      creditState.downstreamQueued--;
+      creditState.deliveredFlits++;
+      // Release credit back to upstream router
+      revWireQueue.push({ remaining: creditState.wireLatency });
+    }
+
+    // 4. Advance Reverse Credit Wires
+    for (let i = revWireQueue.length - 1; i >= 0; i--) {
+      revWireQueue[i].remaining--;
+      if (revWireQueue[i].remaining <= 0) {
+        revWireQueue.splice(i, 1);
+        creditState.upstreamCredits = Math.min(creditState.bufferDepth, creditState.upstreamCredits + 1);
+      }
+    }
+
+    // Record space-time snapshot
+    if (creditState.historyEvents.length > 20) creditState.historyEvents.shift();
+    creditState.historyEvents.push({
+      cyc: currentCycle,
+      injected: injected,
+      credits: creditState.upstreamCredits,
+      downstream: creditState.downstreamQueued
+    });
+
+    computeCreditPhysics();
+    render();
+  }
+
+  function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (activeView === "space_time") {
+      renderSpaceTimeDiagram();
+    } else if (activeView === "buffer_curve") {
+      renderBufferThroughputCurve();
+    }
+  }
+
+  // 1. Space-Time Timing Ladder View
+  function renderSpaceTimeDiagram() {
+    const w = canvas.width;
+    const h = canvas.height;
+
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "600 12px 'JetBrains Mono', monospace";
+    ctx.fillText("SPACE-TIME TIMING LADDER: FORWARD FLIT FLIGHT & REVERSE CREDIT RELEASE", 60, 30);
+
+    const xUpstream = 140;
+    const xDownstream = 560;
+    const startY = 70;
+    const endY = 380;
+
+    // Upstream & Downstream Router Vertical Rails
+    ctx.strokeStyle = "#38bdf8";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(xUpstream, startY);
+    ctx.lineTo(xUpstream, endY);
+    ctx.stroke();
+
+    ctx.strokeStyle = "#10b981";
+    ctx.beginPath();
+    ctx.moveTo(xDownstream, startY);
+    ctx.lineTo(xDownstream, endY);
+    ctx.stroke();
+
+    ctx.fillStyle = "#38bdf8";
+    ctx.font = "bold 12px 'JetBrains Mono', monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("Upstream Router (Tx)", xUpstream, startY - 15);
+
+    ctx.fillStyle = "#10b981";
+    ctx.fillText("Downstream Router (Rx)", xDownstream, startY - 15);
+
+    // Draw In-Flight Forward Flits (Orange arrows)
+    fwdWireQueue.forEach((f, idx) => {
+      let progress = 1.0 - (f.remaining / creditState.wireLatency);
+      let fx = xUpstream + progress * (xDownstream - xUpstream);
+      let fy = startY + 60 + idx * 30;
+
+      ctx.strokeStyle = "#f59e0b";
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(xUpstream, fy - 15);
+      ctx.lineTo(fx, fy);
+      ctx.stroke();
+
+      ctx.fillStyle = "#f59e0b";
+      ctx.beginPath();
+      ctx.arc(fx, fy, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "9px 'JetBrains Mono', monospace";
+      ctx.fillText("FLIT", fx, fy - 8);
+    });
+
+    // Draw In-Flight Returning Credits (Green dashed arrows)
+    revWireQueue.forEach((c, idx) => {
+      let progress = 1.0 - (c.remaining / creditState.wireLatency);
+      let cx = xDownstream - progress * (xDownstream - xUpstream);
+      let cy = startY + 180 + idx * 30;
+
+      ctx.strokeStyle = "#4ade80";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 3]);
+      ctx.beginPath();
+      ctx.moveTo(xDownstream, cy - 15);
+      ctx.lineTo(cx, cy);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = "#4ade80";
+      ctx.beginPath();
+      ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "9px 'JetBrains Mono', monospace";
+      ctx.fillText("+CREDIT", cx, cy + 14);
+    });
+
+    // Cycle & State Annotations
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "11px 'JetBrains Mono', monospace";
+    ctx.textAlign = "left";
+    ctx.fillText("Clock Cycle: " + currentCycle, 60, endY + 24);
+    ctx.fillText("Forward Flight: " + creditState.wireLatency + " Cyc | Reverse Flight: " + creditState.wireLatency + " Cyc", 220, endY + 24);
+  }
+
+  // 2. Throughput vs Buffer Depth Curve View
+  function renderBufferThroughputCurve() {
+    const w = canvas.width;
+    const h = canvas.height;
+    const padL = 70, padT = 50, padR = 40, padB = 60;
+    const graphW = w - padL - padR;
+    const graphH = h - padT - padB;
+
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "600 12px 'JetBrains Mono', monospace";
+    ctx.fillText("LINK THROUGHPUT vs. DOWNSTREAM FIFO BUFFER DEPTH [B_min KNEE]", padL, 28);
+
+    // Axes
+    ctx.strokeStyle = "#1e293b";
+    ctx.lineWidth = 1;
+    for (let gy = 0; gy <= 5; gy++) {
+      let y = padT + (gy / 5) * graphH;
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(w - padR, y);
+      ctx.stroke();
+
+      let tpLabel = (1.0 - gy / 5).toFixed(1);
+      ctx.fillStyle = "#64748b";
+      ctx.font = "10px 'JetBrains Mono', monospace";
+      ctx.textAlign = "right";
+      ctx.fillText(tpLabel, padL - 8, y + 4);
+    }
+
+    const maxB = 16;
+    for (let gx = 0; gx <= 8; gx++) {
+      let x = padL + (gx / 8) * graphW;
+      ctx.beginPath();
+      ctx.moveTo(x, padT);
+      ctx.lineTo(x, h - padB);
+      ctx.stroke();
+
+      let bLabel = (gx * 2) + " flits";
+      ctx.fillStyle = "#64748b";
+      ctx.font = "10px 'JetBrains Mono', monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(bLabel, x, h - padB + 16);
+    }
+
+    // Plot Saturation Curve
+    ctx.strokeStyle = "#22c55e";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (let b = 1; b <= maxB; b++) {
+      let tp = Math.min(1.0, b / creditState.bMin);
+      let px = padL + (b / maxB) * graphW;
+      let py = padT + (1 - tp) * graphH;
+      if (b === 1) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    // Mark B_min Knee Point
+    let kneeX = padL + (creditState.bMin / maxB) * graphW;
+    ctx.strokeStyle = "#38bdf8";
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(kneeX, padT);
+    ctx.lineTo(kneeX, h - padB);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = "#38bdf8";
+    ctx.font = "bold 11px 'JetBrains Mono', monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("B_min = " + creditState.bMin + " flits (Knee Point)", kneeX, padT - 8);
+
+    // Mark Current Selection
+    let curX = padL + (creditState.bufferDepth / maxB) * graphW;
+    let curTp = Math.min(1.0, creditState.bufferDepth / creditState.bMin);
+    let curY = padT + (1 - curTp) * graphH;
+
+    ctx.fillStyle = "#eab308";
+    ctx.beginPath();
+    ctx.arc(curX, curY, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillText("Current B = " + creditState.bufferDepth, curX, curY - 12);
+  }
+
+  // Window Dispatch Interface
+  window.updateCreditWorkbench = function () {
+    computeCreditPhysics();
+    render();
+  };
+
+  window.switchCreditView = function (v) {
+    activeView = v;
+    document.getElementById("btnCredLadder").className = (v === "space_time") ? "noc-sim-btn" : "noc-sim-btn secondary";
+    document.getElementById("btnCredCurve").className = (v === "buffer_curve") ? "noc-sim-btn" : "noc-sim-btn secondary";
+    render();
+  };
+
+  window.stepCreditClock = function () {
+    stepClockCycle();
+  };
+
+  window.resetCreditCAD = function () {
+    fwdWireQueue = [];
+    revWireQueue = [];
+    currentCycle = 0;
+    creditState.upstreamCredits = creditState.bufferDepth;
+    creditState.downstreamQueued = 0;
+    creditState.deliveredFlits = 0;
+    creditState.stalledCycles = 0;
+    creditState.historyEvents = [];
+    computeCreditPhysics();
+    render();
+  };
+
+  window.exportCreditReport = function () {
+    let rpt = [
+      "===============================================================================",
+      "CREDIT-BASED FLOW CONTROL & BUFFER SIZING TIMING AUDIT",
+      "===============================================================================",
+      "Forward Wire Flight Time : " + creditState.wireLatency + " Clock Cycles",
+      "Reverse Credit Wire Time : " + creditState.wireLatency + " Clock Cycles",
+      "Total Round-Trip Delay   : " + creditState.rtdCycles + " Clock Cycles",
+      "Minimum Buffer Threshold : " + creditState.bMin + " flits for 100% throughput",
+      "Configured Buffer Depth  : " + creditState.bufferDepth + " flits",
+      "Sustained Link Bandwidth : " + (Math.min(1.0, creditState.bufferDepth / creditState.bMin) * 100).toFixed(1) + "% Line Rate",
+      "Total Delivered Flits    : " + creditState.deliveredFlits + " flits",
+      "Total Stalled Bubbles    : " + creditState.stalledCycles + " cycles",
+      "Buffer Memory Allocation : " + (creditState.bufferDepth * 64) + " bits per Virtual Channel",
+      "==============================================================================="
+    ];
+    document.getElementById("creditReportText").textContent = rpt.join("\n");
+    document.getElementById("creditReportWrap").style.display = "block";
+  };
+
+  // Initial Boot
+  computeCreditPhysics();
+  render();
+})();
 </script>

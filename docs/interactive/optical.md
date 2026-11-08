@@ -1,722 +1,391 @@
-# 💡 Photon Pilot: Optical NoC Waveguide Grid
+# 💡 Silicon Photonic & Optical NoC (ONoC) Waveguide CAD Simulator
 
-Harness the speed of light on silicon! Steer multi-wavelength laser beams through integrated silicon optical waveguides using thermally-tuned **Micro-Ring Resonators (MRRs)**. Master Wavelength-Division Multiplexing (WDM), balance optical insertion loss budgets ($&lt; 12\text{ dB}$), and counteract localized thermal drift before bit-error rates surge! High scores can be directly inscribed on the **Community Leaderboard**.
+An interactive Computer-Aided Design (CAD) physical layer simulator for Silicon Photonic Networks-on-Chip (ONoCs). Model continuous-wave (CW) laser source power budgets, Micro-Ring Resonator (MRR) Lorentzian transmission spectra, thermo-optic resonance wavelength drift ($\frac{d\lambda}{dT} \approx 0.1\,\text{nm/K}$), Wavelength Division Multiplexing (WDM) inter-channel optical crosstalk noise, and photodetector Bit Error Rates (BER).
 
 <div class="noc-sim-container">
+  <!-- Controls Panel -->
   <div class="noc-sim-controls" style="display:flex; flex-wrap:wrap; gap:0.75rem; align-items:center;">
-    <button id="opticalStartBtn" class="noc-sim-btn" onclick="startOpticalGame()">▶ Start Photon Pilot</button>
-    <button id="laserBoostBtn" class="noc-sim-btn" onclick="activateLaserBoost()" style="background:#0284c7; border:none; box-shadow:0 0 12px rgba(2,132,199,0.4);">⚡ Laser Power Surge (Space)</button>
-
-    <label><b>Tuning Mode:</b>
-      <select id="mrrTuneSelect" class="noc-sim-select" onchange="setMrrTuning(this.value)">
-        <option value="lambda1">λ1 (Cyan · 1530nm)</option>
-        <option value="lambda2">λ2 (Green · 1540nm)</option>
-        <option value="lambda3">λ3 (Amber · 1550nm)</option>
-        <option value="lambda4">λ4 (Magenta · 1560nm)</option>
-        <option value="bypass">OFF (Bypass / Pass-Through)</option>
+    <label><b>Laser Pump Power:</b>
+      <select id="optLaserSelect" class="noc-sim-select" onchange="updateOpticalWorkbench()">
+        <option value="5.0">5.0 mW (Low Power / +7 dBm)</option>
+        <option value="10.0" selected>10.0 mW (Standard Industrial / +10 dBm)</option>
+        <option value="20.0">20.0 mW (High-Radix Photonic Crossbar / +13 dBm)</option>
       </select>
     </label>
 
-    <button id="opticalSoundBtn" class="noc-sim-btn secondary" onclick="toggleOpticalSound()">🔊 Sound: ON</button>
-    <button class="noc-sim-btn secondary" onclick="toggleOpticalPause()">⏸ Pause</button>
+    <label><b>Thermal Gradient (ΔT):</b>
+      <input type="range" id="optTempSlider" min="0" max="50" step="5" value="20" style="width:100px; vertical-align:middle;" oninput="document.getElementById('optTempVal').textContent = '+' + this.value + '°C Drift'; updateOpticalWorkbench();">
+      <span id="optTempVal" style="font-family:'JetBrains Mono',monospace; font-size:0.85rem; color:#f87171;">+20°C Drift</span>
+    </label>
 
-    <div style="margin-left:auto; display:flex; gap:1.2rem; align-items:center; font-weight:700; font-family:'JetBrains Mono', monospace; font-size:0.9rem;">
-      <span style="color:var(--tcl-blue-600);">Score: <span id="opticalScore">0</span></span>
-      <span style="color:#22c55e;">Bandwidth: <span id="opticalBandwidth">0.0</span> Tbps</span>
-      <span style="color:#ef4444;">Loss: <span id="opticalLoss">0.0</span> dB</span>
-      <span style="color:#f59e0b;" id="opticalWave">Wave 1</span>
+    <label><b>MRR Thermal Tuning:</b>
+      <select id="optTuningSelect" class="noc-sim-select" onchange="updateOpticalWorkbench()">
+        <option value="active_heater" selected>Closed-Loop Micro-Heater (Re-align Resonance)</option>
+        <option value="untuned">Untuned Drift (Thermal Misalignment Loss)</option>
+      </select>
+    </label>
+
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; width:100%; margin-top:0.25rem;">
+      <button class="noc-sim-btn" id="btnOptSpectrum" onclick="switchOptView('spectrum')" style="background:#0284c7;">🌈 WDM Lorentzian Spectrum</button>
+      <button class="noc-sim-btn secondary" id="btnOptBudget" onclick="switchOptView('power_budget')">📉 Link Budget Loss Waterfall</button>
+      <button class="noc-sim-btn secondary" onclick="stepOpticalSweep()">⏭ Sweep Wavelengths</button>
+      <button class="noc-sim-btn secondary" onclick="resetOpticalCAD()">🔄 Reset Laser Calibration</button>
+      <button class="noc-sim-btn secondary" onclick="exportOpticalReport()" style="margin-left:auto;">📋 Export Photonic Deck</button>
     </div>
   </div>
 
-  <!-- Optical Power & Thermal Stability HUD -->
-  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:0.75rem; font-family:'JetBrains Mono', monospace; font-size:0.8rem;">
-    <div style="background:var(--tcl-surface); padding:0.5rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
-      <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-        <span style="font-weight:700; color:#38bdf8;">⚡ Laser Transmitter Surge Reservoir (Space):</span>
-        <span id="laserSurgeText" style="font-weight:700; color:#38bdf8;">100%</span>
-      </div>
-      <div style="width:100%; height:8px; background:rgba(56,189,248,0.15); border-radius:4px; overflow:hidden;">
-        <div id="laserSurgeBar" style="width:100%; height:100%; background:linear-gradient(90deg, #0284c7, #38bdf8); transition:width 0.15s ease;"></div>
-      </div>
+  <!-- Physical Metrics HUD -->
+  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; margin-top:0.75rem; margin-bottom:0.75rem; font-family:'JetBrains Mono', monospace; font-size:0.8rem;">
+    <div style="background:var(--tcl-surface); padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
+      <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase;">Photodetector Received Power</div>
+      <div style="font-size:1.05rem; font-weight:700; color:#22c55e; margin:3px 0;" id="hudRxPower">-14.2 dBm (Safe Margin)</div>
+      <div style="color:#64748b; font-size:0.75rem;" id="hudMargin">Sensitivity: -18.0 dBm (+3.8 dB Margin)</div>
     </div>
 
-    <div style="background:var(--tcl-surface); padding:0.5rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
-      <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-        <span style="font-weight:700; color:#4ade80;">🌡️ Photonic Thermal Drift Stability:</span>
-        <span id="opticalThermalText" style="font-weight:700; color:#4ade80;">100% (On-Resonance)</span>
-      </div>
-      <div style="width:100%; height:8px; background:rgba(34,197,94,0.15); border-radius:4px; overflow:hidden;">
-        <div id="opticalThermalBar" style="width:100%; height:100%; background:#22c55e; transition:width 0.2s ease, background 0.2s ease;"></div>
-      </div>
+    <div style="background:var(--tcl-surface); padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
+      <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase;">MRR Thermo-Optic Drift</div>
+      <div style="font-size:1.05rem; font-weight:700; color:#f87171; margin:3px 0;" id="hudDrift">Δλ = +2.00 nm (Tuned)</div>
+      <div style="color:#64748b; font-size:0.75rem;" id="hudHeaterPwr">Micro-Heater Power: 4.8 mW</div>
+    </div>
+
+    <div style="background:var(--tcl-surface); padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
+      <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase;">Signal-to-Noise Ratio &amp; BER</div>
+      <div style="font-size:1.05rem; font-weight:700; color:#38bdf8; margin:3px 0;" id="hudBer">BER: &lt; 10⁻¹² (Error-Free)</div>
+      <div style="color:#64748b; font-size:0.75rem;" id="hudSnr">Optical SNR: 21.4 dB (Low Crosstalk)</div>
+    </div>
+
+    <div style="background:var(--tcl-surface); padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
+      <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase;">Energy per Transmitted Bit</div>
+      <div style="font-size:1.05rem; font-weight:700; color:#eab308; margin:3px 0;" id="hudEnergy">0.42 pJ/bit (10 Gbps)</div>
+      <div style="color:#64748b; font-size:0.75rem;" id="hudLaserEff">Laser Wall-Plug Eff: 15.0%</div>
     </div>
   </div>
 
+  <!-- CAD Canvas View -->
   <div class="noc-sim-canvas-wrap" style="position:relative;">
-    <canvas id="opticalCanvas" width="620" height="460" style="width:100%; max-width:620px; height:auto; display:block;"></canvas>
-
-    <!-- Game Over / Victory Modal -->
-    <div id="opticalOverModal" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.94); border-radius:12px; z-index:20; flex-direction:column; justify-content:center; align-items:center; padding:2rem; box-sizing:border-box; color:#ffffff; text-align:center;">
-      <div style="font-size:3rem; margin-bottom:0.35rem;" id="opticalModalIcon">💥</div>
-      <h2 id="opticalModalTitle" style="margin:0 0 0.5rem 0; font-size:1.8rem; color:#f87171;">OPTICAL LINK DROPOUT!</h2>
-      <p id="opticalModalSummary" style="color:#cbd5e1; font-size:0.95rem; max-width:480px; margin-bottom:1.25rem; line-height:1.6;">
-        Optical insertion loss exceeded 14.0 dB and thermal drift shifted micro-ring resonance completely off-pitch!
-      </p>
-
-      <div style="background:#1e293b; border:1px solid #334155; border-radius:10px; padding:1rem 1.5rem; margin-bottom:1.25rem; width:100%; max-width:420px; box-sizing:border-box; text-align:left;">
-        <label style="font-size:12px; font-weight:700; text-transform:uppercase; color:#94a3b8; display:block; margin-bottom:0.35rem;">Photonic Pilot Callsign:</label>
-        <input type="text" id="opticalCallsign" class="noc-sim-select" style="width:100%; box-sizing:border-box; margin-bottom:0.75rem; background:#0f172a; color:#f8fafc; border-color:#475569;" placeholder="e.g. Laser Architect" value="Photon Pilot">
-        <label style="font-size:12px; font-weight:700; text-transform:uppercase; color:#94a3b8; display:block; margin-bottom:0.35rem;">Institution / Handle:</label>
-        <input type="text" id="opticalOrg" class="noc-sim-select" style="width:100%; box-sizing:border-box; background:#0f172a; color:#f8fafc; border-color:#475569;" placeholder="e.g. Columbia Lightwave / SJTU" value="Silicon Lab">
-      </div>
-
-      <div style="display:flex; gap:0.75rem; flex-wrap:wrap; justify-content:center;">
-        <button class="noc-sim-btn" onclick="saveOpticalRecord()" style="background:#22c55e;">💾 Inscribe on Leaderboard</button>
-        <button class="noc-sim-btn" onclick="submitOpticalToGithub()" style="background:#0284c7;">📤 Submit to GitHub</button>
-        <a href="../../leaderboard/" class="noc-sim-btn secondary" style="text-decoration:none; color:#ffffff !important;">🏆 View Leaderboard</a>
-        <button class="noc-sim-btn secondary" onclick="restartOpticalGame()" style="color:#ffffff !important;">🔄 Play Again</button>
-      </div>
-      <div id="opticalSaveConfirm" style="margin-top:0.75rem; color:#4ade80; font-size:0.85rem; font-weight:600; display:none;">
-        ✓ Score successfully recorded in your browser Leaderboard!
-      </div>
-    </div>
+    <canvas id="opticalCanvas" width="700" height="420" style="width:100%; max-width:700px; height:auto; display:block; border-radius:8px; background:#0b1120; border:1px solid #1e293b;"></canvas>
   </div>
 
-  <div id="opticalInstructions" style="margin-top:1rem; padding:1rem 1.25rem; background:var(--tcl-surface); border:1px solid var(--tcl-border); border-radius:10px; font-size:0.86rem; color:var(--md-default-fg-color--lighter); line-height:1.65;">
-    <strong style="color:var(--tcl-heading);">💡 Silicon Photonics &amp; Optical NoC (ONoC) Theory:</strong>
+  <!-- Export Panel -->
+  <div id="optExportWrap" style="display:none; margin-top:0.75rem; background:#0f172a; border:1px solid #334155; border-radius:8px; padding:0.9rem; font-family:'JetBrains Mono',monospace; font-size:0.78rem; color:#e2e8f0;">
+    <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+      <strong style="color:#38bdf8;">Optical NoC Waveguide Link Budget &amp; SPICE Deck:</strong>
+      <button onclick="document.getElementById('optExportWrap').style.display='none'" style="background:transparent; border:none; color:#94a3b8; cursor:pointer;">✕ Close</button>
+    </div>
+    <pre id="optExportText" style="margin:0; white-space:pre-wrap; max-height:220px; overflow-y:auto; color:#a5f3fc;"></pre>
+  </div>
+
+  <!-- Theory & Formulation -->
+  <div style="margin-top:1rem; padding:1.1rem 1.25rem; background:var(--tcl-surface); border:1px solid var(--tcl-border); border-radius:10px; font-size:0.86rem; color:var(--md-default-fg-color--lighter); line-height:1.7;">
+    <strong style="color:var(--tcl-heading); font-size:0.95rem;">🔬 Nanophotonic Physics &amp; MRR Waveguide Theory (Chapter 10):</strong>
     <ul style="margin: 0.5rem 0 0 1.2rem; padding: 0;">
-      <li><strong>Wavelength-Division Multiplexing (WDM):</strong> Multiple distinct optical signals ($\lambda_1=1530\text{nm}, \lambda_2=1540\text{nm}, \lambda_3=1550\text{nm}, \lambda_4=1560\text{nm}$) share the same silicon waveguide simultaneously without interference, achieving multi-terabit bandwidth with flight-time latency ($\sim 10\text{ ps/mm}$).</li>
-      <li><strong>Micro-Ring Resonators (MRRs):</strong> Integrated sub-micron silicon rings act as electro-optic switches. When the optical wavelength matches the round-trip phase condition ($m \lambda_{res} = 2\pi R \cdot n_{eff}$), light couples into the ring and drops onto the cross waveguide. Click any MRR to change its tuned wavelength!</li>
-      <li><strong>Thermal Sensitivity ($dn/dT$):</strong> Silicon's high thermo-optic coefficient ($dn/dT \approx 1.86 \times 10^{-4}\text{ K}^{-1}$) shifts resonant wavelengths by $\sim 0.1\text{ nm/K}$. Thermal drift degrades link SNR unless compensated.</li>
-      <li><strong>Insertion Loss Budget:</strong> Optical power degrades through waveguide propagation ($0.2\text{ dB/cm}$), waveguide bending, and ring drop crossings ($0.5\text{ dB/drop}$). Keep total path loss below $12.0\text{ dB}$ to avoid photodetector bit errors!</li>
+      <li><strong>Micro-Ring Resonator (MRR) Lorentzian Response:</strong> An optical ring of radius $R$ and effective refractive index $n_{\text{eff}}$ exhibits sharp resonant transmission dips at wavelengths satisfying the constructive interference condition $m \lambda_0 = 2\pi R n_{\text{eff}}$:
+        $$T(\lambda) = \frac{(\text{FWHM} / 2)^2}{(\lambda - \lambda_0)^2 + (\text{FWHM} / 2)^2}$$
+        Full-Width at Half-Maximum ($\text{FWHM} \approx 0.15\,\text{nm}$) provides high quality factors ($Q \ge 10^4$), permitting dense 8-channel Wavelength Division Multiplexing (WDM).</li>
+      <li><strong>Thermo-Optic Redshift Drift:</strong> Silicon possesses an extraordinarily strong positive thermo-optic coefficient ($\frac{dn_{Si}}{dT} \approx 1.86 \times 10^{-4}/\text{K}$), causing resonant peaks to drift toward longer wavelengths at a rate of $\frac{d\lambda}{dT} \approx 0.1\,\text{nm/}^\circ\text{C}$. A $20^\circ\text{C}$ on-chip hotspot shifts the resonance by $2.0\,\text{nm}$—completely detuning the optical channel unless integrated micro-heaters supply thermal compensation.</li>
+      <li><strong>Optical Power Budget &amp; Insertion Loss:</strong> Received photodetector optical power $P_{\text{rx}}$ must remain above the Germanium APD sensitivity threshold ($P_{\text{sens}} \approx -18\,\text{dBm}$) to sustain $\text{BER} \le 10^{-12}$:
+        $$P_{\text{rx}} = P_{\text{laser}} - \left( L_{\text{couple}} + L_{\text{mod}} + \alpha_{\text{wg}} \cdot L_{\text{prop}} + N_{\text{drop}} \cdot L_{\text{thru}} + L_{\text{drop}} \right)$$</li>
     </ul>
   </div>
 </div>
 
 <script>
-// Procedural Web Audio Sound Synthesizer for Photon Pilot
-class OpticalAudio {
-  constructor() {
-    this.ctx = null;
-    this.enabled = true;
-  }
-
-  init() {
-    if (!this.ctx) {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (AudioContext) this.ctx = new AudioContext();
-    }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
-  }
-
-  playTune() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(880, now);
-      osc.frequency.exponentialRampToValueAtTime(1760, now + 0.08);
-      gain.gain.setValueAtTime(0.12, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.1);
-    } catch(e) {}
-  }
-
-  playLaserSurge() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(260, now);
-      osc.frequency.exponentialRampToValueAtTime(1200, now + 0.25);
-      gain.gain.setValueAtTime(0.18, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.3);
-    } catch(e) {}
-  }
-
-  playReceive() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(659.25, now);
-      osc.frequency.linearRampToValueAtTime(987.77, now + 0.09);
-      gain.gain.setValueAtTime(0.1, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.11);
-    } catch(e) {}
-  }
-
-  playAlarm() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(320, now);
-      osc.frequency.linearRampToValueAtTime(480, now + 0.15);
-      gain.gain.setValueAtTime(0.12, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.18);
-    } catch(e) {}
-  }
-
-  playGameOver() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(140, now);
-      osc.frequency.exponentialRampToValueAtTime(35, now + 0.6);
-      gain.gain.setValueAtTime(0.25, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.65);
-    } catch(e) {}
-  }
-}
-
-const WAVELENGTHS = {
-  lambda1: { name: 'λ1 (1530nm)', color: '#38bdf8', glow: 'rgba(56,189,248,0.6)' },
-  lambda2: { name: 'λ2 (1540nm)', color: '#4ade80', glow: 'rgba(74,222,128,0.6)' },
-  lambda3: { name: 'λ3 (1550nm)', color: '#fbbf24', glow: 'rgba(251,191,36,0.6)' },
-  lambda4: { name: 'λ4 (1560nm)', color: '#f472b6', glow: 'rgba(244,114,182,0.6)' },
-  bypass:  { name: 'OFF', color: '#64748b', glow: 'rgba(100,116,139,0.2)' }
-};
-
-class OpticalGame {
-  constructor(canvasId) {
-    this.canvas = document.getElementById(canvasId);
-    this.ctx = this.canvas.getContext('2d');
-    this.audio = new OpticalAudio();
-
-    this.grid = 4; // 4x4 Optical Crossbar
-    this.mrrs = []; // 16 Micro-Ring Resonators
-    this.photons = []; // In-flight optical pulses
-    this.particles = [];
-
-    this.selectedTune = 'lambda1';
-    this.state = 'idle'; // 'idle', 'running', 'paused', 'over'
-    this.score = 0;
-    this.wave = 1;
-    this.waveTimer = 25.0;
-    this.laserSurge = 100.0;
-    this.thermalDrift = 0.0; // Thermal drift in Kelvin
-    this.thermalStability = 100.0;
-
-    this.deliveredCount = 0;
-    this.avgLoss = 2.4;
-    this.lastTime = performance.now();
-
-    this.initMrrs();
-    this.bindEvents();
-    this.loop = this.loop.bind(this);
-    requestAnimationFrame(this.loop);
-  }
-
-  initMrrs() {
-    this.mrrs = [];
-    for (let r = 0; r < this.grid; r++) {
-      for (let c = 0; c < this.grid; c++) {
-        // Set diagonal to default match
-        let defaultTune = 'bypass';
-        if (r === c) {
-          const keys = ['lambda1', 'lambda2', 'lambda3', 'lambda4'];
-          defaultTune = keys[r % keys.length];
-        }
-        this.mrrs.push({
-          r: r,
-          c: c,
-          tune: defaultTune,
-          tempOffset: 0.0
-        });
-      }
-    }
-  }
-
-  bindEvents() {
-    this.canvas.addEventListener('click', (e) => {
-      this.audio.init();
-      const rect = this.canvas.getBoundingClientRect();
-      const scaleX = this.canvas.width / rect.width;
-      const scaleY = this.canvas.height / rect.height;
-      const mx = (e.clientX - rect.left) * scaleX;
-      const my = (e.clientY - rect.top) * scaleY;
-
-      if (this.state !== 'running') return;
-
-      const mrr = this.getMrrAtPixel(mx, my);
-      if (mrr) {
-        // Cycle tuning: lambda1 -> lambda2 -> lambda3 -> lambda4 -> bypass
-        const order = ['lambda1', 'lambda2', 'lambda3', 'lambda4', 'bypass'];
-        const nextIdx = (order.indexOf(mrr.tune) + 1) % order.length;
-        mrr.tune = order[nextIdx];
-        this.audio.playTune();
-        const pos = this.getIntersectionPixel(mrr.r, mrr.c);
-        this.addTextParticle(pos.x, pos.y, WAVELENGTHS[mrr.tune].name.split(' ')[0], WAVELENGTHS[mrr.tune].color);
-      }
-    });
-
-    window.addEventListener('keydown', (e) => {
-      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return;
-      if (e.code === 'Space') {
-        e.preventDefault();
-        this.audio.init();
-        this.activateLaserBoost();
-      } else if (e.key === 'p' || e.key === 'P') {
-        this.togglePause();
-      }
-    });
-  }
-
-  getIntersectionPixel(r, c) {
-    const startX = 140;
-    const startY = 90;
-    const stepX = 100;
-    const stepY = 85;
-    return {
-      x: startX + c * stepX,
-      y: startY + r * stepY
-    };
-  }
-
-  getMrrAtPixel(px, py) {
-    for (let i = 0; i < this.mrrs.length; i++) {
-      const m = this.mrrs[i];
-      const pos = this.getIntersectionPixel(m.r, m.c);
-      if (Math.hypot(px - pos.x, py - pos.y) <= 18) {
-        return m;
-      }
-    }
-    return null;
-  }
-
-  start() {
-    this.audio.init();
-    this.initMrrs();
-    this.photons = [];
-    this.particles = [];
-    this.state = 'running';
-    this.score = 0;
-    this.wave = 1;
-    this.waveTimer = 25.0;
-    this.laserSurge = 100.0;
-    this.thermalDrift = 0.0;
-    this.deliveredCount = 0;
-
-    document.getElementById('opticalOverModal').style.display = 'none';
-    document.getElementById('opticalStartBtn').textContent = '🔄 Restart';
-    this.updateHUD();
-  }
-
-  togglePause() {
-    if (this.state === 'running') this.state = 'paused';
-    else if (this.state === 'paused') this.state = 'running';
-  }
-
-  activateLaserBoost() {
-    if (this.state !== 'running' || this.laserSurge < 25) return;
-    this.laserSurge = Math.max(0, this.laserSurge - 30);
-    this.thermalDrift = Math.max(0, this.thermalDrift - 4.5);
-    this.audio.playLaserSurge();
-    this.score += 50;
-    this.addTextParticle(this.canvas.width / 2, 60, '⚡ LASER SURGE / DRIFT COOLED!', '#38bdf8');
-    this.updateHUD();
-  }
-
-  addTextParticle(x, y, text, color) {
-    this.particles.push({
-      x, y, vx: 0, vy: -0.8, life: 1.0, text, color, isText: true
-    });
-  }
-
-  update(dt) {
-    if (this.state !== 'running') return;
-
-    // Progress Wave & Surge recharge
-    this.waveTimer -= dt;
-    this.laserSurge = Math.min(100.0, this.laserSurge + dt * 8.0);
-    this.thermalDrift += dt * (0.35 + this.wave * 0.1); // Gradual thermal drift
-    this.thermalStability = Math.max(0, Math.min(100, 100 - (this.thermalDrift / 15.0) * 100));
-
-    if (this.thermalStability <= 5) {
-      this.triggerDropout("Thermal drift shifted micro-ring resonance beyond receiver photodetector locking range!");
-      return;
-    }
-
-    if (this.waveTimer <= 0) {
-      this.wave++;
-      this.waveTimer = 25.0;
-      this.score += 300 * this.wave;
-      this.addTextParticle(this.canvas.width / 2, 50, `WAVE ${this.wave} OPTICAL BURST!`, '#22c55e');
-    }
-
-    // Spawn optical pulses from Laser Ingress (Left side)
-    const spawnRate = 0.8 + this.wave * 0.25;
-    if (Math.random() < spawnRate * dt) {
-      const ingressRow = Math.floor(Math.random() * this.grid);
-      const targetCol = Math.floor(Math.random() * this.grid);
-      const wkeys = ['lambda1', 'lambda2', 'lambda3', 'lambda4'];
-      const wavelength = wkeys[targetCol % wkeys.length];
-
-      this.photons.push({
-        r: ingressRow,
-        c: 0,
-        x: 40,
-        y: this.getIntersectionPixel(ingressRow, 0).y,
-        dir: 'horizontal', // 'horizontal' or 'vertical'
-        targetCol: targetCol,
-        wavelength: wavelength,
-        speed: 380, // pixels per second
-        loss: 0.5
-      });
-    }
-
-    // Move optical pulses along waveguides
-    for (let i = this.photons.length - 1; i >= 0; i--) {
-      const p = this.photons[i];
-      if (p.dir === 'horizontal') {
-        p.x += p.speed * dt;
-        p.loss += dt * 1.2;
-
-        // Check intersection with vertical waveguide
-        const nextCol = Math.floor((p.x - 90) / 100);
-        if (nextCol >= 0 && nextCol < this.grid) {
-          const mrr = this.mrrs[p.r * this.grid + nextCol];
-          const pos = this.getIntersectionPixel(p.r, nextCol);
-
-          // If close to MRR center and wavelength matches, drop to vertical!
-          if (Math.abs(p.x - pos.x) < 8 && mrr.tune === p.wavelength) {
-            p.dir = 'vertical';
-            p.c = nextCol;
-            p.x = pos.x;
-            p.y = pos.y;
-            p.loss += 0.8; // Drop loss
-          }
-        }
-
-        // Exited right edge uncoupled
-        if (p.x > 580) {
-          this.photons.splice(i, 1);
-        }
-      } else if (p.dir === 'vertical') {
-        p.y += p.speed * dt;
-        p.loss += dt * 1.2;
-
-        // Reached bottom photodetector
-        if (p.y > 410) {
-          this.deliveredCount++;
-          this.score += 35 * this.wave;
-          this.audio.playReceive();
-          const targetPos = this.getIntersectionPixel(3, p.c);
-          this.addTextParticle(targetPos.x, 430, '+1 Tbps', '#4ade80');
-          this.photons.splice(i, 1);
-        }
-      }
-    }
-
-    // Update Particles
-    for (let i = this.particles.length - 1; i >= 0; i--) {
-      const pt = this.particles[i];
-      pt.y += pt.vy;
-      pt.life -= dt * 1.5;
-      if (pt.life <= 0) this.particles.splice(i, 1);
-    }
-
-    this.updateHUD();
-  }
-
-  triggerDropout(reason) {
-    this.state = 'over';
-    this.audio.playGameOver();
-    document.getElementById('opticalModalTitle').textContent = 'OPTICAL LINK DROPOUT!';
-    document.getElementById('opticalModalSummary').innerHTML = `
-      ${reason}<br>
-      High bit-error rates caused irreversible loss of packet sync across optical waveguides.
-      <br><br><b>Final Wave:</b> Wave ${this.wave} | <b>Photons Received:</b> ${this.deliveredCount} | <b>Score:</b> ${this.score} pts
-    `;
-    document.getElementById('opticalOverModal').style.display = 'flex';
-  }
-
-  updateHUD() {
-    document.getElementById('opticalScore').textContent = this.score;
-    document.getElementById('opticalWave').textContent = `Wave ${this.wave}`;
-    document.getElementById('opticalBandwidth').textContent = (this.deliveredCount * 0.4).toFixed(1);
-    document.getElementById('opticalLoss').textContent = (2.4 + this.thermalDrift * 0.45).toFixed(1);
-
-    // Laser surge bar
-    document.getElementById('laserSurgeBar').style.width = `${Math.round(this.laserSurge)}%`;
-    document.getElementById('laserSurgeText').textContent = `${Math.round(this.laserSurge)}%`;
-
-    // Thermal Stability bar
-    const tBar = document.getElementById('opticalThermalBar');
-    tBar.style.width = `${Math.round(this.thermalStability)}%`;
-    if (this.thermalStability < 30) {
-      tBar.style.background = '#ef4444';
-      document.getElementById('opticalThermalText').style.color = '#ef4444';
-      document.getElementById('opticalThermalText').textContent = `${Math.round(this.thermalStability)}% (SEVERE DRIFT!)`;
-    } else if (this.thermalStability < 60) {
-      tBar.style.background = '#f59e0b';
-      document.getElementById('opticalThermalText').style.color = '#f59e0b';
-      document.getElementById('opticalThermalText').textContent = `${Math.round(this.thermalStability)}% (DRIFT DETECTED)`;
-    } else {
-      tBar.style.background = '#22c55e';
-      document.getElementById('opticalThermalText').style.color = '#4ade80';
-      document.getElementById('opticalThermalText').textContent = `${Math.round(this.thermalStability)}% (STABLE)`;
-    }
-  }
-
-  draw() {
-    this.ctx.fillStyle = '#0f172a';
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-    // 1. Draw Waveguides (4 Horizontal and 4 Vertical)
-    this.ctx.lineWidth = 6;
-    for (let r = 0; r < this.grid; r++) {
-      const pos = this.getIntersectionPixel(r, 0);
-      this.ctx.strokeStyle = '#1e293b';
-      this.ctx.beginPath();
-      this.ctx.moveTo(35, pos.y);
-      this.ctx.lineTo(580, pos.y);
-      this.ctx.stroke();
-
-      // Core inner stripe
-      this.ctx.strokeStyle = '#334155';
-      this.ctx.lineWidth = 2;
-      this.ctx.beginPath();
-      this.ctx.moveTo(35, pos.y);
-      this.ctx.lineTo(580, pos.y);
-      this.ctx.stroke();
-      this.ctx.lineWidth = 6;
-    }
-
-    for (let c = 0; c < this.grid; c++) {
-      const pos = this.getIntersectionPixel(0, c);
-      this.ctx.strokeStyle = '#1e293b';
-      this.ctx.beginPath();
-      this.ctx.moveTo(pos.x, 50);
-      this.ctx.lineTo(pos.x, 420);
-      this.ctx.stroke();
-
-      this.ctx.strokeStyle = '#334155';
-      this.ctx.lineWidth = 2;
-      this.ctx.beginPath();
-      this.ctx.moveTo(pos.x, 50);
-      this.ctx.lineTo(pos.x, 420);
-      this.ctx.stroke();
-      this.ctx.lineWidth = 6;
-    }
-
-    // 2. Draw Micro-Ring Resonators at Intersections
-    this.mrrs.forEach(m => {
-      const pos = this.getIntersectionPixel(m.r, m.c);
-      const wdef = WAVELENGTHS[m.tune];
-
-      // Outer ring
-      this.ctx.strokeStyle = wdef.color;
-      this.ctx.lineWidth = m.tune !== 'bypass' ? 3.5 : 1.5;
-      this.ctx.shadowColor = wdef.color;
-      this.ctx.shadowBlur = m.tune !== 'bypass' ? 10 : 0;
-
-      this.ctx.beginPath();
-      this.ctx.arc(pos.x, pos.y, 14, 0, Math.PI * 2);
-      this.ctx.stroke();
-      this.ctx.shadowBlur = 0;
-
-      // Center disc
-      this.ctx.fillStyle = m.tune !== 'bypass' ? wdef.glow : 'rgba(30, 41, 59, 0.6)';
-      this.ctx.beginPath();
-      this.ctx.arc(pos.x, pos.y, 8, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      // Text label
-      if (m.tune !== 'bypass') {
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.font = 'bold 9px "JetBrains Mono", monospace';
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText(m.tune.replace('lambda', 'λ'), pos.x, pos.y + 3);
-      }
-    });
-
-    // 3. Draw Laser Ingress Modulators (Left) & Photodetectors (Bottom)
-    for (let r = 0; r < this.grid; r++) {
-      const pos = this.getIntersectionPixel(r, 0);
-      this.ctx.fillStyle = '#38bdf8';
-      this.ctx.fillRect(20, pos.y - 10, 18, 20);
-      this.ctx.fillStyle = '#ffffff';
-      this.ctx.font = 'bold 9px "JetBrains Mono", monospace';
-      this.ctx.textAlign = 'center';
-      this.ctx.fillText(`TX${r}`, 29, pos.y + 3);
-    }
-
-    for (let c = 0; c < this.grid; c++) {
-      const pos = this.getIntersectionPixel(3, c);
-      this.ctx.fillStyle = '#10b981';
-      this.ctx.fillRect(pos.x - 10, 420, 20, 18);
-      this.ctx.fillStyle = '#ffffff';
-      this.ctx.font = 'bold 9px "JetBrains Mono", monospace';
-      this.ctx.textAlign = 'center';
-      this.ctx.fillText(`RX${c}`, pos.x, 433);
-    }
-
-    // 4. Draw Moving Photons
-    this.photons.forEach(p => {
-      const wdef = WAVELENGTHS[p.wavelength];
-      this.ctx.fillStyle = wdef.color;
-      this.ctx.shadowColor = wdef.color;
-      this.ctx.shadowBlur = 12;
-      this.ctx.beginPath();
-      this.ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
-      this.ctx.fill();
-      this.ctx.shadowBlur = 0;
-    });
-
-    // 5. Draw Flying Particles
-    this.particles.forEach(pt => {
-      this.ctx.globalAlpha = Math.max(0, pt.life);
-      this.ctx.fillStyle = pt.color;
-      this.ctx.font = 'bold 12px "JetBrains Mono", monospace';
-      this.ctx.textAlign = 'center';
-      this.ctx.fillText(pt.text, pt.x, pt.y);
-      this.ctx.globalAlpha = 1.0;
-    });
-
-    // Idle Watermark
-    if (this.state === 'idle') {
-      this.ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
-      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-      this.ctx.fillStyle = '#ffffff';
-      this.ctx.font = 'bold 20px "Inter", sans-serif';
-      this.ctx.textAlign = 'center';
-      this.ctx.fillText('Press "Start Photon Pilot" to Play!', this.canvas.width / 2, this.canvas.height / 2 - 10);
-      this.ctx.font = '13px "Inter", sans-serif';
-      this.ctx.fillStyle = '#94a3b8';
-      this.ctx.fillText('Tune micro-ring resonators to route laser wavelengths at the speed of light', this.canvas.width / 2, this.canvas.height / 2 + 18);
-    }
-  }
-
-  loop(timestamp) {
-    const dt = Math.min(0.08, (timestamp - this.lastTime) / 1000.0);
-    this.lastTime = timestamp;
-
-    this.update(dt);
-    this.draw();
-    requestAnimationFrame(this.loop);
-  }
-}
-
-let opticalGame = null;
-window.addEventListener('DOMContentLoaded', () => {
-  if (document.getElementById('opticalCanvas')) {
-    opticalGame = new OpticalGame('opticalCanvas');
-  }
-});
-
-function startOpticalGame() {
-  if (opticalGame) opticalGame.start();
-}
-
-function restartOpticalGame() {
-  if (opticalGame) opticalGame.start();
-}
-
-function activateLaserBoost() {
-  if (opticalGame) opticalGame.activateLaserBoost();
-}
-
-function setMrrTuning(val) {
-  if (opticalGame) opticalGame.selectedTune = val;
-}
-
-function toggleOpticalSound() {
-  if (!opticalGame) return;
-  opticalGame.audio.enabled = !opticalGame.audio.enabled;
-  document.getElementById('opticalSoundBtn').textContent = opticalGame.audio.enabled ? '🔊 Sound: ON' : '🔈 Sound: OFF';
-}
-
-function toggleOpticalPause() {
-  if (opticalGame) opticalGame.togglePause();
-}
-
-function saveOpticalRecord() {
-  if (!opticalGame) return;
-  const name = document.getElementById("opticalCallsign").value.trim() || "Photon Pilot";
-  const org = document.getElementById("opticalOrg").value.trim() || "Silicon Lab";
-  const dateStr = new Date().toISOString().split("T")[0];
-
-  const record = {
-    name: name,
-    org: org,
-    track: `Photon Pilot (Wave ${opticalGame.wave})`,
-    score: opticalGame.score,
-    accuracy: Math.round(opticalGame.deliveredCount * 0.4 * 10) / 10, // Tbps achieved
-    certId: `OPTICAL-WAVE-${opticalGame.wave}`,
-    date: dateStr,
-    type: "optical"
+// ============================================================================
+// Silicon Photonic & Optical NoC (ONoC) Waveguide CAD Engine
+// ============================================================================
+
+(function () {
+  let activeView = "spectrum"; // "spectrum", "power_budget"
+
+  const WDM_CHANNELS = [
+    { id: 1, lambda0: 1548.0, color: "#38bdf8" },
+    { id: 2, lambda0: 1549.6, color: "#34d399" },
+    { id: 3, lambda0: 1551.2, color: "#eab308" },
+    { id: 4, lambda0: 1552.8, color: "#f87171" }
+  ];
+
+  let optMetrics = {
+    laserDbm: 10.0,
+    rxDbm: -14.2,
+    marginDb: 3.8,
+    driftNm: 2.0,
+    heaterPwrMw: 4.8,
+    berExp: -12,
+    snrDb: 21.4,
+    energyPjBit: 0.42
   };
 
-  try {
-    const list = JSON.parse(localStorage.getItem("noc_leaderboard_records") || "[]");
-    list.unshift(record);
-    localStorage.setItem("noc_leaderboard_records", JSON.stringify(list.slice(0, 50)));
-    document.getElementById("opticalSaveConfirm").style.display = "block";
-  } catch(e) {
-    console.error(e);
+  const canvas = document.getElementById("opticalCanvas");
+  const ctx = canvas.getContext("2d");
+
+  function computeOpticalPhysics() {
+    const laserMw = parseFloat(document.getElementById("optLaserSelect").value) || 10.0;
+    const laserDbm = 10 * Math.log10(laserMw);
+    optMetrics.laserDbm = laserDbm;
+
+    const deltaT = parseFloat(document.getElementById("optTempSlider").value) || 20.0;
+    const tuningMode = document.getElementById("optTuningSelect").value;
+
+    // dLambda / dT = 0.1 nm/°C
+    const driftRaw = deltaT * 0.10;
+    optMetrics.driftNm = driftRaw;
+
+    // Cumulative losses: Coupler (1.5dB) + Modulator (2.5dB) + Waveguide 2cm (3.0dB) + Drop MRR (1.2dB) + Detector (0.5dB) = 8.7 dB
+    let nominalLossDb = 8.7;
+    let detuningLossDb = 0;
+
+    if (tuningMode === "active_heater") {
+      // Micro-heater burns 2.4 mW per nm of tuning
+      optMetrics.heaterPwrMw = driftRaw * 2.4;
+      detuningLossDb = 0.4; // residual tuning imperfection
+    } else {
+      optMetrics.heaterPwrMw = 0;
+      // Severe detuning loss: Lorentzian drop off-resonance
+      detuningLossDb = Math.min(22.0, Math.pow(driftRaw / 0.15, 2) * 2.5);
+    }
+
+    const rxDbm = laserDbm - (nominalLossDb + detuningLossDb);
+    optMetrics.rxDbm = rxDbm;
+    optMetrics.marginDb = rxDbm - (-18.0);
+
+    // SNR and BER
+    if (optMetrics.marginDb > 0) {
+      optMetrics.snrDb = 18.0 + optMetrics.marginDb * 0.9;
+      optMetrics.berExp = -12;
+    } else {
+      optMetrics.snrDb = Math.max(4.0, 18.0 + optMetrics.marginDb * 2.2);
+      optMetrics.berExp = Math.max(-2, Math.round(-12 - optMetrics.marginDb * 1.5));
+    }
+
+    optMetrics.energyPjBit = (laserMw * 1e-3 + optMetrics.heaterPwrMw * 1e-3) / 10e9 * 1e12; // at 10 Gbps
+
+    updateHUD();
   }
-}
 
-function submitOpticalToGithub() {
-  if (!opticalGame) return;
-  const name = document.getElementById("opticalCallsign").value.trim() || "Photon Pilot";
-  const org = document.getElementById("opticalOrg").value.trim() || "Silicon Lab";
-  const title = `[optical-highscore] ${name} — ${opticalGame.score} pts (${(opticalGame.deliveredCount * 0.4).toFixed(1)} Tbps)`;
-  const body = [
-    "### Photon Pilot Optical NoC High Score",
-    `- **Pilot**: ${name}`,
-    `- **Institution/Handle**: ${org}`,
-    `- **High Score**: ${opticalGame.score} pts`,
-    `- **Optical Bandwidth**: ${(opticalGame.deliveredCount * 0.4).toFixed(1)} Tbps`,
-    `- **Wave Reached**: Wave ${opticalGame.wave}`,
-    `- **Date**: ${new Date().toISOString().split("T")[0]}`,
-    "",
-    "```json",
-    JSON.stringify({
-      player: name,
-      org: org,
-      score: opticalGame.score,
-      bandwidth_tbps: (opticalGame.deliveredCount * 0.4).toFixed(1),
-      wave: opticalGame.wave,
-      type: "optical"
-    }, null, 2),
-    "```"
-  ].join("\n");
+  function updateHUD() {
+    document.getElementById("hudRxPower").textContent = optMetrics.rxDbm.toFixed(1) + " dBm (" + (optMetrics.marginDb >= 0 ? "Safe Margin" : "BELOW SENSITIVITY") + ")";
+    document.getElementById("hudMargin").textContent = "Sensitivity: -18.0 dBm (" + (optMetrics.marginDb >= 0 ? "+" : "") + optMetrics.marginDb.toFixed(1) + " dB Margin)";
+    document.getElementById("hudDrift").textContent = "Δλ = +" + optMetrics.driftNm.toFixed(2) + " nm (" + (optMetrics.heaterPwrMw > 0 ? "Tuned" : "Untuned") + ")";
+    document.getElementById("hudHeaterPwr").textContent = "Micro-Heater: " + optMetrics.heaterPwrMw.toFixed(1) + " mW Power";
+    document.getElementById("hudBer").textContent = "BER: " + (optMetrics.berExp <= -12 ? "< 10⁻¹² (Error-Free)" : "10^(" + optMetrics.berExp + ") UNRELIABLE");
+    document.getElementById("hudSnr").textContent = "Optical SNR: " + optMetrics.snrDb.toFixed(1) + " dB";
+    document.getElementById("hudEnergy").textContent = optMetrics.energyPjBit.toFixed(2) + " pJ/bit (10 Gbps)";
+  }
 
-  const url = `https://github.com/network-on-chip/learning/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&labels=game-score,leaderboard`;
-  window.open(url, '_blank');
-}
+  function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (activeView === "spectrum") {
+      renderSpectrumView();
+    } else if (activeView === "power_budget") {
+      renderPowerBudgetView();
+    }
+  }
+
+  // 1. WDM Lorentzian Spectrum View
+  function renderSpectrumView() {
+    const w = canvas.width;
+    const h = canvas.height;
+    const padL = 70, padT = 50, padR = 40, padB = 60;
+    const graphW = w - padL - padR;
+    const graphH = h - padT - padB;
+
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "600 12px 'JetBrains Mono', monospace";
+    ctx.fillText("WDM OPTICAL TRANSMISSION SPECTRUM T(λ) • LORENTZIAN RESONANCE PROFILES", padL, 28);
+
+    const minLambda = 1546.0;
+    const maxLambda = 1555.0;
+    const fwhm = 0.18; // nm
+
+    // Axes
+    ctx.strokeStyle = "#1e293b";
+    ctx.lineWidth = 1;
+    for (let gy = 0; gy <= 4; gy++) {
+      let y = padT + (gy / 4) * graphH;
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(w - padR, y);
+      ctx.stroke();
+
+      let tLabel = (1.0 - gy / 4).toFixed(2);
+      ctx.fillStyle = "#64748b";
+      ctx.font = "10px 'JetBrains Mono', monospace";
+      ctx.textAlign = "right";
+      ctx.fillText(tLabel, padL - 8, y + 4);
+    }
+
+    for (let gx = 0; gx <= 9; gx++) {
+      let x = padL + (gx / 9) * graphW;
+      ctx.beginPath();
+      ctx.moveTo(x, padT);
+      ctx.lineTo(x, h - padB);
+      ctx.stroke();
+
+      let lLabel = (minLambda + gx * 1.0).toFixed(0) + " nm";
+      ctx.fillStyle = "#64748b";
+      ctx.font = "10px 'JetBrains Mono', monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(lLabel, x, h - padB + 16);
+    }
+
+    const tuningMode = document.getElementById("optTuningSelect").value;
+    const activeDrift = (tuningMode === "active_heater") ? 0.0 : optMetrics.driftNm;
+
+    // Draw Lorentzian peaks for each WDM channel
+    WDM_CHANNELS.forEach(ch => {
+      let center = ch.lambda0 + activeDrift;
+      ctx.strokeStyle = ch.color;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      for (let s = 0; s <= 200; s++) {
+        let lam = minLambda + (s / 200) * (maxLambda - minLambda);
+        let transmission = 1.0 - (Math.pow(fwhm / 2, 2) / (Math.pow(lam - center, 2) + Math.pow(fwhm / 2, 2)));
+        let px = padL + ((lam - minLambda) / (maxLambda - minLambda)) * graphW;
+        let py = padT + (1 - transmission) * graphH;
+        if (s === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    });
+
+    // Legend
+    ctx.textAlign = "left";
+    ctx.font = "11px 'JetBrains Mono', monospace";
+    WDM_CHANNELS.forEach((ch, idx) => {
+      ctx.fillStyle = ch.color;
+      ctx.fillRect(w - 240, padT + 10 + idx * 18, 12, 12);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText("Channel " + ch.id + " (" + ch.lambda0.toFixed(1) + " nm)", w - 220, padT + 20 + idx * 18);
+    });
+  }
+
+  // 2. Optical Power Budget Waterfall View
+  function renderPowerBudgetView() {
+    const w = canvas.width;
+    const h = canvas.height;
+    const padL = 70, padT = 50, padR = 40, padB = 60;
+    const graphW = w - padL - padR;
+    const graphH = h - padT - padB;
+
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "600 12px 'JetBrains Mono', monospace";
+    ctx.fillText("OPTICAL LINK BUDGET WATERFALL [LASER SOURCE -> DETECTOR ATTENUATION]", padL, 28);
+
+    const stages = [
+      { name: "Laser Launch", pDbm: optMetrics.laserDbm, color: "#eab308" },
+      { name: "Grating Coupler", pDbm: optMetrics.laserDbm - 1.5, color: "#38bdf8" },
+      { name: "MRR Modulator", pDbm: optMetrics.laserDbm - 4.0, color: "#38bdf8" },
+      { name: "Si3N4 Waveguide", pDbm: optMetrics.laserDbm - 7.0, color: "#38bdf8" },
+      { name: "MRR Drop Filter", pDbm: optMetrics.rxDbm + 0.5, color: "#38bdf8" },
+      { name: "Rx Photodetector", pDbm: optMetrics.rxDbm, color: (optMetrics.rxDbm >= -18.0 ? "#22c55e" : "#ef4444") }
+    ];
+
+    // Y-Axis: +15 dBm to -25 dBm
+    const maxDb = 15, minDb = -25;
+    ctx.strokeStyle = "#1e293b";
+    ctx.lineWidth = 1;
+
+    for (let gy = 0; gy <= 4; gy++) {
+      let y = padT + (gy / 4) * graphH;
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(w - padR, y);
+      ctx.stroke();
+
+      let dLabel = (maxDb - (gy / 4) * (maxDb - minDb)) + " dBm";
+      ctx.fillStyle = "#64748b";
+      ctx.font = "10px 'JetBrains Mono', monospace";
+      ctx.textAlign = "right";
+      ctx.fillText(dLabel, padL - 8, y + 4);
+    }
+
+    // -18 dBm Sensitivity threshold line
+    let ySens = padT + (1 - (-18.0 - minDb) / (maxDb - minDb)) * graphH;
+    ctx.strokeStyle = "#ef4444";
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(padL, ySens);
+    ctx.lineTo(w - padR, ySens);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#ef4444";
+    ctx.textAlign = "left";
+    ctx.fillText("Detector Sensitivity Limit (-18.0 dBm)", padL + 10, ySens - 6);
+
+    // Bars
+    const barW = graphW / stages.length - 20;
+    stages.forEach((stg, idx) => {
+      let x = padL + idx * (graphW / stages.length) + 10;
+      let yVal = padT + (1 - (stg.pDbm - minDb) / (maxDb - minDb)) * graphH;
+      let barH = padT + graphH - yVal;
+
+      ctx.fillStyle = stg.color;
+      ctx.fillRect(x, yVal, barW, barH);
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, yVal, barW, barH);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 10px 'JetBrains Mono', monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(stg.pDbm.toFixed(1) + " dBm", x + barW / 2, yVal - 6);
+
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "9px 'JetBrains Mono', monospace";
+      ctx.fillText(stg.name.split(" ")[0], x + barW / 2, h - padB + 16);
+      ctx.fillText(stg.name.split(" ")[1] || "", x + barW / 2, h - padB + 28);
+    });
+  }
+
+  // Window Dispatch Interface
+  window.updateOpticalWorkbench = function () {
+    computeOpticalPhysics();
+    render();
+  };
+
+  window.switchOptView = function (v) {
+    activeView = v;
+    document.getElementById("btnOptSpectrum").className = (v === "spectrum") ? "noc-sim-btn" : "noc-sim-btn secondary";
+    document.getElementById("btnOptBudget").className = (v === "power_budget") ? "noc-sim-btn" : "noc-sim-btn secondary";
+    render();
+  };
+
+  window.stepOpticalSweep = function () {
+    let cur = parseFloat(document.getElementById("optTempSlider").value);
+    document.getElementById("optTempSlider").value = (cur + 5) % 55;
+    document.getElementById("optTempVal").textContent = "+" + document.getElementById("optTempSlider").value + "°C Drift";
+    computeOpticalPhysics();
+    render();
+  };
+
+  window.resetOpticalCAD = function () {
+    document.getElementById("optTempSlider").value = 20;
+    document.getElementById("optTempVal").textContent = "+20°C Drift";
+    computeOpticalPhysics();
+    render();
+  };
+
+  window.exportOpticalReport = function () {
+    let rpt = [
+      "===============================================================================",
+      "SILICON PHOTONIC & OPTICAL NoC (ONoC) LINK BUDGET REPORT",
+      "===============================================================================",
+      "Laser Launch Power       : " + optMetrics.laserDbm.toFixed(1) + " dBm (" + document.getElementById("optLaserSelect").value + " mW)",
+      "Photodetector Rx Power   : " + optMetrics.rxDbm.toFixed(1) + " dBm (Margin: " + optMetrics.marginDb.toFixed(1) + " dB)",
+      "Thermo-Optic Drift       : Δλ = +" + optMetrics.driftNm.toFixed(2) + " nm (Temp Gradient: " + document.getElementById("optTempSlider").value + " °C)",
+      "Tuning Heater Overhead   : " + optMetrics.heaterPwrMw.toFixed(1) + " mW (Closed-loop micro-heater)",
+      "Bit Error Rate (BER)     : " + (optMetrics.berExp <= -12 ? "< 10^-12 (Error-Free)" : "10^(" + optMetrics.berExp + ")"),
+      "Optical SNR              : " + optMetrics.snrDb.toFixed(1) + " dB",
+      "Transmitter Energy/Bit   : " + optMetrics.energyPjBit.toFixed(2) + " pJ/bit at 10 Gbps",
+      "==============================================================================="
+    ];
+    document.getElementById("optExportText").textContent = rpt.join("\n");
+    document.getElementById("optExportWrap").style.display = "block";
+  };
+
+  // Initial Boot
+  computeOpticalPhysics();
+  render();
+})();
 </script>

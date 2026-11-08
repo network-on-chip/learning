@@ -1,957 +1,544 @@
-# 🔥 Hotspot Hero: Silicon Thermal Defender
+# 🔥 Silicon Thermal & Dynamic Thermal Management (DTM) Solver
 
-Welcome to **Hotspot Hero**, an interactive microarchitecture and thermal physics arcade game! Serve as the Autonomous Thermal Management Engine on an ultra-dense multicore processor. Mitigate localized thermal hotspots using Dynamic Voltage & Frequency Scaling (DVFS), task migration, and microfluidic cryo pulses before thermal runaway triggers irreversible silicon breakdown! High scores can be inscribed directly onto the **Community Leaderboard**.
+An interactive Computer-Aided Design (CAD) finite-difference thermal simulator for multicore Systems-on-Chip (SoCs) and Networks-on-Chip (NoCs). Numerically solve the two-dimensional Fourier transient heat diffusion equation across silicon dies, model non-linear electro-thermal leakage power runaway ($I_{\text{leak}} \propto T^2 \exp(-qV_{th}/k_B T)$), evaluate passive heatsink versus microchannel liquid cooling, and benchmark Dynamic Thermal Management (DTM) policies including closed-loop PI-DVFS and thermal-aware packet rerouting.
 
 <div class="noc-sim-container">
+  <!-- Controls Panel -->
   <div class="noc-sim-controls" style="display:flex; flex-wrap:wrap; gap:0.75rem; align-items:center;">
-    <button id="hotspotStartBtn" class="noc-sim-btn" onclick="startHotspotGame()">▶ Start Defense</button>
-    <button id="cryoPulseBtn" class="noc-sim-btn" onclick="activateCryoPulse()" style="background:#0284c7; border:none; box-shadow:0 0 12px rgba(2,132,199,0.4);">❄️ Deploy Cryo Cool (Space)</button>
-
-    <label><b>Routing Policy:</b>
-      <select id="hotspotRoutingPolicy" class="noc-sim-select" onchange="setHotspotRouting(this.value)">
-        <option value="deflection">Thermal-Aware Deflection (Steer Around Hotspots)</option>
-        <option value="shortest">Shortest Path (High Bandwidth / Aggravates Heat)</option>
+    <label><b>DTM Control Policy:</b>
+      <select id="dtmPolicySelect" class="noc-sim-select" onchange="updateThermalWorkbench()">
+        <option value="none">Open-Loop (No Throttling / Saturated Hotspots)</option>
+        <option value="dvfs_reactive" selected>Reactive PI-DVFS Throttling (V/f Drop @ T_trip)</option>
+        <option value="taar_routing">Thermal-Aware Adaptive Routing (Divert Traffic)</option>
+        <option value="task_migration">Predictive Task Migration (Cool Tile Offloading)</option>
       </select>
     </label>
 
-    <label><b>Click Tool:</b>
-      <select id="hotspotToolSelect" class="noc-sim-select" onchange="setHotspotTool(this.value)">
-        <option value="dvfs">⚡ Toggle DVFS (Throttle / Normal)</option>
-        <option value="migrate">🔄 Task Migration (Select Source &amp; Dest)</option>
-        <option value="cryo">❄️ Target Cryo Spot</option>
+    <label><b>Package Cooling Solution:</b>
+      <select id="coolingSelect" class="noc-sim-select" onchange="updateThermalWorkbench()">
+        <option value="liquid">Direct Liquid Microchannel (R_sink = 0.12 °C/W)</option>
+        <option value="copper_fan" selected>Active Copper Fin + Fan (R_sink = 0.35 °C/W)</option>
+        <option value="passive">Passive Aluminum Heatsink (R_sink = 0.85 °C/W)</option>
       </select>
     </label>
 
-    <button id="hotspotSoundBtn" class="noc-sim-btn secondary" onclick="toggleHotspotSound()" title="Toggle Web Audio Sound">🔊 Sound: ON</button>
-    <button class="noc-sim-btn secondary" onclick="toggleHotspotPause()">⏸ Pause</button>
+    <label><b>Thermal Trip Point:</b>
+      <input type="range" id="tripSlider" min="70" max="110" step="5" value="85" style="width:100px; vertical-align:middle;" oninput="document.getElementById('tripVal').textContent = this.value + '°C'; updateThermalWorkbench();">
+      <span id="tripVal" style="font-family:'JetBrains Mono',monospace; font-size:0.85rem; color:#f87171;">85°C</span>
+    </label>
 
-    <div style="margin-left:auto; display:flex; gap:1.2rem; align-items:center; font-weight:700; font-family:'JetBrains Mono', monospace; font-size:0.9rem;">
-      <span style="color:var(--tcl-blue-600);">Score: <span id="hotspotScore">0</span></span>
-      <span style="color:#ef4444;">Peak: <span id="hotspotPeakTemp">45.0°C</span></span>
-      <span style="color:#22c55e;">Wave: <span id="hotspotWave">1</span></span>
-      <span style="color:#f59e0b;" id="hotspotCombo">Combo: 1x</span>
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; width:100%; margin-top:0.25rem;">
+      <button class="noc-sim-btn" id="btnHeatMap" onclick="switchThermalView('heatmap')" style="background:#0284c7;">🔥 2D Transient Heatmap</button>
+      <button class="noc-sim-btn secondary" id="btnHeatWave" onclick="switchThermalView('waveform')">📈 T(t) Transient Waveform</button>
+      <button class="noc-sim-btn secondary" id="btnHeatPwr" onclick="switchThermalView('power_breakdown')">⚡ Electro-Thermal Leakage</button>
+      <button class="noc-sim-btn secondary" onclick="injectThermalHotspot()">🎯 Inject Localized GEMM Burst</button>
+      <button class="noc-sim-btn secondary" onclick="resetThermalCAD()">🔄 Reset to Ambient</button>
+      <button class="noc-sim-btn secondary" onclick="exportThermalReport()" style="margin-left:auto;">📋 Export Thermal Log</button>
     </div>
   </div>
 
-  <!-- Thermal HUD & Coolant Battery -->
-  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:0.75rem; font-family:'JetBrains Mono', monospace; font-size:0.8rem;">
-    <div style="background:var(--tcl-surface); padding:0.5rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
-      <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-        <span style="font-weight:700; color:#38bdf8;">❄️ Microfluidic Coolant Reservoir (Space):</span>
-        <span id="cryoEnergyText" style="font-weight:700; color:#38bdf8;">100%</span>
-      </div>
-      <div style="width:100%; height:8px; background:rgba(56,189,248,0.15); border-radius:4px; overflow:hidden;">
-        <div id="cryoEnergyBar" style="width:100%; height:100%; background:linear-gradient(90deg, #0284c7, #38bdf8); transition:width 0.15s ease;"></div>
-      </div>
+  <!-- Physical Metrics HUD -->
+  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; margin-top:0.75rem; margin-bottom:0.75rem; font-family:'JetBrains Mono', monospace; font-size:0.8rem;">
+    <div style="background:var(--tcl-surface); padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
+      <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase;">Peak Junction Temperature</div>
+      <div style="font-size:1.05rem; font-weight:700; color:#f87171; margin:3px 0;" id="hudPeakT">74.2°C (Nominal)</div>
+      <div style="color:#64748b; font-size:0.75rem;" id="hudAvgT">Die Average: 52.8°C | ΔT Gradient: 34.2°C</div>
     </div>
 
-    <div style="background:var(--tcl-surface); padding:0.5rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
-      <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-        <span style="font-weight:700; color:#f87171;">🔥 Silicon Die Thermal Safety Margin:</span>
-        <span id="dieHealthText" style="font-weight:700; color:#4ade80;">100% (Safe &lt; 85°C)</span>
-      </div>
-      <div style="width:100%; height:8px; background:rgba(239,68,68,0.15); border-radius:4px; overflow:hidden;">
-        <div id="dieHealthBar" style="width:100%; height:100%; background:#22c55e; transition:width 0.2s ease, background 0.2s ease;"></div>
-      </div>
+    <div style="background:var(--tcl-surface); padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
+      <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase;">Total Power Dissipation</div>
+      <div style="font-size:1.05rem; font-weight:700; color:#eab308; margin:3px 0;" id="hudTotPwr">128.5 W (TDP Budget: 180W)</div>
+      <div style="color:#64748b; font-size:0.75rem;" id="hudPwrRatio">Dynamic: 104.2W | Sub-Vth Leakage: 24.3W</div>
+    </div>
+
+    <div style="background:var(--tcl-surface); padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
+      <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase;">DTM Throttling Status</div>
+      <div style="font-size:1.05rem; font-weight:700; color:#22c55e; margin:3px 0;" id="hudDtmStatus">NORMAL (100% Core Fmax)</div>
+      <div style="color:#64748b; font-size:0.75rem;" id="hudThrottledCount">Throttled Tiles: 0 / 64 Cores</div>
+    </div>
+
+    <div style="background:var(--tcl-surface); padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
+      <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase;">Thermal Runaway Risk</div>
+      <div style="font-size:1.05rem; font-weight:700; color:#38bdf8; margin:3px 0;" id="hudRunaway">SAFE (Stable Convergence)</div>
+      <div style="color:#64748b; font-size:0.75rem;" id="hudTime">Simulated Time: 42.0 ms</div>
     </div>
   </div>
 
+  <!-- Canvas Simulation View -->
   <div class="noc-sim-canvas-wrap" style="position:relative;">
-    <canvas id="hotspotCanvas" width="620" height="460" style="width:100%; max-width:620px; height:auto; display:block;"></canvas>
-
-    <!-- Game Over / Victory Modal -->
-    <div id="hotspotOverModal" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.94); border-radius:12px; z-index:20; flex-direction:column; justify-content:center; align-items:center; padding:2rem; box-sizing:border-box; color:#ffffff; text-align:center;">
-      <div id="hotspotModalIcon" style="font-size:3rem; margin-bottom:0.35rem;">💥</div>
-      <h2 id="hotspotModalTitle" style="margin:0 0 0.5rem 0; font-size:1.8rem; color:#f87171;">THERMAL RUNAWAY MELTDOWN!</h2>
-      <p id="hotspotModalSummary" style="color:#cbd5e1; font-size:0.95rem; max-width:480px; margin-bottom:1.25rem; line-height:1.6;">
-        Die junction temperature exceeded 105.0°C! Subthreshold leakage current surged exponentially, causing permanent dielectric gate oxide breakdown.
-      </p>
-
-      <div style="background:#1e293b; border:1px solid #334155; border-radius:10px; padding:1rem 1.5rem; margin-bottom:1.25rem; width:100%; max-width:420px; box-sizing:border-box; text-align:left;">
-        <label style="font-size:12px; font-weight:700; text-transform:uppercase; color:#94a3b8; display:block; margin-bottom:0.35rem;">Enter Your Callsign / Name:</label>
-        <input type="text" id="hotspotCallsign" class="noc-sim-select" style="width:100%; box-sizing:border-box; margin-bottom:0.75rem; background:#0f172a; color:#f8fafc; border-color:#475569;" placeholder="e.g. Thermal Maestro" value="Thermal Defender">
-        <label style="font-size:12px; font-weight:700; text-transform:uppercase; color:#94a3b8; display:block; margin-bottom:0.35rem;">Institution / Handle:</label>
-        <input type="text" id="hotspotOrg" class="noc-sim-select" style="width:100%; box-sizing:border-box; background:#0f172a; color:#f8fafc; border-color:#475569;" placeholder="e.g. Stanford / SJTU" value="Silicon Lab">
-      </div>
-
-      <div style="display:flex; gap:0.75rem; flex-wrap:wrap; justify-content:center;">
-        <button class="noc-sim-btn" onclick="saveHotspotRecord()" style="background:#22c55e;">💾 Inscribe on Leaderboard</button>
-        <button class="noc-sim-btn" onclick="submitHotspotToGithub()" style="background:#0284c7;">📤 Submit to GitHub</button>
-        <a href="../../leaderboard/" class="noc-sim-btn secondary" style="text-decoration:none; color:#ffffff !important;">🏆 View Leaderboard</a>
-        <button class="noc-sim-btn secondary" onclick="restartHotspotGame()" style="color:#ffffff !important;">🔄 Play Again</button>
-      </div>
-      <div id="hotspotSaveConfirm" style="margin-top:0.75rem; color:#4ade80; font-size:0.85rem; font-weight:600; display:none;">
-        ✓ Score successfully recorded in your browser Leaderboard!
-      </div>
-    </div>
+    <canvas id="thermalCanvas" width="700" height="420" style="width:100%; max-width:700px; height:auto; display:block; border-radius:8px; background:#0b1120; border:1px solid #1e293b;"></canvas>
   </div>
 
-  <div id="hotspotInstructions" style="margin-top:1rem; padding:1rem 1.25rem; background:var(--tcl-surface); border:1px solid var(--tcl-border); border-radius:10px; font-size:0.86rem; color:var(--md-default-fg-color--lighter); line-height:1.65;">
-    <strong style="color:var(--tcl-heading);">🔥 Thermal Physics &amp; Gameplay Architecture:</strong>
+  <!-- Report Export Panel -->
+  <div id="thermalReportWrap" style="display:none; margin-top:0.75rem; background:#0f172a; border:1px solid #334155; border-radius:8px; padding:0.9rem; font-family:'JetBrains Mono',monospace; font-size:0.78rem; color:#e2e8f0;">
+    <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+      <strong style="color:#38bdf8;">Transient Thermal &amp; DTM Audit Log:</strong>
+      <button onclick="document.getElementById('thermalReportWrap').style.display='none'" style="background:transparent; border:none; color:#94a3b8; cursor:pointer;">✕ Close</button>
+    </div>
+    <pre id="thermalReportText" style="margin:0; white-space:pre-wrap; max-height:220px; overflow-y:auto; color:#a5f3fc;"></pre>
+  </div>
+
+  <!-- Theory & Formulation -->
+  <div style="margin-top:1rem; padding:1.1rem 1.25rem; background:var(--tcl-surface); border:1px solid var(--tcl-border); border-radius:10px; font-size:0.86rem; color:var(--md-default-fg-color--lighter); line-height:1.7;">
+    <strong style="color:var(--tcl-heading); font-size:0.95rem;">🔬 Silicon Thermal Physics &amp; DTM Mathematical Foundations (Chapter 7):</strong>
     <ul style="margin: 0.5rem 0 0 1.2rem; padding: 0;">
-      <li><strong>2D RC Thermal Conduction:</strong> Heat diffuses between adjacent silicon tiles according to Fourier's law: $C_{th} \frac{dT_i}{dt} = P_i - \frac{T_i - T_{amb}}{R_{conv}} + \sum \frac{T_j - T_i}{R_{inter}}$. High compute bursts generate intense dynamic power ($P_{dyn} \propto V^2 f$).</li>
-      <li><strong>Thermal Runaway ($T &gt; 100^\circ\text{C}$):</strong> Subthreshold leakage increases exponentially with temperature ($P_{leak} \propto T^2 e^{\frac{-qV_{th}}{k_B T}}$). If a core sustains $\ge 105^\circ\text{C}$ for over 3.0s, permanent gate breakdown occurs!</li>
-      <li><strong>DVFS Throttling (Click Core):</strong> Click any core to toggle between <strong>Standard (0.9V/2.2GHz)</strong>, <strong>Throttled (0.65V/1.2GHz - cools down fast!)</strong>, and <strong>Boost (1.2V/3.2GHz - extreme speed &amp; heat)</strong>.</li>
-      <li><strong>Task Migration:</strong> Set Click Tool to "Task Migration". Click an overheating core, then click an idle neighbor to migrate heavy workloads away from hotspots!</li>
-      <li><strong>Cryo Cool Burst (Spacebar):</strong> Deploys a microfluidic thermoelectric cooling blast, quenching temperature by $25^\circ\text{C}$ across the hottest cluster. Recharges as packets successfully route.</li>
-      <li><strong>Thermal Deflection Routing:</strong> Steers flits around cores exceeding $80^\circ\text{C}$, preventing dynamic switching power from worsening localized hot zones.</li>
+      <li><strong>2D Fourier Heat Diffusion Equation:</strong> The temperature distribution $T(x, y, t)$ across a silicon substrate of thickness $h_{si}$, density $\rho$, and specific heat capacity $c_p$ is governed by:
+        $$\rho c_p \frac{\partial T}{\partial t} = k_{si} \left( \frac{\partial^2 T}{\partial x^2} + \frac{\partial^2 T}{\partial y^2} \right) + \frac{P_{diss}(x, y, t)}{h_{si}} - \frac{T - T_{sink}}{R_{th, vertical}}$$
+        Lateral thermal resistance between adjacent $2\text{ mm}$ tiles is substantially higher than vertical resistance to the heat spreader, creating sharp on-chip spatial gradients ($\Delta T > 30^\circ\text{C}$).</li>
+      <li><strong>Non-Linear Electro-Thermal Leakage Runaway:</strong> Subthreshold leakage increases exponentially with temperature:
+        $$P_{\text{leak}}(T) = V_{dd} \cdot I_0 \left(\frac{T}{T_0}\right)^2 \exp\left( \frac{q (V_{gs} - V_{th})}{n k_B T} \right)$$
+        If heat extraction rate $\frac{dT}{dt}_{\text{cool}}$ falls below the incremental leakage slope $\frac{\partial P_{\text{leak}}}{\partial T}$, positive electro-thermal feedback induces catastrophic thermal runaway.</li>
+      <li><strong>Thermal-Aware Adaptive Routing (TAAR):</strong> Routing logic dynamically measures local temperature or buffer queues. Flits destined across a hotspot are diverted along orthogonal perimeter Manhattan routes, reducing local crossbar switching power and lowering peak $T_j$ by up to $14^\circ\text{C}$.</li>
     </ul>
   </div>
 </div>
 
 <script>
-// Procedural Web Audio Sound Synthesizer for Hotspot Hero
-class HotspotAudio {
-  constructor() {
-    this.ctx = null;
-    this.enabled = true;
-  }
+// ============================================================================
+// Silicon Thermal & Dynamic Thermal Management (DTM) Finite-Difference Engine
+// ============================================================================
 
-  init() {
-    if (!this.ctx) {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (AudioContext) this.ctx = new AudioContext();
-    }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
-  }
+(function () {
+  const GRID_SIZE = 8; // 8x8 Core Grid = 64 Cores
+  const T_AMBIENT = 35.0; // °C
 
-  playCryo() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      // White noise buffer for ice / cryo spray whoosh
-      const bufferSize = this.ctx.sampleRate * 0.3;
-      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.4));
-      }
-      const noise = this.ctx.createBufferSource();
-      noise.buffer = buffer;
-      const filter = this.ctx.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(1400, now);
-      filter.frequency.exponentialRampToValueAtTime(400, now + 0.3);
-      const gain = this.ctx.createGain();
-      gain.gain.setValueAtTime(0.25, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-      noise.connect(filter);
-      filter.connect(gain);
-      gain.connect(this.ctx.destination);
-      noise.start(now);
-    } catch(e) {}
-  }
+  let activeView = "heatmap"; // "heatmap", "waveform", "power_breakdown"
+  let animId = null;
+  let simTimeMs = 0;
 
-  playThrottle() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(440, now);
-      osc.frequency.linearRampToValueAtTime(330, now + 0.08);
-      gain.gain.setValueAtTime(0.12, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.09);
-    } catch(e) {}
-  }
+  // Thermal Network Mesh (8x8)
+  let T = [];
+  let P_dyn = [];
+  let P_leak = [];
+  let throttlingFactor = []; // 1.0 = full speed, 0.5 = throttled
 
-  playMigrate() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(350, now);
-      osc.frequency.exponentialRampToValueAtTime(700, now + 0.12);
-      gain.gain.setValueAtTime(0.15, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.14);
-    } catch(e) {}
-  }
+  // Time-history buffers for waveform plotting
+  let historyTime = [];
+  let historyPeakT = [];
+  let historyAvgT = [];
 
-  playAlarm() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(650, now);
-      osc.frequency.linearRampToValueAtTime(850, now + 0.12);
-      gain.gain.setValueAtTime(0.12, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.15);
-    } catch(e) {}
-  }
+  const canvas = document.getElementById("thermalCanvas");
+  const ctx = canvas.getContext("2d");
 
-  playMeltdown() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(140, now);
-      osc.frequency.exponentialRampToValueAtTime(35, now + 0.7);
-      gain.gain.setValueAtTime(0.3, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.75);
-    } catch(e) {}
-  }
-
-  playVictory() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
-      notes.forEach((freq, idx) => {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
-        gain.gain.setValueAtTime(0.12, now + idx * 0.08);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.16);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now + idx * 0.08);
-        osc.stop(now + idx * 0.08 + 0.16);
-      });
-    } catch(e) {}
-  }
-}
-
-class HotspotGame {
-  constructor(canvasId) {
-    this.canvas = document.getElementById(canvasId);
-    this.ctx = this.canvas.getContext('2d');
-    this.audio = new HotspotAudio();
-    
-    this.gridSize = 4; // 4x4 Tiles
-    this.tiles = [];
-    this.packets = [];
-    this.particles = [];
-    
-    this.state = 'idle'; // 'idle', 'running', 'paused', 'over', 'victory'
-    this.score = 0;
-    this.wave = 1;
-    this.waveTimer = 25.0; // seconds per wave
-    this.cryoEnergy = 100.0;
-    this.maxCryo = 100.0;
-    this.routingPolicy = 'deflection';
-    this.selectedTool = 'dvfs';
-    this.migrationSource = null;
-    
-    this.peakTemp = 45.0;
-    this.lastAlarmTime = 0;
-    this.lastTime = performance.now();
-    
-    this.initGrid();
-    this.bindEvents();
-    this.loop = this.loop.bind(this);
-    requestAnimationFrame(this.loop);
-  }
-
-  initGrid() {
-    this.tiles = [];
-    const coreTypes = ['NPU', 'CPU', 'GPU', 'MEM'];
-    for (let y = 0; y < this.gridSize; y++) {
-      for (let x = 0; x < this.gridSize; x++) {
-        const typeIndex = (x + y * 2) % coreTypes.length;
-        this.tiles.push({
-          x: x,
-          y: y,
-          type: coreTypes[typeIndex],
-          temp: 45.0, // Ambient base temperature
-          power: 1.0, // Base power
-          dvfs: 'normal', // 'normal', 'throttled', 'boost'
-          freq: 2.2, // GHz
-          voltage: 0.9, // V
-          load: 0.15, // Workload fraction
-          meltdownTimer: 0.0, // seconds at >= 105C
-          hotspot: false
-        });
+  function initMesh() {
+    T = [];
+    P_dyn = [];
+    P_leak = [];
+    throttlingFactor = [];
+    for (let r = 0; r < GRID_SIZE; r++) {
+      T[r] = [];
+      P_dyn[r] = [];
+      P_leak[r] = [];
+      throttlingFactor[r] = [];
+      for (let c = 0; c < GRID_SIZE; c++) {
+        T[r][c] = T_AMBIENT + Math.random() * 2.0;
+        P_dyn[r][c] = 1.2 + Math.random() * 0.8; // W
+        P_leak[r][c] = 0.2;
+        throttlingFactor[r][c] = 1.0;
       }
     }
+    // Seed center GEMM clusters
+    P_dyn[3][3] = 4.8;
+    P_dyn[3][4] = 5.2;
+    P_dyn[4][3] = 5.0;
+    P_dyn[4][4] = 4.6;
+
+    historyTime = [];
+    historyPeakT = [];
+    historyAvgT = [];
+    simTimeMs = 0;
   }
 
-  bindEvents() {
-    this.canvas.addEventListener('click', (e) => {
-      this.audio.init();
-      const rect = this.canvas.getBoundingClientRect();
-      const scaleX = this.canvas.width / rect.width;
-      const scaleY = this.canvas.height / rect.height;
-      const mx = (e.clientX - rect.left) * scaleX;
-      const my = (e.clientY - rect.top) * scaleY;
+  function stepThermalPhysics(dt_ms) {
+    const coolingType = document.getElementById("coolingSelect").value;
+    let rSink = (coolingType === "liquid") ? 0.12 : (coolingType === "passive" ? 0.85 : 0.35);
+    const dtmPolicy = document.getElementById("dtmPolicySelect").value;
+    const tripT = parseFloat(document.getElementById("tripSlider").value) || 85.0;
 
-      const tile = this.getTileAtPixel(mx, my);
-      if (!tile || this.state !== 'running') return;
+    const rLateral = 1.85; // °C/W
+    const cCap = 0.085;    // J/°C per core tile
 
-      if (this.selectedTool === 'dvfs') {
-        if (tile.dvfs === 'normal') {
-          tile.dvfs = 'throttled';
-          tile.freq = 1.2;
-          tile.voltage = 0.65;
-        } else if (tile.dvfs === 'throttled') {
-          tile.dvfs = 'boost';
-          tile.freq = 3.2;
-          tile.voltage = 1.2;
-        } else {
-          tile.dvfs = 'normal';
-          tile.freq = 2.2;
-          tile.voltage = 0.9;
-        }
-        this.audio.playThrottle();
-        this.addTextParticle(mx, my, tile.dvfs.toUpperCase(), '#38bdf8');
-      } else if (this.selectedTool === 'migrate') {
-        if (!this.migrationSource) {
-          this.migrationSource = tile;
-          this.addTextParticle(mx, my, 'SRC SELECTED', '#f59e0b');
-        } else {
-          if (this.migrationSource !== tile) {
-            // Migrate load
-            const transferred = this.migrationSource.load * 0.65;
-            this.migrationSource.load -= transferred;
-            tile.load += transferred;
-            this.audio.playMigrate();
-            this.addTextParticle(mx, my, 'LOAD MIGRATED!', '#22c55e');
-            this.score += 75;
+    let nextT = [];
+    let peakT = 0;
+    let sumT = 0;
+    let totDyn = 0;
+    let totLeak = 0;
+    let throttledCount = 0;
+
+    for (let r = 0; r < GRID_SIZE; r++) {
+      nextT[r] = [];
+      for (let c = 0; c < GRID_SIZE; c++) {
+        let curT = T[r][c];
+
+        // 1. DTM Decision
+        let throttle = 1.0;
+        if (dtmPolicy === "dvfs_reactive") {
+          if (curT > tripT) {
+            throttle = 0.45; // Drop voltage & frequency by 55%
+            throttledCount++;
           }
-          this.migrationSource = null;
-        }
-      } else if (this.selectedTool === 'cryo') {
-        this.applyCryoToTile(tile);
-      }
-    });
-
-    window.addEventListener('keydown', (e) => {
-      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) {
-        return;
-      }
-      if (e.code === 'Space') {
-        if (this.isRunning && !this.isOver && !this.isPaused) {
-          e.preventDefault();
-          this.audio.init();
-          this.activateCryoPulse();
-        }
-      } else if (e.key === 'p' || e.key === 'P') {
-        if (this.isRunning && !this.isOver) {
-          this.togglePause();
-        }
-      } else if (e.key === 'r' || e.key === 'R') {
-        if (this.isRunning || this.isOver) {
-          this.start();
-        }
-      }
-    });
-  }
-
-  getTileAtPixel(px, py) {
-    const pad = 40;
-    const cw = (this.canvas.width - pad * 2) / this.gridSize;
-    const ch = (this.canvas.height - pad * 2) / this.gridSize;
-    const x = Math.floor((px - pad) / cw);
-    const y = Math.floor((py - pad) / ch);
-    if (x >= 0 && x < this.gridSize && y >= 0 && y < this.gridSize) {
-      return this.tiles[y * this.gridSize + x];
-    }
-    return null;
-  }
-
-  getTilePixelCenter(x, y) {
-    const pad = 40;
-    const cw = (this.canvas.width - pad * 2) / this.gridSize;
-    const ch = (this.canvas.height - pad * 2) / this.gridSize;
-    return {
-      x: pad + x * cw + cw / 2,
-      y: pad + y * ch + ch / 2,
-      w: cw,
-      h: ch
-    };
-  }
-
-  start() {
-    this.audio.init();
-    this.initGrid();
-    this.packets = [];
-    this.particles = [];
-    this.state = 'running';
-    this.score = 0;
-    this.wave = 1;
-    this.waveTimer = 22.0;
-    this.cryoEnergy = 100.0;
-    this.peakTemp = 45.0;
-    this.migrationSource = null;
-
-    document.getElementById('hotspotOverModal').style.display = 'none';
-    document.getElementById('hotspotStartBtn').textContent = '🔄 Restart';
-    this.updateHUD();
-  }
-
-  togglePause() {
-    if (this.state === 'running') this.state = 'paused';
-    else if (this.state === 'paused') this.state = 'running';
-  }
-
-  activateCryoPulse() {
-    if (this.state !== 'running' || this.cryoEnergy < 25) return;
-    this.cryoEnergy = Math.max(0, this.cryoEnergy - 30);
-    this.audio.playCryo();
-
-    // Find hottest tile cluster
-    let hottest = this.tiles[0];
-    this.tiles.forEach(t => { if (t.temp > hottest.temp) hottest = t; });
-    this.applyCryoToTile(hottest, true);
-  }
-
-  applyCryoToTile(tile, isBurst = false) {
-    tile.temp = Math.max(42.0, tile.temp - (isBurst ? 28.0 : 18.0));
-    tile.meltdownTimer = 0.0;
-    const pos = this.getTilePixelCenter(tile.x, tile.y);
-
-    // Spawn cryo frost particles
-    for (let i = 0; i < 24; i++) {
-      const ang = Math.random() * Math.PI * 2;
-      const spd = Math.random() * 3 + 1;
-      this.particles.push({
-        x: pos.x,
-        y: pos.y,
-        vx: Math.cos(ang) * spd,
-        vy: Math.sin(ang) * spd,
-        life: 1.0,
-        color: '#38bdf8',
-        size: Math.random() * 4 + 2
-      });
-    }
-    this.addTextParticle(pos.x, pos.y, '-28°C CRYO!', '#38bdf8');
-    this.score += 50;
-    this.updateHUD();
-  }
-
-  addTextParticle(x, y, text, color) {
-    this.particles.push({
-      x: x,
-      y: y,
-      vx: 0,
-      vy: -0.8,
-      life: 1.0,
-      text: text,
-      color: color,
-      isText: true
-    });
-  }
-
-  update(dt) {
-    if (this.state !== 'running') return;
-
-    // 1. Progress Wave & recharge cryo
-    this.waveTimer -= dt;
-    this.cryoEnergy = Math.min(this.maxCryo, this.cryoEnergy + dt * 6.5);
-
-    if (this.waveTimer <= 0) {
-      this.wave++;
-      this.waveTimer = 22.0 + this.wave * 2.0;
-      this.audio.playVictory();
-      this.score += 200 * this.wave;
-      this.addTextParticle(this.canvas.width / 2, 70, `WAVE ${this.wave} ADVANCE!`, '#22c55e');
-    }
-
-    // 2. Spawn Traffic Flits
-    const spawnChance = (0.2 + this.wave * 0.08) * dt;
-    if (Math.random() < spawnChance) {
-      const srcIdx = Math.floor(Math.random() * this.tiles.length);
-      let dstIdx = Math.floor(Math.random() * this.tiles.length);
-      while (dstIdx === srcIdx) dstIdx = Math.floor(Math.random() * this.tiles.length);
-      
-      const src = this.tiles[srcIdx];
-      const dst = this.tiles[dstIdx];
-      src.load = Math.min(1.0, src.load + 0.12);
-
-      this.packets.push({
-        cx: src.x,
-        cy: src.y,
-        dx: dst.x,
-        dy: dst.y,
-        progress: 0.0,
-        color: '#f59e0b'
-      });
-    }
-
-    // 3. Move Flits along Routers
-    for (let i = this.packets.length - 1; i >= 0; i--) {
-      const p = this.packets[i];
-      p.progress += dt * 1.8;
-      if (p.progress >= 1.0) {
-        p.progress = 0.0;
-        // Determine next hop based on policy
-        let nextX = p.cx;
-        let nextY = p.cy;
-
-        if (this.routingPolicy === 'deflection') {
-          // Check if candidate XY is hot
-          let candX = p.cx + Math.sign(p.dx - p.cx);
-          let candY = p.cy + Math.sign(p.dy - p.cy);
-          let hotX = false;
-          let hotY = false;
-
-          if (candX !== p.cx) {
-            const tX = this.tiles[p.cy * this.gridSize + candX];
-            if (tX && tX.temp > 82.0) hotX = true;
+        } else if (dtmPolicy === "taar_routing") {
+          if (curT > tripT - 5.0) {
+            throttle = 0.70; // Divert 30% routing traffic away
+            throttledCount++;
           }
-          if (candY !== p.cy) {
-            const tY = this.tiles[candY * this.gridSize + p.cx];
-            if (tY && tY.temp > 82.0) hotY = true;
+        } else if (dtmPolicy === "task_migration") {
+          if (curT > tripT) {
+            throttle = 0.30; // Migrate threads to edge tiles
+            throttledCount++;
+            // Edge tile receives extra work
+            if (r > 0 && T[0][c] < tripT - 10) P_dyn[0][c] += 0.4;
           }
-
-          if (candX !== p.cx && !hotX) {
-            nextX = candX;
-          } else if (candY !== p.cy && !hotY) {
-            nextY = candY;
-          } else if (candX !== p.cx) {
-            nextX = candX;
-          } else if (candY !== p.cy) {
-            nextY = candY;
-          }
-        } else {
-          // Strict Dimension-Order XY
-          if (p.cx !== p.dx) nextX = p.cx + Math.sign(p.dx - p.cx);
-          else if (p.cy !== p.dy) nextY = p.cy + Math.sign(p.dy - p.cy);
         }
+        throttlingFactor[r][c] = throttle;
 
-        p.cx = nextX;
-        p.cy = nextY;
+        // 2. Electro-Thermal Leakage Calculation
+        // P_leak increases exponentially with temperature
+        let tKelvin = curT + 273.15;
+        let tNorm = tKelvin / 300.0;
+        let leakW = 0.18 * Math.pow(tNorm, 2) * Math.exp(12.0 * (1.0 - 300.0 / tKelvin));
+        P_leak[r][c] = leakW;
 
-        // Dynamic dissipation at intermediate router
-        const curTile = this.tiles[p.cy * this.gridSize + p.cx];
-        curTile.temp += 0.15;
+        let effDyn = P_dyn[r][c] * Math.pow(throttle, 2);
+        let effP = effDyn + leakW;
 
-        if (p.cx === p.dx && p.cy === p.dy) {
-          this.packets.splice(i, 1);
-          this.score += 15;
-          this.cryoEnergy = Math.min(this.maxCryo, this.cryoEnergy + 1.2);
-        }
+        totDyn += effDyn;
+        totLeak += leakW;
+
+        // 3. Finite-Difference Heat Exchange
+        let lateralConduction = 0;
+        if (r > 0) lateralConduction += (T[r - 1][c] - curT) / rLateral;
+        if (r < GRID_SIZE - 1) lateralConduction += (T[r + 1][c] - curT) / rLateral;
+        if (c > 0) lateralConduction += (T[r][c - 1] - curT) / rLateral;
+        if (c < GRID_SIZE - 1) lateralConduction += (T[r][c + 1] - curT) / rLateral;
+
+        let verticalConvection = (curT - T_AMBIENT) / rSink;
+
+        // dT/dt = (P + Q_lat - Q_vert) / C
+        let dT_dt = (effP + lateralConduction - verticalConvection) / cCap;
+        let newT = curT + dT_dt * (dt_ms * 1e-3);
+
+        nextT[r][c] = Math.max(T_AMBIENT, Math.min(135.0, newT));
+        if (nextT[r][c] > peakT) peakT = nextT[r][c];
+        sumT += nextT[r][c];
       }
     }
 
-    // 4. Heat Generation & 2D Thermal Diffusion
-    const ambient = 45.0;
-    const condRate = 0.22; // Conductance between neighboring silicon tiles
-    const convRate = 0.18; // Convective dissipation to heat spreader
-    const tempsCopy = this.tiles.map(t => t.temp);
+    T = nextT;
+    simTimeMs += dt_ms;
 
-    let maxT = 45.0;
-    let criticalCount = 0;
+    let avgT = sumT / (GRID_SIZE * GRID_SIZE);
+    let totP = totDyn + totLeak;
 
-    for (let idx = 0; idx < this.tiles.length; idx++) {
-      const tile = this.tiles[idx];
-      // Dynamic power: P = C * V^2 * f * load
-      const v = tile.voltage;
-      const f = tile.freq;
-      const dynPower = (v * v) * f * (0.8 + tile.load * 1.5) * (1.0 + this.wave * 0.15);
-      
-      // Leakage power: exponential with temperature
-      const leakPower = 0.08 * Math.exp(Math.max(0, (tempsCopy[idx] - 70) * 0.055));
-      const totalGen = (dynPower + leakPower) * 1.8;
-
-      // Conduction with 4 orthogonal neighbors
-      let neighborDiff = 0;
-      const x = tile.x;
-      const y = tile.y;
-      const neighbors = [
-        y > 0 ? (y - 1) * this.gridSize + x : null,
-        y < this.gridSize - 1 ? (y + 1) * this.gridSize + x : null,
-        x > 0 ? y * this.gridSize + (x - 1) : null,
-        x < this.gridSize - 1 ? y * this.gridSize + (x + 1) : null
-      ];
-
-      neighbors.forEach(nIdx => {
-        if (nIdx !== null) {
-          neighborDiff += (tempsCopy[nIdx] - tempsCopy[idx]) * condRate;
-        }
-      });
-
-      // Ambient dissipation
-      const ambLoss = (tempsCopy[idx] - ambient) * convRate;
-
-      // Integrate temp
-      tile.temp += (totalGen + neighborDiff - ambLoss) * dt * 3.5;
-      if (tile.temp < ambient) tile.temp = ambient;
-
-      // Natural load decay
-      tile.load = Math.max(0.1, tile.load - dt * 0.12);
-
-      if (tile.temp > maxT) maxT = tile.temp;
-
-      // Alarm / Warning
-      if (tile.temp >= 85.0) {
-        criticalCount++;
-        tile.hotspot = true;
-      } else {
-        tile.hotspot = false;
-      }
-
-      // Meltdown Countdown
-      if (tile.temp >= 105.0) {
-        tile.meltdownTimer += dt;
-        if (tile.meltdownTimer >= 3.0) {
-          this.triggerMeltdown(tile);
-          return;
-        }
-      } else {
-        tile.meltdownTimer = Math.max(0, tile.meltdownTimer - dt * 1.5);
-      }
+    // Record waveform history (keep last 120 points)
+    if (historyTime.length > 120) {
+      historyTime.shift();
+      historyPeakT.shift();
+      historyAvgT.shift();
     }
+    historyTime.push(simTimeMs);
+    historyPeakT.push(peakT);
+    historyAvgT.push(avgT);
 
-    this.peakTemp = maxT;
-
-    // Siren audio when hot
-    const now = performance.now();
-    if (criticalCount > 0 && now - this.lastAlarmTime > 750) {
-      this.audio.playAlarm();
-      this.lastAlarmTime = now;
-    }
-
-    // 5. Update Particles
-    for (let i = this.particles.length - 1; i >= 0; i--) {
-      const pt = this.particles[i];
-      pt.x += pt.vx;
-      pt.y += pt.vy;
-      pt.life -= dt * (pt.isText ? 0.9 : 1.8);
-      if (pt.life <= 0) this.particles.splice(i, 1);
-    }
-
-    this.score += Math.floor(dt * 10 * this.wave);
-    this.updateHUD();
+    // Update HUD Metrics
+    document.getElementById("hudPeakT").textContent = peakT.toFixed(1) + "°C (" + (peakT >= tripT ? "THROTTLING ACTIVE" : "NOMINAL") + ")";
+    document.getElementById("hudAvgT").textContent = "Die Average: " + avgT.toFixed(1) + "°C | ΔT Gradient: " + (peakT - avgT).toFixed(1) + "°C";
+    document.getElementById("hudTotPwr").textContent = totP.toFixed(1) + " W (Budget: 180W)";
+    document.getElementById("hudPwrRatio").textContent = "Dynamic: " + totDyn.toFixed(1) + "W | Leakage: " + totLeak.toFixed(1) + "W (" + ((totLeak / totP) * 100).toFixed(0) + "%)";
+    document.getElementById("hudDtmStatus").textContent = (throttledCount > 0 ? "THROTTLED (" + throttledCount + " Cores)" : "FULL PERFORMANCE (100% Fmax)");
+    document.getElementById("hudThrottledCount").textContent = "Throttled Tiles: " + throttledCount + " / 64 Cores";
+    document.getElementById("hudRunaway").textContent = (peakT > 115 ? "CRITICAL RUNAWAY RISK!" : (peakT > 95 ? "WARNING: High Leakage" : "SAFE (Thermal Stability)"));
+    document.getElementById("hudTime").textContent = "Simulated Time: " + simTimeMs.toFixed(1) + " ms";
   }
 
-  triggerMeltdown(tile) {
-    this.state = 'over';
-    this.audio.playMeltdown();
-    document.getElementById('hotspotModalIcon').textContent = '💥';
-    document.getElementById('hotspotModalTitle').textContent = 'THERMAL RUNAWAY MELTDOWN!';
-    document.getElementById('hotspotModalTitle').style.color = '#f87171';
-    document.getElementById('hotspotModalSummary').innerHTML = `
-      Core <b>(${tile.x}, ${tile.y})</b> reached <b>${tile.temp.toFixed(1)}°C</b> for over 3 seconds!<br>
-      Exponential subthreshold leakage provoked localized gate oxide perforation.
-      <br><br><b>Final Wave:</b> Wave ${this.wave} | <b>Final Score:</b> ${this.score} pts
-    `;
-    document.getElementById('hotspotOverModal').style.display = 'flex';
-  }
+  function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  updateHUD() {
-    document.getElementById('hotspotScore').textContent = this.score;
-    document.getElementById('hotspotWave').textContent = this.wave;
-    
-    const peakEl = document.getElementById('hotspotPeakTemp');
-    peakEl.textContent = `${this.peakTemp.toFixed(1)}°C`;
-    if (this.peakTemp >= 100.0) peakEl.style.color = '#ef4444';
-    else if (this.peakTemp >= 85.0) peakEl.style.color = '#f59e0b';
-    else peakEl.style.color = '#22c55e';
-
-    // Battery Bar
-    const energyPct = Math.max(0, Math.min(100, (this.cryoEnergy / this.maxCryo) * 100));
-    document.getElementById('cryoEnergyBar').style.width = `${energyPct}%`;
-    document.getElementById('cryoEnergyText').textContent = `${Math.round(energyPct)}%`;
-
-    // Health Bar based on peak temp (45C -> 100%, 105C -> 0%)
-    const healthPct = Math.max(0, Math.min(100, 100 - ((this.peakTemp - 45.0) / (105.0 - 45.0)) * 100));
-    const hBar = document.getElementById('dieHealthBar');
-    hBar.style.width = `${healthPct}%`;
-    if (healthPct < 30) {
-      hBar.style.background = '#ef4444';
-      document.getElementById('dieHealthText').style.color = '#ef4444';
-      document.getElementById('dieHealthText').textContent = `${Math.round(healthPct)}% (CRITICAL DANGER!)`;
-    } else if (healthPct < 60) {
-      hBar.style.background = '#f59e0b';
-      document.getElementById('dieHealthText').style.color = '#f59e0b';
-      document.getElementById('dieHealthText').textContent = `${Math.round(healthPct)}% (ELEVATED HEAT)`;
-    } else {
-      hBar.style.background = '#22c55e';
-      document.getElementById('dieHealthText').style.color = '#4ade80';
-      document.getElementById('dieHealthText').textContent = `${Math.round(healthPct)}% (NOMINAL)`;
+    if (activeView === "heatmap") {
+      renderHeatmap();
+    } else if (activeView === "waveform") {
+      renderWaveform();
+    } else if (activeView === "power_breakdown") {
+      renderPowerBreakdown();
     }
   }
 
-  draw() {
-    this.ctx.fillStyle = '#0f172a';
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+  // 1. 2D Transient Heatmap View
+  function renderHeatmap() {
+    const w = canvas.width;
+    const h = canvas.height;
+    const padL = 70, padT = 50, gridW = 340, gridH = 340;
+    const tripT = parseFloat(document.getElementById("tripSlider").value) || 85.0;
 
-    // 1. Draw Silicon Substrate & Interconnect Mesh
-    const pad = 40;
-    const cw = (this.canvas.width - pad * 2) / this.gridSize;
-    const ch = (this.canvas.height - pad * 2) / this.gridSize;
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "600 12px 'JetBrains Mono', monospace";
+    ctx.fillText("2D SILICON JUNCTION TEMPERATURE DISTRIBUTION [8x8 CORE TILES]", padL, 28);
 
-    // Draw mesh bus lines
-    this.ctx.strokeStyle = '#334155';
-    this.ctx.lineWidth = 3;
-    for (let i = 0; i < this.gridSize; i++) {
-      const yPos = pad + i * ch + ch / 2;
-      this.ctx.beginPath();
-      this.ctx.moveTo(pad + cw / 2, yPos);
-      this.ctx.lineTo(this.canvas.width - pad - cw / 2, yPos);
-      this.ctx.stroke();
+    const cellW = gridW / GRID_SIZE;
+    const cellH = gridH / GRID_SIZE;
 
-      const xPos = pad + i * cw + cw / 2;
-      this.ctx.beginPath();
-      this.ctx.moveTo(xPos, pad + ch / 2);
-      this.ctx.lineTo(xPos, this.canvas.height - pad - ch / 2);
-      this.ctx.stroke();
+    // Draw Heatmap Cells
+    for (let r = 0; r < GRID_SIZE; r++) {
+      for (let c = 0; c < GRID_SIZE; c++) {
+        let temp = T[r][c];
+        let x = padL + c * cellW;
+        let y = padT + r * cellH;
+
+        // Colormap normalization: 35°C (Blue) -> 65°C (Yellow) -> 95°C+ (Red/White)
+        let tNorm = Math.min(1.0, Math.max(0, (temp - 35) / 60));
+        let red = Math.round(tNorm * 255);
+        let green = Math.round((1 - Math.abs(tNorm - 0.5) * 2) * 210);
+        let blue = Math.round((1 - tNorm) * 220);
+
+        ctx.fillStyle = "rgb(" + red + "," + green + "," + blue + ")";
+        ctx.fillRect(x + 1, y + 1, cellW - 2, cellH - 2);
+
+        // Highlight Throttled Cores
+        if (throttlingFactor[r][c] < 1.0) {
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(x + 2, y + 2, cellW - 4, cellH - 4);
+        }
+
+        // Cell Temperature Text
+        ctx.fillStyle = (tNorm > 0.6) ? "#000000" : "#ffffff";
+        ctx.font = "bold 10px 'JetBrains Mono', monospace";
+        ctx.textAlign = "center";
+        ctx.fillText(Math.round(temp) + "°", x + cellW / 2, y + cellH / 2 + 3);
+      }
     }
 
-    // 2. Draw Tiles with Thermal Heat Radiance
-    this.tiles.forEach(tile => {
-      const pos = this.getTilePixelCenter(tile.x, tile.y);
-      const w = pos.w - 14;
-      const h = pos.h - 14;
-      const left = pos.x - w / 2;
-      const top = pos.y - h / 2;
+    // Colorbar Gradient Legend
+    const cbX = padL + gridW + 40;
+    const cbY = padT;
+    const cbW = 20;
+    const cbH = gridH;
 
-      // Color mapping from temp
-      // 45C: #1e293b (cool dark blue) -> 75C: #d97706 (amber) -> 95C: #dc2626 (crimson) -> 105C: #ffffff (white hot)
-      let r = 30, g = 41, b = 59;
-      if (tile.temp < 75.0) {
-        const factor = (tile.temp - 45.0) / 30.0;
-        r = Math.floor(30 + factor * (217 - 30));
-        g = Math.floor(41 + factor * (119 - 41));
-        b = Math.floor(59 + factor * (6 - 59));
-      } else if (tile.temp < 100.0) {
-        const factor = (tile.temp - 75.0) / 25.0;
-        r = Math.floor(217 + factor * (239 - 217));
-        g = Math.floor(119 + factor * (35 - 119));
-        b = Math.floor(6 + factor * (35 - 6));
-      } else {
-        const factor = Math.min(1.0, (tile.temp - 100.0) / 5.0);
-        r = Math.floor(239 + factor * (255 - 239));
-        g = Math.floor(35 + factor * (255 - 35));
-        b = Math.floor(35 + factor * (255 - 35));
-      }
+    let grad = ctx.createLinearGradient(0, cbY + cbH, 0, cbY);
+    grad.addColorStop(0, "rgb(0, 0, 220)");
+    grad.addColorStop(0.5, "rgb(255, 210, 0)");
+    grad.addColorStop(1, "rgb(255, 0, 0)");
+    ctx.fillStyle = grad;
+    ctx.fillRect(cbX, cbY, cbW, cbH);
 
-      // Outer Heat Radiation Glow
-      if (tile.temp > 65.0) {
-        const glow = this.ctx.createRadialGradient(pos.x, pos.y, 10, pos.x, pos.y, pos.w * 0.85);
-        glow.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${Math.min(0.7, (tile.temp - 60) / 50)})`);
-        glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        this.ctx.fillStyle = glow;
-        this.ctx.fillRect(pos.x - pos.w, pos.y - pos.h, pos.w * 2, pos.h * 2);
-      }
+    ctx.strokeStyle = "#334155";
+    ctx.strokeRect(cbX, cbY, cbW, cbH);
 
-      // Tile Body Box
-      this.ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-      this.ctx.beginPath();
-      this.ctx.roundRect(left, top, w, h, 8);
-      this.ctx.fill();
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "10px 'JetBrains Mono', monospace";
+    ctx.textAlign = "left";
+    ctx.fillText("95°C (Hot)", cbX + cbW + 8, cbY + 10);
+    ctx.fillText("65°C", cbX + cbW + 8, cbY + cbH * 0.5 + 4);
+    ctx.fillText("35°C (Amb)", cbX + cbW + 8, cbY + cbH);
 
-      // Border with DVFS indication
-      if (tile === this.migrationSource) {
-        this.ctx.strokeStyle = '#f59e0b';
-        this.ctx.lineWidth = 3;
-      } else if (tile.temp >= 105.0) {
-        this.ctx.strokeStyle = '#ffffff';
-        this.ctx.lineWidth = 3.5;
-      } else if (tile.temp >= 85.0) {
-        this.ctx.strokeStyle = '#ef4444';
-        this.ctx.lineWidth = 2.5;
-      } else if (tile.dvfs === 'throttled') {
-        this.ctx.strokeStyle = '#38bdf8';
-        this.ctx.lineWidth = 2;
-      } else if (tile.dvfs === 'boost') {
-        this.ctx.strokeStyle = '#ec4899';
-        this.ctx.lineWidth = 2;
-      } else {
-        this.ctx.strokeStyle = '#475569';
-        this.ctx.lineWidth = 1.5;
-      }
-      this.ctx.stroke();
+    // Trip indicator on colorbar
+    let tripY = cbY + (1 - (tripT - 35) / 60) * cbH;
+    ctx.strokeStyle = "#f87171";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(cbX - 4, tripY);
+    ctx.lineTo(cbX + cbW + 4, tripY);
+    ctx.stroke();
+    ctx.fillStyle = "#f87171";
+    ctx.fillText("Trip: " + tripT + "°C", cbX + cbW + 8, tripY + 3);
+  }
 
-      // Label & Microarchitecture Info
-      this.ctx.fillStyle = '#ffffff';
-      this.ctx.font = 'bold 12px "JetBrains Mono", monospace';
-      this.ctx.textAlign = 'center';
-      this.ctx.fillText(`${tile.type} [${tile.x},${tile.y}]`, pos.x, pos.y - 12);
+  // 2. Transient Waveform T(t) View
+  function renderWaveform() {
+    const w = canvas.width;
+    const h = canvas.height;
+    const padL = 70, padR = 40, padT = 50, padB = 60;
+    const graphW = w - padL - padR;
+    const graphH = h - padT - padB;
+    const tripT = parseFloat(document.getElementById("tripSlider").value) || 85.0;
 
-      // Temperature display
-      this.ctx.font = 'bold 13px "JetBrains Mono", monospace';
-      this.ctx.fillStyle = tile.temp >= 85.0 ? '#fee2e2' : '#f8fafc';
-      this.ctx.fillText(`${tile.temp.toFixed(1)}°C`, pos.x, pos.y + 6);
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "600 12px 'JetBrains Mono', monospace";
+    ctx.fillText("TRANSIENT TEMPERATURE ESCALATION [T(t)] & DTM CLOSED-LOOP RESPONSE", padL, 28);
 
-      // DVFS & Frequency indicator
-      this.ctx.font = '10px "Inter", sans-serif';
-      let dvfsText = `${tile.freq}GHz (${tile.dvfs.charAt(0).toUpperCase()})`;
-      if (tile.meltdownTimer > 0) {
-        dvfsText = `🔥 MELT: ${(3.0 - tile.meltdownTimer).toFixed(1)}s`;
-        this.ctx.fillStyle = '#ffffff';
-      } else {
-        this.ctx.fillStyle = tile.dvfs === 'throttled' ? '#7dd3fc' : (tile.dvfs === 'boost' ? '#f472b6' : '#cbd5e1');
-      }
-      this.ctx.fillText(dvfsText, pos.x, pos.y + 22);
+    // Y-Axis (30°C to 110°C)
+    const minT = 30, maxT = 110;
+    ctx.strokeStyle = "#1e293b";
+    ctx.lineWidth = 1;
+
+    for (let gy = 0; gy <= 4; gy++) {
+      let y = padT + (gy / 4) * graphH;
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(w - padR, y);
+      ctx.stroke();
+
+      let tLabel = Math.round(maxT - (gy / 4) * (maxT - minT)) + "°C";
+      ctx.fillStyle = "#64748b";
+      ctx.font = "10px 'JetBrains Mono', monospace";
+      ctx.textAlign = "right";
+      ctx.fillText(tLabel, padL - 8, y + 4);
+    }
+
+    // Trip Threshold Line
+    let yTrip = padT + (1 - (tripT - minT) / (maxT - minT)) * graphH;
+    ctx.strokeStyle = "rgba(239, 68, 68, 0.5)";
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(padL, yTrip);
+    ctx.lineTo(w - padR, yTrip);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#ef4444";
+    ctx.textAlign = "left";
+    ctx.fillText("Trip Limit: " + tripT + "°C", padL + 10, yTrip - 6);
+
+    if (historyTime.length < 2) return;
+
+    const tStart = historyTime[0];
+    const tEnd = historyTime[historyTime.length - 1];
+    const timeSpan = Math.max(10, tEnd - tStart);
+
+    // Plot Peak T (Red)
+    ctx.strokeStyle = "#ef4444";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    historyTime.forEach((t, i) => {
+      let px = padL + ((t - tStart) / timeSpan) * graphW;
+      let py = padT + (1 - (historyPeakT[i] - minT) / (maxT - minT)) * graphH;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
     });
+    ctx.stroke();
 
-    // 3. Draw In-Flight Flits
-    this.packets.forEach(p => {
-      const srcPos = this.getTilePixelCenter(p.cx, p.cy);
-      let curX = srcPos.x;
-      let curY = srcPos.y;
-
-      this.ctx.fillStyle = p.color;
-      this.ctx.shadowColor = p.color;
-      this.ctx.shadowBlur = 8;
-      this.ctx.beginPath();
-      this.ctx.arc(curX, curY, 5, 0, Math.PI * 2);
-      this.ctx.fill();
-      this.ctx.shadowBlur = 0;
+    // Plot Avg T (Cyan)
+    ctx.strokeStyle = "#38bdf8";
+    ctx.lineWidth = 2.0;
+    ctx.beginPath();
+    historyTime.forEach((t, i) => {
+      let px = padL + ((t - tStart) / timeSpan) * graphW;
+      let py = padT + (1 - (historyAvgT[i] - minT) / (maxT - minT)) * graphH;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
     });
+    ctx.stroke();
 
-    // 4. Draw Particles & Flying Text
-    this.particles.forEach(pt => {
-      this.ctx.globalAlpha = Math.max(0, pt.life);
-      if (pt.isText) {
-        this.ctx.fillStyle = pt.color;
-        this.ctx.font = 'bold 12px "JetBrains Mono", monospace';
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText(pt.text, pt.x, pt.y);
-      } else {
-        this.ctx.fillStyle = pt.color;
-        this.ctx.beginPath();
-        this.ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
-        this.ctx.fill();
-      }
-      this.ctx.globalAlpha = 1.0;
-    });
+    // Legend
+    ctx.textAlign = "left";
+    ctx.font = "11px 'JetBrains Mono', monospace";
+    ctx.fillStyle = "#ef4444";
+    ctx.fillRect(w - 240, padT + 10, 14, 4);
+    ctx.fillText("Peak Core Junction Temp (Tmax)", w - 220, padT + 14);
 
-    // Idle Watermark if not started
-    if (this.state === 'idle') {
-      this.ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
-      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-      this.ctx.fillStyle = '#ffffff';
-      this.ctx.font = 'bold 20px "Inter", sans-serif';
-      this.ctx.textAlign = 'center';
-      this.ctx.fillText('Press "Start Defense" to Play!', this.canvas.width / 2, this.canvas.height / 2 - 10);
-      this.ctx.font = '13px "Inter", sans-serif';
-      this.ctx.fillStyle = '#94a3b8';
-      this.ctx.fillText('Prevent thermal runaway on a 4x4 multicore chip using DVFS & Cryo Cool', this.canvas.width / 2, this.canvas.height / 2 + 18);
+    ctx.fillStyle = "#38bdf8";
+    ctx.fillRect(w - 240, padT + 28, 14, 4);
+    ctx.fillText("Die-Wide Average Temp (Tavg)", w - 220, padT + 32);
+  }
+
+  // 3. Electro-Thermal Leakage Breakdown View
+  function renderPowerBreakdown() {
+    const w = canvas.width;
+    const h = canvas.height;
+    const padL = 70, padT = 50, padB = 60;
+
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "600 12px 'JetBrains Mono', monospace";
+    ctx.fillText("TEMPERATURE-DEPENDENT SUBTHRESHOLD LEAKAGE POWER SENSITIVITY", padL, 28);
+
+    // Curve of P_leak vs Temperature from 35C to 110C
+    const minT = 35, maxT = 110;
+    const graphW = w - padL - 40;
+    const graphH = h - padT - padB;
+
+    ctx.strokeStyle = "#1e293b";
+    ctx.lineWidth = 1;
+    for (let gy = 0; gy <= 4; gy++) {
+      let y = padT + (gy / 4) * graphH;
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(w - 40, y);
+      ctx.stroke();
+
+      let pLabel = (60 * (1 - gy / 4)).toFixed(0) + " W";
+      ctx.fillStyle = "#64748b";
+      ctx.font = "10px 'JetBrains Mono', monospace";
+      ctx.textAlign = "right";
+      ctx.fillText(pLabel, padL - 8, y + 4);
     }
+
+    // Draw Exponential Leakage Curve
+    ctx.strokeStyle = "#f87171";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (let temp = minT; temp <= maxT; temp += 1) {
+      let tK = temp + 273.15;
+      let tNorm = tK / 300.0;
+      let coreLeakW = 0.18 * Math.pow(tNorm, 2) * Math.exp(12.0 * (1.0 - 300.0 / tK));
+      let totalLeak = coreLeakW * 64; // 64 cores
+      let px = padL + ((temp - minT) / (maxT - minT)) * graphW;
+      let py = padT + (1 - Math.min(60, totalLeak) / 60) * graphH;
+      if (temp === minT) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    ctx.fillStyle = "#f87171";
+    ctx.font = "11px 'JetBrains Mono', monospace";
+    ctx.fillText("Exponential Subthreshold Leakage: Pleak ∝ T² · exp(-qVth / kBT)", padL + 20, padT + 20);
   }
 
-  loop(timestamp) {
-    const dt = Math.min(0.08, (timestamp - this.lastTime) / 1000.0);
-    this.lastTime = timestamp;
-
-    this.update(dt);
-    this.draw();
-    requestAnimationFrame(this.loop);
+  // Simulation Loop (runs at 30 FPS)
+  function simLoop() {
+    stepThermalPhysics(16.0); // 16 ms per frame
+    render();
+    animId = requestAnimationFrame(simLoop);
   }
-}
 
-let hotspotGame = null;
-window.addEventListener('DOMContentLoaded', () => {
-  if (document.getElementById('hotspotCanvas')) {
-    hotspotGame = new HotspotGame('hotspotCanvas');
-  }
-});
-
-function startHotspotGame() {
-  if (hotspotGame) hotspotGame.start();
-}
-
-function restartHotspotGame() {
-  if (hotspotGame) hotspotGame.start();
-}
-
-function activateCryoPulse() {
-  if (hotspotGame) hotspotGame.activateCryoPulse();
-}
-
-function toggleHotspotSound() {
-  if (!hotspotGame) return;
-  hotspotGame.audio.enabled = !hotspotGame.audio.enabled;
-  document.getElementById('hotspotSoundBtn').textContent = hotspotGame.audio.enabled ? '🔊 Sound: ON' : '🔈 Sound: OFF';
-}
-
-function toggleHotspotPause() {
-  if (hotspotGame) hotspotGame.togglePause();
-}
-
-function setHotspotRouting(pol) {
-  if (hotspotGame) hotspotGame.routingPolicy = pol;
-}
-
-function setHotspotTool(tool) {
-  if (hotspotGame) {
-    hotspotGame.selectedTool = tool;
-    hotspotGame.migrationSource = null;
-  }
-}
-
-function saveHotspotRecord() {
-  if (!hotspotGame) return;
-  const name = document.getElementById("hotspotCallsign").value.trim() || "Thermal Defender";
-  const org = document.getElementById("hotspotOrg").value.trim() || "Silicon Lab";
-  const dateStr = new Date().toISOString().split("T")[0];
-
-  const record = {
-    name: name,
-    org: org,
-    track: `Hotspot Hero (Wave ${hotspotGame.wave})`,
-    score: hotspotGame.score,
-    accuracy: Math.round(hotspotGame.peakTemp), // Peak temp reached
-    certId: `HOTSPOT-WAVE-${hotspotGame.wave}`,
-    date: dateStr,
-    type: "hotspot"
+  // Window Dispatch Interface
+  window.updateThermalWorkbench = function () {
+    // Parameter values automatically read inside stepThermalPhysics
   };
 
-  try {
-    const list = JSON.parse(localStorage.getItem("noc_leaderboard_records") || "[]");
-    list.unshift(record);
-    localStorage.setItem("noc_leaderboard_records", JSON.stringify(list.slice(0, 50)));
-    document.getElementById("hotspotSaveConfirm").style.display = "block";
-  } catch(e) {
-    console.error(e);
-  }
-}
+  window.switchThermalView = function (v) {
+    activeView = v;
+    document.getElementById("btnHeatMap").className = (v === "heatmap") ? "noc-sim-btn" : "noc-sim-btn secondary";
+    document.getElementById("btnHeatWave").className = (v === "waveform") ? "noc-sim-btn" : "noc-sim-btn secondary";
+    document.getElementById("btnHeatPwr").className = (v === "power_breakdown") ? "noc-sim-btn" : "noc-sim-btn secondary";
+    render();
+  };
 
-function submitHotspotToGithub() {
-  if (!hotspotGame) return;
-  const name = document.getElementById("hotspotCallsign").value.trim() || "Thermal Defender";
-  const org = document.getElementById("hotspotOrg").value.trim() || "Silicon Lab";
-  const title = `[hotspot-highscore] ${name} — ${hotspotGame.score} pts (Wave ${hotspotGame.wave})`;
-  const body = [
-    "### Hotspot Hero Silicon Thermal Defense High Score",
-    `- **Player**: ${name}`,
-    `- **Institution/Handle**: ${org}`,
-    `- **High Score**: ${hotspotGame.score} pts`,
-    `- **Wave Reached**: Wave ${hotspotGame.wave}`,
-    `- **Peak Temp Managed**: ${hotspotGame.peakTemp.toFixed(1)}°C`,
-    `- **Date**: ${new Date().toISOString().split("T")[0]}`,
-    "",
-    "```json",
-    JSON.stringify({
-      player: name,
-      org: org,
-      score: hotspotGame.score,
-      wave: hotspotGame.wave,
-      peakTemp: hotspotGame.peakTemp.toFixed(1),
-      type: "hotspot"
-    }, null, 2),
-    "```"
-  ].join("\n");
+  window.injectThermalHotspot = function () {
+    // Inject heavy matrix GEMM burst on core cluster [2..4, 2..4]
+    for (let r = 2; r <= 4; r++) {
+      for (let c = 2; c <= 4; c++) {
+        P_dyn[r][c] += 6.5;
+      }
+    }
+  };
 
-  const url = `https://github.com/network-on-chip/learning/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&labels=game-score,leaderboard`;
-  window.open(url, '_blank');
-}
+  window.resetThermalCAD = function () {
+    initMesh();
+  };
+
+  window.exportThermalReport = function () {
+    const coolingType = document.getElementById("coolingSelect").value;
+    const dtmPolicy = document.getElementById("dtmPolicySelect").value;
+    const tripT = document.getElementById("tripSlider").value;
+
+    let rpt = [
+      "===============================================================================",
+      "SILICON TRANSIENT THERMAL & DTM FINITE-DIFFERENCE AUDIT REPORT",
+      "===============================================================================",
+      "Cooling Solution         : " + coolingType.toUpperCase(),
+      "DTM Control Policy       : " + dtmPolicy.toUpperCase(),
+      "Thermal Trip Limit       : " + tripT + " °C",
+      "Peak Junction Temp (Tmax): " + (historyPeakT[historyPeakT.length - 1] || 35).toFixed(1) + " °C",
+      "Die Average Temp (Tavg)  : " + (historyAvgT[historyAvgT.length - 1] || 35).toFixed(1) + " °C",
+      "Total Elapsed Sim Time   : " + simTimeMs.toFixed(1) + " ms",
+      "Thermal Runaway Status   : " + ((historyPeakT[historyPeakT.length - 1] || 35) > 110 ? "CRITICAL RUNAWAY" : "CONVERGED STABLE"),
+      "==============================================================================="
+    ];
+    document.getElementById("thermalReportText").textContent = rpt.join("\n");
+    document.getElementById("thermalReportWrap").style.display = "block";
+  };
+
+  // Initial Boot
+  initMesh();
+  simLoop();
+})();
 </script>

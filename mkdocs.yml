@@ -269,24 +269,24 @@ nav:
   - "Interactive Lab":
       - Overview: interactive/index.md
       - "Web EDA Unix Terminal": interactive/terminal.md
-      - "Wire Wizard: Interconnect Physics": interactive/wire.md
-      - "Deadlock Buster Arcade Game": interactive/game.md
-      - "Packet Master: Routing Puzzle": interactive/puzzle.md
-      - "Hotspot Hero: Thermal Defense": interactive/hotspot.md
-      - "Silicon Sentinel: NoC Security & Threat Defense": interactive/security.md
-      - "Transformer Titan: LLM & AI Collective Accelerator": interactive/transformer.md
-      - "TSV Titan: 3D-NoC & Thermal Stacking": interactive/tsv3d.md
-      - "Chiplet Tycoon: 2.5D/3D Multi-Die": interactive/chiplet.md
-      - "Arbiter Arena: Crossbar Clash": interactive/arbiter.md
-      - "Topology Titans: Graph Architect": interactive/topology.md
-      - "Photon Pilot: Optical NoC Grid": interactive/optical.md
-      - "Credit Commander: Flow Control": interactive/credits.md
-      - "Deflection Duel: Bufferless NoC": interactive/deflection.md
-      - "Fault Defender: Silicon Resilience": interactive/faults.md
-      - "QoS Gladiator: Traffic Arbiter": interactive/qos.md
-      - "Volt Vortex: Dark Silicon Power": interactive/power.md
-      - "Wireless Wave: mmWave & THz NoC": interactive/wireless.md
-      - "Neuromorphic Nexus: SNN Spikes": interactive/neuromorphic.md
+      - "Nanoscale Wire Physics & Repeater CAD": interactive/wire.md
+      - "Deadlock Verification & CDG Escape Engine": interactive/game.md
+      - "Turn-Model Routing Restrictions & Optimizer": interactive/puzzle.md
+      - "Silicon Thermal & DTM Finite-Difference Solver": interactive/hotspot.md
+      - "NoC Hardware Security & Threat Defense CAD": interactive/security.md
+      - "Distributed LLM Collective Accelerator & 3D Memory": interactive/transformer.md
+      - "3D-NoC TSV Stress & Thermal CAD Analyzer": interactive/tsv3d.md
+      - "2.5D/3D Multi-Die Chiplet CAD & Yield Optimizer": interactive/chiplet.md
+      - "Crossbar Switch Allocator & Arbiter Simulator": interactive/arbiter.md
+      - "Topology CAD & Spectral Graph Analyzer": interactive/topology.md
+      - "Silicon Photonic & Optical NoC (ONoC) CAD": interactive/optical.md
+      - "Credit-Based Flow Control & Buffer Sizing CAD": interactive/credits.md
+      - "Bufferless Deflection Routing (BLESS) Simulator": interactive/deflection.md
+      - "Silicon Fault Tolerance & Resilient Routing CAD": interactive/faults.md
+      - "Mixed-Criticality Multi-VNET QoS Scheduler": interactive/qos.md
+      - "Dark Silicon Physics & Power Gating CAD": interactive/power.md
+      - "On-Chip mmWave & THz Wireless NoC (WiNoC)": interactive/wireless.md
+      - "Neuromorphic SNN Multicast & AER Router": interactive/neuromorphic.md
       - "2D Mesh Routing Visualizer": interactive/visualizer.md
   - "Certification & Quiz": quiz.md
   - "Public Leaderboard": leaderboard.md

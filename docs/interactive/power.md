@@ -1,750 +1,519 @@
-# ⚡ Volt Vortex: Dark Silicon & Power Gating
+# ⚡ Dark Silicon Physics & Power Gating CAD Workbench
 
-Conquer the dark silicon dilemma and design ultra-low-power Networks-on-Chip! In sub-3nm finFET and nanosheet technology, Dennard scaling has ended: we can fabricate more transistors on a die than we can thermally power simultaneously (**Dark Silicon**). 
-
-Even when idle, static leakage current ($P_{leak} = I_{leak} \cdot V_{dd}$) burns up to 45% of total router energy. Deploying **Sleep Transistors** cuts leakage by over 90%, but waking up a sleeping router incurs an inrush wake-up penalty ($T_{wake} \approx 8\text{--}12$ cycles). If packets crash into dark routers, they stall or suffer detour latencies!
-
-Master **Adaptive Run-Time Power Gating**, balance energy-delay product (EDP), deploy **Wake-up Surges**, and keep thermal dissipation within strict TDP power caps! Your high scores can be inscribed directly onto the **Community Leaderboard**.
+An interactive Computer-Aided Design (CAD) workbench for nanoscale CMOS power dissipation and the Dark Silicon Utilization Wall. Quantify the breakdown of Dennard scaling, evaluate dynamic switching versus subthreshold and gate-tunneling leakage power across advanced technology nodes (45nm down to 2nm GAA), calculate permissible active silicon fractions under fixed Thermal Design Power (TDP) budgets, and optimize fine-grained sleep transistor sizing, inrush current peaks, and wake-up transient latencies.
 
 <div class="noc-sim-container">
+  <!-- Controls Panel -->
   <div class="noc-sim-controls" style="display:flex; flex-wrap:wrap; gap:0.75rem; align-items:center;">
-    <button id="powerStartBtn" class="noc-sim-btn" onclick="startPowerGame()">▶ Start Energy Maestro</button>
-    <button id="powerSurgeBtn" class="noc-sim-btn" onclick="triggerPowerSurge()" style="background:#0284c7; border:none; box-shadow:0 0 14px rgba(2,132,199,0.5);">⚡ Rail Power Surge (Space / W)</button>
-
-    <label><b>Power Gating Policy:</b>
-      <select id="powerGatingSelect" class="noc-sim-select" onchange="setPowerPolicy(this.value)">
-        <option value="adaptive_gating">Adaptive Dynamic Gating (3s Idle Timeout)</option>
-        <option value="aggressive_sleep">Aggressive Dark Silicon (Instant Sleep)</option>
-        <option value="always_on">Always-On Baseline (Zero Sleep · High Leakage)</option>
+    <label><b>Process Node:</b>
+      <select id="pwrNodeSelect" class="noc-sim-select" onchange="updatePowerWorkbench()">
+        <option value="45">45nm HKMG (Classical Scaling Transition, Vdd = 1.0V)</option>
+        <option value="14">14nm FinFET (Sub-threshold Control, Vdd = 0.8V)</option>
+        <option value="7">7nm EUV (Severe Leakage / Dark Silicon Onset, Vdd = 0.75V)</option>
+        <option value="3" selected>3nm GAA MBCFET (82% Dark Silicon Limit, Vdd = 0.70V)</option>
+        <option value="2">2nm GAA + Backside PDN (Extreme Power Density, Vdd = 0.65V)</option>
       </select>
     </label>
 
-    <button id="powerSoundBtn" class="noc-sim-btn secondary" onclick="togglePowerSound()">🔊 Sound: ON</button>
-    <button class="noc-sim-btn secondary" onclick="togglePowerPause()">⏸ Pause</button>
+    <label><b>Thermal Design Power (TDP):</b>
+      <input type="range" id="tdpSlider" min="60" max="300" step="10" value="150" style="width:110px; vertical-align:middle;" oninput="document.getElementById('tdpVal').textContent = this.value + ' W'; updatePowerWorkbench();">
+      <span id="tdpVal" style="font-family:'JetBrains Mono',monospace; font-size:0.85rem; color:#f87171;">150 W</span>
+    </label>
 
-    <div style="margin-left:auto; display:flex; gap:1.2rem; align-items:center; font-weight:700; font-family:'JetBrains Mono', monospace; font-size:0.9rem;">
-      <span style="color:var(--tcl-blue-600);">Score: <span id="powerScore">0</span></span>
-      <span style="color:#22c55e;">Saved: <span id="powerSaved">0.0</span> J</span>
-      <span style="color:#ef4444;">Power: <span id="powerCurrent">0.0</span> W</span>
-      <span style="color:#f59e0b;" id="powerWave">Wave 1</span>
+    <label><b>Sleep Transistor Sizing:</b>
+      <select id="sleepSizeSelect" class="noc-sim-select" onchange="updatePowerWorkbench()">
+        <option value="0.02">2% Area Overhead (High IR Drop, Fast Turn-On)</option>
+        <option value="0.05" selected>5% Area Overhead (Balanced IR Drop &lt; 25mV)</option>
+        <option value="0.10">10% Area Overhead (Ultra-Low IR Drop, High Inrush)</option>
+      </select>
+    </label>
+
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; width:100%; margin-top:0.25rem;">
+      <button class="noc-sim-btn" id="btnPwrFloor" onclick="switchPowerView('dark_floorplan')" style="background:#0284c7;">🧱 Dark Silicon Floorplan</button>
+      <button class="noc-sim-btn secondary" id="btnPwrScaling" onclick="switchPowerView('scaling_curve')">📊 Dennard Scaling Breakdown</button>
+      <button class="noc-sim-btn secondary" id="btnPwrWakeup" onclick="switchPowerView('wakeup_transient')">⚡ Sleep Wake-Up &amp; Inrush</button>
+      <button class="noc-sim-btn secondary" onclick="optimizePowerGating()">🎯 Auto-Gate to TDP Budget</button>
+      <button class="noc-sim-btn secondary" onclick="exportPowerReport()" style="margin-left:auto;">📋 Export Power Audit</button>
     </div>
   </div>
 
-  <!-- TDP Power Budget & Surge HUD -->
-  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:0.75rem; font-family:'JetBrains Mono', monospace; font-size:0.8rem;">
-    <div style="background:var(--tcl-surface); padding:0.5rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
-      <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-        <span style="font-weight:700; color:#38bdf8;">⚡ Rail Power Surge Reservoir (Space / W):</span>
-        <span id="surgeEnergyText" style="font-weight:700; color:#38bdf8;">100% READY</span>
-      </div>
-      <div style="width:100%; height:8px; background:rgba(56,189,248,0.15); border-radius:4px; overflow:hidden;">
-        <div id="surgeEnergyBar" style="width:100%; height:100%; background:linear-gradient(90deg, #0284c7, #38bdf8); transition:width 0.15s ease;"></div>
-      </div>
+  <!-- Physical Metrics HUD -->
+  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; margin-top:0.75rem; margin-bottom:0.75rem; font-family:'JetBrains Mono', monospace; font-size:0.8rem;">
+    <div style="background:var(--tcl-surface); padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
+      <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase;">Active Silicon Utilization</div>
+      <div style="font-size:1.05rem; font-weight:700; color:#22c55e; margin:3px 0;" id="hudUtilization">18.8% Active (12 / 64 Cores)</div>
+      <div style="color:#64748b; font-size:0.75rem;" id="hudDarkFraction">Dark Silicon: 81.2% (52 Cores Gated)</div>
     </div>
 
-    <div style="background:var(--tcl-surface); padding:0.5rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
-      <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-        <span style="font-weight:700; color:#22c55e;">🌡️ Silicon TDP Thermal Budget (&lt; 14.0 W):</span>
-        <span id="tdpStatusText" style="font-weight:700; color:#22c55e;">SAFE (4.2 W)</span>
-      </div>
-      <div style="width:100%; height:8px; background:rgba(34,197,94,0.15); border-radius:4px; overflow:hidden;">
-        <div id="tdpBar" style="width:30%; height:100%; background:#22c55e; transition:width 0.2s ease, background 0.2s ease;"></div>
-      </div>
+    <div style="background:var(--tcl-surface); padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
+      <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase;">Total Dissipated Power</div>
+      <div style="font-size:1.05rem; font-weight:700; color:#eab308; margin:3px 0;" id="hudTotalPower">148.2 W / 150 W TDP</div>
+      <div style="color:#64748b; font-size:0.75rem;" id="hudPowerBreakdown">Dynamic: 134.0W | Sub-Vth: 14.2W</div>
+    </div>
+
+    <div style="background:var(--tcl-surface); padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
+      <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase;">Sleep Transistor Penalty</div>
+      <div style="font-size:1.05rem; font-weight:700; color:#38bdf8; margin:3px 0;" id="hudIrDrop">IR Drop: 18.5 mV (2.6%)</div>
+      <div style="color:#64748b; font-size:0.75rem;" id="hudWakeupLat">Wake-Up Latency: 12 Cycles (Inrush: 4.8A)</div>
+    </div>
+
+    <div style="background:var(--tcl-surface); padding:0.6rem 0.85rem; border-radius:8px; border:1px solid var(--tcl-border);">
+      <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase;">Thermal Density Status</div>
+      <div style="font-size:1.05rem; font-weight:700; color:#f87171; margin:3px 0;" id="hudPowerDensity">1.18 W/mm² (Safe Limit)</div>
+      <div style="color:#64748b; font-size:0.75rem;" id="hudUngatedDensity">If Fully Active: 6.25 W/mm² (MELTDOWN)</div>
     </div>
   </div>
 
+  <!-- CAD Canvas View -->
   <div class="noc-sim-canvas-wrap" style="position:relative;">
-    <canvas id="powerCanvas" width="620" height="460" style="width:100%; max-width:620px; height:auto; display:block;"></canvas>
-
-    <!-- Game Over / Victory Modal -->
-    <div id="powerOverModal" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.94); border-radius:12px; z-index:20; flex-direction:column; justify-content:center; align-items:center; padding:2rem; box-sizing:border-box; color:#ffffff; text-align:center;">
-      <div style="font-size:3rem; margin-bottom:0.35rem;" id="powerModalIcon">💥</div>
-      <h2 id="powerModalTitle" style="margin:0 0 0.5rem 0; font-size:1.8rem; color:#f87171;">TDP THERMAL RUNAWAY!</h2>
-      <p id="powerModalSummary" style="color:#cbd5e1; font-size:0.95rem; max-width:480px; margin-bottom:1.25rem; line-height:1.6;">
-        Static leakage and dynamic switching power exceeded the 15.0W silicon TDP envelope!
-      </p>
-
-      <div style="background:#1e293b; border:1px solid #334155; border-radius:10px; padding:1rem 1.5rem; margin-bottom:1.25rem; width:100%; max-width:420px; box-sizing:border-box; text-align:left;">
-        <label style="font-size:12px; font-weight:700; text-transform:uppercase; color:#94a3b8; display:block; margin-bottom:0.35rem;">Low-Power Architect Callsign:</label>
-        <input type="text" id="powerCallsign" class="noc-sim-select" style="width:100%; box-sizing:border-box; margin-bottom:0.75rem; background:#0f172a; color:#f8fafc; border-color:#475569;" placeholder="e.g. Energy Maestro" value="Volt Maestro">
-        <label style="font-size:12px; font-weight:700; text-transform:uppercase; color:#94a3b8; display:block; margin-bottom:0.35rem;">Institution / Handle:</label>
-        <input type="text" id="powerOrg" class="noc-sim-select" style="width:100%; box-sizing:border-box; background:#0f172a; color:#f8fafc; border-color:#475569;" placeholder="e.g. Qualcomm Hexagon / SJTU" value="Silicon Lab">
-      </div>
-
-      <div style="display:flex; gap:0.75rem; flex-wrap:wrap; justify-content:center;">
-        <button class="noc-sim-btn" onclick="savePowerRecord()" style="background:#22c55e;">💾 Inscribe on Leaderboard</button>
-        <button class="noc-sim-btn" onclick="submitPowerToGithub()" style="background:#0284c7;">📤 Submit to GitHub</button>
-        <a href="../../leaderboard/" class="noc-sim-btn secondary" style="text-decoration:none; color:#ffffff !important;">🏆 View Leaderboard</a>
-        <button class="noc-sim-btn secondary" onclick="restartPowerGame()" style="color:#ffffff !important;">🔄 Play Again</button>
-      </div>
-      <div id="powerSaveConfirm" style="margin-top:0.75rem; color:#4ade80; font-size:0.85rem; font-weight:600; display:none;">
-        ✓ Score successfully recorded in local Hall of Fame!
-      </div>
-    </div>
+    <canvas id="powerCanvas" width="700" height="420" style="width:100%; max-width:700px; height:auto; display:block; border-radius:8px; background:#0b1120; border:1px solid #1e293b; cursor:pointer;"></canvas>
   </div>
 
-  <div id="powerInstructions" style="margin-top:1rem; padding:1rem 1.25rem; background:var(--tcl-surface); border:1px solid var(--tcl-border); border-radius:10px; font-size:0.86rem; color:var(--md-default-fg-color--lighter); line-height:1.65;">
-    <strong style="color:var(--tcl-heading);">⚡ Power Gating Microarchitecture &amp; Dark Silicon Rules:</strong>
-    <ul style="margin:0.4rem 0 0 1.2rem; padding:0;">
-      <li><strong>Active vs. Dark Silicon:</strong> Active routers (blue) dissipate $1.2\text{ W}$ static leakage + dynamic flit power. Sleeping routers (dim gray) decouple power rails, slashing leakage to only $0.05\text{ W}$.</li>
-      <li><strong>Wake-Up Penalty ($T_{wake}$):</strong> Flits heading toward a dark router must wait for header decoders to energize the sleep transistor ($1.0\text{s}$ delay).</li>
-      <li><strong>Rail Power Surge (Space / W):</strong> Instantly powers up all 16 routers simultaneously for 4 seconds to flush backlog traffic during heavy bursts!</li>
-      <li><strong>TDP Thermal Cap:</strong> Keep total chip power below $14.0\text{ W}$. If too many routers are left awake concurrently during heavy traffic, TDP breach triggers thermal shutdown.</li>
+  <!-- Export Panel -->
+  <div id="powerExportWrap" style="display:none; margin-top:0.75rem; background:#0f172a; border:1px solid #334155; border-radius:8px; padding:0.9rem; font-family:'JetBrains Mono',monospace; font-size:0.78rem; color:#e2e8f0;">
+    <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+      <strong style="color:#38bdf8;">SoC Power Gating Architecture &amp; UPF / CPF Specification:</strong>
+      <button onclick="document.getElementById('powerExportWrap').style.display='none'" style="background:transparent; border:none; color:#94a3b8; cursor:pointer;">✕ Close</button>
+    </div>
+    <pre id="powerExportText" style="margin:0; white-space:pre-wrap; max-height:220px; overflow-y:auto; color:#a5f3fc;"></pre>
+  </div>
+
+  <!-- Theory & Formulation -->
+  <div style="margin-top:1rem; padding:1.1rem 1.25rem; background:var(--tcl-surface); border:1px solid var(--tcl-border); border-radius:10px; font-size:0.86rem; color:var(--md-default-fg-color--lighter); line-height:1.7;">
+    <strong style="color:var(--tcl-heading); font-size:0.95rem;">🔬 Dark Silicon Physics &amp; Low-Power Architecture (Chapter 6):</strong>
+    <ul style="margin: 0.5rem 0 0 1.2rem; padding: 0;">
+      <li><strong>Dennard Classical Scaling Breakdown:</strong> Historically, scaling physical dimensions by $\kappa > 1$ reduced voltage by $1/\kappa$, keeping power density constant ($P/A \approx 1$). Below 90nm, subthreshold slope constraints ($S \ge 60\text{ mV/decade}$ at $300\text{ K}$) prevented further $V_{dd}$ reductions without intolerable leakage:
+        $$S = \left(\frac{d \log_{10} I_d}{d V_{gs}}\right)^{-1} = \frac{k_B T}{q} \ln(10) \left(1 + \frac{C_d}{C_{ox}}\right) \ge 60\text{ mV/dec}$$
+        Consequently, power density surges as $\kappa^2$, forcing architects to power-gate large swaths of the die.</li>
+      <li><strong>The Utilization Wall (Esmaeilzadeh et al., ISCA):</strong> Under a fixed cooling TDP budget, the maximum fraction $U$ of simultaneously active transistors drops quadratically:
+        $$U(Node) = \frac{\text{TDP}}{N_{\text{cores}} \cdot (\alpha C V_{dd}^2 f + V_{dd} I_{\text{leak}})}$$
+        In leading-edge 3nm and 2nm nodes, $U$ falls below $20\%$, meaning over $80\%$ of on-chip silicon must remain powered off at any instant.</li>
+      <li><strong>Power Gating &amp; Inrush Transient:</strong> Header PMOS sleep transistors disconnect the $V_{dd}$ supply rail. Upon wakeup, charging the virtual rail capacitance $C_{virtual}$ creates a dangerous current surge:
+        $$I_{\text{inrush}}(t) = C_{\text{virtual}} \frac{d V_{\text{virtual}}}{dt}$$
+        Staged turn-on through daisy-chained sleep buffers is mandatory to avoid inductive $L \frac{di}{dt}$ supply noise that could corrupt adjacent retention flip-flops.</li>
     </ul>
   </div>
 </div>
 
 <script>
-// Procedural Web Audio Sound Synthesizer for Volt Vortex
-class PowerAudio {
-  constructor() {
-    this.ctx = null;
-    this.enabled = true;
-  }
+// ============================================================================
+// Dark Silicon & CMOS Power Gating Optimization Engine
+// ============================================================================
 
-  init() {
-    if (!this.ctx) {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (AudioCtx) this.ctx = new AudioCtx();
-    }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
-  }
-
-  playSleep() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const t = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(440, t);
-      osc.frequency.exponentialRampToValueAtTime(110, t + 0.18);
-      gain.gain.setValueAtTime(0.1, t);
-      gain.gain.linearRampToValueAtTime(0.001, t + 0.18);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(t);
-      osc.stop(t + 0.18);
-    } catch (e) {}
-  }
-
-  playWake() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const t = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(160, t);
-      osc.frequency.exponentialRampToValueAtTime(540, t + 0.16);
-      gain.gain.setValueAtTime(0.12, t);
-      gain.gain.linearRampToValueAtTime(0.001, t + 0.16);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(t);
-      osc.stop(t + 0.16);
-    } catch (e) {}
-  }
-
-  playSurge() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const t = this.ctx.currentTime;
-      [330, 440, 660].forEach((freq, idx) => {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(freq, t + idx * 0.05);
-        gain.gain.setValueAtTime(0.14, t + idx * 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.05 + 0.22);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(t + idx * 0.05);
-        osc.stop(t + idx * 0.05 + 0.22);
-      });
-    } catch (e) {}
-  }
-
-  playDeliver() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const t = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(587.33, t);
-      osc.frequency.exponentialRampToValueAtTime(880, t + 0.12);
-      gain.gain.setValueAtTime(0.1, t);
-      gain.gain.linearRampToValueAtTime(0.001, t + 0.12);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(t);
-      osc.stop(t + 0.12);
-    } catch (e) {}
-  }
-
-  playOverheat() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const t = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(130, t);
-      osc.frequency.linearRampToValueAtTime(40, t + 0.3);
-      gain.gain.setValueAtTime(0.25, t);
-      gain.gain.linearRampToValueAtTime(0.01, t + 0.3);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(t);
-      osc.stop(t + 0.3);
-    } catch (e) {}
-  }
-}
-
-// 4x4 Dark Silicon Simulation Engine
-class PowerGame {
-  constructor() {
-    this.canvas = document.getElementById('powerCanvas');
-    this.ctx = this.canvas.getContext('2d');
-    this.audio = new PowerAudio();
-
-    this.gridW = 4;
-    this.gridH = 4;
-    this.nodeSpacingX = 125;
-    this.nodeSpacingY = 95;
-    this.offsetX = 120;
-    this.offsetY = 85;
-
-    this.routers = []; // 16 routers: { state: 'awake'|'sleeping'|'waking', idleTimer: 0, wakeTimer: 0 }
-    this.packets = [];
-    this.particles = [];
-    this.score = 0;
-    this.deliveredCount = 0;
-    this.energySavedJ = 0.0;
-    this.currentPowerW = 4.2;
-    this.wave = 1;
-    this.waveTimer = 22.0;
-    this.surgeEnergy = 100.0;
-    this.surgeActive = false;
-    this.surgeTimer = 0.0;
-    this.policy = 'adaptive_gating';
-
-    this.isRunning = false;
-    this.isPaused = false;
-    this.lastTime = performance.now();
-    this.injectTimer = 0;
-    this.nextPktId = 1;
-  }
-
-  start() {
-    this.audio.init();
-    this.routers = [];
-    for (let y = 0; y < this.gridH; y++) {
-      for (let x = 0; x < this.gridW; x++) {
-        this.routers.push({
-          x: x,
-          y: y,
-          state: 'awake',
-          idleTimer: 0,
-          wakeTimer: 0
-        });
-      }
-    }
-
-    this.packets = [];
-    this.particles = [];
-    this.score = 0;
-    this.deliveredCount = 0;
-    this.energySavedJ = 0.0;
-    this.currentPowerW = 4.2;
-    this.wave = 1;
-    this.waveTimer = 22.0;
-    this.surgeEnergy = 100.0;
-    this.surgeActive = false;
-    this.surgeTimer = 0.0;
-    this.isRunning = true;
-    this.isPaused = false;
-
-    document.getElementById('powerOverModal').style.display = 'none';
-    document.getElementById('powerStartBtn').textContent = '🔄 Restart';
-    this.lastTime = performance.now();
-
-    for (let i = 0; i < 4; i++) {
-      this.injectTraffic();
-    }
-  }
-
-  getRouter(x, y) {
-    return this.routers[y * this.gridW + x];
-  }
-
-  injectTraffic() {
-    const sx = Math.floor(Math.random() * this.gridW);
-    const sy = Math.floor(Math.random() * this.gridH);
-    let dx = Math.floor(Math.random() * this.gridW);
-    let dy = Math.floor(Math.random() * this.gridH);
-    while (dx === sx && dy === sy) {
-      dx = Math.floor(Math.random() * this.gridW);
-      dy = Math.floor(Math.random() * this.gridH);
-    }
-
-    const pkt = {
-      id: this.nextPktId++,
-      gx: sx,
-      gy: sy,
-      fromGx: sx,
-      fromGy: sy,
-      toGx: sx,
-      toGy: sy,
-      dstX: dx,
-      dstY: dy,
-      progress: 1.0,
-      state: 'at_node',
-      color: '#38bdf8'
-    };
-    this.packets.push(pkt);
-  }
-
-  triggerSurge() {
-    if (this.surgeEnergy >= 100 && !this.surgeActive) {
-      this.surgeActive = true;
-      this.surgeTimer = 4.0;
-      this.audio.playSurge();
-      for (let r of this.routers) {
-        r.state = 'awake';
-        r.idleTimer = 0;
-      }
-      this.addTextParticle(this.canvas.width / 2, 70, '⚡ RAIL POWER SURGE: ALL NODES AWAKE!', '#38bdf8');
-    }
-  }
-
-  update(dt) {
-    if (!this.isRunning || this.isPaused) return;
-
-    this.waveTimer -= dt;
-    if (this.waveTimer <= 0) {
-      this.wave++;
-      this.waveTimer = 22.0;
-      this.score += 300 * this.wave;
-      this.addTextParticle(this.canvas.width / 2, 60, `WAVE ${this.wave} WORKLOAD SCALING!`, '#f59e0b');
-    }
-
-    // Surge energy charge
-    if (this.surgeActive) {
-      this.surgeTimer -= dt;
-      this.surgeEnergy = Math.max(0, (this.surgeTimer / 4.0) * 100);
-      if (this.surgeTimer <= 0) {
-        this.surgeActive = false;
-        this.surgeEnergy = 0;
-      }
-    } else {
-      this.surgeEnergy = Math.min(100, this.surgeEnergy + dt * 14.0);
-    }
-
-    // Step 1: Manage Router Power Gating States
-    let awakeCount = 0;
-    let sleepCount = 0;
-
-    for (let r of this.routers) {
-      if (this.surgeActive || this.policy === 'always_on') {
-        r.state = 'awake';
-      } else if (r.state === 'awake') {
-        r.idleTimer += dt;
-        const timeout = this.policy === 'aggressive_sleep' ? 0.6 : 2.5;
-        if (r.idleTimer >= timeout) {
-          r.state = 'sleeping';
-          this.audio.playSleep();
-        }
-      } else if (r.state === 'waking') {
-        r.wakeTimer -= dt;
-        if (r.wakeTimer <= 0) {
-          r.state = 'awake';
-          r.idleTimer = 0;
-          this.audio.playWake();
-        }
-      }
-
-      if (r.state === 'awake') awakeCount++;
-      else sleepCount++;
-    }
-
-    // Calculate Real-Time Power & Energy Saved
-    const awakeLeakage = awakeCount * 0.75; // 0.75W per awake router
-    const sleepLeakage = sleepCount * 0.04; // 0.04W per sleeping router
-    const dynamicPower = this.packets.length * 0.18; // Switching power
-    this.currentPowerW = awakeLeakage + sleepLeakage + dynamicPower;
-
-    // Baseline if all were awake: 16 * 0.75 = 12.0W
-    const savedWatts = Math.max(0, (12.0 + dynamicPower) - this.currentPowerW);
-    this.energySavedJ += savedWatts * dt;
-
-    // Check TDP Violation (>14.5W)
-    if (this.currentPowerW > 14.5) {
-      this.audio.playOverheat();
-      this.triggerGameOver();
-      return;
-    }
-
-    // Inject traffic
-    this.injectTimer += dt;
-    const injectInterval = Math.max(0.4, 1.3 - this.wave * 0.1);
-    if (this.injectTimer >= injectInterval && this.packets.length < 18 + this.wave * 2) {
-      this.injectTimer = 0;
-      this.injectTraffic();
-    }
-
-    // Step 2: Advance Packets
-    const speed = 1.35;
-    for (let i = this.packets.length - 1; i >= 0; i--) {
-      const p = this.packets[i];
-
-      if (p.state === 'in_flight') {
-        p.progress += dt * speed;
-        if (p.progress >= 1.0) {
-          p.progress = 1.0;
-          p.gx = p.toGx;
-          p.gy = p.toGy;
-          p.state = 'at_node';
-
-          // Mark current router as active
-          const currR = this.getRouter(p.gx, p.gy);
-          currR.idleTimer = 0;
-
-          // Check Delivery
-          if (p.gx === p.dstX && p.gy === p.dstY) {
-            this.packets.splice(i, 1);
-            this.deliveredCount++;
-            this.score += 60;
-            this.audio.playDeliver();
-            this.addTextParticle(this.getNodeX(p.gx), this.getNodeY(p.gy), '+60', '#22c55e');
-            continue;
-          }
-        }
-      }
-    }
-
-    // Step 3: Route packets at nodes (handling sleeping next hops)
-    for (let p of this.packets) {
-      if (p.state === 'at_node') {
-        let nextX = p.gx;
-        let nextY = p.gy;
-        if (p.dstX > p.gx) nextX = p.gx + 1;
-        else if (p.dstX < p.gx) nextX = p.gx - 1;
-        else if (p.dstY > p.gy) nextY = p.gy + 1;
-        else if (p.dstY < p.gy) nextY = p.gy - 1;
-
-        const nextR = this.getRouter(nextX, nextY);
-        if (nextR.state === 'sleeping') {
-          // Trigger wake-up sequence
-          nextR.state = 'waking';
-          nextR.wakeTimer = 0.8; // 0.8s wake-up delay
-          this.addTextParticle(this.getNodeX(nextX), this.getNodeY(nextY), '⚡ WAKE UP', '#f59e0b');
-        } else if (nextR.state === 'awake') {
-          // Router is ready! Forward packet
-          nextR.idleTimer = 0;
-          p.toGx = nextX;
-          p.toGy = nextY;
-          p.fromGx = p.gx;
-          p.fromGy = p.gy;
-          p.progress = 0;
-          p.state = 'in_flight';
-        }
-      }
-    }
-
-    // Update particles
-    for (let i = this.particles.length - 1; i >= 0; i--) {
-      const pt = this.particles[i];
-      pt.y -= dt * 30;
-      pt.life -= dt;
-      if (pt.life <= 0) this.particles.splice(i, 1);
-    }
-
-    this.updateHUD();
-  }
-
-  getNodeX(gx) { return this.offsetX + gx * this.nodeSpacingX; }
-  getNodeY(gy) { return this.offsetY + gy * this.nodeSpacingY; }
-
-  render() {
-    this.ctx.fillStyle = '#0f172a';
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-    // Draw interconnect links
-    this.ctx.lineWidth = 3;
-    for (let y = 0; y < this.gridH; y++) {
-      for (let x = 0; x < this.gridW; x++) {
-        const nx = this.getNodeX(x);
-        const ny = this.getNodeY(y);
-
-        if (x < this.gridW - 1) {
-          const r1 = this.getRouter(x, y);
-          const r2 = this.getRouter(x + 1, y);
-          const isDark = r1.state === 'sleeping' && r2.state === 'sleeping';
-          this.ctx.strokeStyle = isDark ? '#1e293b' : '#334155';
-          this.ctx.beginPath();
-          this.ctx.moveTo(nx, ny);
-          this.ctx.lineTo(this.getNodeX(x + 1), ny);
-          this.ctx.stroke();
-        }
-        if (y < this.gridH - 1) {
-          const r1 = this.getRouter(x, y);
-          const r2 = this.getRouter(x, y + 1);
-          const isDark = r1.state === 'sleeping' && r2.state === 'sleeping';
-          this.ctx.strokeStyle = isDark ? '#1e293b' : '#334155';
-          this.ctx.beginPath();
-          this.ctx.moveTo(nx, ny);
-          this.ctx.lineTo(nx, this.getNodeY(y + 1));
-          this.ctx.stroke();
-        }
-      }
-    }
-
-    // Draw packets
-    for (let p of this.packets) {
-      let px, py;
-      if (p.state === 'in_flight') {
-        const x1 = this.getNodeX(p.fromGx);
-        const y1 = this.getNodeY(p.fromGy);
-        const x2 = this.getNodeX(p.toGx);
-        const y2 = this.getNodeY(p.toGy);
-        px = x1 + (x2 - x1) * p.progress;
-        py = y1 + (y2 - y1) * p.progress;
-      } else {
-        px = this.getNodeX(p.gx);
-        py = this.getNodeY(p.gy);
-      }
-
-      this.ctx.save();
-      this.ctx.shadowColor = '#38bdf8';
-      this.ctx.shadowBlur = 10;
-      this.ctx.fillStyle = '#38bdf8';
-      this.ctx.beginPath();
-      this.ctx.arc(px, py, 6, 0, Math.PI * 2);
-      this.ctx.fill();
-      this.ctx.restore();
-    }
-
-    // Draw 4x4 routers with power state styling
-    for (let r of this.routers) {
-      const nx = this.getNodeX(r.x);
-      const ny = this.getNodeY(r.y);
-
-      this.ctx.save();
-      if (r.state === 'awake') {
-        this.ctx.fillStyle = '#1e293b';
-        this.ctx.strokeStyle = '#38bdf8';
-        this.ctx.lineWidth = 2;
-        this.ctx.shadowColor = '#38bdf8';
-        this.ctx.shadowBlur = 8;
-      } else if (r.state === 'waking') {
-        this.ctx.fillStyle = '#1e293b';
-        this.ctx.strokeStyle = '#f59e0b';
-        this.ctx.lineWidth = 3;
-        this.ctx.shadowColor = '#f59e0b';
-        this.ctx.shadowBlur = 12;
-      } else {
-        // sleeping (Dark Silicon)
-        this.ctx.fillStyle = '#0f172a';
-        this.ctx.strokeStyle = '#334155';
-        this.ctx.lineWidth = 1;
-      }
-
-      this.ctx.beginPath();
-      this.ctx.roundRect(nx - 18, ny - 18, 36, 36, 6);
-      this.ctx.fill();
-      this.ctx.stroke();
-      this.ctx.restore();
-
-      // State Text
-      this.ctx.font = '10px "JetBrains Mono", monospace';
-      this.ctx.textAlign = 'center';
-      this.ctx.textBaseline = 'middle';
-      if (r.state === 'sleeping') {
-        this.ctx.fillStyle = '#475569';
-        this.ctx.fillText('Zzz', nx, ny);
-      } else if (r.state === 'waking') {
-        this.ctx.fillStyle = '#f59e0b';
-        this.ctx.fillText('⚡', nx, ny);
-      } else {
-        this.ctx.fillStyle = '#38bdf8';
-        this.ctx.fillText(`R${r.x}${r.y}`, nx, ny);
-      }
-    }
-
-    // Draw floating particles
-    for (let pt of this.particles) {
-      this.ctx.save();
-      this.ctx.fillStyle = pt.color;
-      this.ctx.font = 'bold 11px "JetBrains Mono", monospace';
-      this.ctx.textAlign = 'center';
-      this.ctx.shadowColor = pt.color;
-      this.ctx.shadowBlur = 6;
-      this.ctx.fillText(pt.text, pt.x, pt.y);
-      this.ctx.restore();
-    }
-  }
-
-  addTextParticle(x, y, text, color) {
-    this.particles.push({ x, y, text, color, life: 1.2 });
-  }
-
-  updateHUD() {
-    document.getElementById('powerScore').textContent = this.score;
-    document.getElementById('powerSaved').textContent = this.energySavedJ.toFixed(1);
-    document.getElementById('powerCurrent').textContent = this.currentPowerW.toFixed(1);
-    document.getElementById('powerWave').textContent = `Wave ${this.wave}`;
-
-    // Surge energy bar
-    const bar = document.getElementById('surgeEnergyBar');
-    const text = document.getElementById('surgeEnergyText');
-    bar.style.width = `${this.surgeEnergy}%`;
-    if (this.surgeActive) {
-      text.textContent = `⚡ SURGE ACTIVE (${this.surgeTimer.toFixed(1)}s)`;
-      bar.style.background = '#f59e0b';
-    } else {
-      text.textContent = this.surgeEnergy >= 100 ? '100% READY' : `${Math.floor(this.surgeEnergy)}% CHARGING`;
-      bar.style.background = 'linear-gradient(90deg, #0284c7, #38bdf8)';
-    }
-
-    // TDP thermal budget bar
-    const tdpPct = Math.min(100, (this.currentPowerW / 14.5) * 100);
-    const tdpBar = document.getElementById('tdpBar');
-    const tdpText = document.getElementById('tdpStatusText');
-    tdpBar.style.width = `${tdpPct}%`;
-    tdpBar.style.background = tdpPct > 80 ? '#ef4444' : (tdpPct > 55 ? '#f59e0b' : '#22c55e');
-    tdpText.textContent = `${this.currentPowerW.toFixed(1)} W (${tdpPct > 80 ? 'CRITICAL' : 'SAFE'})`;
-  }
-
-  triggerGameOver() {
-    this.isRunning = false;
-    document.getElementById('powerModalTitle').textContent = 'TDP THERMAL RUNAWAY!';
-    document.getElementById('powerModalSummary').innerHTML = `
-      Silicon total power exceeded the 14.5W TDP envelope!<br><br>
-      <b>Final Wave:</b> Wave ${this.wave} | <b>Energy Saved:</b> ${this.energySavedJ.toFixed(1)} J | <b>Score:</b> ${this.score} pts
-    `;
-    document.getElementById('powerOverModal').style.display = 'flex';
-  }
-}
-
-let powerGame = null;
-
-function startPowerGame() {
-  if (!powerGame) powerGame = new PowerGame();
-  powerGame.start();
-}
-
-function restartPowerGame() {
-  if (powerGame) powerGame.start();
-}
-
-function triggerPowerSurge() {
-  if (powerGame && powerGame.isRunning) {
-    powerGame.triggerSurge();
-  }
-}
-
-function setPowerPolicy(pol) {
-  if (powerGame) powerGame.policy = pol;
-}
-
-function togglePowerSound() {
-  if (powerGame) {
-    powerGame.audio.enabled = !powerGame.audio.enabled;
-    document.getElementById('powerSoundBtn').textContent = powerGame.audio.enabled ? '🔊 Sound: ON' : '🔇 Sound: OFF';
-  }
-}
-
-function togglePowerPause() {
-  if (powerGame) powerGame.isPaused = !powerGame.isPaused;
-}
-
-// Global Animation Loop
-function powerLoop(now) {
-  if (powerGame && powerGame.isRunning) {
-    const dt = Math.min(0.05, (now - powerGame.lastTime) / 1000);
-    powerGame.lastTime = now;
-    powerGame.update(dt);
-    powerGame.render();
-  }
-  requestAnimationFrame(powerLoop);
-}
-requestAnimationFrame(powerLoop);
-
-// Keyboard controls
-window.addEventListener('keydown', (e) => {
-  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return;
-  if (e.code === 'Space' || e.code === 'KeyW') {
-    if (powerGame && powerGame.isRunning) {
-      triggerPowerSurge();
-      e.preventDefault();
-    }
-  }
-});
-
-// Hall of Fame Leaderboard & GitHub Submission Integration
-function savePowerRecord() {
-  if (!powerGame) return;
-  const nameInput = document.getElementById('powerCallsign').value.trim() || 'Volt Maestro';
-  const orgInput = document.getElementById('powerOrg').value.trim() || 'Silicon Lab';
-
-  const record = {
-    name: nameInput,
-    org: orgInput,
-    track: `Volt Vortex (Wave ${powerGame.wave})`,
-    score: powerGame.score,
-    accuracy: Number(powerGame.energySavedJ.toFixed(1)),
-    date: new Date().toISOString().slice(0, 10),
-    certId: `POWER-WAVE-${powerGame.wave}-${Math.floor(Math.random() * 900 + 100)}`,
-    type: 'power'
+(function () {
+  const GRID_SIZE = 8; // 64 Cores
+  const TECH_DATA = {
+    "45": { name: "45nm HKMG", Vdd: 1.0, fmaxGhz: 2.5, pDynPerCore: 1.8, pLeakPerCore: 0.15, areaMm2: 180 },
+    "14": { name: "14nm FinFET", Vdd: 0.8, fmaxGhz: 3.4, pDynPerCore: 4.2, pLeakPerCore: 0.45, areaMm2: 120 },
+    "7":  { name: "7nm EUV", Vdd: 0.75, fmaxGhz: 4.2, pDynPerCore: 7.8, pLeakPerCore: 1.20, areaMm2: 85 },
+    "3":  { name: "3nm GAA", Vdd: 0.70, fmaxGhz: 5.0, pDynPerCore: 11.2, pLeakPerCore: 2.10, areaMm2: 60 },
+    "2":  { name: "2nm BSPDN", Vdd: 0.65, fmaxGhz: 5.6, pDynPerCore: 14.5, pLeakPerCore: 3.40, areaMm2: 45 }
   };
 
-  try {
-    const key = 'noc_leaderboard_records';
-    const existing = JSON.parse(localStorage.getItem(key) || '[]');
-    existing.push(record);
-    localStorage.setItem(key, JSON.stringify(existing));
-    const confirmEl = document.getElementById('powerSaveConfirm');
-    if (confirmEl) confirmEl.style.display = 'block';
-  } catch (err) {
-    console.error('Failed to save to localStorage', err);
+  let activeView = "dark_floorplan"; // "dark_floorplan", "scaling_curve", "wakeup_transient"
+
+  // Core power-gating state: true = ACTIVE, false = POWER-GATED (DARK)
+  let coreActiveState = [];
+
+  let pwrMetrics = {
+    activeCount: 12,
+    darkCount: 52,
+    utilizationPct: 18.8,
+    totDynW: 134.0,
+    totLeakW: 14.2,
+    totPowerW: 148.2,
+    irDropMv: 18.5,
+    wakeupCycles: 12,
+    inrushPeakA: 4.8
+  };
+
+  const canvas = document.getElementById("powerCanvas");
+  const ctx = canvas.getContext("2d");
+
+  function initCores() {
+    coreActiveState = [];
+    for (let r = 0; r < GRID_SIZE; r++) {
+      coreActiveState[r] = [];
+      for (let c = 0; c < GRID_SIZE; c++) {
+        // Default: 12 active cores in center, rest dark
+        let isCenter = (r >= 2 && r <= 4 && c >= 2 && c <= 5);
+        coreActiveState[r][c] = isCenter;
+      }
+    }
   }
-}
 
-function submitPowerToGithub() {
-  if (!powerGame) return;
-  const nameInput = document.getElementById('powerCallsign').value.trim() || 'Volt Maestro';
-  const orgInput = document.getElementById('powerOrg').value.trim() || 'Silicon Lab';
+  function computePowerPhysics() {
+    const nodeKey = document.getElementById("pwrNodeSelect").value;
+    const tech = TECH_DATA[nodeKey] || TECH_DATA["3"];
+    const tdpBudget = parseFloat(document.getElementById("tdpSlider").value) || 150.0;
+    const sleepSize = parseFloat(document.getElementById("sleepSizeSelect").value) || 0.05;
 
-  const title = encodeURIComponent(`[Leaderboard Submission] Volt Vortex - ${nameInput} (${powerGame.score} pts)`);
-  const body = encodeURIComponent([
-    `### ⚡ Volt Vortex: Dark Silicon & Power Gating Score Submission`,
-    `- **Low-Power Architect**: ${nameInput}`,
-    `- **Institution / Org**: ${orgInput}`,
-    `- **Wave Reached**: Wave ${powerGame.wave}`,
-    `- **Energy Saved**: ${powerGame.energySavedJ.toFixed(1)} Joules`,
-    `- **Packets Delivered**: ${powerGame.deliveredCount}`,
-    `- **Total Score**: ${powerGame.score} pts`,
-    `- **Submission Timestamp**: ${new Date().toISOString()}`,
-    ``,
-    `\`\`\`json`,
-    JSON.stringify({
-      type: "power",
-      player: nameInput,
-      org: orgInput,
-      score: powerGame.score,
-      wave: powerGame.wave,
-      saved_joules: Number(powerGame.energySavedJ.toFixed(1)),
-      delivered: powerGame.deliveredCount,
-      date: new Date().toISOString().slice(0, 10),
-      certId: `POWER-WAVE-${powerGame.wave}-${Math.floor(Math.random() * 900 + 100)}`
-    }, null, 2),
-    `\`\`\``
-  ].join('\n'));
+    let active = 0;
+    for (let r = 0; r < GRID_SIZE; r++) {
+      for (let c = 0; c < GRID_SIZE; c++) {
+        if (coreActiveState[r][c]) active++;
+      }
+    }
 
-  window.open(`https://github.com/network-on-chip/learning/issues/new?title=${title}&body=${body}`, '_blank');
-}
+    const dark = 64 - active;
+    pwrMetrics.activeCount = active;
+    pwrMetrics.darkCount = dark;
+    pwrMetrics.utilizationPct = (active / 64) * 100;
+
+    // Active power = Dyn + Active Leakage
+    // Dark core power = Gated leakage (suppressed by 98% via sleep transistor)
+    const pDynTot = active * tech.pDynPerCore;
+    const pActiveLeak = active * tech.pLeakPerCore;
+    const pDarkLeak = dark * (tech.pLeakPerCore * 0.02); // 98% leakage reduction
+    const pTot = pDynTot + pActiveLeak + pDarkLeak;
+
+    pwrMetrics.totDynW = pDynTot;
+    pwrMetrics.totLeakW = pActiveLeak + pDarkLeak;
+    pwrMetrics.totPowerW = pTot;
+
+    // Sleep Transistor Metrics
+    // IR drop: V_ir = I_active * R_sleep
+    // Larger sleep size => lower R_sleep, lower IR drop, but higher inrush
+    const rSleepNorm = 0.04 / sleepSize;
+    pwrMetrics.irDropMv = Math.round(rSleepNorm * tech.Vdd * 15.0);
+    pwrMetrics.wakeupCycles = Math.round(6 + (0.10 / sleepSize) * 3);
+    pwrMetrics.inrushPeakA = (sleepSize * 85.0).toFixed(1);
+
+    // Update HUD
+    document.getElementById("hudUtilization").textContent = pwrMetrics.utilizationPct.toFixed(1) + "% Active (" + active + " / 64 Cores)";
+    document.getElementById("hudDarkFraction").textContent = "Dark Silicon: " + (100 - pwrMetrics.utilizationPct).toFixed(1) + "% (" + dark + " Cores Gated)";
+    document.getElementById("hudTotalPower").textContent = pTot.toFixed(1) + " W / " + tdpBudget + " W TDP";
+    document.getElementById("hudPowerBreakdown").textContent = "Dynamic: " + pDynTot.toFixed(1) + "W | Sub-Vth: " + (pActiveLeak + pDarkLeak).toFixed(1) + "W";
+    document.getElementById("hudIrDrop").textContent = "IR Drop: " + pwrMetrics.irDropMv + " mV (" + ((pwrMetrics.irDropMv / (tech.Vdd * 1000)) * 100).toFixed(1) + "%)";
+    document.getElementById("hudWakeupLat").textContent = "Wake-Up: " + pwrMetrics.wakeupCycles + " Cyc | Inrush: " + pwrMetrics.inrushPeakA + " A";
+
+    let pwrDensity = (pTot / tech.areaMm2).toFixed(2);
+    let ungatedPwr = (64 * (tech.pDynPerCore + tech.pLeakPerCore) / tech.areaMm2).toFixed(2);
+    document.getElementById("hudPowerDensity").textContent = pwrDensity + " W/mm² (" + (pTot > tdpBudget ? "EXCEEDS TDP!" : "Within TDP") + ")";
+    document.getElementById("hudUngatedDensity").textContent = "If Fully Active: " + ungatedPwr + " W/mm² (" + (ungatedPwr > 3.0 ? "THERMAL MELTDOWN" : "Hot") + ")";
+  }
+
+  function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (activeView === "dark_floorplan") {
+      renderFloorplan();
+    } else if (activeView === "scaling_curve") {
+      renderScalingCurve();
+    } else if (activeView === "wakeup_transient") {
+      renderWakeupTransient();
+    }
+  }
+
+  // 1. Dark Silicon 64-Core Floorplan
+  function renderFloorplan() {
+    const w = canvas.width;
+    const h = canvas.height;
+    const padL = 70, padT = 50, gridW = 340, gridH = 340;
+
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "600 12px 'JetBrains Mono', monospace";
+    ctx.fillText("64-CORE SYSTEM-ON-CHIP DARK SILICON FLOORPLAN [CLICK TILES TO TOGGLE]", padL, 28);
+
+    const cellW = gridW / GRID_SIZE;
+    const cellH = gridH / GRID_SIZE;
+
+    for (let r = 0; r < GRID_SIZE; r++) {
+      for (let c = 0; c < GRID_SIZE; c++) {
+        let x = padL + c * cellW;
+        let y = padT + r * cellH;
+        let isActive = coreActiveState[r][c];
+
+        if (isActive) {
+          // Powered Active Tile (Cyan / Amber)
+          ctx.fillStyle = "#0284c7";
+          ctx.strokeStyle = "#38bdf8";
+          ctx.lineWidth = 1.5;
+          ctx.fillRect(x + 2, y + 2, cellW - 4, cellH - 4);
+          ctx.strokeRect(x + 2, y + 2, cellW - 4, cellH - 4);
+
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 10px 'JetBrains Mono', monospace";
+          ctx.textAlign = "center";
+          ctx.fillText("ON", x + cellW / 2, y + cellH / 2 + 3);
+        } else {
+          // Gated Dark Tile (Dim Charcoal)
+          ctx.fillStyle = "#0f172a";
+          ctx.strokeStyle = "#1e293b";
+          ctx.lineWidth = 1;
+          ctx.fillRect(x + 2, y + 2, cellW - 4, cellH - 4);
+          ctx.strokeRect(x + 2, y + 2, cellW - 4, cellH - 4);
+
+          // Diagonal slash indicating power-gating
+          ctx.strokeStyle = "rgba(100, 116, 139, 0.3)";
+          ctx.beginPath();
+          ctx.moveTo(x + 4, y + cellH - 4);
+          ctx.lineTo(x + cellW - 4, y + 4);
+          ctx.stroke();
+
+          ctx.fillStyle = "#475569";
+          ctx.font = "9px 'JetBrains Mono', monospace";
+          ctx.textAlign = "center";
+          ctx.fillText("DARK", x + cellW / 2, y + cellH / 2 + 3);
+        }
+      }
+    }
+
+    // Right-side Summary Panel
+    const sumX = padL + gridW + 40;
+    const sumY = padT;
+
+    ctx.fillStyle = "#1e293b";
+    ctx.strokeStyle = "#334155";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.roundRect(sumX, sumY, 210, gridH, 8);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#38bdf8";
+    ctx.font = "bold 11px 'JetBrains Mono', monospace";
+    ctx.textAlign = "left";
+    ctx.fillText("POWER BUDGET AUDIT", sumX + 16, sumY + 30);
+
+    const tdp = parseFloat(document.getElementById("tdpSlider").value);
+    const pTot = pwrMetrics.totPowerW;
+    const isOver = pTot > tdp;
+
+    ctx.fillStyle = isOver ? "#ef4444" : "#22c55e";
+    ctx.font = "bold 14px 'JetBrains Mono', monospace";
+    ctx.fillText(pTot.toFixed(1) + " W / " + tdp + " W", sumX + 16, sumY + 65);
+
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "10px 'JetBrains Mono', monospace";
+    ctx.fillText("Active Cores: " + pwrMetrics.activeCount, sumX + 16, sumY + 105);
+    ctx.fillText("Dark Gated Cores: " + pwrMetrics.darkCount, sumX + 16, sumY + 125);
+    ctx.fillText("Leakage Power: " + pwrMetrics.totLeakW.toFixed(1) + " W", sumX + 16, sumY + 145);
+    ctx.fillText("Dynamic Power: " + pwrMetrics.totDynW.toFixed(1) + " W", sumX + 16, sumY + 165);
+
+    // Progress Bar
+    ctx.fillStyle = "#0f172a";
+    ctx.fillRect(sumX + 16, sumY + 190, 178, 14);
+    ctx.fillStyle = isOver ? "#ef4444" : "#22c55e";
+    ctx.fillRect(sumX + 16, sumY + 190, Math.min(178, (pTot / tdp) * 178), 14);
+  }
+
+  // 2. Dennard Scaling Breakdown Curve
+  function renderScalingCurve() {
+    const w = canvas.width;
+    const h = canvas.height;
+    const padL = 70, padT = 50, padR = 40, padB = 60;
+    const graphW = w - padL - padR;
+    const graphH = h - padT - padB;
+
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "600 12px 'JetBrains Mono', monospace";
+    ctx.fillText("DENNARD SCALING COLLAPSE: PERMISSIBLE ACTIVE SILICON FRACTION U(Node)", padL, 28);
+
+    const nodes = [45, 28, 20, 14, 10, 7, 5, 3, 2];
+    const uPct = [100, 88, 72, 48, 35, 24, 19, 14, 9];
+
+    // Grid
+    ctx.strokeStyle = "#1e293b";
+    ctx.lineWidth = 1;
+    for (let gy = 0; gy <= 4; gy++) {
+      let y = padT + (gy / 4) * graphH;
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(w - padR, y);
+      ctx.stroke();
+
+      ctx.fillStyle = "#64748b";
+      ctx.font = "10px 'JetBrains Mono', monospace";
+      ctx.textAlign = "right";
+      ctx.fillText(Math.round(100 * (1 - gy / 4)) + "%", padL - 8, y + 4);
+    }
+
+    // Plot Curve
+    ctx.strokeStyle = "#ef4444";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    nodes.forEach((n, idx) => {
+      let px = padL + (idx / (nodes.length - 1)) * graphW;
+      let py = padT + (1 - uPct[idx] / 100) * graphH;
+      if (idx === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+
+      ctx.fillStyle = "#64748b";
+      ctx.font = "10px 'JetBrains Mono', monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(n + "nm", px, h - padB + 16);
+    });
+    ctx.stroke();
+
+    // Fill Under Curve
+    ctx.fillStyle = "rgba(239, 68, 68, 0.12)";
+    ctx.lineTo(padL + graphW, padT + graphH);
+    ctx.lineTo(padL, padT + graphH);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = "#f87171";
+    ctx.font = "11px 'JetBrains Mono', monospace";
+    ctx.textAlign = "left";
+    ctx.fillText("Dark Silicon Region (>80% Transistors Inactive)", padL + graphW * 0.4, padT + graphH * 0.3);
+  }
+
+  // 3. Sleep Transistor Wake-Up Transient
+  function renderWakeupTransient() {
+    const w = canvas.width;
+    const h = canvas.height;
+    const padL = 70, padT = 50, padR = 40, padB = 60;
+    const graphW = w - padL - padR;
+    const graphH = h - padT - padB;
+
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "600 12px 'JetBrains Mono', monospace";
+    ctx.fillText("POWER-GATING WAKE-UP TRANSIENT: VIRTUAL RAIL CHARGING & INRUSH CURRENT", padL, 28);
+
+    // Waveforms: Voltage charging (0 to Vdd) and Inrush pulse (0 to Peak A)
+    ctx.strokeStyle = "#1e293b";
+    ctx.lineWidth = 1;
+    for (let gy = 0; gy <= 4; gy++) {
+      let y = padT + (gy / 4) * graphH;
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(w - padR, y);
+      ctx.stroke();
+    }
+
+    // Voltage Curve (Cyan)
+    ctx.strokeStyle = "#38bdf8";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (let t = 0; t <= 100; t++) {
+      let v = (t < 15) ? 0 : (1 - Math.exp(-(t - 15) / 18.0));
+      let px = padL + (t / 100) * graphW;
+      let py = padT + (1 - v) * graphH;
+      if (t === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    // Inrush Current Spike (Yellow)
+    ctx.strokeStyle = "#eab308";
+    ctx.lineWidth = 2.0;
+    ctx.beginPath();
+    for (let t = 0; t <= 100; t++) {
+      let iVal = (t < 15) ? 0 : Math.exp(-(t - 15) / 8.0) * Math.sin((t - 15) * 0.15);
+      iVal = Math.max(0, iVal);
+      let px = padL + (t / 100) * graphW;
+      let py = padT + (1 - iVal * 0.85) * graphH;
+      if (t === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    // Legend
+    ctx.textAlign = "left";
+    ctx.font = "11px 'JetBrains Mono', monospace";
+    ctx.fillStyle = "#38bdf8";
+    ctx.fillRect(padL + 20, padT + 10, 14, 4);
+    ctx.fillText("Virtual Vdd Rail [V(t)]", padL + 40, padT + 14);
+
+    ctx.fillStyle = "#eab308";
+    ctx.fillRect(padL + 20, padT + 28, 14, 4);
+    ctx.fillText("Inrush Charging Current Surge [I(t)]", padL + 40, padT + 32);
+  }
+
+  // Interactive Tile Toggling
+  canvas.addEventListener("click", function (e) {
+    if (activeView !== "dark_floorplan") return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top) * scaleY;
+
+    const padL = 70, padT = 50, gridW = 340, gridH = 340;
+    const cellW = gridW / GRID_SIZE;
+    const cellH = gridH / GRID_SIZE;
+
+    for (let r = 0; r < GRID_SIZE; r++) {
+      for (let c = 0; c < GRID_SIZE; c++) {
+        let x = padL + c * cellW;
+        let y = padT + r * cellH;
+        if (mx >= x && mx <= x + cellW && my >= y && my <= y + cellH) {
+          coreActiveState[r][c] = !coreActiveState[r][c];
+          computePowerPhysics();
+          render();
+          return;
+        }
+      }
+    }
+  });
+
+  // Window Dispatch Interface
+  window.updatePowerWorkbench = function () {
+    computePowerPhysics();
+    render();
+  };
+
+  window.switchPowerView = function (v) {
+    activeView = v;
+    document.getElementById("btnPwrFloor").className = (v === "dark_floorplan") ? "noc-sim-btn" : "noc-sim-btn secondary";
+    document.getElementById("btnPwrScaling").className = (v === "scaling_curve") ? "noc-sim-btn" : "noc-sim-btn secondary";
+    document.getElementById("btnPwrWakeup").className = (v === "wakeup_transient") ? "noc-sim-btn" : "noc-sim-btn secondary";
+    render();
+  };
+
+  window.optimizePowerGating = function () {
+    const nodeKey = document.getElementById("pwrNodeSelect").value;
+    const tech = TECH_DATA[nodeKey] || TECH_DATA["3"];
+    const tdpBudget = parseFloat(document.getElementById("tdpSlider").value);
+
+    // Max cores allowed without exceeding budget
+    const maxActive = Math.floor(tdpBudget / (tech.pDynPerCore + tech.pLeakPerCore));
+
+    let count = 0;
+    for (let r = 0; r < GRID_SIZE; r++) {
+      for (let c = 0; c < GRID_SIZE; c++) {
+        if (count < maxActive) {
+          coreActiveState[r][c] = true;
+          count++;
+        } else {
+          coreActiveState[r][c] = false;
+        }
+      }
+    }
+    computePowerPhysics();
+    render();
+  };
+
+  window.exportPowerReport = function () {
+    const nodeKey = document.getElementById("pwrNodeSelect").value;
+    const tech = TECH_DATA[nodeKey];
+    let rpt = [
+      "===============================================================================",
+      "DARK SILICON & POWER GATING COMPREHENSIVE CAD AUDIT REPORT",
+      "===============================================================================",
+      "Technology Process       : " + tech.name + " (Nominal Vdd = " + tech.Vdd + " V)",
+      "Total Active Cores       : " + pwrMetrics.activeCount + " / 64 (" + pwrMetrics.utilizationPct.toFixed(1) + "% Active)",
+      "Total Dark Silicon Cores : " + pwrMetrics.darkCount + " (" + (100 - pwrMetrics.utilizationPct).toFixed(1) + "% Power Gated)",
+      "Total Chip Power         : " + pwrMetrics.totPowerW.toFixed(1) + " W (Budget: " + document.getElementById("tdpSlider").value + " W TDP)",
+      "Dynamic Switching Power  : " + pwrMetrics.totDynW.toFixed(1) + " W",
+      "Total Leakage Power      : " + pwrMetrics.totLeakW.toFixed(1) + " W (Sub-Vth + Gate Tunneling)",
+      "-------------------------------------------------------------------------------",
+      "POWER GATING MACRO-CELL IMPLEMENTATION METRICS",
+      "-------------------------------------------------------------------------------",
+      "Sleep Transistor Area    : " + (document.getElementById("sleepSizeSelect").value * 100) + "% Silicon Footprint",
+      "Active Mode IR Drop      : " + pwrMetrics.irDropMv + " mV (" + ((pwrMetrics.irDropMv / (tech.Vdd * 1000)) * 100).toFixed(1) + "% Margin)",
+      "Wake-Up Latency Penalty  : " + pwrMetrics.wakeupCycles + " Clock Cycles",
+      "Peak Inrush Current      : " + pwrMetrics.inrushPeakA + " Amperes",
+      "==============================================================================="
+    ];
+    document.getElementById("powerExportText").textContent = rpt.join("\n");
+    document.getElementById("powerExportWrap").style.display = "block";
+  };
+
+  // Initial Boot
+  initCores();
+  computePowerPhysics();
+  render();
+})();
 </script>

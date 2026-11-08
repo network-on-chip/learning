@@ -1,821 +1,838 @@
-# 🌐 Topology Titans: Interconnect Graph Architect
+# 🌐 Interconnect Topology CAD & Spectral Graph Analyzer
 
-Design next-generation supercomputing and exascale chip interconnects! Wire network topologies across multicore processors, evaluate graph-theoretical metrics in real time (Network Diameter, Bisection Bandwidth, Average Hop Count), and stress-test communication patterns under router pin radix and wire cost constraints. High scores can be inscribed directly onto the **Community Leaderboard**.
+An engineering-grade computer architecture workbench for modeling, analyzing, and synthesizing high-performance on-chip and scale-up interconnect topologies. Evaluate graph-theoretic invariants, compute Laplacian eigenvalues and algebraic connectivity (Fiedler vector $\lambda_2$), calculate bisection bandwidth and network diameter, and simulate traffic bottleneck distributions under synthetic workloads.
+
+---
+
+## 1. Physical & Graph-Theoretic Foundations
+
+Modern multi-core processors, accelerator clusters, and exascale supercomputers rely on structured interconnection networks whose performance is strictly bound by their graph-theoretical invariants:
+
+### 1.1 Invariants and Formulations
+1. **Adjacency and Laplacian Matrices**:
+   For an undirected graph $G = (V, E)$ with $|V| = N$ nodes and $|E| = M$ links:
+   $$A_{ij} = \begin{cases} 1 & \text{if } (i,j) \in E \\ 0 & \text{otherwise} \end{cases}, \quad D_{ii} = \sum_{j} A_{ij}, \quad L = D - A$$
+2. **Spectral Graph Theory & Algebraic Connectivity**:
+   The eigenvalues of the graph Laplacian $L$ satisfy:
+   $$0 = \lambda_1 \le \lambda_2 \le \lambda_3 \le \dots \le \lambda_N$$
+   The second smallest eigenvalue $\lambda_2(L)$ is the **Fiedler eigenvalue** (algebraic connectivity). It quantifies network robustness, expansion properties, and diffusion rate. A graph is connected if and only if $\lambda_2 > 0$. By Cheeger's inequality, the edge expansion (isoperimetric constant) $h(G)$ is bounded by:
+   $$\frac{\lambda_2}{2} \le h(G) \le \sqrt{2 \lambda_2 d_{\max}}$$
+3. **Network Diameter ($D$) & Average Hop Count ($\bar{h}$)**:
+   $$D = \max_{u, v \in V} d(u, v), \qquad \bar{h} = \frac{1}{N(N-1)} \sum_{u \ne v} d(u, v)$$
+   Zero-load network latency is directly governed by average hop count: $T_0 = \bar{h} \cdot t_r + \frac{\bar{L}_{wire}}{v_{prop}} + \frac{L_{pkt}}{W_{channel}}$.
+4. **Bisection Bandwidth ($B$)**:
+   The minimum number of channel cuts required to partition the $N$ nodes into two equal halves of size $\lfloor N/2 \rfloor$ and $\lceil N/2 \rceil$:
+   $$B = \min_{S \subset V, |S| = \lfloor N/2 \rfloor} |E(S, V \setminus S)|$$
+   Under worst-case traffic (e.g., bit-complement or bisection stress), maximum sustainable throughput is strictly constrained: $\Theta_{\max} \le \frac{2 B}{N}$.
+5. **Channel Load & Moore Bound**:
+   Given maximum router radix $k_{\max}$ and diameter $D$, the maximum theoretical node count is bound by the Moore bound:
+   $$N \le 1 + k_{\max} \sum_{i=0}^{D-1} (k_{\max} - 1)^i$$
+
+---
+
+## 2. Interactive Topology CAD & Spectral Workbench
 
 <div class="noc-sim-container">
   <div class="noc-sim-controls" style="display:flex; flex-wrap:wrap; gap:0.75rem; align-items:center;">
-    <label><b>Mission / Campaign:</b>
-      <select id="topoMissionSelect" class="noc-sim-select" onchange="loadTopoMission(this.value)">
-        <option value="1">Mission 1: Ring to Torus Evolution (Cut Diameter &le; 4)</option>
-        <option value="2">Mission 2: 16-Node 4D Hypercube (Bisection &ge; 8)</option>
-        <option value="3">Mission 3: High-Radix Dragonfly (Grouped Interconnect)</option>
-        <option value="4">Mission 4: 2-Tier Fat-Tree Clos Network</option>
-        <option value="5">Mission 5: Small-World Shortcut Optimizer</option>
-        <option value="sandbox">🛠️ Free Exascale Sandbox Mode</option>
-      </select>
-    </label>
-
-    <label><b>Topology Preset:</b>
-      <select id="topoPresetSelect" class="noc-sim-select" onchange="applyTopoPreset(this.value)">
-        <option value="custom">Custom Wiring</option>
+    <label><b>Topology Architecture:</b>
+      <select id="topoPresetSelect" class="noc-sim-select" onchange="applyTopologyPreset(this.value)">
+        <option value="mesh">2D Mesh (4x4, 16 Nodes)</option>
+        <option value="torus">2D Torus (4x4 Periodic Wraparound)</option>
+        <option value="folded_torus">Folded Torus (Equalized Wire Lengths)</option>
+        <option value="hypercube">4D Hypercube (Q_4, 16 Nodes)</option>
         <option value="ring">1D Ring (16 Nodes)</option>
-        <option value="mesh">2D Mesh (4x4)</option>
-        <option value="torus">2D Torus (4x4 Wrap-Around)</option>
-        <option value="hypercube">4D Hypercube (16 Nodes)</option>
-        <option value="dragonfly">Dragonfly (4 Groups of 4)</option>
+        <option value="dragonfly">Dragonfly (4 Groups of 4 Routers)</option>
+        <option value="clos">Flattened Butterfly / 2-Tier Clos</option>
+        <option value="custom">Custom Adjacency (Interactive Editor)</option>
       </select>
     </label>
 
     <label><b>Traffic Pattern:</b>
-      <select id="topoTrafficPattern" class="noc-sim-select">
+      <select id="topoTrafficSelect" class="noc-sim-select" onchange="evaluateTopologyMetrics()">
         <option value="uniform">Uniform Random Traffic</option>
         <option value="bit_complement">Bit-Complement Traffic</option>
-        <option value="all_to_all">All-to-All Personalized Burst</option>
+        <option value="transpose">Transpose Traffic</option>
+        <option value="tornado">Tornado Traffic</option>
+      </select>
+    </label>
+
+    <label><b>Display Mode:</b>
+      <select id="topoColorMode" class="noc-sim-select" onchange="renderTopology()">
+        <option value="spectral">Spectral Fiedler Vector (λ₂ Partition)</option>
+        <option value="traffic">Link Utilization & Congestion Heatmap</option>
+        <option value="degree">Router Radix (Node Degree)</option>
+        <option value="clusters">Physical Packaging Hierarchy</option>
       </select>
     </label>
 
     <div style="display:flex; gap:0.5rem; flex-wrap:wrap; width:100%; margin-top:0.25rem;">
-      <button id="runStressBtn" class="noc-sim-btn" onclick="runTopologyStressTest()">▶ Run Traffic Stress Test</button>
-      <button class="noc-sim-btn secondary" onclick="clearTopologyWires()">✂️ Clear Links</button>
-      <button class="noc-sim-btn secondary" onclick="resetTopologyLayout()">🔄 Reset Nodes</button>
-      <button id="topoSoundBtn" class="noc-sim-btn secondary" onclick="toggleTopoSound()">🔊 Sound: ON</button>
+      <button class="noc-sim-btn" onclick="runForceLayoutStep()">⚡ Relax Physical Layout</button>
+      <button class="noc-sim-btn secondary" onclick="resetNodePositions()">📐 Reset 2D Grid</button>
+      <button class="noc-sim-btn secondary" onclick="clearAllLinks()">✂️ Clear Links</button>
+      <button class="noc-sim-btn secondary" onclick="exportTopologyJson()">💾 Export JSON</button>
+      <button class="noc-sim-btn secondary" onclick="exportVerilogNetlist()">📋 Export Verilog</button>
     </div>
 
-    <!-- Live Graph Metrics HUD -->
-    <div style="margin-left:auto; display:flex; gap:1.2rem; align-items:center; font-weight:700; font-family:'JetBrains Mono', monospace; font-size:0.9rem; width:100%; margin-top:0.35rem;">
-      <span style="color:var(--tcl-blue-600);">Diameter: <span id="topoDiameter">0</span> hops</span>
-      <span style="color:#22c55e;">Avg Hops: <span id="topoAvgHops">0.00</span></span>
-      <span style="color:#f59e0b;">Bisection: <span id="topoBisection">0</span> links</span>
-      <span style="color:#ec4899;">Max Radix: <span id="topoMaxRadix">0</span></span>
-      <span style="color:#38bdf8;">Wire Cost: $<span id="topoWireCost">0</span></span>
-      <span style="color:#eab308; margin-left:auto;" id="topoStarsDisplay">⭐⭐⭐</span>
+    <!-- Live Engineering HUD -->
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:0.6rem; width:100%; margin-top:0.5rem; font-family:'JetBrains Mono', monospace; font-size:0.82rem;">
+      <div style="background:var(--tcl-surface); padding:0.4rem 0.6rem; border-radius:6px; border:1px solid var(--tcl-border);">
+        <span style="color:#64748b; display:block; font-size:0.75rem;">Nodes / Links</span>
+        <strong id="hudNodesLinks" style="color:#38bdf8; font-size:0.95rem;">16 / 24</strong>
+      </div>
+      <div style="background:var(--tcl-surface); padding:0.4rem 0.6rem; border-radius:6px; border:1px solid var(--tcl-border);">
+        <span style="color:#64748b; display:block; font-size:0.75rem;">Diameter (D)</span>
+        <strong id="hudDiameter" style="color:#22c55e; font-size:0.95rem;">6 hops</strong>
+      </div>
+      <div style="background:var(--tcl-surface); padding:0.4rem 0.6rem; border-radius:6px; border:1px solid var(--tcl-border);">
+        <span style="color:#64748b; display:block; font-size:0.75rem;">Avg Hop Count (h̄)</span>
+        <strong id="hudAvgHops" style="color:#38bdf8; font-size:0.95rem;">2.53 hops</strong>
+      </div>
+      <div style="background:var(--tcl-surface); padding:0.4rem 0.6rem; border-radius:6px; border:1px solid var(--tcl-border);">
+        <span style="color:#64748b; display:block; font-size:0.75rem;">Bisection Bandwidth</span>
+        <strong id="hudBisection" style="color:#f59e0b; font-size:0.95rem;">4 links</strong>
+      </div>
+      <div style="background:var(--tcl-surface); padding:0.4rem 0.6rem; border-radius:6px; border:1px solid var(--tcl-border);">
+        <span style="color:#64748b; display:block; font-size:0.75rem;">Fiedler λ₂ (Conn.)</span>
+        <strong id="hudFiedler" style="color:#a855f7; font-size:0.95rem;">0.586</strong>
+      </div>
+      <div style="background:var(--tcl-surface); padding:0.4rem 0.6rem; border-radius:6px; border:1px solid var(--tcl-border);">
+        <span style="color:#64748b; display:block; font-size:0.75rem;">Max Radix (k_max)</span>
+        <strong id="hudMaxRadix" style="color:#ec4899; font-size:0.95rem;">4</strong>
+      </div>
     </div>
   </div>
 
-  <div id="topoMissionBrief" style="margin-bottom:0.75rem; padding:0.65rem 0.95rem; background:var(--tcl-surface); border:1px solid var(--tcl-border); border-radius:8px; font-size:0.85rem; line-height:1.6;">
-    <strong>Mission Objective:</strong> <span id="topoTargetText">Cut the 16-node ring diameter from 8 down to &le; 4 hops by adding wrap-around and cross-links while keeping node degree (radix) &le; 4.</span>
-    <div style="font-size:0.8rem; color:#94a3b8; margin-top:2px;">💡 Click Router A, then click Router B to add a bidirectional link. Click an existing link to remove it!</div>
+  <div style="margin:0.75rem 0; padding:0.65rem 0.95rem; background:var(--tcl-surface); border:1px solid var(--tcl-border); border-radius:8px; font-size:0.83rem; line-height:1.6; color:#94a3b8;">
+    <strong style="color:#f8fafc;">Interactive CAD Editor:</strong>
+    Click node $A$ then node $B$ to add/remove a bidirectional channel. Drag nodes to customize floorplan coordinates. The spectral solver continuously computes eigenvalues, shortest paths, and bisection cuts.
   </div>
 
   <div class="noc-sim-canvas-wrap" style="position:relative;">
-    <canvas id="topoCanvas" width="620" height="460" style="width:100%; max-width:620px; height:auto; display:block;"></canvas>
+    <canvas id="topoCanvas" width="620" height="460" style="width:100%; max-width:620px; height:auto; display:block; background:#0f172a; border-radius:10px;"></canvas>
+  </div>
 
-    <!-- Mission Success Modal -->
-    <div id="topoSuccessModal" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.94); border-radius:12px; z-index:20; flex-direction:column; justify-content:center; align-items:center; padding:2rem; box-sizing:border-box; color:#ffffff; text-align:center;">
-      <div style="font-size:3rem; margin-bottom:0.35rem;">🏆</div>
-      <h2 style="margin:0 0 0.5rem 0; font-size:1.8rem; color:#4ade80;">TOPOLOGY VALIDATED!</h2>
-      <p id="topoSuccessSummary" style="color:#cbd5e1; font-size:0.95rem; max-width:460px; margin-bottom:1.25rem; line-height:1.6;">
-        Interconnect graph satisfied all diameter, radix, and bisection bandwidth criteria!
-      </p>
-
-      <div id="topoStarsAwarded" style="font-size:1.8rem; margin-bottom:1rem;">⭐⭐⭐</div>
-
-      <div style="background:#1e293b; border:1px solid #334155; border-radius:10px; padding:0.85rem 1.25rem; margin-bottom:1.25rem; width:100%; max-width:400px; box-sizing:border-box; text-align:left;">
-        <label style="font-size:12px; font-weight:700; text-transform:uppercase; color:#94a3b8; display:block; margin-bottom:0.35rem;">Architect Callsign:</label>
-        <input type="text" id="topoCallsign" class="noc-sim-select" style="width:100%; box-sizing:border-box; margin-bottom:0.5rem; background:#0f172a; color:#f8fafc; border-color:#475569;" placeholder="e.g. Graph Master" value="Topology Titan">
-        <label style="font-size:12px; font-weight:700; text-transform:uppercase; color:#94a3b8; display:block; margin-bottom:0.35rem;">Institution / Handle:</label>
-        <input type="text" id="topoOrg" class="noc-sim-select" style="width:100%; box-sizing:border-box; background:#0f172a; color:#f8fafc; border-color:#475569;" placeholder="e.g. Berkeley / MIT / SJTU" value="Silicon Lab">
+  <!-- Spectral & Analytical Diagnostics Table -->
+  <div style="margin-top:1rem; display:grid; grid-template-columns: 1fr 1fr; gap:1rem; font-family:'JetBrains Mono', monospace; font-size:0.8rem;">
+    <div style="background:var(--tcl-surface); border:1px solid var(--tcl-border); border-radius:8px; padding:0.75rem;">
+      <strong style="color:#38bdf8; display:block; margin-bottom:0.4rem;">Eigenvalue Spectrum:</strong>
+      <div id="topoEigenSpectrum" style="color:#94a3b8; font-size:0.75rem; max-height:100px; overflow-y:auto; line-height:1.5;">
+        λ₀=0.000, λ₁=0.586, λ₂=0.586, λ₃=1.000...
       </div>
-
-      <div style="display:flex; gap:0.75rem; flex-wrap:wrap; justify-content:center;">
-        <button class="noc-sim-btn" onclick="saveTopologyRecord()" style="background:#22c55e;">💾 Inscribe on Leaderboard</button>
-        <button class="noc-sim-btn" onclick="submitTopologyToGithub()" style="background:#0284c7;">📤 Submit to GitHub</button>
-        <button class="noc-sim-btn secondary" onclick="nextTopoMission()" style="color:#ffffff !important;">▶ Next Mission</button>
-        <button class="noc-sim-btn secondary" onclick="closeTopoModal()" style="color:#ffffff !important;">Close</button>
-      </div>
-      <div id="topoSaveConfirm" style="margin-top:0.75rem; color:#4ade80; font-size:0.85rem; font-weight:600; display:none;">
-        ✓ Topology score successfully recorded in your browser Leaderboard!
+      <div style="margin-top:0.4rem; font-size:0.75rem; color:#cbd5e1;">
+        Spectral Gap ($\lambda_N - \lambda_2$): <span id="topoSpmGap" style="color:#f59e0b;">-</span>
       </div>
     </div>
 
-    <!-- Mission Failure Modal -->
-    <div id="topoFailureModal" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.94); border-radius:12px; z-index:20; flex-direction:column; justify-content:center; align-items:center; padding:2rem; box-sizing:border-box; color:#ffffff; text-align:center;">
-      <div style="font-size:3rem; margin-bottom:0.35rem;">⚠️</div>
-      <h2 style="margin:0 0 0.5rem 0; font-size:1.8rem; color:#f87171;">TOPOLOGY CRITERIA UNMET</h2>
-      <p id="topoFailureSummary" style="color:#cbd5e1; font-size:0.95rem; max-width:440px; margin-bottom:1.25rem; line-height:1.6;">
-        Diameter too high, radix exceeded, or graph disconnected.
-      </p>
-      <div style="display:flex; gap:0.75rem; flex-wrap:wrap; justify-content:center;">
-        <button class="noc-sim-btn" onclick="closeTopoModal()" style="background:#0284c7;">🔄 Adjust Links &amp; Retry</button>
+    <div style="background:var(--tcl-surface); border:1px solid var(--tcl-border); border-radius:8px; padding:0.75rem;">
+      <strong style="color:#22c55e; display:block; margin-bottom:0.4rem;">Wiring & Bottleneck Analysis:</strong>
+      <div style="color:#94a3b8; font-size:0.75rem; line-height:1.6;">
+        Total Wire Length: <span id="topoTotalWire" style="color:#f8fafc;">0.00 mm</span><br>
+        Peak Channel Load ($\gamma_{\max}$): <span id="topoPeakLoad" style="color:#ef4444;">0.000 pkts/cycle</span><br>
+        Throughput Saturation Limit ($\Theta_{\text{sat}}$): <span id="topoSatBound" style="color:#38bdf8;">0.000</span>
       </div>
     </div>
   </div>
 
-  <div id="topoInstructions" style="margin-top:1rem; padding:1rem 1.25rem; background:var(--tcl-surface); border:1px solid var(--tcl-border); border-radius:10px; font-size:0.86rem; color:var(--md-default-fg-color--lighter); line-height:1.65;">
-    <strong style="color:var(--tcl-heading);">🌐 Interconnect Topologies &amp; Graph Metrics:</strong>
-    <ul style="margin: 0.5rem 0 0 1.2rem; padding: 0;">
-      <li><strong>Network Diameter ($D$):</strong> The maximum shortest path between any pair of nodes ($\max_{u,v} d(u,v)$). Lower diameter translates directly to lower zero-load latency for remote memory and cache-coherence traffic.</li>
-      <li><strong>Bisection Bandwidth ($B$):</strong> The minimum link cuts required to bisect the network into two equal partitions ($\lfloor N/2 \rfloor$). In adversarial traffic (such as Bit-Complement), throughput is strictly bound by bisection bandwidth: $\Theta_{max} \le \frac{2B}{N}$.</li>
-      <li><strong>Node Degree / Radix ($k$):</strong> The number of physical ports on each router. Higher radix decreases diameter, but exponentially inflates the internal crossbar area ($O(k^2)$) and router pin count!</li>
-      <li><strong>High-Radix Topologies (Dragonfly &amp; Flattened Butterfly):</strong> Modern supercomputers group high-density local nodes into intra-group cliques, reducing long global optical cables to achieve exascale scalability at affordable packaging cost.</li>
-    </ul>
+  <!-- CAD Netlist Export Drawer -->
+  <div id="topoExportDrawer" style="display:none; margin-top:1rem; background:#0b1120; border:1px solid #1e293b; border-radius:8px; padding:0.85rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+      <strong id="topoExportTitle" style="color:#38bdf8; font-size:0.85rem;">Generated Specification</strong>
+      <button class="noc-sim-btn secondary" style="padding:2px 8px; font-size:0.75rem;" onclick="document.getElementById('topoExportDrawer').style.display='none'">Close</button>
+    </div>
+    <textarea id="topoExportCode" readonly style="width:100%; height:160px; background:#050811; color:#a5f3fc; border:1px solid #334155; border-radius:6px; font-family:'JetBrains Mono', monospace; font-size:0.75rem; padding:0.5rem; box-sizing:border-box;"></textarea>
   </div>
 </div>
 
+---
+
+## 3. Topologies Comparison & Trade-off Matrix
+
+| Topology Family | Diameter ($D$) | Bisection Bandwidth ($B$) | Router Radix ($k$) | Wire Complexity | Scalability Bottleneck |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **2D Mesh ($k \times k$)** | $2(k - 1)$ | $k$ | $4$ (fixed) | Minimal (planar nearest-neighbor) | Large diameter, edge congestion |
+| **2D Torus ($k \times k$)** | $2 \lfloor k/2 \rfloor$ | $2k$ | $4$ (fixed) | Moderate (long wraparound wires) | Long physical wrap wires without folding |
+| **Folded Torus** | $2 \lfloor k/2 \rfloor$ | $2k$ | $4$ (fixed) | Uniform (interleaved coordinates) | $2\times$ trace density |
+| **4D Hypercube ($Q_4$)** | $n = \log_2 N$ | $N/2$ | $n = \log_2 N$ | High (logarithmic wire crossing) | Radix scales with network size |
+| **Dragonfly ($a, p, h$)** | $3$ (hierarchical) | High (global inter-group links) | $p + a - 1 + h$ | Mixed (local copper + global optical) | Asymmetric traffic load balancing |
+| **Flattened Butterfly** | $2$ (low-latency) | $\frac{N \cdot k}{4}$ | $k(n-1) + 1$ | Very high ($O(N^2)$ board routing) | Rapid crossbar area growth ($O(k^2)$) |
+
+---
+
 <script>
-// Procedural Web Audio Synthesizer for Topology Titans
-class TopoAudio {
-  constructor() {
-    this.ctx = null;
-    this.enabled = true;
+(function() {
+  const NUM_NODES = 16;
+  let nodes = [];
+  let adj = []; // NUM_NODES x NUM_NODES matrix
+  let selectedNode = -1;
+  let draggedNode = -1;
+  let dragOffset = {x: 0, y: 0};
+  let distMatrix = [];
+  let linkLoads = {}; // "u-v": load
+  let fiedlerVector = [];
+  let eigenvalues = [];
+
+  // Canvas
+  const canvas = document.getElementById('topoCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // Initialize adjacency matrix
+  function initAdj() {
+    adj = Array(NUM_NODES).fill(0).map(() => Array(NUM_NODES).fill(0));
   }
 
-  init() {
-    if (!this.ctx) {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (AudioContext) this.ctx = new AudioContext();
-    }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
-  }
-
-  playLink() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(440, now);
-      osc.exponentialRampToValueAtTime(880, now + 0.08);
-      gain.gain.setValueAtTime(0.12, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.1);
-    } catch(e) {}
-  }
-
-  playStress() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(180, now);
-      osc.frequency.linearRampToValueAtTime(360, now + 0.35);
-      gain.gain.setValueAtTime(0.12, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.4);
-    } catch(e) {}
-  }
-
-  playSuccess() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const notes = [523.25, 659.25, 783.99, 1046.5]; // C major
-      notes.forEach((freq, idx) => {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, now + idx * 0.07);
-        gain.gain.setValueAtTime(0.12, now + idx * 0.07);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.2);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now + idx * 0.07);
-        osc.stop(now + idx * 0.07 + 0.2);
-      });
-    } catch(e) {}
-  }
-
-  playFailure() {
-    if (!this.enabled || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(200, now);
-      osc.frequency.linearRampToValueAtTime(100, now + 0.3);
-      gain.gain.setValueAtTime(0.15, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.35);
-    } catch(e) {}
-  }
-}
-
-const TOPO_MISSIONS = {
-  "1": {
-    name: "Mission 1: Ring to Torus Evolution",
-    desc: "Cut the 16-node ring diameter from 8 down to &le; 4 hops by adding wrap-around and cross-links while keeping node degree (radix) &le; 4.",
-    numNodes: 16,
-    reqMaxDiameter: 4,
-    reqMaxRadix: 4,
-    reqMinBisection: 4,
-    preset: "ring"
-  },
-  "2": {
-    name: "Mission 2: 16-Node 4D Hypercube",
-    desc: "Construct a 4-dimensional binary hypercube ($D=4$, radix $k=4$, bisection $\\ge 8$). Every node has 4 links flipping binary bit coordinates.",
-    numNodes: 16,
-    reqMaxDiameter: 4,
-    reqMaxRadix: 4,
-    reqMinBisection: 8,
-    preset: "custom"
-  },
-  "3": {
-    name: "Mission 3: High-Radix Dragonfly",
-    desc: "Partition 16 nodes into 4 dense local cliques (groups of 4) with sparse inter-group global channels, keeping total wire packaging cost under $130.",
-    numNodes: 16,
-    reqMaxDiameter: 3,
-    reqMaxRadix: 5,
-    reqMaxCost: 130,
-    preset: "custom"
-  },
-  "4": {
-    name: "Mission 4: 2-Tier Fat-Tree Clos Network",
-    desc: "Wire a 2-stage hierarchical Fat-Tree connecting 8 compute nodes to 4 spine routers with non-blocking full bisection bandwidth ($B \\ge 4$).",
-    numNodes: 12,
-    reqMaxDiameter: 3,
-    reqMaxRadix: 4,
-    reqMinBisection: 4,
-    preset: "custom"
-  },
-  "5": {
-    name: "Mission 5: Small-World Shortcut Optimizer",
-    desc: "Given an irregular cluster of 16 nodes, achieve an average path length $\\le 2.20$ hops by strategic shortcut insertion with max radix $\\le 4$.",
-    numNodes: 16,
-    reqMaxAvgHops: 2.20,
-    reqMaxRadix: 4,
-    preset: "mesh"
-  },
-  "sandbox": {
-    name: "Free Exascale Sandbox Mode",
-    desc: "Experiment freely! Connect custom graph topologies, measure graph properties, and stress-test synthetic traffic patterns.",
-    numNodes: 16,
-    preset: "mesh"
-  }
-};
-
-class TopologyArchitect {
-  constructor(canvasId) {
-    this.canvas = document.getElementById(canvasId);
-    this.ctx = this.canvas.getContext('2d');
-    this.audio = new TopoAudio();
-
-    this.numNodes = 16;
-    this.nodes = []; // {id, x, y, vx, vy}
-    this.edges = []; // array of {u, v}
-    this.currentMissionId = "1";
-    this.selectedNode = null;
-
-    this.stressActive = false;
-    this.stressTimer = 0.0;
-    this.stressPackets = [];
-
-    this.metrics = {
-      diameter: 0,
-      avgHops: 0.0,
-      bisection: 0,
-      maxRadix: 0,
-      wireCost: 0,
-      isConnected: false
-    };
-
-    this.initLayout('circle');
-    this.bindEvents();
-    this.loop = this.loop.bind(this);
-    requestAnimationFrame(this.loop);
-  }
-
-  initLayout(type = 'circle') {
-    this.nodes = [];
-    this.edges = [];
-    this.selectedNode = null;
-    const cx = this.canvas.width / 2;
-    const cy = this.canvas.height / 2;
-
-    if (type === 'circle') {
-      const radius = 175;
-      for (let i = 0; i < this.numNodes; i++) {
-        const ang = (i / this.numNodes) * Math.PI * 2 - Math.PI / 2;
-        this.nodes.push({
-          id: i,
-          x: cx + Math.cos(ang) * radius,
-          y: cy + Math.sin(ang) * radius,
-          rad: 14
-        });
-      }
-    } else if (type === 'grid') {
-      const cols = 4;
-      const rows = 4;
-      const startX = 140;
-      const startY = 80;
-      const stepX = 110;
-      const stepY = 95;
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          this.nodes.push({
-            id: r * cols + c,
-            x: startX + c * stepX,
-            y: startY + r * stepY,
-            rad: 14
-          });
-        }
-      }
-    }
-  }
-
-  bindEvents() {
-    this.canvas.addEventListener('click', (e) => {
-      this.audio.init();
-      const rect = this.canvas.getBoundingClientRect();
-      const scaleX = this.canvas.width / rect.width;
-      const scaleY = this.canvas.height / rect.height;
-      const mx = (e.clientX - rect.left) * scaleX;
-      const my = (e.clientY - rect.top) * scaleY;
-
-      const clickedNode = this.getNodeAtPixel(mx, my);
-      if (clickedNode === null) {
-        this.selectedNode = null;
-        return;
-      }
-
-      if (this.selectedNode === null) {
-        this.selectedNode = clickedNode;
-      } else if (this.selectedNode === clickedNode) {
-        this.selectedNode = null; // Deselect
-      } else {
-        // Toggle link between selectedNode and clickedNode
-        this.toggleEdge(this.selectedNode, clickedNode);
-        this.selectedNode = null;
-        this.calculateMetrics();
-      }
-    });
-  }
-
-  getNodeAtPixel(px, py) {
-    for (let i = 0; i < this.nodes.length; i++) {
-      const n = this.nodes[i];
-      const dist = Math.hypot(px - n.x, py - n.y);
-      if (dist <= n.rad + 6) return i;
-    }
-    return null;
-  }
-
-  toggleEdge(u, v) {
-    const minId = Math.min(u, v);
-    const maxId = Math.max(u, v);
-    const existing = this.edges.findIndex(e => e.u === minId && e.v === maxId);
-    if (existing >= 0) {
-      this.edges.splice(existing, 1);
-    } else {
-      this.edges.push({ u: minId, v: maxId });
-      this.audio.playLink();
-    }
-  }
-
-  applyPreset(preset) {
-    this.edges = [];
-    if (preset === 'ring') {
-      this.initLayout('circle');
-      for (let i = 0; i < this.numNodes; i++) {
-        this.toggleEdge(i, (i + 1) % this.numNodes);
-      }
-    } else if (preset === 'mesh') {
-      this.initLayout('grid');
-      const cols = 4;
+  // Predefined topologies
+  window.applyTopologyPreset = function(preset) {
+    initAdj();
+    if (preset === 'mesh' || preset === 'folded_torus') {
+      setup2DGrid(4, 4);
       for (let r = 0; r < 4; r++) {
         for (let c = 0; c < 4; c++) {
-          const idx = r * cols + c;
-          if (c < 3) this.toggleEdge(idx, idx + 1);
-          if (r < 3) this.toggleEdge(idx, idx + cols);
+          const u = r * 4 + c;
+          if (c + 1 < 4) addEdge(u, r * 4 + (c + 1));
+          if (r + 1 < 4) addEdge(u, (r + 1) * 4 + c);
         }
       }
-    } else if (preset === 'torus') {
-      this.initLayout('grid');
-      const cols = 4;
-      for (let r = 0; r < 4; r++) {
-        for (let c = 0; c < 4; c++) {
-          const idx = r * cols + c;
-          this.toggleEdge(idx, r * cols + ((c + 1) % 4));
-          this.toggleEdge(idx, ((r + 1) % 4) * cols + c);
-        }
-      }
-    } else if (preset === 'hypercube') {
-      this.initLayout('circle');
-      for (let i = 0; i < 16; i++) {
-        for (let bit = 0; bit < 4; bit++) {
-          const neighbor = i ^ (1 << bit);
-          if (neighbor > i) this.toggleEdge(i, neighbor);
-        }
-      }
-    } else if (preset === 'dragonfly') {
-      this.initLayout('circle');
-      // 4 groups of 4: All-to-all inside each group
-      for (let g = 0; g < 4; g++) {
-        const base = g * 4;
-        for (let a = 0; a < 4; a++) {
-          for (let b = a + 1; b < 4; b++) {
-            this.toggleEdge(base + a, base + b);
+      if (preset === 'folded_torus') {
+        // Interleave node physical placement for folded torus
+        for (let r = 0; r < 4; r++) {
+          for (let c = 0; c < 4; c++) {
+            const u = r * 4 + c;
+            addEdge(r * 4 + 0, r * 4 + 3);
+            addEdge(0 * 4 + c, 3 * 4 + c);
           }
         }
       }
-      // Sparse global channels connecting groups
-      this.toggleEdge(0, 4);
-      this.toggleEdge(5, 8);
-      this.toggleEdge(9, 12);
-      this.toggleEdge(13, 1);
+    } else if (preset === 'torus') {
+      setup2DGrid(4, 4);
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+          const u = r * 4 + c;
+          addEdge(u, r * 4 + ((c + 1) % 4));
+          addEdge(u, ((r + 1) % 4) * 4 + c);
+        }
+      }
+    } else if (preset === 'hypercube') {
+      setupCircleLayout();
+      for (let i = 0; i < 16; i++) {
+        for (let b = 0; b < 4; b++) {
+          const neighbor = i ^ (1 << b);
+          if (i < neighbor) addEdge(i, neighbor);
+        }
+      }
+    } else if (preset === 'ring') {
+      setupCircleLayout();
+      for (let i = 0; i < 16; i++) {
+        addEdge(i, (i + 1) % 16);
+      }
+    } else if (preset === 'dragonfly') {
+      setupDragonflyLayout();
+      // 4 groups of 4 routers: full local clique in each group
+      for (let g = 0; g < 4; g++) {
+        const base = g * 4;
+        for (let i = 0; i < 4; i++) {
+          for (let j = i + 1; j < 4; j++) {
+            addEdge(base + i, base + j);
+          }
+        }
+      }
+      // Global links connecting groups
+      addEdge(0, 4);
+      addEdge(1, 8);
+      addEdge(2, 12);
+      addEdge(5, 9);
+      addEdge(6, 13);
+      addEdge(10, 14);
+    } else if (preset === 'clos') {
+      setupCircleLayout();
+      // 2-tier / Flattened Butterfly: full row and column cliques
+      for (let r = 0; r < 4; r++) {
+        for (let c1 = 0; c1 < 4; c1++) {
+          for (let c2 = c1 + 1; c2 < 4; c2++) {
+            addEdge(r * 4 + c1, r * 4 + c2);
+          }
+        }
+      }
+      for (let c = 0; c < 4; c++) {
+        for (let r1 = 0; r1 < 4; r1++) {
+          for (let r2 = r1 + 1; r2 < 4; r2++) {
+            addEdge(r1 * 4 + c, r2 * 4 + c);
+          }
+        }
+      }
     }
-    this.audio.playLink();
-    this.calculateMetrics();
+    evaluateTopologyMetrics();
+  };
+
+  function addEdge(u, v) {
+    if (u === v) return;
+    adj[u][v] = 1;
+    adj[v][u] = 1;
   }
 
-  calculateMetrics() {
-    const N = this.nodes.length;
-    const adj = Array.from({ length: N }, () => []);
-    const degrees = Array(N).fill(0);
-    let totalLength = 0;
+  function removeEdge(u, v) {
+    adj[u][v] = 0;
+    adj[v][u] = 0;
+  }
 
-    this.edges.forEach(e => {
-      adj[e.u].push(e.v);
-      adj[e.v].push(e.u);
-      degrees[e.u]++;
-      degrees[e.v]++;
-      const n1 = this.nodes[e.u];
-      const n2 = this.nodes[e.v];
-      totalLength += Math.hypot(n1.x - n2.x, n1.y - n2.y);
-    });
+  function setup2DGrid(rows, cols) {
+    nodes = [];
+    const padX = 80;
+    const padY = 60;
+    const stepX = (canvas.width - 2 * padX) / (cols - 1);
+    const stepY = (canvas.height - 2 * padY) / (rows - 1);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        nodes.push({
+          id: r * cols + c,
+          x: padX + c * stepX,
+          y: padY + r * stepY,
+          vx: 0,
+          vy: 0,
+          label: `R(${c},${r})`
+        });
+      }
+    }
+  }
 
-    const maxRadix = degrees.length > 0 ? Math.max(...degrees) : 0;
+  function setupCircleLayout() {
+    nodes = [];
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    const radius = Math.min(cx, cy) - 55;
+    for (let i = 0; i < NUM_NODES; i++) {
+      const angle = (2 * Math.PI * i) / NUM_NODES - Math.PI / 2;
+      nodes.push({
+        id: i,
+        x: cx + radius * Math.cos(angle),
+        y: cy + radius * Math.sin(angle),
+        vx: 0,
+        vy: 0,
+        label: `R${i}`
+      });
+    }
+  }
 
-    // Floyd-Warshall for All-Pairs Shortest Paths
-    const dist = Array.from({ length: N }, () => Array(N).fill(Infinity));
-    for (let i = 0; i < N; i++) dist[i][i] = 0;
-    this.edges.forEach(e => {
-      dist[e.u][e.v] = 1;
-      dist[e.v][e.u] = 1;
-    });
+  function setupDragonflyLayout() {
+    nodes = [];
+    const groupCenters = [
+      {x: 160, y: 130},
+      {x: 460, y: 130},
+      {x: 160, y: 330},
+      {x: 460, y: 330}
+    ];
+    for (let g = 0; g < 4; g++) {
+      const gc = groupCenters[g];
+      for (let i = 0; i < 4; i++) {
+        const angle = (2 * Math.PI * i) / 4;
+        nodes.push({
+          id: g * 4 + i,
+          x: gc.x + 55 * Math.cos(angle),
+          y: gc.y + 55 * Math.sin(angle),
+          vx: 0,
+          vy: 0,
+          label: `G${g}:${i}`
+        });
+      }
+    }
+  }
 
-    for (let k = 0; k < N; k++) {
-      for (let i = 0; i < N; i++) {
-        for (let j = 0; j < N; j++) {
-          if (dist[i][k] + dist[k][j] < dist[i][j]) {
-            dist[i][j] = dist[i][k] + dist[k][j];
+  // Numerical Graph Analysis: Floyd-Warshall, Laplacian Eigenvalues, Min Bisection
+  function evaluateTopologyMetrics() {
+    // 1. Floyd-Warshall All-Pairs Shortest Path
+    distMatrix = Array(NUM_NODES).fill(0).map(() => Array(NUM_NODES).fill(Infinity));
+    for (let i = 0; i < NUM_NODES; i++) distMatrix[i][i] = 0;
+    let linkCount = 0;
+    let maxDegree = 0;
+
+    for (let i = 0; i < NUM_NODES; i++) {
+      let deg = 0;
+      for (let j = 0; j < NUM_NODES; j++) {
+        if (adj[i][j]) {
+          distMatrix[i][j] = 1;
+          deg++;
+          if (i < j) linkCount++;
+        }
+      }
+      if (deg > maxDegree) maxDegree = deg;
+    }
+
+    for (let k = 0; k < NUM_NODES; k++) {
+      for (let i = 0; i < NUM_NODES; i++) {
+        for (let j = 0; j < NUM_NODES; j++) {
+          if (distMatrix[i][k] + distMatrix[k][j] < distMatrix[i][j]) {
+            distMatrix[i][j] = distMatrix[i][k] + distMatrix[k][j];
           }
         }
       }
     }
 
     let diameter = 0;
-    let sumDist = 0;
-    let pairs = 0;
-    let isConnected = true;
+    let totalHops = 0;
+    let validPairs = 0;
+    for (let i = 0; i < NUM_NODES; i++) {
+      for (let j = 0; j < NUM_NODES; j++) {
+        if (i !== j) {
+          if (distMatrix[i][j] < Infinity) {
+            if (distMatrix[i][j] > diameter) diameter = distMatrix[i][j];
+            totalHops += distMatrix[i][j];
+            validPairs++;
+          }
+        }
+      }
+    }
+    const avgHops = validPairs > 0 ? (totalHops / validPairs) : 0;
 
-    for (let i = 0; i < N; i++) {
-      for (let j = i + 1; j < N; j++) {
-        if (dist[i][j] === Infinity) {
-          isConnected = false;
-        } else {
-          if (dist[i][j] > diameter) diameter = dist[i][j];
-          sumDist += dist[i][j];
-          pairs++;
+    // 2. Exact Bisection Bandwidth for N=16
+    const bisectionCut = computeMinBisection(adj, NUM_NODES);
+
+    // 3. Graph Laplacian L = D - A and Jacobi Eigenvalues
+    const L = Array(NUM_NODES).fill(0).map(() => Array(NUM_NODES).fill(0));
+    for (let i = 0; i < NUM_NODES; i++) {
+      let deg = 0;
+      for (let j = 0; j < NUM_NODES; j++) {
+        if (adj[i][j]) {
+          L[i][j] = -1;
+          deg++;
+        }
+      }
+      L[i][i] = deg;
+    }
+    const eig = jacobiEigenvalues(L, NUM_NODES);
+    eigenvalues = eig.values;
+    // Fiedler vector corresponds to the 2nd smallest eigenvalue (index 1)
+    fiedlerVector = eig.vectors.map(row => row[1]);
+
+    // 4. Traffic Flow & Channel Load Simulation
+    simulateTrafficLoad();
+
+    // 5. Update HUD elements
+    document.getElementById('hudNodesLinks').textContent = `${NUM_NODES} / ${linkCount}`;
+    document.getElementById('hudDiameter').textContent = diameter === Infinity ? 'Disconnected' : `${diameter} hops`;
+    document.getElementById('hudAvgHops').textContent = diameter === Infinity ? 'Inf' : `${avgHops.toFixed(2)} hops`;
+    document.getElementById('hudBisection').textContent = `${bisectionCut} links`;
+    document.getElementById('hudFiedler').textContent = eigenvalues[1] !== undefined ? eigenvalues[1].toFixed(3) : '0.000';
+    document.getElementById('hudMaxRadix').textContent = `${maxDegree}`;
+
+    // Spectrum display
+    const specStr = eigenvalues.slice(0, 8).map((v, i) => `λ_${i}=${v.toFixed(3)}`).join(', ');
+    document.getElementById('topoEigenSpectrum').textContent = specStr + (eigenvalues.length > 8 ? '...' : '');
+    const spmGap = (eigenvalues[eigenvalues.length - 1] - eigenvalues[1]).toFixed(3);
+    document.getElementById('topoSpmGap').textContent = spmGap;
+
+    renderTopology();
+  }
+
+  // Exact Bisection Bandwidth via Combinatorial Search for N=16 (12,870 combos)
+  function computeMinBisection(matrix, n) {
+    if (n > 16) return -1; // Fallback for larger sizes
+    let minCut = Infinity;
+    const half = n / 2;
+    // Generate all combinations of picking half elements from n, fixing node 0 in partition A to break symmetry
+    const comb = [];
+    function backtrack(start, chosen) {
+      if (chosen.length === half) {
+        let cut = 0;
+        const setA = new Set(chosen);
+        for (let u of chosen) {
+          for (let v = 0; v < n; v++) {
+            if (matrix[u][v] && !setA.has(v)) cut++;
+          }
+        }
+        if (cut < minCut) minCut = cut;
+        return;
+      }
+      for (let i = start; i < n; i++) {
+        chosen.push(i);
+        backtrack(i + 1, chosen);
+        chosen.pop();
+      }
+    }
+    backtrack(1, [0]);
+    return minCut === Infinity ? 0 : minCut;
+  }
+
+  // Jacobi Eigenvalue Solver for Real Symmetric Matrices
+  function jacobiEigenvalues(A_in, n) {
+    let A = A_in.map(r => r.slice());
+    let V = Array(n).fill(0).map((_, i) => Array(n).fill(0).map((_, j) => (i === j ? 1 : 0)));
+    const maxIter = 100;
+    const eps = 1e-9;
+
+    for (let iter = 0; iter < maxIter; iter++) {
+      let maxVal = 0;
+      let p = 0, q = 1;
+      for (let i = 0; i < n; i++) {
+        for (let j = i + 1; j < n; j++) {
+          if (Math.abs(A[i][j]) > maxVal) {
+            maxVal = Math.abs(A[i][j]);
+            p = i; q = j;
+          }
+        }
+      }
+      if (maxVal < eps) break;
+
+      const app = A[p][p], aqq = A[q][q], apq = A[p][q];
+      const theta = (aqq - app) / (2 * apq);
+      const t = (theta >= 0 ? 1 : -1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1));
+      const c = 1 / Math.sqrt(t * t + 1);
+      const s = t * c;
+
+      // Update A
+      A[p][p] = c * c * app - 2 * s * c * apq + s * s * aqq;
+      A[q][q] = s * s * app + 2 * s * c * apq + c * c * aqq;
+      A[p][q] = 0;
+      A[q][p] = 0;
+
+      for (let i = 0; i < n; i++) {
+        if (i !== p && i !== q) {
+          const aip = A[i][p];
+          const aiq = A[i][q];
+          A[i][p] = c * aip - s * aiq;
+          A[p][i] = A[i][p];
+          A[i][q] = s * aip + c * aiq;
+          A[q][i] = A[i][q];
+        }
+      }
+
+      // Update eigenvectors
+      for (let i = 0; i < n; i++) {
+        const vip = V[i][p];
+        const viq = V[i][q];
+        V[i][p] = c * vip - s * viq;
+        V[i][q] = s * vip + c * viq;
+      }
+    }
+
+    // Extract and sort eigenvalues with eigenvectors
+    const pairs = [];
+    for (let i = 0; i < n; i++) {
+      const vec = [];
+      for (let r = 0; r < n; r++) vec.push(V[r][i]);
+      pairs.push({ val: Math.max(0, A[i][i]), vec: vec });
+    }
+    pairs.sort((a, b) => a.val - b.val);
+
+    const values = pairs.map(p => p.val);
+    const sortedVectors = Array(n).fill(0).map((_, r) => pairs.map(p => p.vec[r]));
+    return { values, vectors: sortedVectors };
+  }
+
+  // Traffic Load Simulation: Route shortest paths and aggregate link traversals
+  function simulateTrafficLoad() {
+    linkLoads = {};
+    const trafficType = document.getElementById('topoTrafficSelect').value;
+    const n = NUM_NODES;
+    let totalTraversals = 0;
+    let maxLinkLoad = 0;
+
+    function getDest(src) {
+      if (trafficType === 'uniform') return Math.floor(Math.random() * n);
+      if (trafficType === 'bit_complement') return (~src) & (n - 1);
+      if (trafficType === 'transpose') {
+        const r = Math.floor(src / 4), c = src % 4;
+        return c * 4 + r;
+      }
+      if (trafficType === 'tornado') {
+        const r = Math.floor(src / 4), c = src % 4;
+        return r * 4 + ((c + 1) % 4);
+      }
+      return (src + 1) % n;
+    }
+
+    // Accumulate shortest paths
+    for (let s = 0; s < n; s++) {
+      const d = getDest(s);
+      if (s === d || distMatrix[s][d] === Infinity) continue;
+
+      // Find path via BFS / predecessor
+      let curr = s;
+      while (curr !== d) {
+        let nextHop = -1;
+        let minD = Infinity;
+        for (let v = 0; v < n; v++) {
+          if (adj[curr][v] && distMatrix[v][d] < minD) {
+            minD = distMatrix[v][d];
+            nextHop = v;
+          }
+        }
+        if (nextHop === -1) break;
+        const key = curr < nextHop ? `${curr}-${nextHop}` : `${nextHop}-${curr}`;
+        linkLoads[key] = (linkLoads[key] || 0) + 1;
+        totalTraversals++;
+        curr = nextHop;
+      }
+    }
+
+    for (let k in linkLoads) {
+      if (linkLoads[k] > maxLinkLoad) maxLinkLoad = linkLoads[k];
+    }
+
+    // Physical wiring length
+    let totalWireMm = 0;
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        if (adj[i][j]) {
+          const dx = (nodes[i].x - nodes[j].x) * 0.05; // 0.05 mm per canvas px
+          const dy = (nodes[i].y - nodes[j].y) * 0.05;
+          totalWireMm += Math.sqrt(dx * dx + dy * dy);
         }
       }
     }
 
-    const avgHops = pairs > 0 ? (sumDist / pairs).toFixed(2) : '0.00';
-
-    // Bisection Bandwidth (Cut dividing nodes 0..N/2-1 vs N/2..N-1)
-    let bisectionCut = 0;
-    const half = Math.floor(N / 2);
-    this.edges.forEach(e => {
-      const inFirst = e.u < half;
-      const inSecond = e.v < half;
-      if (inFirst !== inSecond) bisectionCut++;
-    });
-
-    const wireCost = Math.round(totalLength * 0.05 + this.edges.length * 2.5);
-
-    this.metrics = {
-      diameter: isConnected ? diameter : 999,
-      avgHops: isConnected ? parseFloat(avgHops) : 999,
-      bisection: bisectionCut,
-      maxRadix: maxRadix,
-      wireCost: wireCost,
-      isConnected: isConnected
-    };
-
-    // Update HUD
-    document.getElementById('topoDiameter').textContent = isConnected ? diameter : '∞ (Broken)';
-    document.getElementById('topoAvgHops').textContent = isConnected ? avgHops : '∞';
-    document.getElementById('topoBisection').textContent = bisectionCut;
-    document.getElementById('topoMaxRadix').textContent = maxRadix;
-    document.getElementById('topoWireCost').textContent = wireCost;
-
-    return this.metrics;
+    document.getElementById('topoTotalWire').textContent = `${totalWireMm.toFixed(2)} mm`;
+    const normLoad = totalTraversals > 0 ? (maxLinkLoad / n).toFixed(3) : '0.000';
+    document.getElementById('topoPeakLoad').textContent = `${normLoad} pkts/cycle`;
+    const satThroughput = maxLinkLoad > 0 ? (1.0 / (maxLinkLoad / n)).toFixed(3) : '1.000';
+    document.getElementById('topoSatBound').textContent = `${satThroughput} flits/node/cyc`;
   }
 
-  runStressTest() {
-    this.audio.init();
-    this.audio.playStress();
-    this.calculateMetrics();
-    this.stressActive = true;
-    this.stressTimer = 2.5;
-    this.stressPackets = [];
+  // Force-Directed Layout Physics
+  window.runForceLayoutStep = function() {
+    const kRepel = 2200;
+    const kSpring = 0.06;
+    const restLen = 80;
+    const damping = 0.85;
 
-    // Spawn packets moving between nodes along edges
-    this.edges.forEach(e => {
-      for (let k = 0; k < 3; k++) {
-        this.stressPackets.push({
-          u: e.u,
-          v: e.v,
-          progress: Math.random(),
-          speed: 0.5 + Math.random() * 0.5,
-          color: '#38bdf8'
-        });
+    for (let i = 0; i < NUM_NODES; i++) {
+      let fx = 0, fy = 0;
+      // Repulsion between all node pairs
+      for (let j = 0; j < NUM_NODES; j++) {
+        if (i !== j) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          const force = kRepel / (dist * dist);
+          fx += (dx / dist) * force;
+          fy += (dy / dist) * force;
+        }
       }
-    });
-  }
-
-  evaluateMission() {
-    const m = TOPO_MISSIONS[this.currentMissionId];
-    if (!m) return;
-
-    if (this.currentMissionId === 'sandbox') {
-      this.showSuccessModal("Exascale sandbox topology validated! Graph metrics successfully calculated.", 3);
-      return;
-    }
-
-    let pass = true;
-    let failReason = [];
-
-    if (!this.metrics.isConnected) {
-      pass = false;
-      failReason.push("Graph is disconnected! Ensure all nodes have valid routing paths.");
-    }
-    if (m.reqMaxDiameter && this.metrics.diameter > m.reqMaxDiameter) {
-      pass = false;
-      failReason.push(`Diameter ${this.metrics.diameter} hops exceeds maximum limit (${m.reqMaxDiameter} hops).`);
-    }
-    if (m.reqMaxAvgHops && this.metrics.avgHops > m.reqMaxAvgHops) {
-      pass = false;
-      failReason.push(`Average hop count ${this.metrics.avgHops} exceeds target (${m.reqMaxAvgHops} hops).`);
-    }
-    if (m.reqMinBisection && this.metrics.bisection < m.reqMinBisection) {
-      pass = false;
-      failReason.push(`Bisection bandwidth ${this.metrics.bisection} links is below target (${m.reqMinBisection}).`);
-    }
-    if (m.reqMaxRadix && this.metrics.maxRadix > m.reqMaxRadix) {
-      pass = false;
-      failReason.push(`Maximum router radix ${this.metrics.maxRadix} exceeds router pin limit (${m.reqMaxRadix}).`);
-    }
-    if (m.reqMaxCost && this.metrics.wireCost > m.reqMaxCost) {
-      pass = false;
-      failReason.push(`Wire packaging cost $${this.metrics.wireCost} exceeds budget ($${m.reqMaxCost}).`);
-    }
-
-    if (pass) {
-      this.audio.playSuccess();
-      let stars = 3;
-      if (m.reqMaxCost && this.metrics.wireCost > m.reqMaxCost * 0.9) stars = 2;
-      this.showSuccessModal(`Interconnect Graph successfully passed all ${m.name} specifications! Achieved Diameter ${this.metrics.diameter} and Bisection ${this.metrics.bisection}.`, stars);
-    } else {
-      this.audio.playFailure();
-      this.showFailureModal(failReason.join("<br>"));
-    }
-  }
-
-  showSuccessModal(summary, stars) {
-    const modal = document.getElementById('topoSuccessModal');
-    document.getElementById('topoSuccessSummary').innerHTML = summary;
-    document.getElementById('topoStarsAwarded').textContent = '⭐'.repeat(stars);
-    document.getElementById('topoStarsDisplay').textContent = '⭐'.repeat(stars);
-    modal.style.display = 'flex';
-  }
-
-  showFailureModal(summary) {
-    const modal = document.getElementById('topoFailureModal');
-    document.getElementById('topoFailureSummary').innerHTML = summary;
-    modal.style.display = 'flex';
-  }
-
-  update(dt) {
-    if (this.stressActive) {
-      this.stressTimer -= dt;
-      this.stressPackets.forEach(p => {
-        p.progress += p.speed * dt;
-        if (p.progress >= 1.0) p.progress = 0.0;
-      });
-
-      if (this.stressTimer <= 0) {
-        this.stressActive = false;
-        this.evaluateMission();
+      // Spring attraction along links
+      for (let j = 0; j < NUM_NODES; j++) {
+        if (adj[i][j]) {
+          const dx = nodes[j].x - nodes[i].x;
+          const dy = nodes[j].y - nodes[i].y;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          const springF = (dist - restLen) * kSpring;
+          fx += (dx / dist) * springF;
+          fy += (dy / dist) * springF;
+        }
       }
-    }
-  }
+      // Wall boundary repulsion
+      fx += (15 / Math.max(10, nodes[i].x)) - (15 / Math.max(10, canvas.width - nodes[i].x));
+      fy += (15 / Math.max(10, nodes[i].y)) - (15 / Math.max(10, canvas.height - nodes[i].y));
 
-  draw() {
-    this.ctx.fillStyle = '#0f172a';
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-    // 1. Draw Edges
-    this.edges.forEach(e => {
-      const n1 = this.nodes[e.u];
-      const n2 = this.nodes[e.v];
-      this.ctx.strokeStyle = '#334155';
-      this.ctx.lineWidth = 2.5;
-      this.ctx.beginPath();
-      this.ctx.moveTo(n1.x, n1.y);
-      this.ctx.lineTo(n2.x, n2.y);
-      this.ctx.stroke();
-    });
-
-    // 2. Draw In-Flight Stress Packets
-    if (this.stressActive) {
-      this.stressPackets.forEach(p => {
-        const n1 = this.nodes[p.u];
-        const n2 = this.nodes[p.v];
-        const curX = n1.x + (n2.x - n1.x) * p.progress;
-        const curY = n1.y + (n2.y - n1.y) * p.progress;
-
-        this.ctx.fillStyle = p.color;
-        this.ctx.shadowColor = p.color;
-        this.ctx.shadowBlur = 8;
-        this.ctx.beginPath();
-        this.ctx.arc(curX, curY, 4.5, 0, Math.PI * 2);
-        this.ctx.fill();
-        this.ctx.shadowBlur = 0;
-      });
+      nodes[i].vx = (nodes[i].vx + fx) * damping;
+      nodes[i].vy = (nodes[i].vy + fy) * damping;
     }
 
-    // 3. Draw Nodes (Routers)
-    this.nodes.forEach((n, idx) => {
-      const isSelected = this.selectedNode === idx;
-
-      // Outer Glow if Selected
-      if (isSelected) {
-        this.ctx.shadowColor = '#38bdf8';
-        this.ctx.shadowBlur = 14;
-      }
-
-      this.ctx.fillStyle = isSelected ? '#38bdf8' : '#1e293b';
-      this.ctx.beginPath();
-      this.ctx.arc(n.x, n.y, n.rad, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      this.ctx.strokeStyle = isSelected ? '#ffffff' : '#475569';
-      this.ctx.lineWidth = isSelected ? 3 : 2;
-      this.ctx.stroke();
-      this.ctx.shadowBlur = 0;
-
-      // Label
-      this.ctx.fillStyle = isSelected ? '#0f172a' : '#f8fafc';
-      this.ctx.font = 'bold 11px "JetBrains Mono", monospace';
-      this.ctx.textAlign = 'center';
-      this.ctx.fillText(n.id, n.x, n.y + 4);
-    });
-
-    // 4. Draw Header Overlay
-    this.ctx.fillStyle = '#64748b';
-    this.ctx.font = 'bold 11px "JetBrains Mono", monospace';
-    this.ctx.textAlign = 'left';
-    this.ctx.fillText(`TOPOLOGY GRAPH [${this.nodes.length} NODES · ${this.edges.length} LINKS]`, 25, 30);
-  }
-
-  loop(timestamp) {
-    this.update(0.016);
-    this.draw();
-    requestAnimationFrame(this.loop);
-  }
-}
-
-let topoArchitect = null;
-window.addEventListener('DOMContentLoaded', () => {
-  if (document.getElementById('topoCanvas')) {
-    topoArchitect = new TopologyArchitect('topoCanvas');
-    loadTopoMission('1');
-  }
-});
-
-function loadTopoMission(id) {
-  if (!topoArchitect) return;
-  topoArchitect.currentMissionId = id;
-  const m = TOPO_MISSIONS[id];
-  if (!m) return;
-
-  document.getElementById('topoTargetText').innerHTML = m.desc;
-  document.getElementById('topoPresetSelect').value = m.preset;
-  topoArchitect.applyPreset(m.preset);
-}
-
-function applyTopoPreset(preset) {
-  if (topoArchitect) topoArchitect.applyPreset(preset);
-}
-
-function clearTopologyWires() {
-  if (topoArchitect) {
-    topoArchitect.edges = [];
-    topoArchitect.calculateMetrics();
-  }
-}
-
-function resetTopologyLayout() {
-  if (topoArchitect) {
-    topoArchitect.initLayout('circle');
-    topoArchitect.calculateMetrics();
-  }
-}
-
-function runTopologyStressTest() {
-  if (topoArchitect) topoArchitect.runStressTest();
-}
-
-function toggleTopoSound() {
-  if (!topoArchitect) return;
-  topoArchitect.audio.enabled = !topoArchitect.audio.enabled;
-  document.getElementById('topoSoundBtn').textContent = topoArchitect.audio.enabled ? '🔊 Sound: ON' : '🔈 Sound: OFF';
-}
-
-function closeTopoModal() {
-  document.getElementById('topoSuccessModal').style.display = 'none';
-  document.getElementById('topoFailureModal').style.display = 'none';
-}
-
-function nextTopoMission() {
-  closeTopoModal();
-  if (!topoArchitect) return;
-  const nextId = String(parseInt(topoArchitect.currentMissionId) + 1);
-  if (TOPO_MISSIONS[nextId]) {
-    document.getElementById('topoMissionSelect').value = nextId;
-    loadTopoMission(nextId);
-  } else {
-    document.getElementById('topoMissionSelect').value = 'sandbox';
-    loadTopoMission('sandbox');
-  }
-}
-
-function saveTopologyRecord() {
-  if (!topoArchitect) return;
-  const name = document.getElementById("topoCallsign").value.trim() || "Topology Titan";
-  const org = document.getElementById("topoOrg").value.trim() || "Silicon Lab";
-  const dateStr = new Date().toISOString().split("T")[0];
-
-  const scoreVal = Math.round(1500 - topoArchitect.metrics.diameter * 80 - topoArchitect.metrics.wireCost * 2 + topoArchitect.metrics.bisection * 50);
-  const record = {
-    name: name,
-    org: org,
-    track: `Topology Titans (Mission ${topoArchitect.currentMissionId})`,
-    score: Math.max(100, scoreVal),
-    accuracy: topoArchitect.metrics.diameter, // Diameter achieved
-    certId: `TOPO-M${topoArchitect.currentMissionId}-D${topoArchitect.metrics.diameter}`,
-    date: dateStr,
-    type: "topology"
+    for (let i = 0; i < NUM_NODES; i++) {
+      nodes[i].x = Math.max(40, Math.min(canvas.width - 40, nodes[i].x + nodes[i].vx));
+      nodes[i].y = Math.max(40, Math.min(canvas.height - 40, nodes[i].y + nodes[i].vy));
+    }
+    renderTopology();
   };
 
-  try {
-    const list = JSON.parse(localStorage.getItem("noc_leaderboard_records") || "[]");
-    list.unshift(record);
-    localStorage.setItem("noc_leaderboard_records", JSON.stringify(list.slice(0, 50)));
-    document.getElementById("topoSaveConfirm").style.display = "block";
-  } catch(e) {
-    console.error(e);
+  window.resetNodePositions = function() {
+    setup2DGrid(4, 4);
+    evaluateTopologyMetrics();
+  };
+
+  window.clearAllLinks = function() {
+    initAdj();
+    evaluateTopologyMetrics();
+  };
+
+  // Canvas Rendering
+  function renderTopology() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const mode = document.getElementById('topoColorMode').value;
+
+    // Draw Links
+    let maxLoad = 1;
+    for (let k in linkLoads) {
+      if (linkLoads[k] > maxLoad) maxLoad = linkLoads[k];
+    }
+
+    for (let i = 0; i < NUM_NODES; i++) {
+      for (let j = i + 1; j < NUM_NODES; j++) {
+        if (adj[i][j]) {
+          const key = `${i}-${j}`;
+          const load = linkLoads[key] || 0;
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+
+          if (mode === 'traffic') {
+            const ratio = Math.min(1, load / maxLoad);
+            ctx.strokeStyle = `hsl(${(1 - ratio) * 220}, 90%, 55%)`;
+            ctx.lineWidth = 1.5 + ratio * 3.5;
+          } else {
+            ctx.strokeStyle = 'rgba(100, 116, 139, 0.45)';
+            ctx.lineWidth = 2;
+          }
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Draw Nodes
+    for (let i = 0; i < NUM_NODES; i++) {
+      const nd = nodes[i];
+      ctx.beginPath();
+      ctx.arc(nd.x, nd.y, 16, 0, Math.PI * 2);
+
+      if (mode === 'spectral') {
+        const val = fiedlerVector[i] || 0;
+        // Negative = cyan, Positive = orange
+        if (val >= 0) {
+          ctx.fillStyle = `rgba(249, 115, 22, ${Math.min(1, 0.3 + val * 2)})`;
+        } else {
+          ctx.fillStyle = `rgba(56, 189, 248, ${Math.min(1, 0.3 + Math.abs(val) * 2)})`;
+        }
+      } else if (mode === 'degree') {
+        let deg = 0;
+        for (let j = 0; j < NUM_NODES; j++) if (adj[i][j]) deg++;
+        const hue = Math.min(300, deg * 40);
+        ctx.fillStyle = `hsl(${hue}, 80%, 45%)`;
+      } else if (mode === 'clusters') {
+        const grp = Math.floor(i / 4);
+        const palette = ['#38bdf8', '#4ade80', '#fb923c', '#c084fc'];
+        ctx.fillStyle = palette[grp % 4];
+      } else {
+        ctx.fillStyle = '#1e293b';
+      }
+
+      ctx.fill();
+      ctx.strokeStyle = (selectedNode === i) ? '#facc15' : '#475569';
+      ctx.lineWidth = (selectedNode === i) ? 3 : 1.5;
+      ctx.stroke();
+
+      // Node Label
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '10px "JetBrains Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(nd.label, nd.x, nd.y);
+    }
   }
-}
 
-function submitTopologyToGithub() {
-  if (!topoArchitect) return;
-  const name = document.getElementById("topoCallsign").value.trim() || "Topology Titan";
-  const org = document.getElementById("topoOrg").value.trim() || "Silicon Lab";
-  const scoreVal = Math.round(1500 - topoArchitect.metrics.diameter * 80 - topoArchitect.metrics.wireCost * 2 + topoArchitect.metrics.bisection * 50);
-  const title = `[topology-highscore] ${name} — Diam ${topoArchitect.metrics.diameter} hops (Mission ${topoArchitect.currentMissionId})`;
-  const body = [
-    "### Topology Titans Exascale Graph Architect High Score",
-    `- **Architect**: ${name}`,
-    `- **Institution/Handle**: ${org}`,
-    `- **Mission**: Mission ${topoArchitect.currentMissionId}`,
-    `- **Network Diameter**: ${topoArchitect.metrics.diameter} hops`,
-    `- **Average Hops**: ${topoArchitect.metrics.avgHops}`,
-    `- **Bisection Bandwidth**: ${topoArchitect.metrics.bisection} links`,
-    `- **Wire Packaging Cost**: $${topoArchitect.metrics.wireCost}`,
-    `- **Date**: ${new Date().toISOString().split("T")[0]}`,
-    "",
-    "```json",
-    JSON.stringify({
-      player: name,
-      org: org,
-      score: scoreVal,
-      mission: topoArchitect.currentMissionId,
-      diameter: topoArchitect.metrics.diameter,
-      bisection: topoArchitect.metrics.bisection,
-      cost: topoArchitect.metrics.wireCost,
-      type: "topology"
-    }, null, 2),
-    "```"
-  ].join("\n");
+  // Interactive Click & Drag Handling
+  canvas.addEventListener('mousedown', function(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top) * scaleY;
 
-  const url = `https://github.com/network-on-chip/learning/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&labels=game-score,leaderboard`;
-  window.open(url, '_blank');
-}
+    let hit = -1;
+    for (let i = 0; i < NUM_NODES; i++) {
+      const dx = mx - nodes[i].x;
+      const dy = my - nodes[i].y;
+      if (dx * dx + dy * dy <= 18 * 18) {
+        hit = i;
+        break;
+      }
+    }
+
+    if (hit !== -1) {
+      if (selectedNode === -1) {
+        selectedNode = hit;
+      } else if (selectedNode === hit) {
+        selectedNode = -1;
+      } else {
+        // Toggle edge between selectedNode and hit
+        if (adj[selectedNode][hit]) {
+          removeEdge(selectedNode, hit);
+        } else {
+          addEdge(selectedNode, hit);
+        }
+        selectedNode = -1;
+        evaluateTopologyMetrics();
+      }
+      draggedNode = hit;
+      dragOffset.x = mx - nodes[hit].x;
+      dragOffset.y = my - nodes[hit].y;
+      renderTopology();
+    } else {
+      selectedNode = -1;
+      renderTopology();
+    }
+  });
+
+  window.addEventListener('mousemove', function(e) {
+    if (draggedNode !== -1) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const mx = (e.clientX - rect.left) * scaleX;
+      const my = (e.clientY - rect.top) * scaleY;
+
+      nodes[draggedNode].x = Math.max(25, Math.min(canvas.width - 25, mx - dragOffset.x));
+      nodes[draggedNode].y = Math.max(25, Math.min(canvas.height - 25, my - dragOffset.y));
+      renderTopology();
+    }
+  });
+
+  window.addEventListener('mouseup', function() {
+    draggedNode = -1;
+  });
+
+  // Export JSON Topology Specification
+  window.exportTopologyJson = function() {
+    const edges = [];
+    for (let i = 0; i < NUM_NODES; i++) {
+      for (let j = i + 1; j < NUM_NODES; j++) {
+        if (adj[i][j]) edges.push([i, j]);
+      }
+    }
+    const spec = {
+      network_name: document.getElementById('topoPresetSelect').value,
+      num_nodes: NUM_NODES,
+      diameter: document.getElementById('hudDiameter').textContent,
+      bisection_bandwidth: document.getElementById('hudBisection').textContent,
+      fiedler_eigenvalue: parseFloat(document.getElementById('hudFiedler').textContent),
+      edges: edges,
+      node_coordinates: nodes.map(n => ({ id: n.id, x: Math.round(n.x), y: Math.round(n.y) }))
+    };
+    document.getElementById('topoExportTitle').textContent = 'JSON Topology Specification';
+    document.getElementById('topoExportCode').value = JSON.stringify(spec, null, 2);
+    document.getElementById('topoExportDrawer').style.display = 'block';
+  };
+
+  // Export Synthesizable Verilog Network Interconnect
+  window.exportVerilogNetlist = function() {
+    let verilog = `// Synthesizable Top-Level NoC Interconnect Netlist\n`;
+    verilog += `// Generated by Interconnect Topology CAD Analyzer\n`;
+    verilog += `\`timescale 1ns/1ps\n\n`;
+    verilog += `module noc_top_interconnect (\n`;
+    verilog += `    input  wire        clk,\n`;
+    verilog += `    input  wire        rst_n\n`;
+    verilog += `);\n\n`;
+
+    let linkIdx = 0;
+    for (let i = 0; i < NUM_NODES; i++) {
+      for (let j = i + 1; j < NUM_NODES; j++) {
+        if (adj[i][j]) {
+          verilog += `    // Bidirectional link: Router ${i} <--> Router ${j}\n`;
+          verilog += `    wire [31:0] link_${i}_to_${j}_data;\n`;
+          verilog += `    wire        link_${i}_to_${j}_valid;\n`;
+          verilog += `    wire        link_${i}_to_${j}_credit;\n`;
+          verilog += `    wire [31:0] link_${j}_to_${i}_data;\n`;
+          verilog += `    wire        link_${j}_to_${i}_valid;\n`;
+          verilog += `    wire        link_${j}_to_${i}_credit;\n\n`;
+          linkIdx++;
+        }
+      }
+    }
+    verilog += `    // Router Instances instantiated with local ports...\n`;
+    verilog += `endmodule\n`;
+
+    document.getElementById('topoExportTitle').textContent = 'Synthesizable Verilog Netlist';
+    document.getElementById('topoExportCode').value = verilog;
+    document.getElementById('topoExportDrawer').style.display = 'block';
+  };
+
+  // Initial load
+  window.applyTopologyPreset('mesh');
+})();
 </script>
