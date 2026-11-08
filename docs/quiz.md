@@ -141,7 +141,7 @@
 
     <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;">
       <button class="noc-sim-btn" onclick="downloadCertificateSVG()">📥 Download Certificate (SVG)</button>
-      <a href="../leaderboard/" class="noc-sim-btn secondary" style="text-decoration:none;">🏆 View Public Leaderboard</a>
+      <a id="viewLeaderboardLink" href="../leaderboard/" class="noc-sim-btn secondary" style="text-decoration:none;">🏆 View Public Leaderboard</a>
       <button class="noc-sim-btn secondary" onclick="restartQuiz()">🔄 Retake Exam</button>
     </div>
   </div>
@@ -1184,6 +1184,12 @@ function finishQuiz() {
   document.getElementById("metaEmail").textContent = candidate.email;
   updateGeoHUD();
 
+  // Route Leaderboard link directly to active track
+  const lbLink = document.getElementById("viewLeaderboardLink");
+  if (lbLink) {
+    lbLink.href = `../leaderboard/?track=${candidate.mode}`;
+  }
+
   // Auto-record to local browser leaderboard storage
   saveScoreToLocalStorage({
     name: candidate.name,
@@ -1191,6 +1197,7 @@ function finishQuiz() {
     org: clientGeo.country || "Independent",
     country: clientGeo.country,
     ip: clientGeo.ip,
+    mode: candidate.mode,
     track: candidate.mode === "grandmaster" ? "Grandmaster (Tier 3)" : (candidate.mode === "tier1_sprint" ? "Fundamentals Sprint" : "Comprehensive Exam"),
     score: userScore,
     accuracy: accuracy,

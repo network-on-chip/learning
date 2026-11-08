@@ -1,18 +1,19 @@
 {
   "ok": true,
   "generated_at": "2026-11-05T00:00:00Z",
-  "total_records": 16,
+  "total_records": 18,
   "source": "network-on-chip/learning GitHub Issues + Seed Hall of Fame",
   "registry": [
     {
       "rank": 1,
-      "name": "Golden Key: Architecture Exam",
+      "name": "Golden Model: Comprehensive Architecture Exam",
       "org": "NoC Golden Model Verifier",
       "track": "Comprehensive Exam",
+      "mode": "full",
       "score": 2200,
       "accuracy": 100,
       "date": "2026-11-01",
-      "certId": "REF-GOLDEN-EXAM-100",
+      "certId": "REF-COMPREHENSIVE-100",
       "type": "quiz"
     },
     {
@@ -116,6 +117,18 @@
     },
     {
       "rank": 11,
+      "name": "Golden Model: Grandmaster Silicon Challenge",
+      "org": "NoC Golden Model Verifier",
+      "track": "Grandmaster (Tier 3)",
+      "mode": "grandmaster",
+      "score": 1480,
+      "accuracy": 100,
+      "date": "2026-11-01",
+      "certId": "REF-GRANDMASTER-100",
+      "type": "quiz"
+    },
+    {
+      "rank": 12,
       "name": "Vicman Fault-Tolerant Reconfiguration Baseline",
       "org": "Fault-Resilient Architecture Model",
       "track": "Fault Defender (Wave 6)",
@@ -126,7 +139,7 @@
       "type": "fault"
     },
     {
-      "rank": 12,
+      "rank": 13,
       "name": "Multi-VNET Coherence QoS Baseline",
       "org": "MOESI Directory Reference",
       "track": "QoS Gladiator (Wave 6)",
@@ -137,7 +150,7 @@
       "type": "qos"
     },
     {
-      "rank": 13,
+      "rank": 14,
       "name": "Autonomous VFI PID DVFS Controller Baseline",
       "org": "Dark Silicon DVFS Reference",
       "track": "Volt Vortex (Wave 6)",
@@ -148,7 +161,7 @@
       "type": "power"
     },
     {
-      "rank": 14,
+      "rank": 15,
       "name": "Sub-THz 140 GHz Wireless Transceiver Baseline",
       "org": "Shahmoradi Transceiver Model",
       "track": "Wireless Wave (Wave 6)",
@@ -159,7 +172,7 @@
       "type": "wireless"
     },
     {
-      "rank": 15,
+      "rank": 16,
       "name": "AER Multicast SNN NoC Baseline",
       "org": "In-Network Computing Reference",
       "track": "Neuromorphic Nexus (Wave 6)",
@@ -177,13 +190,26 @@
       "location": "",
       "ip": "",
       "track": "Fundamentals Sprint",
+      "mode": "tier1_sprint",
       "score": 820,
       "accuracy": 25.0,
       "certId": "NOC-CERT-2026-34F861EF",
       "date": "2026-11-08",
       "type": "quiz",
       "issue_url": "https://github.com/network-on-chip/learning/issues/1",
-      "rank": 16
+      "rank": 17
+    },
+    {
+      "rank": 18,
+      "name": "Golden Model: Fundamentals Sprint",
+      "org": "NoC Golden Model Verifier",
+      "track": "Fundamentals Sprint",
+      "mode": "tier1_sprint",
+      "score": 520,
+      "accuracy": 100,
+      "date": "2026-11-01",
+      "certId": "REF-FUNDAMENTALS-100",
+      "type": "quiz"
     }
   ]
 }

@@ -18,17 +18,42 @@ from pathlib import Path
 SEED_REGISTRY = [
     {
         "rank": 1,
-        "name": "Golden Key: Architecture Exam",
+        "name": "Golden Model: Comprehensive Architecture Exam",
         "org": "NoC Golden Model Verifier",
         "track": "Comprehensive Exam",
+        "mode": "full",
         "score": 2200,
         "accuracy": 100,
         "date": "2026-11-01",
-        "certId": "REF-GOLDEN-EXAM-100",
+        "certId": "REF-COMPREHENSIVE-100",
         "type": "quiz"
     },
     {
         "rank": 2,
+        "name": "Golden Model: Fundamentals Sprint",
+        "org": "NoC Golden Model Verifier",
+        "track": "Fundamentals Sprint",
+        "mode": "tier1_sprint",
+        "score": 520,
+        "accuracy": 100,
+        "date": "2026-11-01",
+        "certId": "REF-FUNDAMENTALS-100",
+        "type": "quiz"
+    },
+    {
+        "rank": 3,
+        "name": "Golden Model: Grandmaster Silicon Challenge",
+        "org": "NoC Golden Model Verifier",
+        "track": "Grandmaster (Tier 3)",
+        "mode": "grandmaster",
+        "score": 1480,
+        "accuracy": 100,
+        "date": "2026-11-01",
+        "certId": "REF-GRANDMASTER-100",
+        "type": "quiz"
+    },
+    {
+        "rank": 4,
         "name": "DOR-XY Deterministic Baseline",
         "org": "Reference Microarchitecture Model",
         "track": "Deadlock Buster (Wave 10)",
@@ -258,6 +283,7 @@ def sync_leaderboard(output_json: Path) -> None:
                 "location": location,
                 "ip": ip,
                 "track": track,
+                "mode": mode,
                 "score": score,
                 "accuracy": accuracy,
                 "certId": cert_id,
