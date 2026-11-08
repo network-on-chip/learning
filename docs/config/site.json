@@ -12,12 +12,12 @@
       "eyebrow": "3-Tier Silicon Interconnect Quest"
     },
     "deadlock_buster": {
-      "label": "Deadlock Verification & CDG Escape Engine",
-      "eyebrow": "Virtual Channel & Escape Routing CAD Workbench"
+      "label": "Deadlock Buster: Buffer Defense Arcade",
+      "eyebrow": "Virtual Channel & Escape Routing Arcade"
     }
   },
   "results": {
-    "endpoint": "",
+    "endpoint": "https://noc-quiz-api.network-on-chip.workers.dev/api/submit-quiz",
     "leaderboard_endpoint": "",
     "auto_submit": true,
     "github": {

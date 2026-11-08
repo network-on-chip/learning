@@ -17,7 +17,7 @@
     }
   },
   "results": {
-    "endpoint": "",
+    "endpoint": "https://noc-quiz-api.network-on-chip.workers.dev/api/submit-quiz",
     "leaderboard_endpoint": "",
     "auto_submit": true,
     "github": {

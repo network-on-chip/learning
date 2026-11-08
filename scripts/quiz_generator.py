@@ -822,17 +822,17 @@ def write_quiz_page(output_path: Path) -> None:
   <div id="stepRegistration">
     <h3 style="margin-top:0;">Candidate Registration &amp; Tier Selection</h3>
     <p style="color:var(--md-default-fg-color--lighter); font-size:0.92rem;">
-      Choose your assessment mode. Your final score, accuracy, and cryptographic verification hash will be recorded and published to the Community Leaderboard.
+      Enter your candidate details and select your assessment track. Upon completion, your score, IP, location, and verification credentials are automatically submitted to the official GitHub credential registry.
     </p>
 
     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1rem; margin:1.25rem 0;">
       <div>
-        <label style="font-weight:600; font-size:0.85rem; display:block; margin-bottom:0.35rem;">Candidate Name / Callsign *</label>
+        <label style="font-weight:600; font-size:0.85rem; display:block; margin-bottom:0.35rem;">Candidate Full Name *</label>
         <input type="text" id="candidateName" class="noc-sim-select" style="width:100%; box-sizing:border-box;" placeholder="e.g. Dr. Ada Lovelace" value="Hardware Architect">
       </div>
       <div>
-        <label style="font-weight:600; font-size:0.85rem; display:block; margin-bottom:0.35rem;">Institution / University / Company</label>
-        <input type="text" id="candidateOrg" class="noc-sim-select" style="width:100%; box-sizing:border-box;" placeholder="e.g. Stanford / SJTU / Intel" value="Academic Researcher">
+        <label style="font-weight:600; font-size:0.85rem; display:block; margin-bottom:0.35rem;">Candidate Email Address *</label>
+        <input type="email" id="candidateEmail" class="noc-sim-select" style="width:100%; box-sizing:border-box;" placeholder="e.g. ada@university.edu" value="architect@silicon.org">
       </div>
       <div>
         <label style="font-weight:600; font-size:0.85rem; display:block; margin-bottom:0.35rem;">Assessment Track</label>
@@ -842,6 +842,11 @@ def write_quiz_page(output_path: Path) -> None:
           <option value="grandmaster">Grandmaster Challenge (4 Questions - Tier 3 Mastery Only)</option>
         </select>
       </div>
+    </div>
+
+    <div style="font-size:0.8rem; color:#64748b; margin-bottom:1.15rem; display:flex; align-items:center; gap:0.4rem;">
+      <span>🔒</span>
+      <span><strong>Automated Verification:</strong> Your verified exam score, client IP, and location will be automatically registered to GitHub Issues upon exam completion.</span>
     </div>
 
     <button class="noc-sim-btn" onclick="startQuiz()" style="font-size:1rem; padding:0.65rem 1.5rem;">
@@ -887,8 +892,8 @@ def write_quiz_page(output_path: Path) -> None:
       <div style="font-size:12px; text-transform:uppercase; letter-spacing:2px; color:#64748b; font-weight:700;">NoC Academic Credential Registry</div>
       <h1 style="font-size:1.65rem; font-weight:900; color:#0f172a; margin:10px 0 6px; letter-spacing:-0.5px;">CERTIFICATE OF ACHIEVEMENT</h1>
       <div style="font-size:13px; color:#475569; margin-bottom:16px;">This is to formally certify that</div>
-      <div id="certCandidateName" style="font-size:1.85rem; font-weight:800; color:#1e3a8a; border-bottom:2px solid #cbd5e1; display:inline-block; padding:0 30px 4px; margin-bottom:12px;">Candidate Name</div>
-      <div id="certCandidateOrg" style="font-size:14px; color:#475569; font-style:italic; margin-bottom:18px;">Institution / University</div>
+      <div id="certCandidateName" style="font-size:1.85rem; font-weight:800; color:#1e3a8a; border-bottom:2px solid #cbd5e1; display:inline-block; padding:0 30px 4px; margin-bottom:6px;">Candidate Name</div>
+      <div id="certCandidateEmail" style="font-size:13px; font-family:'JetBrains Mono', monospace; color:#64748b; margin-bottom:18px;">candidate@example.com</div>
       <div style="font-size:14px; max-width:520px; margin:0 auto 20px; line-height:1.5; color:#334155;">
         has successfully passed the examination in <strong>Network-on-Chip (NoC) Architecture, Router Microarchitecture &amp; Deadlock Avoidance Theory</strong>.
       </div>
@@ -900,8 +905,45 @@ def write_quiz_page(output_path: Path) -> None:
       </div>
     </div>
 
+    <!-- Automated GitHub Submission Status Card -->
+    <div id="submissionStatusBox" style="background:#0f172a; border:1px solid #334155; border-radius:10px; padding:16px 20px; max-width:680px; margin:0 auto 1.5rem; text-align:left; box-shadow:0 6px 20px rgba(0,0,0,0.15);">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <span id="submissionIcon" style="font-size:1.4rem;">🔄</span>
+          <div>
+            <div id="submissionTitle" style="font-weight:700; font-size:0.95rem; color:#38bdf8;">Automatically Submitting Result to GitHub...</div>
+            <div id="submissionDetail" style="font-size:0.82rem; color:#94a3b8;">Recording candidate credentials, verified score, IP, and location to official GitHub Issues ledger.</div>
+          </div>
+        </div>
+        <div id="submissionBadge" style="font-size:0.72rem; font-weight:700; padding:4px 10px; border-radius:4px; background:#1e293b; color:#38bdf8; letter-spacing:0.5px;">
+          SUBMITTING
+        </div>
+      </div>
+
+      <!-- Metadata audit line -->
+      <div id="submissionMeta" style="margin-top:10px; font-size:0.78rem; font-family:'JetBrains Mono', monospace; color:#64748b; border-top:1px dashed #334155; padding-top:8px; display:flex; flex-wrap:wrap; gap:0.75rem;">
+        <span><b>Candidate:</b> <span id="metaName" style="color:#e2e8f0;">--</span></span>
+        <span><b>Email:</b> <span id="metaEmail" style="color:#e2e8f0;">--</span></span>
+        <span><b>IP:</b> <span id="metaIp" style="color:#38bdf8;">Detecting...</span></span>
+        <span><b>Location:</b> <span id="metaLoc" style="color:#38bdf8;">Detecting...</span></span>
+      </div>
+
+      <!-- Action link if created -->
+      <div id="submissionLinkWrap" style="display:none; margin-top:10px; padding-top:8px; border-top:1px solid #1e293b; font-size:0.84rem;">
+        <a id="submissionIssueLink" href="#" target="_blank" style="color:#22c55e; font-weight:700; text-decoration:none;">
+          🔗 View Confirmed Credential Issue on GitHub →
+        </a>
+      </div>
+
+      <!-- Fallback action if endpoint offline -->
+      <div id="submissionFallbackWrap" style="display:none; margin-top:10px; padding-top:8px; border-top:1px solid #1e293b; font-size:0.82rem; color:#f59e0b;">
+        <span>Backend bridge pending deployment. </span>
+        <button onclick="retryAutoSubmit()" class="noc-sim-btn secondary" style="font-size:0.75rem; padding:2px 8px; margin:0 4px;">🔄 Retry</button>
+        <button onclick="emergencyFallbackIssue()" class="noc-sim-btn secondary" style="font-size:0.75rem; padding:2px 8px;">📤 Open GitHub Issue Manually</button>
+      </div>
+    </div>
+
     <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;">
-      <button class="noc-sim-btn" onclick="submitToGithubIssue()" style="background:#16a34a;">📤 Submit Score to GitHub Leaderboard</button>
       <button class="noc-sim-btn" onclick="downloadCertificateSVG()">📥 Download Certificate (SVG)</button>
       <a href="../leaderboard/" class="noc-sim-btn secondary" style="text-decoration:none;">🏆 View Public Leaderboard</a>
       <button class="noc-sim-btn secondary" onclick="restartQuiz()">🔄 Retake Exam</button>
@@ -918,11 +960,99 @@ let userScore = 0;
 let correctCount = 0;
 let timerInterval = null;
 let timeLeft = 35;
-let candidate = {{ name: "", org: "", mode: "full", certId: "", date: "" }};
+let candidate = {{ name: "", email: "", mode: "full", certId: "", date: "" }};
+let clientGeo = {{ ip: "Detecting...", country: "Detecting...", city: "", region: "", resolved: false }};
+
+// Asynchronously resolve Client IP and Location in background
+async function resolveClientGeo() {{
+  try {{
+    const res = await fetch("https://ipapi.co/json/", {{ cache: "no-store" }});
+    if (res.ok) {{
+      const data = await res.json();
+      if (data && data.ip) {{
+        clientGeo.ip = data.ip;
+        clientGeo.country = data.country_name ? `${{data.country_name}} (${{data.country_code || data.country}})` : (data.country || "Unknown Country");
+        clientGeo.city = data.city || "";
+        clientGeo.region = data.region || "";
+        clientGeo.resolved = true;
+        updateGeoHUD();
+        return;
+      }}
+    }}
+  }} catch(e) {{
+    console.warn("ipapi.co resolution failed, attempting secondary provider...", e);
+  }}
+
+  try {{
+    const res2 = await fetch("https://ipwho.is/", {{ cache: "no-store" }});
+    if (res2.ok) {{
+      const data2 = await res2.json();
+      if (data2 && data2.success !== false && data2.ip) {{
+        clientGeo.ip = data2.ip;
+        clientGeo.country = data2.country ? `${{data2.country}} (${{data2.country_code}})` : "Unknown Country";
+        clientGeo.city = data2.city || "";
+        clientGeo.region = data2.region || "";
+        clientGeo.resolved = true;
+        updateGeoHUD();
+        return;
+      }}
+    }}
+  }} catch(e2) {{
+    console.warn("ipwho.is resolution failed, attempting tertiary provider...", e2);
+  }}
+
+  try {{
+    const res3 = await fetch("https://api.ipify.org?format=json", {{ cache: "no-store" }});
+    if (res3.ok) {{
+      const data3 = await res3.json();
+      if (data3 && data3.ip) {{
+        clientGeo.ip = data3.ip;
+        clientGeo.country = "Detected via IP";
+        clientGeo.resolved = true;
+        updateGeoHUD();
+        return;
+      }}
+    }}
+  }} catch(e3) {{
+    console.warn("Client-side GeoIP resolution unavailable or shielded.", e3);
+    clientGeo.ip = "Unavailable (Client-Shielded)";
+    clientGeo.country = "Unknown Location";
+    clientGeo.resolved = true;
+    updateGeoHUD();
+  }}
+}}
+
+function updateGeoHUD() {{
+  const ipEl = document.getElementById("metaIp");
+  const locEl = document.getElementById("metaLoc");
+  if (ipEl) ipEl.textContent = clientGeo.ip;
+  if (locEl) locEl.textContent = [clientGeo.city, clientGeo.country].filter(Boolean).join(", ") || clientGeo.country;
+}}
+
+// Initiate resolution immediately on page load
+resolveClientGeo();
 
 function startQuiz() {{
-  candidate.name = document.getElementById("candidateName").value.trim() || "Hardware Architect";
-  candidate.org = document.getElementById("candidateOrg").value.trim() || "Research Laboratory";
+  const nameInput = document.getElementById("candidateName");
+  const emailInput = document.getElementById("candidateEmail");
+  const name = nameInput.value.trim();
+  const email = emailInput.value.trim();
+
+  if (!name) {{
+    alert("Please enter your full name for certification registration.");
+    nameInput.focus();
+    return;
+  }}
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRegex.test(email)) {{
+    alert("Please enter a valid candidate email address (e.g. ada@university.edu).");
+    emailInput.focus();
+    return;
+  }}
+
+  candidate.name = name;
+  candidate.email = email;
   candidate.mode = document.getElementById("assessmentMode").value;
 
   if (candidate.mode === "tier1_sprint") {{
@@ -1063,11 +1193,11 @@ function finishQuiz() {{
   document.getElementById("stepResult").style.display = "block";
 
   const accuracy = Math.round((correctCount / activeQuestions.length) * 100);
-  document.getElementById("resultSummary").innerHTML = `Candidate: <strong>${{candidate.name}}</strong> | Total Score: <strong>${{userScore}}</strong> pts | Accuracy: <strong>${{accuracy}}%</strong> (${{correctCount}}/${{activeQuestions.length}} correct)`;
+  document.getElementById("resultSummary").innerHTML = `Candidate: <strong>${{candidate.name}}</strong> (${{candidate.email}}) | Score: <strong>${{userScore}}</strong> pts | Accuracy: <strong>${{accuracy}}%</strong> (${{correctCount}}/${{activeQuestions.length}} correct)`;
 
   // Set Certificate Fields
   document.getElementById("certCandidateName").textContent = candidate.name;
-  document.getElementById("certCandidateOrg").textContent = candidate.org;
+  document.getElementById("certCandidateEmail").textContent = candidate.email;
   document.getElementById("certScore").textContent = `${{userScore}} pts (${{accuracy}}%)`;
 
   const now = new Date();
@@ -1076,7 +1206,7 @@ function finishQuiz() {{
 
   // Generate deterministic verification hash
   let hashVal = 0;
-  const hashRaw = `${{candidate.name}}-${{userScore}}-${{candidate.date}}`;
+  const hashRaw = `${{candidate.name}}-${{candidate.email}}-${{userScore}}-${{candidate.date}}`;
   for (let i = 0; i < hashRaw.length; i++) {{
     hashVal = (hashVal << 5) - hashVal + hashRaw.charCodeAt(i);
     hashVal |= 0;
@@ -1084,10 +1214,18 @@ function finishQuiz() {{
   candidate.certId = `NOC-CERT-${{now.getFullYear()}}-${{Math.abs(hashVal).toString(16).toUpperCase().padStart(6, '0')}}`;
   document.getElementById("certHash").textContent = candidate.certId;
 
+  // Update submission HUD meta
+  document.getElementById("metaName").textContent = candidate.name;
+  document.getElementById("metaEmail").textContent = candidate.email;
+  updateGeoHUD();
+
   // Auto-record to local browser leaderboard storage
   saveScoreToLocalStorage({{
     name: candidate.name,
-    org: candidate.org,
+    email: candidate.email,
+    org: clientGeo.country || "Independent",
+    country: clientGeo.country,
+    ip: clientGeo.ip,
     track: candidate.mode === "grandmaster" ? "Grandmaster (Tier 3)" : (candidate.mode === "tier1_sprint" ? "Fundamentals Sprint" : "Comprehensive Exam"),
     score: userScore,
     accuracy: accuracy,
@@ -1095,6 +1233,9 @@ function finishQuiz() {{
     date: candidate.date,
     type: "quiz"
   }});
+
+  // AUTOMATICALLY SUBMIT TO GITHUB (No user intervention required)
+  autoSubmitToGithub();
 }}
 
 function saveScoreToLocalStorage(record) {{
@@ -1107,24 +1248,129 @@ function saveScoreToLocalStorage(record) {{
   }}
 }}
 
-function submitToGithubIssue() {{
-  const repo = "network-on-chip/learning";
-  const title = `[quiz-result] ${{candidate.name}} — ${{userScore}} pts — ${{candidate.certId}}`;
+async function autoSubmitToGithub() {{
+  const icon = document.getElementById("submissionIcon");
+  const title = document.getElementById("submissionTitle");
+  const detail = document.getElementById("submissionDetail");
+  const badge = document.getElementById("submissionBadge");
+  const linkWrap = document.getElementById("submissionLinkWrap");
+  const fallbackWrap = document.getElementById("submissionFallbackWrap");
+
+  icon.textContent = "🔄";
+  badge.textContent = "SUBMITTING";
+  badge.style.background = "#1e293b";
+  badge.style.color = "#38bdf8";
+  title.textContent = "Automatically Submitting Result to GitHub...";
+  detail.textContent = "Transmitting verified candidate credentials, score, IP, and location to official GitHub Issues ledger.";
+  linkWrap.style.display = "none";
+  fallbackWrap.style.display = "none";
+
   const accuracy = Math.round((correctCount / activeQuestions.length) * 100);
+  const locationStr = [clientGeo.city, clientGeo.region].filter(Boolean).join(", ");
+
+  const payload = {{
+    candidate: candidate.name,
+    email: candidate.email,
+    ip: clientGeo.ip,
+    location: locationStr || "Unknown",
+    country: clientGeo.country || "Unknown Country",
+    mode: candidate.mode,
+    score: userScore,
+    accuracy: accuracy,
+    correctCount: correctCount,
+    totalQuestions: activeQuestions.length,
+    certId: candidate.certId,
+    date: candidate.date,
+    timestamp: new Date().toISOString(),
+    type: "quiz"
+  }};
+
+  const primaryEndpoint = window.NOC_QUIZ_API_URL || "https://noc-quiz-api.network-on-chip.workers.dev/api/submit-quiz";
+  const endpoints = [primaryEndpoint, "http://localhost:8787/api/submit-quiz"];
+
+  let success = false;
+  let lastError = null;
+
+  for (const endpoint of endpoints) {{
+    try {{
+      const res = await fetch(endpoint, {{
+        method: "POST",
+        headers: {{ "Content-Type": "application/json" }},
+        body: JSON.stringify(payload)
+      }});
+
+      if (res.ok) {{
+        const resData = await res.json();
+        if (resData && (resData.success || resData.html_url || resData.issue_number)) {{
+          success = true;
+          icon.textContent = "✅";
+          badge.textContent = "RECORDED";
+          badge.style.background = "rgba(34, 197, 94, 0.2)";
+          badge.style.color = "#22c55e";
+          title.textContent = `Successfully Recorded on GitHub (Issue #${{resData.issue_number || ""}})!`;
+          detail.textContent = "Assessment verified and officially published to the repository ledger.";
+
+          if (resData.ip && resData.ip !== "Unknown IP") {{
+            document.getElementById("metaIp").textContent = resData.ip;
+          }}
+          if (resData.country && resData.country !== "Unknown Country") {{
+            document.getElementById("metaLoc").textContent = resData.location || resData.country;
+          }}
+
+          if (resData.html_url) {{
+            const a = document.getElementById("submissionIssueLink");
+            a.href = resData.html_url;
+            linkWrap.style.display = "block";
+          }}
+          break;
+        }}
+      }} else {{
+        lastError = `HTTP ${{res.status}}`;
+      }}
+    }} catch (err) {{
+      lastError = err.message;
+    }}
+  }}
+
+  if (!success) {{
+    icon.textContent = "⚠️";
+    badge.textContent = "SAVED LOCALLY";
+    badge.style.background = "rgba(234, 179, 8, 0.2)";
+    badge.style.color = "#eab308";
+    title.textContent = "Result Recorded to Local Verification Ledger";
+    detail.textContent = `Backend submission server pending deployment (${{lastError || "network offline"}}). Score is safely preserved in browser.`;
+    fallbackWrap.style.display = "block";
+  }}
+}}
+
+function retryAutoSubmit() {{
+  autoSubmitToGithub();
+}}
+
+function emergencyFallbackIssue() {{
+  const repo = "network-on-chip/learning";
+  const title = `[quiz-result] ${{candidate.name}} (${{candidate.email}}) — ${{userScore}} pts — ${{candidate.certId}}`;
+  const accuracy = Math.round((correctCount / activeQuestions.length) * 100);
+  const loc = [clientGeo.city, clientGeo.country].filter(Boolean).join(", ");
   const body = [
-    "### NoC Architecture Assessment Submission",
+    "### 🎯 NoC Architecture Assessment Submission",
     `- **Candidate**: ${{candidate.name}}`,
-    `- **Institution**: ${{candidate.org}}`,
+    `- **Email**: ${{candidate.email}}`,
+    `- **IP Address**: \\`${{clientGeo.ip}}\\``,
+    `- **Location / Country**: ${{loc || "Unknown"}}`,
     `- **Assessment Mode**: ${{candidate.mode}}`,
     `- **Total Score**: ${{userScore}} pts`,
     `- **Accuracy**: ${{accuracy}}% (${{correctCount}}/${{activeQuestions.length}} correct)`,
-    `- **Credential Hash**: \`${{candidate.certId}}\``,
+    `- **Credential Hash**: \\`${{candidate.certId}}\\``,
     `- **Date**: ${{candidate.date}}`,
     "",
     "```json",
     JSON.stringify({{
       candidate: candidate.name,
-      org: candidate.org,
+      email: candidate.email,
+      ip: clientGeo.ip,
+      location: loc,
+      country: clientGeo.country,
       mode: candidate.mode,
       score: userScore,
       accuracy: accuracy,
@@ -1141,7 +1387,7 @@ function submitToGithubIssue() {{
 
 function downloadCertificateSVG() {{
   const name = document.getElementById("certCandidateName").textContent;
-  const org = document.getElementById("certCandidateOrg").textContent;
+  const email = document.getElementById("certCandidateEmail").textContent;
   const score = document.getElementById("certScore").textContent;
   const hash = document.getElementById("certHash").textContent;
   const date = document.getElementById("certDate").textContent;
@@ -1158,7 +1404,7 @@ function downloadCertificateSVG() {{
     <text x="400" y="235" text-anchor="middle" font-family="'Inter', sans-serif" font-size="32" font-weight="800" fill="#1e3a8a">${{name}}</text>
     <line x1="200" y1="250" x2="600" y2="250" stroke="#cbd5e1" stroke-width="2" />
     
-    <text x="400" y="285" text-anchor="middle" font-family="'Inter', sans-serif" font-size="16" font-style="italic" fill="#475569">${{org}}</text>
+    <text x="400" y="280" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="14" fill="#64748b">${{email}}</text>
     <text x="400" y="340" text-anchor="middle" font-family="'Inter', sans-serif" font-size="15" fill="#334155">has mastered Network-on-Chip (NoC) Architecture,</text>
     <text x="400" y="365" text-anchor="middle" font-family="'Inter', sans-serif" font-size="15" fill="#334155">Router Microarchitecture &amp; Deadlock Avoidance Theory.</text>
     
@@ -1173,7 +1419,7 @@ function downloadCertificateSVG() {{
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `Certificate_${{name.replace(/\s+/g, '_')}}_NoC.svg`;
+  a.download = `Certificate_${{name.replace(/\\s+/g, '_')}}_NoC.svg`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -1184,6 +1430,7 @@ function restartQuiz() {{
   document.getElementById("stepResult").style.display = "none";
   document.getElementById("stepRegistration").style.display = "block";
 }}
+
 </script>
 """
     output_path.write_text(content, encoding="utf-8")

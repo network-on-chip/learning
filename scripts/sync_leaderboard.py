@@ -238,7 +238,11 @@ def sync_leaderboard(output_json: Path) -> None:
         item_type = payload.get("type", "quiz")
         if item_type == "quiz":
             name = payload.get("candidate", payload.get("name", "Architect"))
-            org = payload.get("org", "Independent")
+            email = payload.get("email", "")
+            country = payload.get("country", "")
+            location = payload.get("location", "")
+            ip = payload.get("ip", "")
+            org = country if country and country != "Unknown Country" else payload.get("org", "Independent")
             score = int(payload.get("score", 0))
             accuracy = float(payload.get("accuracy", 100))
             cert_id = payload.get("certId", f"NOC-CERT-{issue.get('number', 0)}")
@@ -248,7 +252,11 @@ def sync_leaderboard(output_json: Path) -> None:
 
             extracted_records.append({
                 "name": name,
+                "email": email,
                 "org": org,
+                "country": country,
+                "location": location,
+                "ip": ip,
                 "track": track,
                 "score": score,
                 "accuracy": accuracy,

@@ -1,0 +1,11 @@
+name = "noc-quiz-api"
+main = "quiz-worker.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+GITHUB_OWNER = "network-on-chip"
+GITHUB_REPO = "learning"
+
+# To deploy:
+# 1. npx wrangler secret put GITHUB_TOKEN
+# 2. npx wrangler deploy
