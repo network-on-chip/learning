@@ -47,8 +47,14 @@ export default {
       // Extract authentic country from Cloudflare CF object / headers
       const cfCountry = request.headers.get("cf-ipcountry") || (request.cf && request.cf.country);
       const clientCountry = cfCountry ? `${cfCountry}` : (payload.country || "Unknown Country");
-      const clientCity = (request.cf && request.cf.city) || payload.city || payload.location || "";
+      const clientCity = (request.cf && request.cf.city) || payload.city || "";
       const clientRegion = (request.cf && request.cf.region) || payload.region || "";
+
+      // Candidate declared location vs Network gateway
+      const declaredLocation = (payload.location || "").trim();
+      const networkLocationParts = [clientCity, clientRegion].filter(Boolean);
+      const networkLocationStr = networkLocationParts.length > 0 ? `${networkLocationParts.join(", ")}, ${clientCountry}` : clientCountry;
+      const finalLocation = declaredLocation || networkLocationStr;
 
       // Validate required candidate fields
       const candidateName = (payload.candidate || payload.name || "").trim();
@@ -76,10 +82,6 @@ export default {
         });
       }
 
-      // Build structured location display
-      const locationParts = [clientCity, clientRegion].filter(Boolean);
-      const locationStr = locationParts.length > 0 ? `${locationParts.join(", ")}, ${clientCountry}` : clientCountry;
-
       // Construct Markdown Body for GitHub Issue
       const issueTitle = `[quiz-result] ${candidateName} (${candidateEmail}) — ${score} pts — ${certId}`;
       const issueBody = [
@@ -91,8 +93,9 @@ export default {
         "| :--- | :--- |",
         `| **Candidate Full Name** | **${candidateName}** |`,
         `| **Candidate Email** | \`${candidateEmail}\` |`,
+        `| **Declared Location** | ${declaredLocation || "Unspecified"} |`,
         `| **Client IP Address** | \`${clientIp}\` |`,
-        `| **Location & Country** | ${locationStr} |`,
+        `| **Network Gateway Country** | ${networkLocationStr} |`,
         `| **Assessment Track** | ${mode === "grandmaster" ? "Grandmaster Challenge (Tier 3)" : (mode === "tier1_sprint" ? "Fundamentals Sprint" : "Comprehensive Certification")} |`,
         `| **Total Score** | **${score} pts** |`,
         `| **Accuracy** | ${accuracy}% (${correctCount}/${totalQuestions} correct) |`,
@@ -106,9 +109,12 @@ export default {
           {
             candidate: candidateName,
             email: candidateEmail,
+            location: finalLocation,
+            declared_location: declaredLocation,
             ip: clientIp,
-            location: locationParts.join(", ") || "Unknown",
-            country: clientCountry,
+            gateway_country: clientCountry,
+            network_location: networkLocationStr,
+            country: finalLocation,
             mode: mode,
             score: score,
             accuracy: accuracy,

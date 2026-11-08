@@ -122,14 +122,16 @@ class QuizSubmissionHandler(BaseHTTPRequestHandler):
             return
 
         # Resolve location
+        declared_location = str(payload.get("location", "")).strip()
         client_country = payload.get("country")
-        client_city = payload.get("city") or payload.get("location")
+        client_city = payload.get("city")
         if not client_country or client_country == "Unknown":
             geo = resolve_geo_ip(client_ip)
             client_country = geo.get("country", "Unknown Country")
             client_city = geo.get("city", "")
 
-        location_str = f"{client_city}, {client_country}" if client_city else client_country
+        network_location = f"{client_city}, {client_country}" if client_city else client_country
+        final_location = declared_location or network_location
 
         # Format issue
         issue_title = f"[quiz-result] {candidate_name} ({candidate_email}) — {score} pts — {cert_id}"
@@ -141,8 +143,9 @@ class QuizSubmissionHandler(BaseHTTPRequestHandler):
 | :--- | :--- |
 | **Candidate Full Name** | **{candidate_name}** |
 | **Candidate Email** | `{candidate_email}` |
+| **Declared Location** | {declared_location or "Unspecified"} |
 | **Client IP Address** | `{client_ip}` |
-| **Location & Country** | {location_str} |
+| **Network Gateway Country** | {network_location} |
 | **Assessment Track** | {mode} |
 | **Total Score** | **{score} pts** |
 | **Accuracy** | {accuracy:.1f}% |
@@ -155,8 +158,10 @@ class QuizSubmissionHandler(BaseHTTPRequestHandler):
     "candidate": candidate_name,
     "email": candidate_email,
     "ip": client_ip,
-    "location": location_str,
-    "country": client_country,
+    "location": final_location,
+    "declared_location": declared_location,
+    "network_location": network_location,
+    "country": final_location,
     "mode": mode,
     "score": score,
     "accuracy": accuracy,

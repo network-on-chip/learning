@@ -21,7 +21,7 @@
       Enter your candidate details and select your assessment track. Upon completion, your score, IP, location, and verification credentials are automatically submitted to the official GitHub credential registry.
     </p>
 
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1rem; margin:1.25rem 0;">
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; margin:1.25rem 0;">
       <div>
         <label style="font-weight:600; font-size:0.85rem; display:block; margin-bottom:0.35rem;">Candidate Full Name *</label>
         <input type="text" id="candidateName" class="noc-sim-select" style="width:100%; box-sizing:border-box;" placeholder="e.g. Dr. Ada Lovelace" value="Hardware Architect">
@@ -29,6 +29,14 @@
       <div>
         <label style="font-weight:600; font-size:0.85rem; display:block; margin-bottom:0.35rem;">Candidate Email Address *</label>
         <input type="email" id="candidateEmail" class="noc-sim-select" style="width:100%; box-sizing:border-box;" placeholder="e.g. ada@university.edu" value="architect@silicon.org">
+      </div>
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+          <label style="font-weight:600; font-size:0.85rem;">Location / Institution *</label>
+          <button type="button" id="btnDetectGps" onclick="requestBrowserGpsLocation()" style="background:rgba(56, 189, 248, 0.1); border:1px solid rgba(56, 189, 248, 0.35); border-radius:4px; color:#38bdf8; font-size:0.75rem; cursor:pointer; padding:2px 7px;">📍 Exact GPS</button>
+        </div>
+        <input type="text" id="candidateLocation" class="noc-sim-select" style="width:100%; box-sizing:border-box;" placeholder="Detecting location..." value="" oninput="updateGeoHUD()">
+        <span id="locDetectHint" style="font-size:0.73rem; color:#94a3b8; display:block; margin-top:0.25rem;">Auto-detecting... (edit anytime if using a VPN or proxy)</span>
       </div>
       <div>
         <label style="font-weight:600; font-size:0.85rem; display:block; margin-bottom:0.35rem;">Assessment Track</label>
@@ -89,7 +97,8 @@
       <h1 style="font-size:1.65rem; font-weight:900; color:#0f172a; margin:10px 0 6px; letter-spacing:-0.5px;">CERTIFICATE OF ACHIEVEMENT</h1>
       <div style="font-size:13px; color:#475569; margin-bottom:16px;">This is to formally certify that</div>
       <div id="certCandidateName" style="font-size:1.85rem; font-weight:800; color:#1e3a8a; border-bottom:2px solid #cbd5e1; display:inline-block; padding:0 30px 4px; margin-bottom:6px;">Candidate Name</div>
-      <div id="certCandidateEmail" style="font-size:13px; font-family:'JetBrains Mono', monospace; color:#64748b; margin-bottom:18px;">candidate@example.com</div>
+      <div id="certCandidateEmail" style="font-size:13px; font-family:'JetBrains Mono', monospace; color:#64748b; margin-bottom:4px;">candidate@example.com</div>
+      <div id="certCandidateLocation" style="font-size:12px; color:#475569; margin-bottom:18px;">📍 Location</div>
       <div style="font-size:14px; max-width:520px; margin:0 auto 20px; line-height:1.5; color:#334155;">
         has successfully passed the examination in <strong>Network-on-Chip (NoC) Architecture, Router Microarchitecture &amp; Deadlock Avoidance Theory</strong>.
       </div>
@@ -925,73 +934,164 @@ let userScore = 0;
 let correctCount = 0;
 let timerInterval = null;
 let timeLeft = 35;
-let candidate = { name: "", email: "", mode: "full", certId: "", date: "" };
-let clientGeo = { ip: "Detecting...", country: "Detecting...", city: "", region: "", resolved: false };
+let candidate = { name: "", email: "", location: "", mode: "full", certId: "", date: "" };
+let clientGeo = { ip: "Detecting...", country: "Detecting...", city: "", region: "", formattedLocation: "", resolved: false };
 
-// Asynchronously resolve Client IP and Location in background
+// Request hardware device GPS location via browser Geolocation API
+async function requestBrowserGpsLocation() {
+  const hintEl = document.getElementById("locDetectHint");
+  const locInput = document.getElementById("candidateLocation");
+  if (!navigator.geolocation) {
+    alert("HTML5 Geolocation is not supported by your browser. Please type your location manually.");
+    return;
+  }
+
+  if (hintEl) hintEl.textContent = "📡 Querying device GPS / Wi-Fi coordinates...";
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      try {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        if (hintEl) hintEl.textContent = "🗺️ Resolving physical city & country from coordinates...";
+        const rev = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);
+        if (rev.ok) {
+          const revData = await rev.json();
+          const city = revData.city || revData.locality || "";
+          const country = revData.countryName || "";
+          const locStr = [city, country].filter(Boolean).join(", ");
+          if (locStr) {
+            if (locInput) locInput.value = locStr;
+            clientGeo.city = city;
+            clientGeo.country = country;
+            clientGeo.formattedLocation = locStr;
+            updateGeoHUD();
+            if (hintEl) hintEl.textContent = `📍 Device GPS verified: ${locStr}`;
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Reverse geocode error", err);
+      }
+      if (hintEl) hintEl.textContent = "GPS coordinates captured. You may edit your city/country manually.";
+    },
+    (err) => {
+      console.warn("Geolocation permission error", err);
+      if (hintEl) hintEl.textContent = "Location permission denied. You can enter your location manually.";
+    },
+    { timeout: 9000, maximumAge: 60000 }
+  );
+}
+
+// Asynchronously resolve Client IP and Network Location in background
 async function resolveClientGeo() {
+  const locInput = document.getElementById("candidateLocation");
+  const hintEl = document.getElementById("locDetectHint");
+
+  // Provider 1: ipwho.is (fast, un-rate-limited, CORS enabled)
   try {
-    const res = await fetch("https://ipapi.co/json/", { cache: "no-store" });
+    const res = await fetch("https://ipwho.is/", { cache: "no-store" });
     if (res.ok) {
       const data = await res.json();
-      if (data && data.ip) {
+      if (data && data.success !== false && data.ip) {
         clientGeo.ip = data.ip;
-        clientGeo.country = data.country_name ? `${data.country_name} (${data.country_code || data.country})` : (data.country || "Unknown Country");
+        clientGeo.country = data.country ? `${data.country} (${data.country_code})` : "Unknown Country";
         clientGeo.city = data.city || "";
         clientGeo.region = data.region || "";
+        clientGeo.formattedLocation = [data.city, data.country].filter(Boolean).join(", ") || clientGeo.country;
         clientGeo.resolved = true;
         updateGeoHUD();
+        if (locInput && (!locInput.value || locInput.value === "Detecting location...")) {
+          locInput.value = clientGeo.formattedLocation;
+        }
+        if (hintEl) hintEl.textContent = `📍 Auto-detected: ${clientGeo.formattedLocation} (edit if on VPN/proxy)`;
         return;
       }
     }
   } catch(e) {
-    console.warn("ipapi.co resolution failed, attempting secondary provider...", e);
+    console.warn("ipwho.is failed, trying secondary provider...", e);
   }
 
+  // Provider 2: freeipapi.com
   try {
-    const res2 = await fetch("https://ipwho.is/", { cache: "no-store" });
+    const res2 = await fetch("https://freeipapi.com/api/json", { cache: "no-store" });
     if (res2.ok) {
       const data2 = await res2.json();
-      if (data2 && data2.success !== false && data2.ip) {
-        clientGeo.ip = data2.ip;
-        clientGeo.country = data2.country ? `${data2.country} (${data2.country_code})` : "Unknown Country";
-        clientGeo.city = data2.city || "";
-        clientGeo.region = data2.region || "";
+      if (data2 && data2.ipAddress) {
+        clientGeo.ip = data2.ipAddress;
+        clientGeo.country = data2.countryName ? `${data2.countryName} (${data2.countryCode})` : "Unknown Country";
+        clientGeo.city = data2.cityName || "";
+        clientGeo.region = data2.regionName || "";
+        clientGeo.formattedLocation = [data2.cityName, data2.countryName].filter(Boolean).join(", ") || clientGeo.country;
         clientGeo.resolved = true;
         updateGeoHUD();
+        if (locInput && (!locInput.value || locInput.value === "Detecting location...")) {
+          locInput.value = clientGeo.formattedLocation;
+        }
+        if (hintEl) hintEl.textContent = `📍 Auto-detected: ${clientGeo.formattedLocation} (edit if on VPN/proxy)`;
         return;
       }
     }
   } catch(e2) {
-    console.warn("ipwho.is resolution failed, attempting tertiary provider...", e2);
+    console.warn("freeipapi failed, trying tertiary provider...", e2);
   }
 
+  // Provider 3: ipapi.co
   try {
-    const res3 = await fetch("https://api.ipify.org?format=json", { cache: "no-store" });
+    const res3 = await fetch("https://ipapi.co/json/", { cache: "no-store" });
     if (res3.ok) {
       const data3 = await res3.json();
       if (data3 && data3.ip) {
         clientGeo.ip = data3.ip;
-        clientGeo.country = "Detected via IP";
+        clientGeo.country = data3.country_name ? `${data3.country_name} (${data3.country_code || data3.country})` : (data3.country || "Unknown Country");
+        clientGeo.city = data3.city || "";
+        clientGeo.region = data3.region || "";
+        clientGeo.formattedLocation = [data3.city, data3.country_name || data3.country].filter(Boolean).join(", ") || clientGeo.country;
         clientGeo.resolved = true;
         updateGeoHUD();
+        if (locInput && (!locInput.value || locInput.value === "Detecting location...")) {
+          locInput.value = clientGeo.formattedLocation;
+        }
+        if (hintEl) hintEl.textContent = `📍 Auto-detected: ${clientGeo.formattedLocation} (edit if on VPN/proxy)`;
         return;
       }
     }
   } catch(e3) {
-    console.warn("Client-side GeoIP resolution unavailable or shielded.", e3);
+    console.warn("ipapi.co failed, trying IP fallback...", e3);
+  }
+
+  // Provider 4: ipify.org (IP only fallback)
+  try {
+    const res4 = await fetch("https://api.ipify.org?format=json", { cache: "no-store" });
+    if (res4.ok) {
+      const data4 = await res4.json();
+      if (data4 && data4.ip) {
+        clientGeo.ip = data4.ip;
+        clientGeo.country = "Detected via IP";
+        clientGeo.formattedLocation = "Network IP Verified";
+        clientGeo.resolved = true;
+        updateGeoHUD();
+        if (hintEl) hintEl.textContent = "Please enter your city / institution manually.";
+        return;
+      }
+    }
+  } catch(e4) {
+    console.warn("Client-side GeoIP resolution unavailable.", e4);
     clientGeo.ip = "Unavailable (Client-Shielded)";
     clientGeo.country = "Unknown Location";
+    clientGeo.formattedLocation = "Manual Entry Required";
     clientGeo.resolved = true;
     updateGeoHUD();
+    if (hintEl) hintEl.textContent = "Please enter your city / institution manually.";
   }
 }
 
 function updateGeoHUD() {
   const ipEl = document.getElementById("metaIp");
   const locEl = document.getElementById("metaLoc");
+  const locInput = document.getElementById("candidateLocation");
   if (ipEl) ipEl.textContent = clientGeo.ip;
-  if (locEl) locEl.textContent = [clientGeo.city, clientGeo.country].filter(Boolean).join(", ") || clientGeo.country;
+  const currentLoc = (locInput && locInput.value.trim()) || clientGeo.formattedLocation || [clientGeo.city, clientGeo.country].filter(Boolean).join(", ") || clientGeo.country;
+  if (locEl) locEl.textContent = currentLoc;
 }
 
 // Initiate resolution immediately on page load
@@ -1086,8 +1186,11 @@ function startQuiz() {
     return;
   }
 
+  const locInput = document.getElementById("candidateLocation");
+  const locVal = locInput ? locInput.value.trim() : "";
   candidate.name = name;
   candidate.email = email;
+  candidate.location = locVal || clientGeo.formattedLocation || "Unspecified Location";
   candidate.mode = document.getElementById("assessmentMode").value;
 
   // Dynamically select and reshuffle questions & options
@@ -1228,6 +1331,8 @@ function finishQuiz() {
   // Set Certificate Fields
   document.getElementById("certCandidateName").textContent = candidate.name;
   document.getElementById("certCandidateEmail").textContent = candidate.email;
+  const certLocEl = document.getElementById("certCandidateLocation");
+  if (certLocEl) certLocEl.textContent = `📍 ${candidate.location}`;
   document.getElementById("certScore").textContent = `${userScore} pts (${accuracy}%)`;
 
   const now = new Date();
@@ -1303,13 +1408,12 @@ async function autoSubmitToGithub() {
   fallbackWrap.style.display = "none";
 
   const accuracy = Math.round((correctCount / activeQuestions.length) * 100);
-  const locationStr = [clientGeo.city, clientGeo.region].filter(Boolean).join(", ");
 
   const payload = {
     candidate: candidate.name,
     email: candidate.email,
+    location: candidate.location || [clientGeo.city, clientGeo.region].filter(Boolean).join(", ") || "Unknown Location",
     ip: clientGeo.ip,
-    location: locationStr || "Unknown",
     country: clientGeo.country || "Unknown Country",
     mode: candidate.mode,
     score: userScore,

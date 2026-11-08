@@ -266,8 +266,10 @@ def sync_leaderboard(output_json: Path) -> None:
             email = payload.get("email", "")
             country = payload.get("country", "")
             location = payload.get("location", "")
+            declared = payload.get("declared_location", "")
+            final_loc = declared or location
             ip = payload.get("ip", "")
-            org = country if country and country != "Unknown Country" else payload.get("org", "Independent")
+            org = final_loc if (final_loc and final_loc not in ("Unknown", "Unknown Location", "Unspecified")) else (country if country and country != "Unknown Country" else payload.get("org", "Independent"))
             score = int(payload.get("score", 0))
             accuracy = float(payload.get("accuracy", 100))
             cert_id = payload.get("certId", f"NOC-CERT-{issue.get('number', 0)}")
