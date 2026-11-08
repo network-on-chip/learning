@@ -190,11 +190,11 @@ const QUESTIONS_BANK = [
     "question": "What primary performance problem is caused by using a single shared FIFO queue at an input port, and how is it solved?",
     "options": [
       "Electromigration breakdown; solved by lowering the supply voltage.",
-      "Head-of-Line (HoL) blocking; solved by dividing the buffer into multiple Virtual Channels (VCs).",
       "Clock skew; solved by adding PLL multipliers to every router.",
+      "Head-of-Line (HoL) blocking; solved by dividing the buffer into multiple Virtual Channels (VCs).",
       "Thermal runaway; solved by turning off adjacent routers."
     ],
-    "answer": 1,
+    "answer": 2,
     "explanation": "Head-of-Line (HoL) blocking occurs when a blocked packet at the front of a FIFO prevents unblocked trailing packets from advancing. Virtual Channels provide independent logical queues so unblocked packets can bypass blocked ones."
   },
   {
@@ -205,12 +205,12 @@ const QUESTIONS_BANK = [
     "base_points": 100,
     "question": "In a 2D mesh topology, how does the node degree of a corner router compare to an interior router?",
     "options": [
-      "Corner routers have degree 2 (+ local port); interior routers have degree 4 (+ local port).",
       "All routers in a 2D mesh have an identical degree of 6.",
       "Corner routers have degree 4; interior routers have degree 2.",
-      "Corner routers connect directly to all other routers in 1 hop."
+      "Corner routers connect directly to all other routers in 1 hop.",
+      "Corner routers have degree 2 (+ local port); interior routers have degree 4 (+ local port)."
     ],
-    "answer": 0,
+    "answer": 3,
     "explanation": "In an open-boundary 2D mesh, corner nodes only have 2 inter-router channels (e.g. East and South), edge nodes have 3, and interior nodes have 4 orthogonal channels (North, South, East, West)."
   },
   {
@@ -221,12 +221,12 @@ const QUESTIONS_BANK = [
     "base_points": 200,
     "question": "In credit-based flow control, if link traversal takes 1 cycle, buffer processing takes 1 cycle, and credit return takes 1 cycle, what happens if the input buffer capacity is only 2 flits?",
     "options": [
-      "Throughput remains at 100% because credits travel faster than light.",
       "The upstream router exhausts its credits on cycle 2 and stalls for at least 1 cycle before the first credit returns, capping throughput below 100%.",
+      "Throughput remains at 100% because credits travel faster than light.",
       "Packets are automatically dropped and must be resent by TCP.",
       "The router experiences an immediate hardware deadlock."
     ],
-    "answer": 1,
+    "answer": 0,
     "explanation": "Round-Trip Time is RTT = 1 + 1 + 1 = 3 cycles. With only 2 buffer slots, the transmitter sends 2 flits and must stall on cycle 3 awaiting credit arrival, introducing pipeline bubbles."
   },
   {
@@ -253,12 +253,12 @@ const QUESTIONS_BANK = [
     "base_points": 200,
     "question": "Why does a 4x4 Concentrated Mesh (cMesh) achieve lower zero-load latency for 64 cores than a traditional 8x8 2D Mesh?",
     "options": [
-      "By clustering 4 compute cores around each router, total routers decrease from 64 to 16, cutting network diameter from 14 hops to just 6 hops.",
       "cMesh routers eliminate the need for crossbar switches.",
       "cMesh operates at double the clock frequency because wires are longer.",
+      "By clustering 4 compute cores around each router, total routers decrease from 64 to 16, cutting network diameter from 14 hops to just 6 hops.",
       "cMesh replaces packet routing with broadcast radio signals."
     ],
-    "answer": 0,
+    "answer": 2,
     "explanation": "Concentrating 4 tiles per router reduces router count by 75% (from 64 to 16), reducing the network grid to 4x4. The diameter drops from 2(8-1)=14 to 2(4-1)=6 hops, significantly cutting per-hop traversal delays."
   },
   {
@@ -270,11 +270,11 @@ const QUESTIONS_BANK = [
     "question": "In the Turn Model (Glass & Ni), which two turns are prohibited in the West-First routing algorithm, and what adaptivity does it preserve?",
     "options": [
       "Prohibits North->East and South->East; preserves Westbound adaptivity.",
-      "Prohibits South->West and North->West; packets heading west must do so first, leaving 100% full adaptivity when traveling East.",
       "Prohibits East->North and West->North; forces deterministic YX routing.",
-      "Prohibits all 8 turns; completely disables packet movement."
+      "Prohibits all 8 turns; completely disables packet movement.",
+      "Prohibits South->West and North->West; packets heading west must do so first, leaving 100% full adaptivity when traveling East."
     ],
-    "answer": 1,
+    "answer": 3,
     "explanation": "West-First eliminates South->West (breaking clockwise cycle) and North->West (breaking counter-clockwise cycle). Traveling west is deterministic, but traveling east is fully adaptive across East, North, and South links."
   },
   {
@@ -317,12 +317,12 @@ const QUESTIONS_BANK = [
     "base_points": 300,
     "question": "Why do standard Least Squares estimators fail when reconstructing continuous on-chip thermal fields from sparse physical sensors under real silicon operation?",
     "options": [
-      "Physical thermal sensors exhibit non-Gaussian disturbances (inductive dI/dt noise, process variations, and heavy-tailed impulsive outliers) that violate Gaussian assumptions.",
       "Least Squares can only interpolate 1-dimensional signals, not 2-dimensional chip planes.",
       "Thermal sensors only measure voltage, not temperature.",
+      "Physical thermal sensors exhibit non-Gaussian disturbances (inductive dI/dt noise, process variations, and heavy-tailed impulsive outliers) that violate Gaussian assumptions.",
       "Silicon substrate temperature is mathematically non-differentiable."
     ],
-    "answer": 0,
+    "answer": 2,
     "explanation": "On-chip sensors experience high-frequency switching noise and heavy-tailed non-Gaussian outliers from adjacent clock trees. Robust M-estimators or robust Kalman filters must be used to downweight outlier spikes."
   },
   {
@@ -333,12 +333,12 @@ const QUESTIONS_BANK = [
     "base_points": 300,
     "question": "In multi-chiplet packaging using UCIe (Universal Chiplet Interconnect Express), what architectural advantage does standard die-to-die (D2D) packaging provide compared to traditional PCIe?",
     "options": [
-      "UCIe delivers up to 1300 Gbps/mm shoreline bandwidth density with ultra-low energy (< 0.5 pJ/bit) and sub-2ns latency, enabling transparent on-chip NoC extensions across dies.",
       "UCIe uses wireless RF antennas that eliminate all physical microbumps.",
       "UCIe is limited to board-to-board cables up to 2 meters in length.",
-      "UCIe only supports serial 1-bit asynchronous communication."
+      "UCIe only supports serial 1-bit asynchronous communication.",
+      "UCIe delivers up to 1300 Gbps/mm shoreline bandwidth density with ultra-low energy (< 0.5 pJ/bit) and sub-2ns latency, enabling transparent on-chip NoC extensions across dies."
     ],
-    "answer": 0,
+    "answer": 3,
     "explanation": "UCIe achieves over 28x higher bandwidth density than PCIe with sub-0.5 pJ/bit energy efficiency, allowing routers on adjacent chiplets to be linked transparently into a unified global mesh."
   },
   {
@@ -381,12 +381,12 @@ const QUESTIONS_BANK = [
     "base_points": 300,
     "question": "Why is a monolithic centralized NxN crossbar switch physically unviable for large manycore systems (N >= 64 cores), despite offering single-hop non-blocking routing?",
     "options": [
-      "It requires N^2 crosspoint switches (4,096 switches for N=64) and dense global wiring tracks, leading to severe silicon area explosion and physical routing track starvation.",
       "Crossbars cannot route digital binary signals.",
       "Crossbar switches cannot be built using CMOS transistors.",
+      "It requires N^2 crosspoint switches (4,096 switches for N=64) and dense global wiring tracks, leading to severe silicon area explosion and physical routing track starvation.",
       "Crossbars violate Duato's deadlock theorem by definition."
     ],
-    "answer": 0,
+    "answer": 2,
     "explanation": "Full NxN crossbars exhibit quadratic O(N^2) area complexity and require O(N) global wires per port. For N >= 64, wiring congestion and crosspoint area overwhelm the silicon floorplan, whereas modular 2D Mesh NoCs scale linearly in local router area."
   },
   {
@@ -397,12 +397,12 @@ const QUESTIONS_BANK = [
     "base_points": 100,
     "question": "What is the foundational architectural advantage of Wormhole Switching compared to Store-and-Forward and Virtual Cut-Through?",
     "options": [
-      "Wormhole switching decouples the buffer allocation unit (flit) from packet size, allowing router buffers to be as small as 1 to 4 flits, slashing SRAM buffer area by 75% to 90%.",
       "Wormhole switching eliminates the need for clock trees across the chip.",
       "Wormhole switching guarantees zero-latency light-speed optical traversal.",
-      "Wormhole switching drops packets automatically when congested."
+      "Wormhole switching drops packets automatically when congested.",
+      "Wormhole switching decouples the buffer allocation unit (flit) from packet size, allowing router buffers to be as small as 1 to 4 flits, slashing SRAM buffer area by 75% to 90%."
     ],
-    "answer": 0,
+    "answer": 3,
     "explanation": "By allocating buffer storage at the flit granularity rather than requiring full packet buffering, Wormhole switching allows routers to operate with compact 2-4 flit queues, dramatically reducing router silicon area and power."
   },
   {
@@ -413,12 +413,12 @@ const QUESTIONS_BANK = [
     "base_points": 200,
     "question": "In credit-based flow control, what is the exact physical condition for the downstream buffer depth B_min required to sustain 100% full wire-rate throughput without pipeline stall bubbles?",
     "options": [
-      "B_min must be equal to 1 flit regardless of link latency.",
       "B_min >= RTT * Peak_Injection_Rate, where RTT is the total credit turnaround loop delay (forward flight + receiver processing + reverse credit flight + transmitter processing).",
+      "B_min must be equal to 1 flit regardless of link latency.",
       "B_min must equal the total number of cores on the chip.",
       "B_min must be zero (bufferless deflection only)."
     ],
-    "answer": 1,
+    "answer": 0,
     "explanation": "If buffer depth B < RTT, the upstream transmitter runs out of credits before the first credit pulse returns from downstream, forcing the forward physical link to sit idle during credit turnaround cycles."
   },
   {
@@ -445,12 +445,12 @@ const QUESTIONS_BANK = [
     "base_points": 100,
     "question": "In a canonical 5-stage VC router (BW -> RC -> VA -> SA -> ST), which two critical microarchitectural optimizations enable shrinking pipeline latency down to 1 or 2 clock cycles under zero-load conditions?",
     "options": [
-      "Lookahead Routing (computing RC one hop ahead in the upstream router) and Speculative Switch Allocation (running SA in parallel with VA).",
       "Disabling all virtual channels and eliminating crossbars entirely.",
       "Increasing the clock period by 10x so all 5 stages fit into one slow cycle.",
+      "Lookahead Routing (computing RC one hop ahead in the upstream router) and Speculative Switch Allocation (running SA in parallel with VA).",
       "Dropping all non-head flits at the input buffer."
     ],
-    "answer": 0,
+    "answer": 2,
     "explanation": "Lookahead routing precomputes output port calculation at the upstream router, removing RC from the pipeline. Speculative switch allocation allows flits to arbitrate for crossbar switch ports concurrently with VC allocation under the optimistic assumption that an output VC will be granted."
   },
   {
@@ -461,12 +461,12 @@ const QUESTIONS_BANK = [
     "base_points": 200,
     "question": "In a hardware Matrix Arbiter implementing Least-Recently-Used (LRU) priority for N requesters, how is the state updated when client k is granted access?",
     "options": [
-      "Row k of the priority matrix is cleared to 0 (M[k,:] = 0) and Column k is set to 1 (M[:,k] = 1, with diagonal M[k,k] = 0).",
       "The priority matrix is inverted via matrix determinant calculation.",
       "All elements in row k and column k are toggled with an XOR gate.",
-      "The entire NxN matrix is shifted left by 1 bit."
+      "The entire NxN matrix is shifted left by 1 bit.",
+      "Row k of the priority matrix is cleared to 0 (M[k,:] = 0) and Column k is set to 1 (M[:,k] = 1, with diagonal M[k,k] = 0)."
     ],
-    "answer": 0,
+    "answer": 3,
     "explanation": "To make client k the lowest priority (LRU), row k is cleared to 0 (k has priority over no other client) and column k is set to 1 (every other client j has priority over k). This deterministic hardware update executes in a single clock cycle with minimal gate overhead."
   },
   {
@@ -493,12 +493,12 @@ const QUESTIONS_BANK = [
     "base_points": 100,
     "question": "Why does a Folded Torus interleave even and odd nodes along each dimension, rather than connecting wrap-around wires directly between the perimeter tiles as in a standard Torus?",
     "options": [
-      "To guarantee that all physical links\u2014including wrap-around channels\u2014have a uniform length of 2*L0, completely eliminating the catastrophic (k-1)*L0 Elmore delay spike of perimeter wrap-around wires.",
       "To allow routers to operate with only half as many transistors.",
+      "To guarantee that all physical links\u2014including wrap-around channels\u2014have a uniform length of 2*L0, completely eliminating the catastrophic (k-1)*L0 Elmore delay spike of perimeter wrap-around wires.",
       "Because planar silicon dies can only bend into M\u00f6bius strips.",
       "To turn the 2D network into a single 1D ring."
     ],
-    "answer": 0,
+    "answer": 1,
     "explanation": "In an un-folded kxk torus, perimeter wrap-around wires span (k-1) tiles, suffering quadratic Elmore delay scaling. Interleaving even and odd tiles in a Folded Torus guarantees every physical wire spans exactly 2*L0, preserving high clock frequencies across the entire chip."
   },
   {
@@ -509,12 +509,12 @@ const QUESTIONS_BANK = [
     "base_points": 200,
     "question": "According to Clos network theory (1953), what is the exact mathematical condition on the number of middle-stage switches m required to guarantee that a 3-stage Clos network C(n, m, r) is Strictly Non-Blocking (SNB)?",
     "options": [
-      "m >= 2n - 1",
       "m >= n",
       "m = r / 2",
+      "m >= 2n - 1",
       "m = log2(n)"
     ],
-    "answer": 0,
+    "answer": 2,
     "explanation": "In a 3-stage Clos network with n inputs per first-stage switch, an incoming call requires a middle switch not used by the other n-1 inputs of the same switch or by the n-1 outputs of the destination switch. In the worst case of mutually disjoint paths, (n-1) + (n-1) = 2n-2 middle switches are busy, requiring m >= 2n - 1 to guarantee at least one free middle switch."
   },
   {
@@ -525,12 +525,12 @@ const QUESTIONS_BANK = [
     "base_points": 300,
     "question": "How did Passas, Katevenis, and Pnevmatikatos (IEEE TCAD 2012) prove that monolithic on-chip crossbars remain area-efficient and scalable beyond 100 nodes in modern CMOS silicon?",
     "options": [
-      "With 8+ metal layers, all N global data routing tracks fit directly over standard cells on intermediate metal layers without expanding the cell area, restricting the crossbar footprint to just 11% of a 128-core 150mm^2 die.",
       "By replacing physical crossbar wires with quantum entangled photon pairs.",
       "By clocking the crossbar at 100 GHz using superconducting Josephson junctions.",
-      "By restricting traffic strictly to nearest-neighbor communication only."
+      "By restricting traffic strictly to nearest-neighbor communication only.",
+      "With 8+ metal layers, all N global data routing tracks fit directly over standard cells on intermediate metal layers without expanding the cell area, restricting the crossbar footprint to just 11% of a 128-core 150mm^2 die."
     ],
-    "answer": 0,
+    "answer": 3,
     "explanation": "Passas et al. demonstrated that crossbar wires can be routed over standard cells on upper metal layers, avoiding wiring track inflation. In 90nm CMOS, a radix-128 32-bit crossbar operating at 750 MHz occupied only 11% of the total die area, outperforming 2D meshes under stressed global workloads."
   },
   {
@@ -557,12 +557,12 @@ const QUESTIONS_BANK = [
     "base_points": 200,
     "question": "In a 2D Mesh with 8 possible 90-degree turns, how many turns must be prohibited under the Glass & Ni Turn Model (1994) to eliminate all simple cycles while maximizing routing adaptiveness without virtual channels?",
     "options": [
-      "Exactly 2 turns (one from the clockwise cycle and one from the counter-clockwise cycle), preserving 6 out of 8 turns (75% turn freedom).",
       "All 8 turns (packets can only move in straight lines without turning).",
+      "Exactly 2 turns (one from the clockwise cycle and one from the counter-clockwise cycle), preserving 6 out of 8 turns (75% turn freedom).",
       "Exactly 4 turns (prohibiting all turns from the vertical dimension).",
       "Zero turns (purely hardware arbitration prevents all cycles)."
     ],
-    "answer": 0,
+    "answer": 1,
     "explanation": "Every simple cycle in a 2D mesh is either clockwise or counter-clockwise. Prohibiting exactly one turn from each cycle (2 turns total out of 8) breaks all cycles while preserving 75% turn freedom without requiring extra virtual channels."
   },
   {
@@ -573,12 +573,12 @@ const QUESTIONS_BANK = [
     "base_points": 300,
     "question": "Why does routing-level deadlock freedom (e.g. using XY DOR) fail to protect multi-core processors against Protocol-Level Deadlock, and how does PCMT (Jia et al., IEEE TCAD 2026) resolve it without dedicated Virtual Networks?",
     "options": [
-      "Cache coherence creates circular message dependencies (Request -> Invalidation -> Response); PCMT prioritizes Response flits during switch allocation, draining response chains before new requests can saturate unified buffer pools.",
       "XY routing reverses the direction of electrical current across copper traces.",
       "Directory cache coherence cannot function on meshes larger than 2x2.",
+      "Cache coherence creates circular message dependencies (Request -> Invalidation -> Response); PCMT prioritizes Response flits during switch allocation, draining response chains before new requests can saturate unified buffer pools.",
       "PCMT shuts off all L1 caches whenever traffic congestion exceeds 50%."
     ],
-    "answer": 0,
+    "answer": 2,
     "explanation": "Protocol deadlock occurs when cores cannot process incoming requests because outgoing response buffers are blocked. PCMT grants preemptive priority to coherence response messages, draining dependent flows and slashing router input buffer area by up to 63% without rigid virtual network walls."
   },
   {
@@ -589,12 +589,12 @@ const QUESTIONS_BANK = [
     "base_points": 100,
     "question": "What is the physical significance of the 'breakeven idle time' (tau_breakeven) when evaluating runtime power gating for an on-chip router component?",
     "options": [
-      "It is the minimum duration the component must remain powered down so that saved sub-threshold leakage energy exceeds the dynamic energy overhead of sleep-transistor charging and wakeup.",
       "It is the time required for a copper interconnect to melt due to thermal runaway.",
       "It is the clock cycle latency needed for a router to route 1,000 packets.",
-      "It is the time interval between two periodic system resets."
+      "It is the time interval between two periodic system resets.",
+      "It is the minimum duration the component must remain powered down so that saved sub-threshold leakage energy exceeds the dynamic energy overhead of sleep-transistor charging and wakeup."
     ],
-    "answer": 0,
+    "answer": 3,
     "explanation": "Power gating incurs dynamic energy overhead to charge and discharge sleep transistor gates (E_overhead = E_sleep + E_wake). The breakeven time tau_breakeven = E_overhead / P_leakage represents the threshold beyond which power gating yields a net positive energy reduction."
   },
   {
@@ -621,12 +621,12 @@ const QUESTIONS_BANK = [
     "base_points": 300,
     "question": "How does Low-Power Code Reordering (LPCR, Adelkhani et al., IEEE TCAD 2025) exploit information theory to minimize dynamic switching power in high-speed serial on-chip links?",
     "options": [
-      "By mapping high-probability consecutive symbol pairs to minimum-Hamming-distance codewords via a maximum-weight matching graph optimization, drastically reducing bit transition activity.",
       "By inverting every single bit in every packet regardless of data distribution.",
+      "By mapping high-probability consecutive symbol pairs to minimum-Hamming-distance codewords via a maximum-weight matching graph optimization, drastically reducing bit transition activity.",
       "By compressing all data flits into 1-bit pulses using run-length encoding.",
       "By reducing the clock frequency to 1 Hz whenever non-zero data is detected."
     ],
-    "answer": 0,
+    "answer": 1,
     "explanation": "LPCR constructs an empirical transition probability matrix across serial link words. By transforming the codeword assignment into a maximum-weight matching problem on a complete bipartite graph, it assigns minimum Hamming-distance transitions to the highest-probability consecutive symbol pairs, reducing dynamic link switching power by up to 28% without latency overhead."
   },
   {
@@ -637,12 +637,12 @@ const QUESTIONS_BANK = [
     "base_points": 100,
     "question": "Under the HotSpot electro-thermal duality, what physical thermal property is analogous to electrical capacitance (C) in a circuit?",
     "options": [
-      "Thermal capacitance (heat capacity, C_th = rho * c_p * V in J/K), which represents the thermal inertia of silicon blocks resisting rapid temperature fluctuations.",
       "The electrical resistivity of copper interconnect wires.",
       "The clock frequency of the network router.",
+      "Thermal capacitance (heat capacity, C_th = rho * c_p * V in J/K), which represents the thermal inertia of silicon blocks resisting rapid temperature fluctuations.",
       "The memory bandwidth of the off-chip DRAM."
     ],
-    "answer": 0,
+    "answer": 2,
     "explanation": "In the electro-thermal RC duality, temperature rise Delta T corresponds to voltage V, heat flow P corresponds to current I, thermal resistance R_th corresponds to electrical resistance R, and thermal capacitance C_th = rho * c_p * V corresponds to electrical capacitance C."
   },
   {
@@ -653,12 +653,12 @@ const QUESTIONS_BANK = [
     "base_points": 200,
     "question": "Why do standard linear Kalman filters diverge when reconstructing on-chip thermal maps from physical thermal sensors, and how does the Gaussian-Sum Filter (Fu et al., IEEE TCAD 2019) solve this?",
     "options": [
-      "Physical sensors suffer from non-Gaussian heavy-tailed EMI spikes and power grid L*di/dt switching surges; the Gaussian-Sum Filter models noise as a Gaussian Mixture Model and uses Huber outlier rejection to isolate extreme spikes.",
       "Because thermal sensors can only measure temperature in Fahrenheit.",
       "Because silicon chips operate in absolute vacuum where heat cannot conduct.",
-      "Because Kalman filters require infinite memory that cannot fit on silicon."
+      "Because Kalman filters require infinite memory that cannot fit on silicon.",
+      "Physical sensors suffer from non-Gaussian heavy-tailed EMI spikes and power grid L*di/dt switching surges; the Gaussian-Sum Filter models noise as a Gaussian Mixture Model and uses Huber outlier rejection to isolate extreme spikes."
     ],
-    "answer": 0,
+    "answer": 3,
     "explanation": "Power delivery inductive ground bounce and clock switching surges corrupt sensor lines with heavy-tailed non-Gaussian noise. The Gaussian-Sum Filter (GSF) decomposes the posterior into weighted Gaussian components and applies Huber thresholding to reject outlier readings, cutting reconstruction error by up to 53%."
   },
   {
@@ -685,12 +685,12 @@ const QUESTIONS_BANK = [
     "base_points": 100,
     "question": "What is a Through-Silicon Via (TSV) Keep-Out Zone (KOZ), and what physical phenomenon dictates its size?",
     "options": [
-      "A boundary of 3 to 5 um surrounding a TSV where no active transistors can be placed, dictated by thermo-mechanical compressive stress from copper-silicon CTE mismatch that alters transistor carrier mobility via the piezoresistive effect.",
       "A region of the wafer where no power supply lines can run due to electromagnetic radiation.",
+      "A boundary of 3 to 5 um surrounding a TSV where no active transistors can be placed, dictated by thermo-mechanical compressive stress from copper-silicon CTE mismatch that alters transistor carrier mobility via the piezoresistive effect.",
       "A software firewall zone in the Linux operating system kernel.",
       "A circular moat filled with liquid coolant around every router."
     ],
-    "answer": 0,
+    "answer": 1,
     "explanation": "Copper's thermal expansion coefficient (17 ppm/K) is far higher than silicon's (2.6 ppm/K). During thermal cooling after manufacturing, copper TSVs exert high mechanical stress on surrounding silicon, shifting NMOS and PMOS mobility by up to 30%. The Keep-Out Zone (KOZ) protects transistors from this stress."
   },
   {
@@ -701,12 +701,12 @@ const QUESTIONS_BANK = [
     "base_points": 200,
     "question": "Why does expanding a 2D router (5 ports) to a fully symmetric 3D router (7 ports) almost double the crossbar switch area, and how do Vertical Arbitration-Free architectures (More et al., IEEE TCAD 2018) mitigate this overhead?",
     "options": [
-      "Crossbar multiplexer complexity scales quadratically (P^2 = 49 crosspoints vs. 25 crosspoints, a 96% increase); arbitration-free designs deploy dedicated unidirectional vertical links that eliminate vertical allocators and simplify the crossbar matrix.",
       "Crossbar area scales logarithmically with port count.",
       "Because 3D routers must be fabricated exclusively with diamond substrates.",
+      "Crossbar multiplexer complexity scales quadratically (P^2 = 49 crosspoints vs. 25 crosspoints, a 96% increase); arbitration-free designs deploy dedicated unidirectional vertical links that eliminate vertical allocators and simplify the crossbar matrix.",
       "Arbitration-free architectures double the clock frequency to avoid adding vertical ports."
     ],
-    "answer": 0,
+    "answer": 2,
     "explanation": "An N-port crossbar requires N^2 crosspoints; increasing from 5 to 7 ports increases crosspoint count from 25 to 49 (+96%). More et al. demonstrated that dedicated vertical fast-paths eliminate complex vertical arbiters and reduce router silicon area by ~20%."
   },
   {
@@ -717,12 +717,12 @@ const QUESTIONS_BANK = [
     "base_points": 300,
     "question": "What causes the severe 'Thermal Trapping' phenomenon in vertically stacked 3D-ICs, and why is the top tier significantly hotter than the bottom tier?",
     "options": [
-      "Heat generated in upper silicon tiers must conduct downward through multiple thinned silicon substrates and low-conductivity dielectric bonding interfaces (SiO2/adhesives) before reaching the bottom heat sink, causing thermal resistance accumulation.",
       "Because heat in outer space always flows downward toward the earth.",
       "Because upper tiers operate at 10x higher supply voltages than lower tiers.",
-      "Because top tiers are exposed to ambient solar radiation inside the server chassis."
+      "Because top tiers are exposed to ambient solar radiation inside the server chassis.",
+      "Heat generated in upper silicon tiers must conduct downward through multiple thinned silicon substrates and low-conductivity dielectric bonding interfaces (SiO2/adhesives) before reaching the bottom heat sink, causing thermal resistance accumulation."
     ],
-    "answer": 0,
+    "answer": 3,
     "explanation": "In standard packaging, the single die sits directly on the heat sink. In 3D stacks, only Tier 0 has direct thermal contact with the heat sink. Upper tiers must conduct heat through the entire thermal resistance ladder (accumulating inter-tier dielectric resistances), elevating top-tier temperatures by 25\u00b0C to 40\u00b0C over bottom tiers."
   },
   {
@@ -749,12 +749,12 @@ const QUESTIONS_BANK = [
     "base_points": 200,
     "question": "In the Universal Chiplet Interconnect Express (UCIe) standard, what is the role of the Die-to-Die (D2D) Adapter Layer between the Protocol Layer and the Physical Layer (PHY)?",
     "options": [
-      "It provides link state management, packet framing, CRC error detection, retry retransmission buffers (Go-Back-N / Selective), and credit-based flow control turnaround.",
       "It converts digital electrical signals into optical photons.",
+      "It provides link state management, packet framing, CRC error detection, retry retransmission buffers (Go-Back-N / Selective), and credit-based flow control turnaround.",
       "It dynamically shifts the processor clock between 1 Hz and 100 GHz.",
       "It provides high-voltage DC power conversion from 120V AC wall power."
     ],
-    "answer": 0,
+    "answer": 1,
     "explanation": "The UCIe D2D Adapter layer abstracts the physical signaling interface from high-level protocol flits. It manages link training states, calculates and checks CRC (CRC-16 or CRC-32), coordinates retransmission retry buffers, and maintains flow control credit counters."
   },
   {
@@ -765,12 +765,12 @@ const QUESTIONS_BANK = [
     "base_points": 300,
     "question": "Why can composing individually deadlock-free 2D mesh chiplets produce system-level routing deadlocks, and how does the In/Outbound Swap backtracking mechanism (Wang et al., IEEE TCAD 2026) resolve this without overprovisioning Virtual Channels?",
     "options": [
-      "Hierarchical routing across die-to-die boundaries can form cyclic buffer dependency loops across inter-chiplet bridge routers; the In/Outbound Swap detects stalls exceeding a timeout threshold and diverts blocked head flits into an escape register, severing the cyclic dependency loop and allowing trailing flits to advance.",
       "Deadlocks only occur if the interposer runs out of electrical ground wires.",
       "In/Outbound Swap drops all packets currently stored in the router buffers whenever a stall occurs.",
+      "Hierarchical routing across die-to-die boundaries can form cyclic buffer dependency loops across inter-chiplet bridge routers; the In/Outbound Swap detects stalls exceeding a timeout threshold and diverts blocked head flits into an escape register, severing the cyclic dependency loop and allowing trailing flits to advance.",
       "Multi-chiplet deadlocks are mathematically impossible because turn models always apply across multiple dies without restriction."
     ],
-    "answer": 0,
+    "answer": 2,
     "explanation": "Local turn models (like XY DOR) only guarantee acyclic dependencies within a single die. Combining multiple dies through D2D bridges creates global cycles in the channel dependency graph. Wang et al.'s In/Outbound Swap monitors stall timeouts (tau_stall) and temporarily diverts stalled flits into swap escape buffers, breaking the circular wait condition without dropping packets or dedicating multiple redundant VCs."
   },
   {
@@ -781,12 +781,12 @@ const QUESTIONS_BANK = [
     "base_points": 100,
     "question": "What fundamental physical advantage allows Optical Networks-on-Chip (ONoC) to achieve near-zero dynamic transmission energy scaling over long distances compared to copper wires?",
     "options": [
-      "Photons propagating through passive silicon waveguides experience no data-dependent capacitive charging loss (CV^2 f) during transit; once generated, optical signals travel at the speed of light with fixed laser power regardless of bit rate.",
       "Optical waveguides generate extra electricity as light travels through them.",
       "Optical networks eliminate the need for photodetectors at the receiver.",
-      "Optical signals can only be transmitted at 0 Hz."
+      "Optical signals can only be transmitted at 0 Hz.",
+      "Photons propagating through passive silicon waveguides experience no data-dependent capacitive charging loss (CV^2 f) during transit; once generated, optical signals travel at the speed of light with fixed laser power regardless of bit rate."
     ],
-    "answer": 0,
+    "answer": 3,
     "explanation": "Unlike electrical copper wires where every bit transition charges and discharges line capacitance (P ~ alpha * C * V^2 * f), photons traversing a passive silicon waveguide dissipate negligible data-dependent energy. Wavelength Division Multiplexing (WDM) further multiplies aggregate throughput across a single physical waveguide."
   },
   {
@@ -813,12 +813,12 @@ const QUESTIONS_BANK = [
     "base_points": 300,
     "question": "How does silicon's thermo-optic coefficient (dn/dT \u2248 1.86 \u00d7 10^{-4} K^{-1}) impact dense WDM optical networks, and why does thermal tuning consume substantial power (Ye et al., IEEE TVLSI 2013)?",
     "options": [
-      "Thermal gradients across the processor cause the resonant wavelength of micro-ring resonators to drift by ~0.1 nm/\u00b0C; because dense WDM channel spacing is only 0.4-0.8 nm, active microheaters consuming 15-20 mW/nm must continuously stabilize resonators, dissipating multiple watts across hundreds of rings.",
       "Temperature fluctuations cause the silicon waveguide to physically melt.",
+      "Thermal gradients across the processor cause the resonant wavelength of micro-ring resonators to drift by ~0.1 nm/\u00b0C; because dense WDM channel spacing is only 0.4-0.8 nm, active microheaters consuming 15-20 mW/nm must continuously stabilize resonators, dissipating multiple watts across hundreds of rings.",
       "Thermo-optic drift permanently damages the Germanium photodetector within 1 millisecond.",
       "Thermal effects only occur in vacuum environments."
     ],
-    "answer": 0,
+    "answer": 1,
     "explanation": "Silicon has a strong positive thermo-optic coefficient, shifting MRR cavity resonance by ~0.10 nm/\u00b0C. In dense WDM systems with 50-100 GHz channel spacings, a 5\u00b0C localized chip hotspot completely detunes the resonator from its laser wavelength, causing signal extinction. Integrated microheaters must heat cooler resonators to a common baseline temperature, consuming 15-20 mW per nm of redshift."
   },
   {
@@ -829,12 +829,12 @@ const QUESTIONS_BANK = [
     "base_points": 100,
     "question": "Why is software/cryptographic payload encryption ineffective against interconnect-level thermal Hardware Trojans (Hasanzadeh et al., IEEE TCAD 2026)?",
     "options": [
-      "Payload encryption does not mask packet traffic rates, routing headers, or switching activity, allowing thermal Trojans to overheat victim router tiles and trigger DTM throttling regardless of whether payload data is encrypted.",
       "Payload encryption causes silicon gates to physically overheat twice as fast.",
       "Software encryption requires optical lasers that cannot transmit across copper routers.",
+      "Payload encryption does not mask packet traffic rates, routing headers, or switching activity, allowing thermal Trojans to overheat victim router tiles and trigger DTM throttling regardless of whether payload data is encrypted.",
       "Hardware Trojans only attack unencrypted floating-point numbers."
     ],
-    "answer": 0,
+    "answer": 2,
     "explanation": "Software payload encryption protects data confidentiality, but leaves traffic frequency, packet size, router switching activity, and physical heat dissipation unshielded. Malicious IP blocks can pump dummy flits into a targeted router to induce localized overheating and performance throttling without altering packet data."
   },
   {
@@ -845,12 +845,12 @@ const QUESTIONS_BANK = [
     "base_points": 200,
     "question": "How does the HeatSense Weighted Moving Average (WMA) anomaly detector achieve real-time thermal monitoring without silicon multipliers (IEEE TCAD 2026)?",
     "options": [
-      "By constraining the exponential weighting parameter alpha to negative powers of two (alpha = 2^{-S}, e.g., 1/8 with S=3), multiplication reduces to single-cycle arithmetic right-shifts (>>> 3) and dynamic thresholding is computed via (D << 1) + D.",
       "By delegating all thermal floating-point calculations to an off-chip GPU server.",
       "By disabling router clock trees whenever temperature exceeds 50\u00b0C.",
-      "By measuring thermal gradients exclusively using analog optical waveguides."
+      "By measuring thermal gradients exclusively using analog optical waveguides.",
+      "By constraining the exponential weighting parameter alpha to negative powers of two (alpha = 2^{-S}, e.g., 1/8 with S=3), multiplication reduces to single-cycle arithmetic right-shifts (>>> 3) and dynamic thresholding is computed via (D << 1) + D."
     ],
-    "answer": 0,
+    "answer": 3,
     "explanation": "HeatSense replaces expensive multipliers with fixed-point shift-and-add arithmetic. Choosing alpha = 2^{-S} reduces exponential averaging to a simple right shift, allowing the entire anomaly detector to synthesize into under 180 standard gates running at >2.5 GHz."
   },
   {
@@ -877,12 +877,12 @@ const QUESTIONS_BANK = [
     "base_points": 100,
     "question": "What primary communication bottleneck occurs when training Large Language Models (LLMs) on conventional 2D mesh Networks-on-Chip?",
     "options": [
-      "Tensor Parallelism requires massive synchronous All-Reduce collectives across thousands of cores; streaming unreduced tensors back and forth to central memory saturates bisection bandwidth and generates severe compute pipeline bubbles.",
       "Large language models cannot transmit ASCII characters across electronic routers.",
+      "Tensor Parallelism requires massive synchronous All-Reduce collectives across thousands of cores; streaming unreduced tensors back and forth to central memory saturates bisection bandwidth and generates severe compute pipeline bubbles.",
       "2D meshes cannot route packets if the matrix dimension exceeds 64.",
       "Tensor cores require optical fiber cables to compute matrix multiplications."
     ],
-    "answer": 0,
+    "answer": 1,
     "explanation": "LLM training is communication-bound during backward multi-head attention passes. Every tensor-parallel projection requires global All-Reduce reductions. In conventional meshes, transmitting unreduced floating-point tensors across multiple hops causes severe congestion and leaves compute cores idle in pipeline bubbles."
   },
   {
@@ -893,12 +893,12 @@ const QUESTIONS_BANK = [
     "base_points": 200,
     "question": "How does PAC-NoC's In-Network Computing architecture reduce multi-head attention collective latency in Transformer accelerators (Ouyang et al., IEEE TVLSI 2026)?",
     "options": [
-      "Router crossbars are augmented with tag-matching accumulator ALUs that aggregate gradient flits from competing input ports in-flight, eliminating up to 75% of collective traffic volume before it reaches memory.",
       "Routers drop 90% of attention gradients using lossy compression.",
       "PAC-NoC replaces electronic routers with passive analog RC filters.",
+      "Router crossbars are augmented with tag-matching accumulator ALUs that aggregate gradient flits from competing input ports in-flight, eliminating up to 75% of collective traffic volume before it reaches memory.",
       "It forces all attention heads to execute sequentially on a single core."
     ],
-    "answer": 0,
+    "answer": 2,
     "explanation": "PAC-NoC embeds addition reduction logic directly into router crossbars. Participating flits carrying identical collective tags are summed in-flight as they converge through a hierarchical tree, cutting network flit traffic by up to 75% and halving All-Reduce latency."
   },
   {
@@ -909,12 +909,12 @@ const QUESTIONS_BANK = [
     "base_points": 300,
     "question": "How does 3D Face-to-Face Copper-Pillar Hybrid Bonding eliminate memory silos for on-device LLM inference (SiloBreaker, IEEE TCAD 2026)?",
     "options": [
-      "By achieving a 3 \u00b5m pitch with >110,000 vertical connections per mm\u00b2, hybrid bonding delivers over 16 TB/s of vertical DRAM bandwidth directly into compute tiles without consuming dedicated device silicon area required by TSVs.",
       "By replacing electrical copper wires with wireless radio transceivers.",
       "By storing the entire LLM weights inside CPU L1 cache.",
-      "By cooling the processor down to liquid nitrogen temperatures."
+      "By cooling the processor down to liquid nitrogen temperatures.",
+      "By achieving a 3 \u00b5m pitch with >110,000 vertical connections per mm\u00b2, hybrid bonding delivers over 16 TB/s of vertical DRAM bandwidth directly into compute tiles without consuming dedicated device silicon area required by TSVs."
     ],
-    "answer": 0,
+    "answer": 3,
     "explanation": "SiloBreaker leverages direct copper-to-copper hybrid bonding with 3 um pitch to achieve over 16 TB/s of vertical bandwidth directly between logic dies and DRAM, shattering the memory bandwidth wall that starves auto-regressive token generation."
   }
 ];
@@ -997,6 +997,76 @@ function updateGeoHUD() {
 // Initiate resolution immediately on page load
 resolveClientGeo();
 
+// Fisher-Yates array shuffling algorithm
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+  }
+  return arr;
+}
+
+// Dynamically randomize the 4 options and recalculate correct answer index (A, B, C, D)
+function randomizeQuestion(q) {
+  const items = q.options.map((optText, idx) => ({
+    text: optText,
+    isCorrect: (idx === q.answer)
+  }));
+
+  shuffleArray(items);
+
+  const newOptions = items.map(it => it.text);
+  const newAnswer = items.findIndex(it => it.isCorrect);
+
+  return {
+    id: q.id,
+    module: q.module,
+    tier: q.tier,
+    tier_level: q.tier_level,
+    base_points: q.base_points,
+    question: q.question,
+    options: newOptions,
+    answer: newAnswer,
+    explanation: q.explanation
+  };
+}
+
+// Select scoped questions by tier mode and dynamically reshuffle options and question order
+function selectAndRandomizeQuizQuestions(mode) {
+  const tier1All = QUESTIONS_BANK.filter(q => q.tier_level === 1);
+  const tier2All = QUESTIONS_BANK.filter(q => q.tier_level === 2);
+  const tier3All = QUESTIONS_BANK.filter(q => q.tier_level === 3);
+
+  // Shuffle pools before sampling so question selection is random on every retake
+  shuffleArray(tier1All);
+  shuffleArray(tier2All);
+  shuffleArray(tier3All);
+
+  let selected = [];
+  if (mode === "tier1_sprint") {
+    // 4 randomly selected questions from Tier 1 pool
+    selected = tier1All.slice(0, 4);
+  } else if (mode === "grandmaster") {
+    // 4 randomly selected questions from Tier 3 pool
+    selected = tier3All.slice(0, 4);
+  } else {
+    // Comprehensive: 4 Tier 1 + 4 Tier 2 + 4 Tier 3 = 12 balanced questions
+    selected = [
+      ...tier1All.slice(0, 4),
+      ...tier2All.slice(0, 4),
+      ...tier3All.slice(0, 4)
+    ];
+  }
+
+  // Shuffle question presentation sequence
+  shuffleArray(selected);
+
+  // Dynamically reshuffle options for every single question
+  return selected.map(q => randomizeQuestion(q));
+}
+
 function startQuiz() {
   const nameInput = document.getElementById("candidateName");
   const emailInput = document.getElementById("candidateEmail");
@@ -1020,13 +1090,8 @@ function startQuiz() {
   candidate.email = email;
   candidate.mode = document.getElementById("assessmentMode").value;
 
-  if (candidate.mode === "tier1_sprint") {
-    activeQuestions = QUESTIONS_BANK.filter(q => q.tier_level === 1);
-  } else if (candidate.mode === "grandmaster") {
-    activeQuestions = QUESTIONS_BANK.filter(q => q.tier_level === 3);
-  } else {
-    activeQuestions = [...QUESTIONS_BANK];
-  }
+  // Dynamically select and reshuffle questions & options
+  activeQuestions = selectAndRandomizeQuizQuestions(candidate.mode);
 
   currentIdx = 0;
   userScore = 0;
