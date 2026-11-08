@@ -78,7 +78,7 @@ graph TD
       <div class="noc-track-title">Arbitration & Crossbar Switching</div>
       <div class="noc-track-desc">Fast sub-200ps matrix arbiters, round-robin priority encoders, and crossbar scheduling.</div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Arbiter Arena Challenge & Verilog
+        ⚡ <strong>Features:</strong> Arbiter Simulator Challenge & Verilog
       </div>
     </div>
     <a href="03-arbitration-crossbar/" class="noc-track-link">Launch Lesson 3.3 →</a>

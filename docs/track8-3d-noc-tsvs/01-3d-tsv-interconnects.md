@@ -800,10 +800,10 @@ endmodule
 
 ## 8. 🕹️ Interactive Simulation & Arcade Linkages
 
-Deepen your practical understanding of multi-dimensional routing graphs and high-radix crossbar arbitration through our interactive arcade games:
+Deepen your practical understanding of multi-dimensional routing graphs and high-radix crossbar arbitration through our interactive engineering simulation workbenches:
 
-- 🎮 **[Topology Titans: Graph Architect](../interactive/topology.md):** Explore exascale graph diameters, bisection bandwidth scaling, and compare 2D planar meshes against high-density 3D vertical stacked topologies.
-- 🎮 **[Arbiter Arena: Crossbar Clash](../interactive/arbiter.md):** Master crossbar matrix allocation, resolve port contentions across high-radix switch fabrics, and prevent virtual channel stalls.
+- 🎮 **[Topology CAD Analyzer: Graph Architect](../interactive/topology.md):** Explore exascale graph diameters, bisection bandwidth scaling, and compare 2D planar meshes against high-density 3D vertical stacked topologies.
+- 🎮 **[Arbiter Simulator: Crossbar Clash](../interactive/arbiter.md):** Master crossbar matrix allocation, resolve port contentions across high-radix switch fabrics, and prevent virtual channel stalls.
 
 ---
 

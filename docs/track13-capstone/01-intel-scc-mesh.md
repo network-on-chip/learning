@@ -583,10 +583,10 @@ endmodule
 
 ## 8. 🕹️ Interactive Simulation & Arcade Linkages
 
-Deepen your practical mastery of multi-core switch allocation, wave-front arbitration, and tile-level power management with our interactive arcade games:
+Deepen your practical mastery of multi-core switch allocation, wave-front arbitration, and tile-level power management with our interactive engineering simulation workbenches:
 
-- 🎮 **[Arbiter Arena: Crossbar Clash](../interactive/arbiter.md):** Master 5x5 crossbar switch matching, wave-front allocation algorithms, and arbitration fairness under high-injection workloads.
-- 🎮 **[Volt Vortex: Dark Silicon Power](../interactive/power.md):** Regulate per-tile DVFS voltage domains, manage on-chip thermal budgets, and prevent thermal runaway across manycore dies.
+- 🎮 **[Arbiter Simulator: Crossbar Clash](../interactive/arbiter.md):** Master 5x5 crossbar switch matching, wave-front allocation algorithms, and arbitration fairness under high-injection workloads.
+- 🎮 **[Dark Silicon Power Gating CAD: Dark Silicon Power](../interactive/power.md):** Regulate per-tile DVFS voltage domains, manage on-chip thermal budgets, and prevent thermal runaway across manycore dies.
 
 ---
 

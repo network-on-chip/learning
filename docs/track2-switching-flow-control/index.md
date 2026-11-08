@@ -77,7 +77,7 @@ graph TD
       <div class="noc-track-title">Flow Control & Credit Turnaround Loops</div>
       <div class="noc-track-desc">Lossless backpressure, credit turnaround latency loops, and minimum buffer sizing B_min >= RTT.</div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Credit Commander Flow Control Simulator
+        ⚡ <strong>Features:</strong> Credit Flow Control CAD Flow Control Simulator
       </div>
     </div>
     <a href="03-flow-control-credit/" class="noc-track-link">Launch Lesson 2.3 →</a>

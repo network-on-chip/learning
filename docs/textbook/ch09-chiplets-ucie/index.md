@@ -54,7 +54,7 @@ This modular revolution requires standardized, ultra-low-latency, and high-energ
 - **Section 9.8**: Interactive Lab & Hands-on Challenges.
 - **Section 9.9**: Summary & Cross-Disciplinary Synergies.
 - **Section 9.10**: Checkpoint Assessment & Certification Questions.
-- **Interactive Companion**: Explore the [`Chiplet Tycoon Interactive Lab`](https://network-on-chip.github.io/learning/interactive/chiplet/) to model packaging geometries, latency trade-offs, and yield curves live.
+- **Interactive Companion**: Explore the [`Chiplet CAD Optimizer Interactive Lab`](https://network-on-chip.github.io/learning/interactive/chiplet/) to model packaging geometries, latency trade-offs, and yield curves live.
 
 ---
 
@@ -318,7 +318,7 @@ Advanced silicon interposers achieve a staggering **$4.88\times$** higher shorel
 <div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.65)); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
   <div>
     <div style="font-weight: 700; color: #93c5fd; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
-      <span>🏗️ Dedicated Interactive Lab: Chiplet Tycoon</span>
+      <span>🏗️ Dedicated Interactive Lab: Chiplet CAD Optimizer</span>
     </div>
     <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 800px; line-height: 1.5;">
       Construct heterogeneous multi-die Superchips across passive/active silicon interposers with UCIe interfaces. Balance compute throughput, thermal dissipation, and Murphy wafer yield economics.
@@ -326,17 +326,17 @@ Advanced silicon interposers achieve a staggering **$4.88\times$** higher shorel
   </div>
   <div style="display: flex; gap: 10px; flex-wrap: wrap;">
     <a href="../../interactive/chiplet/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
-      <span>Launch Chiplet Tycoon →</span>
+      <span>Launch Chiplet CAD Optimizer →</span>
     </a>
   </div>
 </div>
 
-Complete the following three hands-on laboratory missions in **[Chiplet Tycoon](../../interactive/chiplet.md)**:
+Complete the following three hands-on laboratory missions in **[Chiplet CAD Optimizer](../../interactive/chiplet.md)**:
 
 ### Challenge Mission 9.1: Monolithic Reticle Limits vs. Murphy Wafer Yield Economics
 - **Objective:** Quantify the economic cost crossover between an 800 mm² monolithic reticle-limit die and a 4-chiplet partitioned architecture under Murphy's yield model [[Murphy1964](#ref-murphy1964), [Mack2007](#ref-mack2007)].
 - **Setup & Procedure:**
-  1. In **Chiplet Tycoon**, configure an 800 mm² monolithic die with defect density $D_0 = 0.08\text{ defects/cm}^2$. Record wafer yield ($Y \approx 22\%$) and scrap cost.
+  1. In **Chiplet CAD Optimizer**, configure an 800 mm² monolithic die with defect density $D_0 = 0.08\text{ defects/cm}^2$. Record wafer yield ($Y \approx 22\%$) and scrap cost.
   2. Partition the system into four $200\text{ mm}^2$ chiplets connected on an organic substrate ($Y_{pkg} \approx 96\%$).
   3. Compare per-good-die manufacturing cost including substrate packaging overhead.
 - **Architectural Observation:** Because die yield drops exponentially with area ($Y \approx ((1 - e^{-A D_0}) / (A D_0))^2$), the $800\text{ mm}^2$ monolithic design loses nearly $80\%$ of all fabricated wafers to defects. Partitioning into 4 smaller chiplets boosts per-die yield above $82\%$. Even with packaging integration costs, total good-die cost drops by $>48\%$, demonstrating why modern GPU superchips (NVIDIA Blackwell, AMD MI300) mandate chiplet disaggregation [[Chen2026](#ref-chen2026), [Zimmer2020](#ref-zimmer2020)].
@@ -345,7 +345,7 @@ Complete the following three hands-on laboratory missions in **[Chiplet Tycoon](
 ### Challenge Mission 9.2: UCIe Physical Layer & Die-to-Die Packaging Comparison
 - **Objective:** Compare shoreline bandwidth density and energy efficiency between standard organic packaging and advanced silicon interposers (UCIe-A) [[UCIe2023](#ref-ucie2023), [DasSharma2022](#ref-dassharma2022), [Mahajan2016](#ref-mahajan2016)].
 - **Setup & Procedure:**
-  1. In **Chiplet Tycoon**, select **Standard Organic Packaging** (bump pitch $110\,\mu\text{m}$, trace length $15.0\text{ mm}$).
+  1. In **Chiplet CAD Optimizer**, select **Standard Organic Packaging** (bump pitch $110\,\mu\text{m}$, trace length $15.0\text{ mm}$).
   2. Measure die-to-die flight delay ($100\text{ ps}$), energy per bit ($1.20\text{ pJ/bit}$), and shoreline bandwidth ($145.5\text{ Gbps/mm}$).
   3. Switch to **Advanced Silicon Interposer (UCIe-A)** (bump pitch $45\,\mu\text{m}$, trace length $1.8\text{ mm}$).
 - **Architectural Observation:** The advanced silicon interposer achieves $2.44\times$ tighter bump pitch and $8.3\times$ shorter physical wires. Shoreline bandwidth density surges by $4.88\times$ (to $711.1\text{ Gbps/mm}$), while energy per bit drops by $3.64\times$ down to $0.33\text{ pJ/bit}$, confirming that advanced packaging is critical to avoiding the memory/IO power wall in multi-die processors [[DasSharma2022](#ref-dassharma2022), [Vivet2021](#ref-vivet2021)].
@@ -353,7 +353,7 @@ Complete the following three hands-on laboratory missions in **[Chiplet Tycoon](
 ### Challenge Mission 9.3: Asymmetric Die-to-Die Bridge Routing & Deadlock Elimination
 - **Objective:** Prevent cyclic buffer lockups when routing flits across narrow inter-die bridge channels using the Inbound/Outbound Swap Protocol [[Wang2026Swap](#ref-wang2026swap), [Zhu2026ScaDA](#ref-zhu2026scada)].
 - **Setup & Procedure:**
-  1. In **Chiplet Tycoon**, inject heavy bi-directional cross-die traffic across a single narrow bridge link.
+  1. In **Chiplet CAD Optimizer**, inject heavy bi-directional cross-die traffic across a single narrow bridge link.
   2. Observe traffic serialization when outbound flits from Die 0 collide with inbound flits from Die 1.
   3. Enable the **In/Outbound Swap Escape Register** protocol.
 - **Architectural Observation:** Narrow die-to-die bridge links create severe bandwidth bottlenecks where bidirectional packet streams can form circular wait dependencies across die boundaries. The In/Outbound swap protocol detects sustained stalls ($>16$ cycles) and diverts blocked head flits into an auxiliary swap register, dynamically breaking the circular dependency and clearing the bridge traffic jam without dropping flits [[Wang2026Swap](#ref-wang2026swap), [Duato1993](#ref-duato1993)]!

@@ -617,8 +617,8 @@ function checkQuiz21_Q3(idx) {
 ## 9. Interactive Arcade & Lab Challenges
 
 Test your router pipeline mastery with interactive simulations:
-- 🧩 **[Packet Master: Flit Routing Puzzle](../interactive/puzzle.md):** Guide head and body flits through multi-stage router pipelines, resolving crossbar conflicts in real time.
-- 🎮 **[Deadlock Buster Arcade](../interactive/game.md):** Defend the router fabric against pipeline stalls and buffer deadlock knots.
+- 🧩 **[Turn-Model Optimizer: Flit Routing Puzzle](../interactive/puzzle.md):** Guide head and body flits through multi-stage router pipelines, resolving crossbar conflicts in real time.
+- 🎮 **[Deadlock Verification & CDG Escape Engine](../interactive/game.md):** Defend the router fabric against pipeline stalls and buffer deadlock knots.
 
 ---
 

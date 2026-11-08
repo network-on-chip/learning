@@ -520,23 +520,23 @@ Put deterministic routing and turn rules into practice with interactive challeng
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(37,99,235,0.15); color:#2563eb;">Puzzle Mission</span>
-      <div class="noc-track-title">🧩 Packet Master: Routing Puzzle</div>
+      <div class="noc-track-title">🧩 Turn-Model Optimizer: Routing Puzzle</div>
       <div class="noc-track-desc">
         Levels 1–3: Steer packet flits across a 2D mesh grid under deterministic Dimension-Order Routing (DOR), avoiding head-on collisions and turn violations.
       </div>
     </div>
-    <a href="../../interactive/puzzle/" class="noc-track-link">Play Packet Master →</a>
+    <a href="../../interactive/puzzle/" class="noc-track-link">Launch Turn-Model Optimizer →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">Arcade Defense</span>
-      <div class="noc-track-title">🕹️ Deadlock Buster Arcade</div>
+      <div class="noc-track-title">🔒 Deadlock Verification Engine</div>
       <div class="noc-track-desc">
         Defend an active NoC fabric against cyclic channel dependencies! Detect circular packet wait-for graphs in real time and trigger emergency flit drains.
       </div>
     </div>
-    <a href="../../interactive/game/" class="noc-track-link">Play Deadlock Buster →</a>
+    <a href="../../interactive/game/" class="noc-track-link">Launch Deadlock Verifier →</a>
   </div>
 </div>
 

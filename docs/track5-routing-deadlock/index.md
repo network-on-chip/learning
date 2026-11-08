@@ -89,7 +89,7 @@ graph TD
       <div class="noc-track-title">Fault-Tolerant Routing & Protocol Deadlocks</div>
       <div class="noc-track-desc">Handling link/router faults with Up*/Down* routing, and resolving request-reply protocol deadlocks.</div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Deadlock Buster Arcade Game
+        ⚡ <strong>Features:</strong> Deadlock Verification & CDG Escape Engine
       </div>
     </div>
     <a href="04-fault-tolerant-protocol-deadlock/" class="noc-track-link">Launch Lesson 5.4 →</a>

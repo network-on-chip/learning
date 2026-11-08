@@ -478,7 +478,7 @@ A major advance in low-power flow control is **Token Flow Control**, introduced 
 <div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.65)); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
   <div>
     <div style="font-weight: 700; color: #93c5fd; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
-      <span>💳 Dedicated Interactive Lab: Credit Commander &amp; Packet Master</span>
+      <span>💳 Dedicated Interactive Lab: Credit Flow Control CAD &amp; Turn-Model Optimizer</span>
     </div>
     <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 800px; line-height: 1.5;">
       Master high-speed link-level flow control, credit turnaround loops ($RTT$), buffer occupancy watermarks, and wormhole flit serialization.
@@ -486,20 +486,20 @@ A major advance in low-power flow control is **Token Flow Control**, introduced 
   </div>
   <div style="display: flex; gap: 10px; flex-wrap: wrap;">
     <a href="../../interactive/credits/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
-      <span>Launch Credit Commander →</span>
+      <span>Launch Credit Flow Control CAD →</span>
     </a>
     <a href="../../interactive/puzzle/" style="display: inline-flex; align-items: center; gap: 6px; background: #8b5cf6; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
-      <span>Packet Master Puzzle →</span>
+      <span>Turn-Model Routing Restrictions & Path Optimizer →</span>
     </a>
   </div>
 </div>
 
-Complete the following three hands-on laboratory missions in **[Credit Commander](../../interactive/credits.md)** and **[Packet Master](../../interactive/puzzle.md)**:
+Complete the following three hands-on laboratory missions in **[Credit Flow Control CAD](../../interactive/credits.md)** and **[Turn-Model Optimizer](../../interactive/puzzle.md)**:
 
 ### Challenge Mission 2.1: Credit Loop Round-Trip Latency ($RTT$) & Minimum Buffer Sizing
 - **Objective:** Verify Little's Law for on-chip flow control ($B_{min} \ge RTT \cdot \text{Throughput}$) and observe credit starvation bubbles.
 - **Setup & Procedure:**
-  1. In **Credit Commander**, select `Credit-Based (Instant Return / Zero Drops)`.
+  1. In **Credit Flow Control CAD**, select `Credit-Based (Instant Return / Zero Drops)`.
   2. With buffer depth set to $B = 8$ and round-trip flight delay $RTT = 6$ cycles ($2 \cdot t_{flight} + t_{proc}$), inject sustained burst traffic.
   3. Reduce buffer depth below $RTT$ ($B = 4$) and observe the transmitter credit counter $C$.
 - **Architectural Observation:** When $B \ge RTT$, the transmitter constantly receives credit tokens before its counter drains to 0, sustaining 100% link utilization. When $B < RTT$, the credit loop cannot refill in time: the transmitter stalls on credit exhaustion ($C = 0$), inserting pipeline starvation bubbles that throttle peak throughput by $(B / RTT) \approx 67\%$.
@@ -514,9 +514,9 @@ Complete the following three hands-on laboratory missions in **[Credit Commander
 - **Architectural Observation:** Batching credits by a factor of 3 cuts reverse signaling transitions on long wires by up to $66\%$, saving substantial dynamic energy ($\frac{1}{2} C_{wire} V_{dd}^2 f$). However, it increases credit jitter and burst vulnerability: upstream transmitters must wait longer for the batched threshold to be reached, increasing stall probability under sudden traffic spikes.
 
 ### Challenge Mission 2.3: Head-of-Line (HoL) Blocking Mitigation via Virtual Channels
-- **Objective:** In **Packet Master**, observe how a blocked packet in a single FIFO queue stalls unrelated downstream packets, and eliminate the stall using Virtual Channels (VCs).
+- **Objective:** In **Turn-Model Optimizer**, observe how a blocked packet in a single FIFO queue stalls unrelated downstream packets, and eliminate the stall using Virtual Channels (VCs).
 - **Setup & Procedure:**
-  1. Launch **Packet Master: Routing Puzzle** (Level 2).
+  1. Launch **Turn-Model Optimizer: Routing Puzzle** (Level 2).
   2. Route Packet A toward a congested East port and Packet B toward an idle North port sharing the same physical channel.
   3. Allocate separate Virtual Channels ($VC_0$ and $VC_1$) to decouple buffer queues.
 - **Architectural Observation:** Without Virtual Channels, Packet B is trapped behind Packet A (Head-of-Line blocking), wasting downstream router bandwidth. Allocating independent VC FIFO queues allows Packet B to arbitrate and traverse the North switch output while Packet A waits for downstream credits to free up.

@@ -597,29 +597,29 @@ endmodule
 
 ## 7. 🕹️ Interactive Lab & Arcade Arena
 
-Put the turn model and multi-path routing to the test in arcade challenges:
+Put the turn model and multi-path routing to the test in interactive CAD workbenches:
 
 <div class="noc-tracks-grid" style="margin-top:1rem;">
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(37,99,235,0.15); color:#2563eb;">Puzzle Mission</span>
-      <div class="noc-track-title">🧩 Packet Master: West-First Lab</div>
+      <div class="noc-track-title">🧩 Turn-Model Optimizer: West-First Lab</div>
       <div class="noc-track-desc">
         Levels 4–5: Navigate congested grid hotspots using the West-First turn model. Exploit Eastbound multi-path diversity while managing Westbound deterministic bottlenecks.
       </div>
     </div>
-    <a href="../../interactive/puzzle/" class="noc-track-link">Play Packet Master →</a>
+    <a href="../../interactive/puzzle/" class="noc-track-link">Launch Turn-Model Optimizer →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">Arcade Defense</span>
-      <div class="noc-track-title">🕹️ Deadlock Buster Arcade</div>
+      <div class="noc-track-title">🔒 Deadlock Verification Engine</div>
       <div class="noc-track-desc">
         Observe how missing turn restrictions spawn circular dependency cycles in real-time NoC traffic. Intervene with emergency buffer flushes!
       </div>
     </div>
-    <a href="../../interactive/game/" class="noc-track-link">Play Deadlock Buster →</a>
+    <a href="../../interactive/game/" class="noc-track-link">Launch Deadlock Verifier →</a>
   </div>
 </div>
 

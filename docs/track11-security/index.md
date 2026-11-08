@@ -53,7 +53,7 @@ graph TD
       <div class="noc-track-title">Security Threat Models in On-Chip Networks</div>
       <div class="noc-track-desc">Multi-tenant SoCs, untrusted third-party IPs, buffer-flooding DoS, and eavesdropping taxonomy.</div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Silicon Sentinel Defense Arcade
+        ⚡ <strong>Features:</strong> NoC Hardware Security CAD Defense Arcade
       </div>
     </div>
     <a href="01-security-threat-models/" class="noc-track-link">Launch Lesson 11.1 →</a>

@@ -32,7 +32,7 @@ This convergence introduces severe zero-trust hardware vulnerabilities. Rather t
 |                           PHYSICAL & HARDWARE IMPLEMENTATION                          |
 +---------------------------------------------------------------------------------------+
 |  Mathematical Model          Synthesizable SystemVerilog      Interactive Companion   |
-|  - d(Delta T)/dt + T/RC      - Multiplier-free EWMA           - Silicon Sentinel      |
+|  - d(Delta T)/dt + T/RC      - Multiplier-free EWMA           - NoC Hardware Security CAD      |
 |  - Capacity: I(X;Y) <= SNR   - 180 NAND2 Gate Overhead        - Anomaly Interception  |
 |  - Hamming Distance ~ 50%    - > 2.5 GHz on Nangate45         - Web Audio / Canvas    |
 +---------------------------------------------------------------------------------------+
@@ -253,7 +253,7 @@ Explore the interactive security simulator and game on the **NoC Learning Hub**:
 <div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(225, 29, 72, 0.2), rgba(15, 23, 42, 0.65)); border: 1px solid rgba(225, 29, 72, 0.4); border-radius: 12px; padding: 20px 24px; margin: 20px 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
   <div>
     <div style="font-weight: 700; color: #fda4af; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
-      <span>🎮 Silicon Sentinel Arcade Game</span>
+      <span>🎮 NoC Hardware Security CAD Game</span>
     </div>
     <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 700px; line-height: 1.5;">
       Intercept thermal Hardware Trojans, scramble timing covert channels with LFSR jitter, and authenticate chiplets with PUF nonces.
@@ -261,12 +261,12 @@ Explore the interactive security simulator and game on the **NoC Learning Hub**:
   </div>
   <div>
     <a href="../../track11-security/" style="display: inline-flex; align-items: center; gap: 6px; background: #e11d48; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
-      <span>Launch Silicon Sentinel →</span>
+      <span>Launch NoC Hardware Security CAD →</span>
     </a>
   </div>
 </div>
 
-- **[Silicon Sentinel: NoC Security & Threat Defense Arcade](../../track11-security/)**: Take command of the router defense grid! Intercept thermal Hardware Trojans, deploy random phase jitter to scramble timing covert channels, and fire PUF challenge nonces to neutralize malicious counterfeit chiplets. Features retro 8-bit Web Audio synthesizers, particle explosions, and local storage leaderboards.
+- **[NoC Hardware Security CAD: NoC Security & Threat Defense Arcade](../../track11-security/)**: Take command of the router defense grid! Intercept thermal Hardware Trojans, deploy random phase jitter to scramble timing covert channels, and fire PUF challenge nonces to neutralize malicious counterfeit chiplets. Features retro 8-bit Web Audio synthesizers, particle explosions, and local storage leaderboards.
 
 ---
 
@@ -275,7 +275,7 @@ Explore the interactive security simulator and game on the **NoC Learning Hub**:
 1. **Zero-Trust Interconnects**: Modern multi-tenant and multi-chiplet SoCs require hardware-level trust verification; software encryption cannot protect timing, packet headers, or thermal dissipation.
 2. **Hardware-Friendly WMA Math**: By constraining EWMA parameters to powers of two ($\alpha = 2^{-S}$), thermal anomaly detection is achieved using shift-and-add arithmetic without multipliers.
 3. **Intrinsic PUFs**: Interconnect wire delay variation provides an unclonable physical fingerprint for chiplet identity verification.
-4. **Interactive Laboratory**: Readers can experience these defense mechanisms live in the **Silicon Sentinel Arcade Game** ([../../track11-security/](../../track11-security/)).
+4. **Interactive Laboratory**: Readers can experience these defense mechanisms live in the **NoC Hardware Security CAD Game** ([../../track11-security/](../../track11-security/)).
 
 ---
 

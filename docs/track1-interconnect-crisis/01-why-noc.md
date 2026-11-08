@@ -615,7 +615,7 @@ function checkQuiz11_Q3(idx) {
 ## 8. Interactive Arcade & Lab Challenges
 
 Ready to test your interconnect design skills in interactive games?
-- 🎮 **[Topology Titans: Graph Architect](../interactive/topology.md):** Connect supercomputing topologies (Hypercube, Torus, Dragonfly) under pin degree and wire length budgets.
+- 🎮 **[Topology CAD Analyzer: Graph Architect](../interactive/topology.md):** Connect supercomputing topologies (Hypercube, Torus, Dragonfly) under pin degree and wire length budgets.
 - 🔬 **[2D Mesh Routing Visualizer](../interactive/visualizer.md):** Inject synthetic traffic and observe concurrent packet switching across point-to-point router links.
 
 ---

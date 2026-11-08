@@ -556,10 +556,10 @@ endmodule
 
 ## 8. 🕹️ Interactive Simulation & Arcade Linkages
 
-Deepen your practical understanding of multi-die packaging, interposer microbumps, and credit buffer turnaround through our interactive arcade games:
+Deepen your practical understanding of multi-die packaging, interposer microbumps, and credit buffer turnaround through our interactive engineering simulation workbenches:
 
-- 🎮 **[Chiplet Tycoon: Multi-Die Architect](../interactive/chiplet.md):** Balance microbump pitches, packaging substrate costs (CoWoS vs EMIB vs Organic), and Murphy yield curves to optimize cost-per-good-die.
-- 🎮 **[Credit Commander: Flow Control](../interactive/credits.md):** Manage multi-cycle D2D round-trip latency, deep credit buffer sizing, and prevent shoreline throughput collapse.
+- 🎮 **[Chiplet CAD Optimizer: Multi-Die Architect](../interactive/chiplet.md):** Balance microbump pitches, packaging substrate costs (CoWoS vs EMIB vs Organic), and Murphy yield curves to optimize cost-per-good-die.
+- 🎮 **[Credit Flow Control CAD: Flow Control](../interactive/credits.md):** Manage multi-cycle D2D round-trip latency, deep credit buffer sizing, and prevent shoreline throughput collapse.
 
 ---
 

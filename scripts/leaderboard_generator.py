@@ -86,11 +86,11 @@ def write_leaderboard_page(output_path: Path) -> None:
   <div class="noc-track-badge">✨ Community Hall of Fame · Automated Live Sync</div>
   <h1>Verified NoC Architects Leaderboard</h1>
   <p class="subtitle">
-    Automatic public rankings synchronized with GitHub Issues and real-time assessments across our 3-tier architecture assessment and Deadlock Buster arcade challenge. Authenticate any credential using our cryptographic certificate verification engine.
+    Verified reference baselines, physical static timing closures (Nangate45 45nm), and architectural benchmarks across our 17 synthesizable SystemVerilog designs and 18 interactive engineering CAD workbenches. Authenticate any credential using our cryptographic certificate verification engine.
   </p>
   <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
     <a href="../quiz/" class="noc-sim-btn" style="text-decoration:none;">🎯 Take Certification Exam</a>
-    <a href="../interactive/game/" class="noc-sim-btn" style="text-decoration:none; background:#ea580c;">👾 Play Deadlock Buster</a>
+    <a href="../interactive/game/" class="noc-sim-btn" style="text-decoration:none; background:#ea580c;">🔒 Deadlock Verification Engine</a>
   </div>
 </div>
 

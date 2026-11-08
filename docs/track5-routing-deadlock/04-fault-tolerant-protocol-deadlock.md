@@ -506,29 +506,29 @@ endmodule
 
 ## 8. 🕹️ Interactive Lab & Arcade Arena
 
-Put fault-tolerant routing and protocol isolation to the test in silicon arcade simulators:
+Put fault-tolerant routing and protocol isolation to the test in silicon CAD simulators:
 
 <div class="noc-tracks-grid" style="margin-top:1rem;">
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">Silicon Defense</span>
-      <div class="noc-track-title">🛡️ Fault Defender: Silicon Resilience</div>
+      <div class="noc-track-title">🛡️ Silicon Fault Tolerance CAD: Silicon Resilience</div>
       <div class="noc-track-desc">
         Survive electro-migration wire breaks and dead router tiles! Use BIST radar pulses to detect broken links and steer traffic around convex fault rings.
       </div>
     </div>
-    <a href="../../interactive/faults/" class="noc-track-link">Play Fault Defender →</a>
+    <a href="../../interactive/faults/" class="noc-track-link">Play Silicon Fault Tolerance CAD →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(37,99,235,0.15); color:#2563eb;">Traffic Arena</span>
-      <div class="noc-track-title">⚖️ QoS Gladiator: Traffic Arbiter</div>
+      <div class="noc-track-title">⚖️ Multi-VNET QoS Scheduler: Traffic Arbiter</div>
       <div class="noc-track-desc">
         Arbitrate multi-class VNET flows under strict priority, defending real-time cache responses against massive injection floods of background requests.
       </div>
     </div>
-    <a href="../../interactive/qos/" class="noc-track-link">Launch QoS Gladiator →</a>
+    <a href="../../interactive/qos/" class="noc-track-link">Launch Multi-VNET QoS Scheduler →</a>
   </div>
 </div>
 

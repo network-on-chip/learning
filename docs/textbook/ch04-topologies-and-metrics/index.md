@@ -364,7 +364,7 @@ The following table summarizes the graph-theoretic, microarchitectural, and phys
 <div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.65)); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
   <div>
     <div style="font-weight: 700; color: #93c5fd; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
-      <span>🌐 Dedicated Interactive Lab: Topology Titans: Graph Architect</span>
+      <span>🌐 Dedicated Interactive Lab: Topology CAD Analyzer: Graph Architect</span>
     </div>
     <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 800px; line-height: 1.5;">
       Construct and benchmark high-performance network graphs: 2D Mesh, 2D Torus, Hypercube, Dragonfly, and Flattened Butterfly under real-time synthetic traffic stress.
@@ -372,17 +372,17 @@ The following table summarizes the graph-theoretic, microarchitectural, and phys
   </div>
   <div style="display: flex; gap: 10px; flex-wrap: wrap;">
     <a href="../../interactive/topology/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
-      <span>Launch Topology Titans →</span>
+      <span>Launch Topology CAD Analyzer →</span>
     </a>
   </div>
 </div>
 
-Complete the following three hands-on laboratory missions in **[Topology Titans](../../interactive/topology.md)**:
+Complete the following three hands-on laboratory missions in **[Topology CAD Analyzer](../../interactive/topology.md)**:
 
 ### Challenge Mission 4.1: Topological Metric Trade-offs: Bisection Bandwidth vs Router Radix
 - **Objective:** Quantify the trade-offs between router degree $k_R$, network diameter $D$, and bisection bandwidth $\mathcal{B}_C$ across 64-node networks.
 - **Setup & Procedure:**
-  1. In **Topology Titans**, synthesize an $8 \times 8$ **2D Mesh**. Record diameter ($D = 14$), bisection channels ($B_C = 8$), and maximum router degree ($k = 4$).
+  1. In **Topology CAD Analyzer**, synthesize an $8 \times 8$ **2D Mesh**. Record diameter ($D = 14$), bisection channels ($B_C = 8$), and maximum router degree ($k = 4$).
   2. Switch topology to **2D Torus ($8 \times 8$)**. Observe that adding wrap-around links cuts diameter in half ($D = 8$) and doubles bisection bandwidth ($B_C = 16$).
   3. Synthesize a **6-Cube Hypercube** ($N = 64$).
 - **Architectural Observation:** The hypercube achieves a tiny diameter ($D = 6$) and massive bisection ($B_C = 32$), but requires router degree $k = 6$ with high wiring complexity. On 2D planar silicon, hypercube channels require complex wire crossings on upper metal layers, illustrating why planar 2D Torus and cMesh topologies are often preferred for monolithic silicon dies.
@@ -391,7 +391,7 @@ Complete the following three hands-on laboratory missions in **[Topology Titans]
 ### Challenge Mission 4.2: Adversarial Traffic Patterns & Center Bisection Bottlenecks
 - **Objective:** Compare saturation throughput of a 2D Mesh against a Dragonfly under non-uniform traffic workloads.
 - **Setup & Procedure:**
-  1. In **Topology Titans**, inject **Uniform Random Traffic** into the $8 \times 8$ Mesh. Observe smooth packet dispersal.
+  1. In **Topology CAD Analyzer**, inject **Uniform Random Traffic** into the $8 \times 8$ Mesh. Observe smooth packet dispersal.
   2. Switch traffic to **Bit-Complement Traffic** (node $(x,y)$ transmits exclusively to $(k-1-x, k-1-y)$).
   3. Compare queue occupancies at edge routers versus center routers $(3,3)$ and $(4,4)$.
 - **Architectural Observation:** Under Bit-Complement and Transpose traffic, all communication flows must cross the central bisection cut. Center routers in the 2D mesh suffer acute buffer overflow and saturate at $\le 25\%$ of peak capacity. Conversely, in the Dragonfly network with UGAL adaptive deflection, non-minimal global links dynamically distribute adversarial flows across intermediate groups, eliminating the bisection hotspot!

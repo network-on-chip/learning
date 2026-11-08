@@ -53,7 +53,7 @@ graph TD
       <div class="noc-track-title">2.5D Packaging Economics & Reticle Limits</div>
       <div class="noc-track-desc">Disaggregation economics, negative binomial yield models, CoWoS silicon interposers, and EMIB bridges.</div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Chiplet Tycoon Advanced Packaging
+        ⚡ <strong>Features:</strong> Chiplet CAD Optimizer Advanced Packaging
       </div>
     </div>
     <a href="01-25d-packaging-economics/" class="noc-track-link">Launch Lesson 9.1 →</a>

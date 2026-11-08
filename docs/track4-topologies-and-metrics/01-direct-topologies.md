@@ -696,12 +696,12 @@ Put your topological intuition to the test with hands-on silicon design challeng
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(37,99,235,0.15); color:#2563eb;">Arcade Mission</span>
-      <div class="noc-track-title">🌐 Topology Titans: Ring to Torus</div>
+      <div class="noc-track-title">🌐 Topology CAD Analyzer: Ring to Torus</div>
       <div class="noc-track-desc">
         Take a 16-node ring with diameter 8 hops and wire periodic shortcuts and wrap-around links to cut diameter to &le; 4 hops while keeping node radix bounded to 4 ports.
       </div>
     </div>
-    <a href="../../interactive/topology/" class="noc-track-link">Play Topology Titans →</a>
+    <a href="../../interactive/topology/" class="noc-track-link">Launch Topology CAD →</a>
   </div>
 
   <div class="noc-track-card">

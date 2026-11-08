@@ -564,10 +564,10 @@ endmodule
 
 ## 9. 🕹️ Interactive Simulation & Arcade Linkages
 
-Deepen your practical understanding of proactive thermal management and packet deflection through our interactive arcade games:
+Deepen your practical understanding of proactive thermal management and packet deflection through our interactive engineering simulation workbenches:
 
-- 🎮 **[Hotspot Hero: Silicon Thermal Defender](../interactive/hotspot.md):** Deploy proactive DVFS throttling and Cryo bursts before localized thermal runaway destroys the die.
-- 🎮 **[Deflection Duel: Bufferless NoC](../interactive/deflection.md):** Master hot-potato packet deflection around overheated switches without livelock.
+- 🎮 **[Silicon Thermal Solver: Silicon Thermal Defender](../interactive/hotspot.md):** Deploy proactive DVFS throttling and Cryo bursts before localized thermal runaway destroys the die.
+- 🎮 **[Bufferless Deflection Simulator: Bufferless NoC](../interactive/deflection.md):** Master hot-potato packet deflection around overheated switches without livelock.
 
 ---
 

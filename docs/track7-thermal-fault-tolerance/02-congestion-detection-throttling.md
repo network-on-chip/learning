@@ -610,10 +610,10 @@ endmodule
 
 ## 7. 🕹️ Interactive Simulation & Arcade Linkages
 
-Deepen your practical understanding of network congestion and credit flow control through our interactive arcade games:
+Deepen your practical understanding of network congestion and credit flow control through our interactive engineering simulation workbenches:
 
-- 🎮 **[Credit Commander: Flow Control](../interactive/credits.md):** Master credit-based buffer turnarounds, avoid credit starvation, and prevent saturation collapse.
-- 🎮 **[QoS Gladiator: Traffic Arbiter](../interactive/qos.md):** Throttle aggressive best-effort flows and maintain strict ASIL-D latency bounds across congested switches.
+- 🎮 **[Credit Flow Control CAD: Flow Control](../interactive/credits.md):** Master credit-based buffer turnarounds, avoid credit starvation, and prevent saturation collapse.
+- 🎮 **[Multi-VNET QoS Scheduler: Traffic Arbiter](../interactive/qos.md):** Throttle aggressive best-effort flows and maintain strict ASIL-D latency bounds across congested switches.
 
 ---
 

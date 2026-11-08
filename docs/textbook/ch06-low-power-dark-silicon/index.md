@@ -254,7 +254,7 @@ The following table evaluates the trade-offs of low-power interconnect methodolo
 <div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.65)); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
   <div>
     <div style="font-weight: 700; color: #93c5fd; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
-      <span>⚡ Dedicated Interactive Labs: Volt Vortex &amp; Deflection Duel</span>
+      <span>⚡ Dedicated Interactive Labs: Dark Silicon Power Gating CAD &amp; Bufferless Deflection Simulator</span>
     </div>
     <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 800px; line-height: 1.5;">
       Control multi-core Voltage-Frequency Islands (VFIs), optimize power-gating sleep states under strict Thermal Design Power (TDP) budgets, and eliminate buffer area with deflection routing.
@@ -262,20 +262,20 @@ The following table evaluates the trade-offs of low-power interconnect methodolo
   </div>
   <div style="display: flex; gap: 10px; flex-wrap: wrap;">
     <a href="../../interactive/power/" style="display: inline-flex; align-items: center; gap: 6px; background: #10b981; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
-      <span>Launch Volt Vortex →</span>
+      <span>Launch Power Gating CAD →</span>
     </a>
     <a href="../../interactive/deflection/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
-      <span>Play Deflection Duel →</span>
+      <span>Launch Deflection Simulator →</span>
     </a>
   </div>
 </div>
 
-Complete the following three hands-on laboratory missions in **[Volt Vortex](../../interactive/power.md)** and **[Deflection Duel](../../interactive/deflection.md)**:
+Complete the following three hands-on laboratory missions in **[Dark Silicon Power Gating CAD](../../interactive/power.md)** and **[Bufferless Deflection Simulator](../../interactive/deflection.md)**:
 
 ### Challenge Mission 6.1: Voltage-Frequency Island (VFI) Management Under TDP Budget
 - **Objective:** Allocate dynamic voltage and frequency levels across 4 independent chiplet voltage islands to maximize aggregate compute throughput while respecting a strict 120W TDP cap.
 - **Setup & Procedure:**
-  1. In **Volt Vortex**, observe the 16-core chip running under baseline 1.0V/2.0GHz.
+  1. In **Dark Silicon Power Gating CAD**, observe the 16-core chip running under baseline 1.0V/2.0GHz.
   2. Inject an asymmetric workload: Cores 0–3 execute heavy matrix multiplications while Cores 12–15 process sporadic sensor I/O.
   3. Lower the voltage/frequency of Island 3 to Low-Power state (0.7V/1.0GHz) and boost Island 0 to Turbo (1.15V/2.6GHz).
 - **Architectural Observation:** Because dynamic power scales quadratically with voltage ($P_{dyn} \propto V_{dd}^2 f$), throttling idle Island 3 saves $>60\%$ power on those 4 cores. This created "thermal headroom" allows Island 0 to run in Turbo mode without tripping the global Thermal Design Power (TDP) limit, boosting workload completion speed by 28%!
@@ -284,15 +284,15 @@ Complete the following three hands-on laboratory missions in **[Volt Vortex](../
 ### Challenge Mission 6.2: Sleep Transistor Power Gating & Break-Even Idle Time
 - **Objective:** Determine the break-even idle duration ($T_{break-even}$) where sleep transistor leakage energy savings exceed virtual power-rail recharge energy.
 - **Setup & Procedure:**
-  1. In **Volt Vortex**, select an idle router and assert `SLEEP` power gating.
+  1. In **Dark Silicon Power Gating CAD**, select an idle router and assert `SLEEP` power gating.
   2. Cycle the router between SLEEP and WAKEUP at short intervals ($<10$ cycles). Observe the net energy meter.
   3. Extend the sleep interval to $>40$ cycles before asserting Lookahead Wakeup.
 - **Architectural Observation:** Recharging the virtual power rail capacitance from 0V to $V_{dd}$ incurs an inrush energy penalty: $E_{wake} = C_{virtual} V_{dd}^2$. If the sleep duration is shorter than $T_{break-even} = E_{wake} / P_{leak}$, power gating consumes *more* energy than leaving the router idle! For durations $>T_{break-even}$, power gating eliminates $>85\%$ of static leakage.
 
 ### Challenge Mission 6.3: Bufferless Hot-Potato Deflection Routing (CHIPPER) vs VC Buffers
-- **Objective:** In **Deflection Duel**, compare router silicon area and dynamic link power between standard VC routers and bufferless deflection routers.
+- **Objective:** In **Bufferless Deflection Simulator**, compare router silicon area and dynamic link power between standard VC routers and bufferless deflection routers.
 - **Setup & Procedure:**
-  1. Launch **Deflection Duel: Bufferless NoC**.
+  1. Launch **Bufferless Deflection Simulator: Bufferless NoC**.
   2. Route packets under low injection rate ($\lambda = 0.1\text{ flits/cycle/node}$). Notice zero buffer read/write power and 60% router area reduction!
   3. Increase injection rate to high load ($\lambda = 0.45$).
 - **Architectural Observation:** At low injection rates, bufferless deflection routing completely eliminates input FIFO SRAM leakage and dynamic buffering energy. However, at high loads, output port contention forces packets to deflect away from minimal paths (hot-potato routing). Average hop count inflates from 3.2 to 7.8 hops, causing dynamic wire switching power ($P_{link} = \alpha C_{wire} V^2 f$) to surpass the saved buffer power, illustrating the classic bufferless load boundary!

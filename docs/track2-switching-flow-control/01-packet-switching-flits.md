@@ -725,9 +725,9 @@ function checkQuiz12_Q3(idx) {
 ## 9. Interactive Arcade & Lab Challenges
 
 Test your flit scheduling and switching expertise with interactive challenges:
-- 🎮 **[Packet Master: Flit Routing Puzzle](../interactive/puzzle.md):** Navigate flit trains through multi-hop mesh routers, avoiding buffer contention and pipeline deadlocks.
-- ⚔️ **[Deflection Duel: Bufferless Routing](../interactive/deflection.md):** Experience zero-buffer hot-potato deflection routing and discover when deflection collapses under load.
-- ⚖️ **[Arbiter Arena: Crossbar Scheduling](../interactive/arbiter.md):** Master matrix and round-robin arbitration to eliminate Head-of-Line stalls across crossbar ports.
+- 🎮 **[Turn-Model Optimizer: Flit Routing Puzzle](../interactive/puzzle.md):** Navigate flit trains through multi-hop mesh routers, avoiding buffer contention and pipeline deadlocks.
+- ⚔️ **[Bufferless Deflection Simulator: Bufferless Routing](../interactive/deflection.md):** Experience zero-buffer hot-potato deflection routing and discover when deflection collapses under load.
+- ⚖️ **[Arbiter Simulator: Crossbar Scheduling](../interactive/arbiter.md):** Master matrix and round-robin arbitration to eliminate Head-of-Line stalls across crossbar ports.
 
 ---
 

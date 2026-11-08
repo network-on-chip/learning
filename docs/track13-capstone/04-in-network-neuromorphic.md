@@ -451,10 +451,10 @@ endmodule
 
 ## 8. 🕹️ Interactive Simulation & Arcade Linkages
 
-Deepen your practical mastery of neuromorphic packet routing, SNN spike timing, and multicast trees with our interactive arcade games:
+Deepen your practical mastery of neuromorphic packet routing, SNN spike timing, and multicast trees with our interactive engineering simulation workbenches:
 
-- 🎮 **[Neuromorphic Nexus: SNN Spikes](../interactive/neuromorphic.md):** Route spiking neural events, manage LIF membrane potentials, and optimize AER multicast trees under real-time biologically plausible timing constraints.
-- 🎮 **[Packet Master: Routing Puzzle](../interactive/puzzle.md):** Solve multi-turn routing constraints and steer in-flight traffic through convergent network nodes to eliminate hot-potato deflections.
+- 🎮 **[Neuromorphic SNN Multicast Simulator: SNN Spikes](../interactive/neuromorphic.md):** Route spiking neural events, manage LIF membrane potentials, and optimize AER multicast trees under real-time biologically plausible timing constraints.
+- 🎮 **[Turn-Model Optimizer: Routing Puzzle](../interactive/puzzle.md):** Solve multi-turn routing constraints and steer in-flight traffic through convergent network nodes to eliminate hot-potato deflections.
 
 ---
 

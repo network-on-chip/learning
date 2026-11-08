@@ -463,23 +463,23 @@ Explore multi-stage and hierarchical networks in interactive simulations:
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(37,99,235,0.15); color:#2563eb;">Arcade Mission</span>
-      <div class="noc-track-title">🌐 Topology Titans: Fat-Tree Clos</div>
+      <div class="noc-track-title">🌐 Topology CAD Analyzer: Fat-Tree Clos</div>
       <div class="noc-track-desc">
         Construct a 2-tier Fat-Tree interconnect for 16 compute nodes, balancing spine switch radix against leaf aggregation bandwidth.
       </div>
     </div>
-    <a href="../../interactive/topology/" class="noc-track-link">Play Topology Titans →</a>
+    <a href="../../interactive/topology/" class="noc-track-link">Launch Topology CAD →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(234,88,12,0.15); color:#ea580c;">System Architect</span>
-      <div class="noc-track-title">🏗️ Chiplet Tycoon: Packaging Hub</div>
+      <div class="noc-track-title">🏗️ Chiplet CAD Optimizer: Packaging Hub</div>
       <div class="noc-track-desc">
         Architect multi-die chiplet interconnects using concentrated switches and silicon interposers to maximize multi-core yield.
       </div>
     </div>
-    <a href="../../interactive/chiplet/" class="noc-track-link">Launch Chiplet Tycoon →</a>
+    <a href="../../interactive/chiplet/" class="noc-track-link">Launch Chiplet CAD Optimizer →</a>
   </div>
 </div>
 

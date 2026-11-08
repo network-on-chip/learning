@@ -447,10 +447,10 @@ endmodule
 
 ## 8. 🕹️ Interactive Simulation & Arcade Linkages
 
-Deepen your practical mastery of multi-chiplet packaging, GRS signaling, and multicast network routing with our interactive arcade games:
+Deepen your practical mastery of multi-chiplet packaging, GRS signaling, and multicast network routing with our interactive engineering simulation workbenches:
 
-- 🎮 **[Chiplet Tycoon: Multi-Die Architect](../interactive/chiplet.md):** Architect 2.5D Multi-Chip-Modules, tune GRS/UCIe shoreline bandwidth, and optimize MCM packaging yields against the Murphy yield model.
-- 🎮 **[QoS Gladiator: Traffic Arbiter](../interactive/qos.md):** Manage multi-tenant DNN tensor flows, multicast distribution queues, and packet prioritization under stringent latency bounds.
+- 🎮 **[Chiplet CAD Optimizer: Multi-Die Architect](../interactive/chiplet.md):** Architect 2.5D Multi-Chip-Modules, tune GRS/UCIe shoreline bandwidth, and optimize MCM packaging yields against the Murphy yield model.
+- 🎮 **[Multi-VNET QoS Scheduler: Traffic Arbiter](../interactive/qos.md):** Manage multi-tenant DNN tensor flows, multicast distribution queues, and packet prioritization under stringent latency bounds.
 
 ---
 

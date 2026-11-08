@@ -53,7 +53,7 @@ graph TD
       <div class="noc-track-title">LLM Collective Communication Bottlenecks</div>
       <div class="noc-track-desc">All-Reduce, All-to-All, and Ring-Attention communication bounds in 100B+ parameter models.</div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Transformer Titan Accelerator Arcade
+        ⚡ <strong>Features:</strong> Distributed LLM Collective Accelerator Simulator Accelerator Arcade
       </div>
     </div>
     <a href="01-llm-collective-communication/" class="noc-track-link">Launch Lesson 12.1 →</a>
@@ -89,7 +89,7 @@ graph TD
       <div class="noc-track-title">Neuromorphic Event-Driven Spike Multicasting</div>
       <div class="noc-track-desc">Address-Event Representation (AER), event-driven multicast trees, and SNNcut hypergraph partitioning.</div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Neuromorphic Nexus Spike Router
+        ⚡ <strong>Features:</strong> Neuromorphic SNN Multicast Simulator Spike Router
       </div>
     </div>
     <a href="04-neuromorphic-snn-multicast/" class="noc-track-link">Launch Lesson 12.4 →</a>

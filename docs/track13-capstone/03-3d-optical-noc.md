@@ -501,10 +501,10 @@ endmodule
 
 ## 8. 🕹️ Interactive Simulation & Arcade Linkages
 
-Deepen your practical understanding of 3D optical interconnects, laser power budgets, and thermal detuning with our interactive arcade games:
+Deepen your practical understanding of 3D optical interconnects, laser power budgets, and thermal detuning with our interactive engineering simulation workbenches:
 
-- 🎮 **[Photon Pilot: Silicon Photonics](../interactive/optical.md):** Command laser wavelengths, align micro-ring resonators, and tune thermal micro-heaters in an interactive optical NoC simulator.
-- 🎮 **[Hotspot Hero: Silicon Thermal Defender](../interactive/hotspot.md):** Defend 3D vertical stacked silicon layers from thermal accumulation and thermo-optic detuning.
+- 🎮 **[Optical NoC CAD: Silicon Photonics](../interactive/optical.md):** Command laser wavelengths, align micro-ring resonators, and tune thermal micro-heaters in an interactive optical NoC simulator.
+- 🎮 **[Silicon Thermal Solver: Silicon Thermal Defender](../interactive/hotspot.md):** Defend 3D vertical stacked silicon layers from thermal accumulation and thermo-optic detuning.
 
 ---
 

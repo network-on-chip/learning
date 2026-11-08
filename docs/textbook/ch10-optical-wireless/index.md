@@ -55,7 +55,7 @@ Silicon nanophotonics replaces electrons moving through resistive copper with ph
 - **Section 10.8**: Interactive Lab & Hands-on Challenges.
 - **Section 10.9**: Summary & Cross-Disciplinary Synergies.
 - **Section 10.10**: Checkpoint Assessment & Certification Questions.
-- **Interactive Companion**: Explore the [`Photon Pilot Interactive Lab`](https://network-on-chip.github.io/learning/interactive/optical/) to tune laser power, route optical lightpaths, and lock micro-ring resonators dynamically.
+- **Interactive Companion**: Explore the [`Optical NoC CAD Interactive Lab`](https://network-on-chip.github.io/learning/interactive/optical/) to tune laser power, route optical lightpaths, and lock micro-ring resonators dynamically.
 
 ---
 
@@ -267,7 +267,7 @@ Eliminating waveguide crossings inside the switching elements reduces insertion 
 <div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.65)); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
   <div>
     <div style="font-weight: 700; color: #93c5fd; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
-      <span>💡 Dedicated Interactive Labs: Photon Pilot &amp; Wireless Wave</span>
+      <span>💡 Dedicated Interactive Labs: Optical NoC CAD &amp; On-Chip Wireless NoC Simulator</span>
     </div>
     <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 800px; line-height: 1.5;">
       Tune micro-ring resonator (MRR) thermal locking loops, balance WDM optical waveguide insertion loss, and broadcast single-cycle coherence barriers over 60/140 GHz on-chip wireless transceivers.
@@ -275,20 +275,20 @@ Eliminating waveguide crossings inside the switching elements reduces insertion 
   </div>
   <div style="display: flex; gap: 10px; flex-wrap: wrap;">
     <a href="../../interactive/optical/" style="display: inline-flex; align-items: center; gap: 6px; background: #db2777; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
-      <span>Launch Photon Pilot →</span>
+      <span>Launch Optical NoC CAD →</span>
     </a>
     <a href="../../interactive/wireless/" style="display: inline-flex; align-items: center; gap: 6px; background: #0284c7; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
-      <span>Launch Wireless Wave →</span>
+      <span>Launch On-Chip Wireless NoC Simulator →</span>
     </a>
   </div>
 </div>
 
-Complete the following three hands-on laboratory missions in **[Photon Pilot](../../interactive/optical.md)** and **[Wireless Wave](../../interactive/wireless.md)**:
+Complete the following three hands-on laboratory missions in **[Optical NoC CAD](../../interactive/optical.md)** and **[On-Chip Wireless NoC Simulator](../../interactive/wireless.md)**:
 
 ### Challenge Mission 10.1: Micro-Ring Resonator (MRR) Thermo-Optic Drift & Thermal Locking
 - **Objective:** Measure the resonance redshift induced by on-chip thermal gradients and stabilize the optical link using integrated microheaters [[Ye2013](#ref-ye2013), [Wang2021ACO](#ref-wang2021aco)].
 - **Setup & Procedure:**
-  1. In **Photon Pilot**, route an optical carrier wavelength ($\lambda = 1550.0\text{ nm}$) through an active MRR filter.
+  1. In **Optical NoC CAD**, route an optical carrier wavelength ($\lambda = 1550.0\text{ nm}$) through an active MRR filter.
   2. Increase local silicon temperature by $\Delta T = 15^\circ\text{C}$ to model a neighboring CPU hotspot.
   3. Observe optical signal attenuation as the ring detunes from the laser wavelength. Activate the **Microheater Thermal Lock** loop.
 - **Architectural Observation:** Silicon's large thermo-optic coefficient ($dn/dT \approx 1.86 \times 10^{-4}\text{ K}^{-1}$) shifts the resonant wavelength by $d\lambda / dT \approx 0.10\text{ nm/}^\circ\text{C}$. A $15^\circ\text{C}$ temperature surge shifts resonance by $1.5\text{ nm}$, completely extinguishing the optical channel ($>25\text{ dB}$ extinction loss). The integrated microheater adds localized thermal bias to restore resonance alignment, balancing signal integrity against multi-watt electrical tuning power.
@@ -297,15 +297,15 @@ Complete the following three hands-on laboratory missions in **[Photon Pilot](..
 ### Challenge Mission 10.2: Optical Insertion Loss & Laser Power Budgets (CSE vs. PSE)
 - **Objective:** Compare cumulative insertion loss and required continuous-wave (CW) laser optical power between Crossing Switching Elements (CSEs) and Parallel Switching Elements (PSEs) [[Kao2026](#ref-kao2026), [Vantrease2008](#ref-vantrease2008)].
 - **Setup & Procedure:**
-  1. In **Photon Pilot**, configure an $8 \times 8$ optical mesh utilizing traditional orthogonal CSE switching cells. Trace the worst-case optical lightpath.
+  1. In **Optical NoC CAD**, configure an $8 \times 8$ optical mesh utilizing traditional orthogonal CSE switching cells. Trace the worst-case optical lightpath.
   2. Record cumulative crossing losses ($0.12\text{ dB}$ per crossing) and total optical path loss ($>11.3\text{ dB}$).
   3. Switch switching cell architecture to **Parallel Switching Elements (PSE)**.
 - **Architectural Observation:** Traditional CSEs force light through internal orthogonal waveguide crossings, accumulating over 60 crossings along worst-case lightpaths. The PSE architecture couples light between parallel waveguides, eliminating $61\%$ of waveguide crossings and slashing worst-case path loss by $5.00\text{ dB}$. This $5\text{ dB}$ reduction cuts required laser wall-plug power by $3.0\times$ (from $1.37\text{ mW}$ to $0.43\text{ mW}$), preventing optical power budgets from overwhelming the chip.
 
 ### Challenge Mission 10.3: Hybrid Wireless Sub-THz Broadcast for Collective Synchronization
-- **Objective:** In **Wireless Wave**, bypass multi-hop wired routing hierarchies by broadcasting cache invalidations across 60 GHz / 140 GHz on-chip wireless antennas [[Deb2012](#ref-deb2012), [Abadal2018](#ref-abadal2018), [Taghvaee2022](#ref-taghvaee2022)].
+- **Objective:** In **On-Chip Wireless NoC Simulator**, bypass multi-hop wired routing hierarchies by broadcasting cache invalidations across 60 GHz / 140 GHz on-chip wireless antennas [[Deb2012](#ref-deb2012), [Abadal2018](#ref-abadal2018), [Taghvaee2022](#ref-taghvaee2022)].
 - **Setup & Procedure:**
-  1. Launch **Wireless Wave: mmWave & THz Swarm NoC**.
+  1. Launch **On-Chip Wireless NoC Simulator: mmWave & THz Swarm NoC**.
   2. Trigger a 64-core global barrier synchronization over conventional wired 2D mesh links. Record synchronization latency ($>45$ cycles).
   3. Activate the **Hybrid mmWave RF Transceiver Array** and broadcast the barrier token.
 - **Architectural Observation:** In large tiled multi-core systems, global collectives (all-reduce, broadcast, barrier synchronization) incur severe latency when routed multi-hop through wire channels ($O(\sqrt{N})$ hop latency and router serialization). Hybrid wireless transceivers radiate electromagnetic waves through the silicon/dielectric stack at near speed-of-light, completing chip-wide broadcast synchronization in a single clock cycle ($1\text{ cycle}$ vs $45\text{ cycles}$)!

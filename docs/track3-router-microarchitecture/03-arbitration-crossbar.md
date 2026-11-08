@@ -695,8 +695,8 @@ function checkQuiz23_Q3(idx) {
 ## 8. Interactive Arcade & Lab Challenges
 
 Test your crossbar scheduling and arbitration reflexes:
-- ⚔️ **[Arbiter Arena: Crossbar Clash](../interactive/arbiter.md):** Test matrix arbitration and iSLIP scheduling under high injection rates and adversarial burst traffic.
-- 🏭 **[Chiplet Tycoon: Multi-Die Architect](../interactive/chiplet.md):** Route crossbar links across high-density packaging substrates and UCIe D2D interfaces.
+- ⚔️ **[Arbiter Simulator: Crossbar Clash](../interactive/arbiter.md):** Test matrix arbitration and iSLIP scheduling under high injection rates and adversarial burst traffic.
+- 🏭 **[Chiplet CAD Optimizer: Multi-Die Architect](../interactive/chiplet.md):** Route crossbar links across high-density packaging substrates and UCIe D2D interfaces.
 
 ---
 

@@ -591,23 +591,23 @@ Test your high-radix interconnect intuition in exascale architectural challenges
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(37,99,235,0.15); color:#2563eb;">Arcade Mission</span>
-      <div class="noc-track-title">🌐 Topology Titans: Dragonfly Grouping</div>
+      <div class="noc-track-title">🌐 Topology CAD Analyzer: Dragonfly Grouping</div>
       <div class="noc-track-desc">
         Mission 3: Wire a 16-node Dragonfly network organized into 4 hierarchical groups. Maximize bisection bandwidth while minimizing expensive optical inter-group links.
       </div>
     </div>
-    <a href="../../interactive/topology/" class="noc-track-link">Play Topology Titans →</a>
+    <a href="../../interactive/topology/" class="noc-track-link">Launch Topology CAD →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(147,51,234,0.15); color:#9333ea;">Silicon Arena</span>
-      <div class="noc-track-title">⚔️ Arbiter Arena: High-Radix Clash</div>
+      <div class="noc-track-title">⚔️ Arbiter Simulator: High-Radix Clash</div>
       <div class="noc-track-desc">
         Experience the timing bottlenecks of 64-port switch allocation, comparing separable matrix arbiters against iterative iSLIP matching.
       </div>
     </div>
-    <a href="../../interactive/arbiter/" class="noc-track-link">Launch Arbiter Arena →</a>
+    <a href="../../interactive/arbiter/" class="noc-track-link">Launch Arbiter Simulator →</a>
   </div>
 </div>
 

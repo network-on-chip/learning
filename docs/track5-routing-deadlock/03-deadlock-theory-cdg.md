@@ -589,23 +589,23 @@ Experience deadlock formation and escape channel flushing in interactive simulat
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">Arcade Defense</span>
-      <div class="noc-track-title">🕹️ Deadlock Buster Arcade</div>
+      <div class="noc-track-title">🔒 Deadlock Verification Engine</div>
       <div class="noc-track-desc">
         Watch circular wait dependencies freeze multi-tile buffers in real time. Deploy Duato escape channels to break cyclic queues and restore maximum line-rate throughput!
       </div>
     </div>
-    <a href="../../interactive/game/" class="noc-track-link">Play Deadlock Buster →</a>
+    <a href="../../interactive/game/" class="noc-track-link">Launch Deadlock Verifier →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(147,51,234,0.15); color:#9333ea;">Silicon Arena</span>
-      <div class="noc-track-title">⚔️ Arbiter Arena: VC Clash</div>
+      <div class="noc-track-title">⚔️ Arbiter Simulator: VC Clash</div>
       <div class="noc-track-desc">
         Experience Virtual Channel allocation under heavy adaptive traffic, arbitrating between escape channels and high-throughput speculative crossbar paths.
       </div>
     </div>
-    <a href="../../interactive/arbiter/" class="noc-track-link">Launch Arbiter Arena →</a>
+    <a href="../../interactive/arbiter/" class="noc-track-link">Launch Arbiter Simulator →</a>
   </div>
 </div>
 

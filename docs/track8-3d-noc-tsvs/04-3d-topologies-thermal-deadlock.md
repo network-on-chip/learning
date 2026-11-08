@@ -654,10 +654,10 @@ endmodule
 
 ## 7. 🕹️ Interactive Simulation & Arcade Linkages
 
-Deepen your practical understanding of 3D thermal stacking and deadlock avoidance through our interactive arcade games:
+Deepen your practical understanding of 3D thermal stacking and deadlock avoidance through our interactive engineering simulation workbenches:
 
-- 🎮 **[Hotspot Hero: Silicon Thermal Defender](../interactive/hotspot.md):** Defend 3D vertically stacked silicon tiers from severe thermal accumulation and adhesive layer degradation.
-- 🎮 **[Deadlock Buster Arcade](../interactive/game.md):** Prove 3D Channel Dependency Graph cycle prevention under Dimension-Order Routing and bust deadlock spirals in real time.
+- 🎮 **[Silicon Thermal Solver: Silicon Thermal Defender](../interactive/hotspot.md):** Defend 3D vertically stacked silicon tiers from severe thermal accumulation and adhesive layer degradation.
+- 🎮 **[Deadlock Verification & CDG Escape Engine](../interactive/game.md):** Prove 3D Channel Dependency Graph cycle prevention under Dimension-Order Routing and bust deadlock spirals in real time.
 
 ---
 

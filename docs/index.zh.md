@@ -11,7 +11,7 @@
     <a href="interactive/terminal/" class="noc-sim-btn" style="text-decoration: none; background: #059669;">💻 网页 EDA 终端</a>
     <a href="track1-interconnect-crisis/" class="noc-sim-btn secondary" style="text-decoration: none;">🚀 开始系统学习</a>
     <a href="quiz/" class="noc-sim-btn secondary" style="text-decoration: none;">🎯 架构认证考核</a>
-    <a href="interactive/game/" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">👾 死锁大作战</a>
+    <a href="interactive/game/" class="noc-sim-btn" style="text-decoration: none; background: #ea580c;">🔒 死锁验证引擎</a>
     <a href="interactive/visualizer/" class="noc-sim-btn secondary" style="text-decoration: none;">🎮 二维网格仿真器</a>
     <a href="leaderboard/" class="noc-sim-btn secondary" style="text-decoration: none;">🏆 荣誉排行榜</a>
   </div>
@@ -28,7 +28,7 @@
   </div>
   <div class="noc-stat-card">
     <span class="noc-stat-number">20</span>
-    <span class="noc-stat-label">交互式实验与游戏</span>
+    <span class="noc-stat-label">交互式实验与工程CAD仿真</span>
   </div>
   <div class="noc-stat-card">
     <span class="noc-stat-number">100%</span>
@@ -266,7 +266,7 @@
         确定性 XY 路由、转向模型（西向优先、北向最后、奇偶路由）、杜阿托（Duato）逃逸信道定理、信道依赖图（CDG）证明与缓存一致性 VNET 隔离。
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 节深度课时 • SMT CDG 形式化验证器 • 死锁大作战街机
+        ⚡ 4 节深度课时 • SMT CDG 形式化验证器 • 死锁验证与 CDG 逃逸引擎
       </div>
     </div>
     <a href="track5-routing-deadlock/" class="noc-track-link">进入模块五 →</a>
@@ -350,7 +350,7 @@
         片上威胁模型：窃听、欺骗与拒绝服务（DoS）。时间、缓存与物理热隐蔽信道。HeatSense 无乘法器 EWMA 热木马实时检测与硬件隔离区技术。
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 节深度课时 • HeatSense EWMA Verilog • 硅基哨兵街机
+        ⚡ 4 节深度课时 • HeatSense EWMA Verilog • 硬件安全与威胁防御 CAD
       </div>
     </div>
     <a href="track11-security/" class="noc-track-link">进入模块十一 →</a>
@@ -364,7 +364,7 @@
         大语言模型集合通信（AllReduce, AllGather）通信模式。网内归约路由器、超密晶圆级（Wafer-Scale）Ruche 织网与类脑脉冲（SNN）多播网络。
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 节深度课时 • 网内归约 SystemVerilog • 变形泰坦加速实验室
+        ⚡ 4 节深度课时 • 网内归约 SystemVerilog • 大模型集体通信加速仿真器
       </div>
     </div>
     <a href="track12-ai-llm-snn/" class="noc-track-link">进入模块十二 →</a>
@@ -386,90 +386,90 @@
 
   <div class="noc-track-card">
     <div>
-      <span class="noc-track-badge" style="background:rgba(234, 88, 12, 0.1); color:#ea580c; border-color:rgba(234, 88, 12, 0.2);">街机游戏</span>
-      <div class="noc-track-title">死锁大作战挑战</div>
+      <span class="noc-track-badge" style="background:rgba(234, 88, 12, 0.1); color:#ea580c; border-color:rgba(234, 88, 12, 0.2);">死锁形式化验证</span>
+      <div class="noc-track-title">死锁验证与 CDG 逃逸虚通道转换引擎</div>
       <div class="noc-track-desc">
-        在高并发流量潮汐下担任芯片路由器仲裁者！基于杜阿托定理（Duato's Theorem）激活逃逸虚通道，在时钟冻结与过热熔毁前化解环形死锁！
+        构建通道依赖图（CDG）并运行 Tarjan 强连通分量（SCC）循环死锁探测算法，验证 Dally &amp; Seitz 无环定理与 Duato 自适应逃逸虚通道恢复机制。
       </div>
     </div>
-    <a href="interactive/game/" class="noc-track-link">进入死锁大作战 →</a>
+    <a href="interactive/game/" class="noc-track-link">启动死锁验证引擎 →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
-      <span class="noc-track-badge" style="background:rgba(139, 92, 246, 0.1); color:#8b5cf6; border-color:rgba(139, 92, 246, 0.2);">架构解密</span>
-      <div class="noc-track-title">数据包路由解密挑战</div>
+      <span class="noc-track-badge" style="background:rgba(139, 92, 246, 0.1); color:#8b5cf6; border-color:rgba(139, 92, 246, 0.2);">转向模型优化</span>
+      <div class="noc-track-title">转向模型限制与无死锁路径优化 CAD</div>
       <div class="noc-track-desc">
-        配置路由器转向偏好、规避介质击穿故障节点、化解交叉开关端口竞争，在限定周期内引导多色彩数据微元无碰撞送达！
+        深入探索 Glass &amp; Ni 转向模型（西向先行、北向后行、负向先行）及邱氏（Chiu）奇偶空间变化转向模型，求解合法路由锥体并绕行硅片缺陷。
       </div>
     </div>
-    <a href="interactive/puzzle/" class="noc-track-link">进入路由解密挑战 →</a>
+    <a href="interactive/puzzle/" class="noc-track-link">启动转向模型优化器 →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
-      <span class="noc-track-badge" style="background:rgba(239, 68, 68, 0.1); color:#ef4444; border-color:rgba(239, 68, 68, 0.2);">热管理街机</span>
-      <div class="noc-track-title">硅温保卫战挑战</div>
+      <span class="noc-track-badge" style="background:rgba(239, 68, 68, 0.1); color:#ef4444; border-color:rgba(239, 68, 68, 0.2);">热力物理求解</span>
+      <div class="noc-track-title">硅片热传导与动态热管理（DTM）有限差分求解器</div>
       <div class="noc-track-desc">
-        控制动态电压频率调节（DVFS）、迁移沸腾算力负载、释放微流控低温脉冲，在热失控熔毁前守住硅片安全温区！
+        实时求解二维傅里叶瞬态热扩散方程及亚阈值漏电正反馈热失控，部署闭环 PI-DVFS 调频与 TAAR 热感知自适应路由。
       </div>
     </div>
-    <a href="interactive/hotspot/" class="noc-track-link">进入硅温保卫战 →</a>
+    <a href="interactive/hotspot/" class="noc-track-link">启动热分析求解器 →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
-      <span class="noc-track-badge" style="background:rgba(16, 185, 129, 0.1); color:#10b981; border-color:rgba(16, 185, 129, 0.2);">封装大亨</span>
-      <div class="noc-track-title">芯粒先进封装设计挑战</div>
+      <span class="noc-track-badge" style="background:rgba(16, 185, 129, 0.1); color:#10b981; border-color:rgba(16, 185, 129, 0.2);">先进封装架构</span>
+      <div class="noc-track-title">2.5D/3D 多芯粒先进封装 CAD 与良率优化器</div>
       <div class="noc-track-desc">
-        基于 UCIe 与 3D TSV 在硅中介层上组装异构多芯粒超算芯片，权衡对分带宽、互连延迟、良率经济学与封装总成本！
+        基于 Murphy 缺陷模型量化芯粒拆分良率优势，评估 UCIe D2D 物理延迟与岸线带宽密度，求解有源/无源中介层多芯片热耦合。
       </div>
     </div>
-    <a href="interactive/chiplet/" class="noc-track-link">进入芯粒封装挑战 →</a>
+    <a href="interactive/chiplet/" class="noc-track-link">启动芯粒优化器 →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
-      <span class="noc-track-badge" style="background:rgba(234, 88, 12, 0.1); color:#ea580c; border-color:rgba(234, 88, 12, 0.2);">微架构竞技</span>
-      <div class="noc-track-title">仲裁竞技场：交叉开关挑战</div>
+      <span class="noc-track-badge" style="background:rgba(234, 88, 12, 0.1); color:#ea580c; border-color:rgba(234, 88, 12, 0.2);">微架构仿真</span>
+      <div class="noc-track-title">开关分配与交叉开关仲裁微架构仿真器</div>
       <div class="noc-track-desc">
-        在时钟周期级别实时仲裁 5×5 交叉开关！利用虚通道（VC）化解队头阻塞（HOL Blocking），部署 iSLIP 调度抵御队列溢出！
+        在时钟周期级别实时仲裁 5x5 交叉开关！对比严格优先级、轮询、矩阵仲裁器及 McKeown iSLIP 迭代匹配算法，验证 Karol 58.6% HOL 队头阻塞极限。
       </div>
     </div>
-    <a href="interactive/arbiter/" class="noc-track-link">进入仲裁竞技场 →</a>
+    <a href="interactive/arbiter/" class="noc-track-link">启动仲裁仿真器 →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
-      <span class="noc-track-badge" style="background:rgba(59, 130, 246, 0.1); color:#3b82f6; border-color:rgba(59, 130, 246, 0.2);">图拓扑架构</span>
-      <div class="noc-track-title">拓扑巨人：超算图架构师</div>
+      <span class="noc-track-badge" style="background:rgba(59, 130, 246, 0.1); color:#3b82f6; border-color:rgba(59, 130, 246, 0.2);">图论拓扑分析</span>
+      <div class="noc-track-title">互连拓扑 CAD 与谱图分析器</div>
       <div class="noc-track-desc">
-        亲手连线超算互连网络（超立方体、环形、蜻蜓 Dragonfly、胖树 Fat-Tree）！在引脚度数与线缆成本约束下压减网络直径与延迟！
+        计算图拉普拉斯矩阵特征值谱，求解 Fiedler 向量代数连通度（lambda_2）、精确对分带宽与网络直径，支持 2D Torus、超立方体与 Dragonfly。
       </div>
     </div>
-    <a href="interactive/topology/" class="noc-track-link">进入拓扑巨人挑战 →</a>
+    <a href="interactive/topology/" class="noc-track-link">启动拓扑 CAD →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
-      <span class="noc-track-badge" style="background:rgba(236, 72, 153, 0.1); color:#ec4899; border-color:rgba(236, 72, 153, 0.2);">硅基光子学</span>
-      <div class="noc-track-title">光子领航员：光互连网络</div>
+      <span class="noc-track-badge" style="background:rgba(236, 72, 153, 0.1); color:#ec4899; border-color:rgba(236, 72, 153, 0.2);">纳米光子学</span>
+      <div class="noc-track-title">硅基光电与光片上网络（ONoC）波导 CAD</div>
       <div class="noc-track-desc">
-        在硅基光波导上调度多波长激光（WDM）！热调谐微环谐振腔（MRR），动态补偿热漂移，以光速完成低损耗全光交叉路由！
+        建立微环谐振腔（MRR）洛伦兹共振光谱模型，量化热光波长漂移与微加热器闭环补偿，分析级联插入损耗与误码率（BER）。
       </div>
     </div>
-    <a href="interactive/optical/" class="noc-track-link">进入光子领航员 →</a>
+    <a href="interactive/optical/" class="noc-track-link">启动光网络 CAD →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
-      <span class="noc-track-badge" style="background:rgba(16, 185, 129, 0.1); color:#10b981; border-color:rgba(16, 185, 129, 0.2);">流控与反压</span>
-      <div class="noc-track-title">信用指挥官：流控防御</div>
+      <span class="noc-track-badge" style="background:rgba(16, 185, 129, 0.1); color:#10b981; border-color:rgba(16, 185, 129, 0.2);">流控理论</span>
+      <div class="noc-track-title">基于信用的流控与缓存尺寸规划 CAD</div>
       <div class="noc-track-desc">
-        驾驭飞行延迟（RTT）环境下的信用机制（Credit-Based Flow Control）！精细调优信用批量回传与阈值反压，捍卫零丢包传输！
+        精确仿真信用闭环往返延迟（B_min = ceil(RTT * BW)），渲染时空阶梯图，消除信用耗尽气泡，优化全线速吞吐。
       </div>
     </div>
-    <a href="interactive/credits/" class="noc-track-link">进入信用指挥官 →</a>
+    <a href="interactive/credits/" class="noc-track-link">启动信用流控 CAD →</a>
   </div>
 
   <div class="noc-track-card">

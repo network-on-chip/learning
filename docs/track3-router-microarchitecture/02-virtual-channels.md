@@ -743,8 +743,8 @@ function checkQuiz22_Q3(idx) {
 ## 10. Interactive Arcade & Lab Challenges
 
 Test your Virtual Channel and protocol scheduling skills:
-- ⚔️ **[Arbiter Arena: Crossbar Clash](../interactive/arbiter.md):** Master virtual channel arbitration and input-output matching across competing flit queues.
-- 🛡️ **[QoS Gladiator: Traffic Arbiter](../interactive/qos.md):** Prioritize virtual channels for real-time traffic and isolate cache coherence protocol classes into dedicated VNETs.
+- ⚔️ **[Arbiter Simulator: Crossbar Clash](../interactive/arbiter.md):** Master virtual channel arbitration and input-output matching across competing flit queues.
+- 🛡️ **[Multi-VNET QoS Scheduler: Traffic Arbiter](../interactive/qos.md):** Prioritize virtual channels for real-time traffic and isolate cache coherence protocol classes into dedicated VNETs.
 
 ---
 

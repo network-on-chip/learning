@@ -414,7 +414,7 @@ The experimental data confirms that proactive thermal throttling quenches locali
 <div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.65)); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
   <div>
     <div style="font-weight: 700; color: #93c5fd; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
-      <span>🔥 Dedicated Interactive Labs: Hotspot Hero &amp; Fault Defender</span>
+      <span>🔥 Dedicated Interactive Labs: Silicon Thermal Solver &amp; Silicon Fault Tolerance CAD</span>
     </div>
     <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 800px; line-height: 1.5;">
       Model transient RC heat diffusion ($C_{th} \frac{dT}{dt} + \frac{T - T_{amb}}{R_{th}} = P$), deploy DVFS and cryo cooling, and reroute packets around permanent silicon defects.
@@ -422,20 +422,20 @@ The experimental data confirms that proactive thermal throttling quenches locali
   </div>
   <div style="display: flex; gap: 10px; flex-wrap: wrap;">
     <a href="../../interactive/hotspot/" style="display: inline-flex; align-items: center; gap: 6px; background: #ef4444; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
-      <span>Launch Hotspot Hero →</span>
+      <span>Launch Silicon Thermal Solver →</span>
     </a>
     <a href="../../interactive/faults/" style="display: inline-flex; align-items: center; gap: 6px; background: #f59e0b; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
-      <span>Launch Fault Defender →</span>
+      <span>Launch Silicon Fault Tolerance CAD →</span>
     </a>
   </div>
 </div>
 
-Complete the following three hands-on laboratory missions in **[Hotspot Hero](../../interactive/hotspot.md)** and **[Fault Defender](../../interactive/faults.md)**:
+Complete the following three hands-on laboratory missions in **[Silicon Thermal Solver](../../interactive/hotspot.md)** and **[Silicon Fault Tolerance CAD](../../interactive/faults.md)**:
 
 ### Challenge Mission 7.1: Transient RC Thermal Diffusion & Runaway Threshold ($T_{max} \le 85^\circ\text{C}$)
 - **Objective:** Model the exponential relationship between junction temperature and subthreshold leakage, and prevent thermal runaway under sustained compute bursts.
 - **Setup & Procedure:**
-  1. In **Hotspot Hero**, configure Core $(2,2)$ to execute sustained high-power compute bursts ($P_{dyn} = 22\text{ W}$).
+  1. In **Silicon Thermal Solver**, configure Core $(2,2)$ to execute sustained high-power compute bursts ($P_{dyn} = 22\text{ W}$).
   2. Observe the temperature trajectory climbing past $75^\circ\text{C} \to 85^\circ\text{C} \to 95^\circ\text{C}$.
   3. Deploy **DVFS Throttling** (throttle core to 0.65V/1.2GHz) before junction temperature reaches $105^\circ\text{C}$.
 - **Architectural Observation:** Above $85^\circ\text{C}$, subthreshold leakage current surges exponentially ($I_{leak} \propto T^2 e^{-qV_{th}/k_B T}$). At $105^\circ\text{C}$, leakage power surpasses heat removal capacity, triggering irreversible thermal runaway and dielectric gate breakdown. Throttling voltage to 0.65V drops dynamic power by $(0.65/1.0)^2 \approx 58\%$, arresting the thermal cascade.
@@ -450,9 +450,9 @@ Complete the following three hands-on laboratory missions in **[Hotspot Hero](..
 - **Architectural Observation:** In shortest path routing, packets continue traversing the hot central router, dissipating dynamic switching power ($P_{switch} = \alpha C V_{dd}^2 f$) in its crossbars and buffers. Thermal-aware deflection dynamically routes flits around the hot perimeter. Although average hop count increases by $1.2$ hops, the hot core cools by $>12^\circ\text{C}$, eliminating the hotspot without requiring core shutdown.
 
 ### Challenge Mission 7.3: Permanent Fault Recovery with Vicman Bypass Channels
-- **Objective:** In **Fault Defender**, simulate electromigration-induced permanent link severance and verify fault recovery without system deadlocks.
+- **Objective:** In **Silicon Fault Tolerance CAD**, simulate electromigration-induced permanent link severance and verify fault recovery without system deadlocks.
 - **Setup & Procedure:**
-  1. Launch **Fault Defender: Silicon Resilience**.
+  1. Launch **Silicon Fault Tolerance CAD: Silicon Resilience**.
   2. Trigger permanent fault injection on the North link of router $(2,1)$ and the East link of $(1,2)$.
   3. Activate Built-In Self-Test (BIST) radar scan and engage Vicman bypass channels.
 - **Architectural Observation:** Permanent link failure breaks standard Dimension-Order Routing (DOR), causing dropped packets or deadlock cycles. The BIST engine isolates damaged channels and programs boundary routers into a convex fault block. Packet flits are routed around the fault block using dedicated bypass channels, restoring 100% packet delivery without cyclic buffer deadlock.

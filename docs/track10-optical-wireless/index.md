@@ -53,7 +53,7 @@ graph TD
       <div class="noc-track-title">Silicon Nanophotonics & Microring Resonators</div>
       <div class="noc-track-desc">Waveguides, microring resonators (MRRs), electro-optic modulation, and zero-capacitance light flight.</div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Photon Pilot Optical Grid
+        ⚡ <strong>Features:</strong> Silicon Photonic & Optical NoC (ONoC) Waveguide CAD
       </div>
     </div>
     <a href="01-silicon-nanophotonics-mrrs/" class="noc-track-link">Launch Lesson 10.1 →</a>
@@ -89,7 +89,7 @@ graph TD
       <div class="noc-track-title">On-Chip Wireless NoC (WiNoC) Frontiers</div>
       <div class="noc-track-desc">Millimeter-wave and terahertz on-chip antennas, zig-zag transceivers, and small-world global shortcuts.</div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Wireless Wave mmWave Explorer
+        ⚡ <strong>Features:</strong> On-Chip Wireless NoC Simulator mmWave Explorer
       </div>
     </div>
     <a href="04-wireless-noc-frontiers/" class="noc-track-link">Launch Lesson 10.4 →</a>

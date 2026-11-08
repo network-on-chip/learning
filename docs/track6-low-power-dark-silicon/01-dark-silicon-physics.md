@@ -34,9 +34,9 @@ graph TD
 
 ## 2. Interactive Power Management Laboratory
 
-Experience dynamic power allocation live in our web arcade:
+Experience dynamic power allocation live in our interactive CAD laboratory:
 
-👉 **[Launch Volt Vortex: Dark Silicon Power Defense](../../interactive/power/)** — Balance energy consumption across dark silicon islands under bursty workloads.
+👉 **[Launch Dark Silicon Power Gating CAD: Dark Silicon Power Defense](../../interactive/power/)** — Balance energy consumption across dark silicon islands under bursty workloads.
 
 ---
 

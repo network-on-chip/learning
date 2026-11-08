@@ -665,10 +665,10 @@ endmodule
 
 ## 9. 🕹️ Interactive Simulation & Arcade Linkages
 
-Deepen your practical understanding of silicon thermal dynamics by exploring our interactive arcade games:
+Deepen your practical understanding of silicon thermal dynamics by exploring our interactive engineering simulation workbenches:
 
-- 🎮 **[Hotspot Hero: Silicon Thermal Defender](../interactive/hotspot.md):** Battle 2D RC thermal conduction hotspots and balance cooling budgets under intense multi-core computational loads.
-- 🎮 **[Volt Vortex: Dark Silicon Power](../interactive/power.md):** Master TDP budgets, rail surges, and dynamic sleep gating to keep silicon junction temperatures below critical thermal limits.
+- 🎮 **[Silicon Thermal Solver: Silicon Thermal Defender](../interactive/hotspot.md):** Battle 2D RC thermal conduction hotspots and balance cooling budgets under intense multi-core computational loads.
+- 🎮 **[Dark Silicon Power Gating CAD: Dark Silicon Power](../interactive/power.md):** Master TDP budgets, rail surges, and dynamic sleep gating to keep silicon junction temperatures below critical thermal limits.
 
 ---
 

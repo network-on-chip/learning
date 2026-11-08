@@ -24,9 +24,9 @@ where $N$ is the number of accelerator cores and $M$ is the tensor model paramet
 
 ## 2. Interactive Arcade Challenge
 
-Accelerate generative AI models live in our web arcade:
+Accelerate generative AI models live in our interactive CAD laboratory:
 
-👉 **[Launch Transformer Titan: LLM &amp; AI Collective Accelerator Arcade](../../interactive/transformer/)**
+👉 **[Launch LLM Collective Simulator: LLM &amp; AI Collective Accelerator Arcade](../../interactive/transformer/)**
 
 ---
 

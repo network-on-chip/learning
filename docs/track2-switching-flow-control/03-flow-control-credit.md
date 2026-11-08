@@ -792,8 +792,8 @@ function checkQuiz13_Q3(idx) {
 
 ## 9. Interactive Arcade & Lab Challenges
 
-Test your credit budgeting and buffer management in arcade simulations:
-- 🎮 **[Credit Commander: Flow Control Defense](../interactive/credits.md):** Defend router buffers against sudden traffic surges by managing credit limits, preventing buffer overflows, and eliminating credit-exhaustion bubbles.
+Test your credit budgeting and buffer management in interactive CAD simulations:
+- 🎮 **[Credit Flow Control CAD: Flow Control Defense](../interactive/credits.md):** Defend router buffers against sudden traffic surges by managing credit limits, preventing buffer overflows, and eliminating credit-exhaustion bubbles.
 - 🔬 **[2D Mesh Routing Visualizer](../interactive/visualizer.md):** Track real-time credit decrements and backward pulse returns across all 5 router ports simultaneously.
 
 ---

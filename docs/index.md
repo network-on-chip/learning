@@ -225,7 +225,7 @@ Explore our structured learning pathways designed for undergraduate and graduate
         Packets, flits, and phits. Store-and-Forward vs Virtual Cut-Through vs Wormhole switching, credit turnaround latency loops, and Network Interface (NI) AXI packetization.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Lessons • Credit Counter RTL • Credit Commander Simulator
+        ⚡ 4 Lessons • Credit Counter RTL • Credit-Based Flow Control & Buffer Sizing CAD
       </div>
     </div>
     <a href="track2-switching-flow-control/" class="noc-track-link">Explore Track 2 →</a>
@@ -239,7 +239,7 @@ Explore our structured learning pathways designed for undergraduate and graduate
         Canonical 5-stage router pipelines (BW-RC-VA-SA-ST), Virtual Channel allocation, sub-200ps LRU matrix arbiters, and SMART single-cycle multi-hop bypass routers.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Lessons • 5-Stage SystemVerilog Router • Arbiter Arena Lab
+        ⚡ 4 Lessons • 5-Stage SystemVerilog Router • Crossbar Switch Allocator & Arbiter Simulator
       </div>
     </div>
     <a href="track3-router-microarchitecture/" class="noc-track-link">Explore Track 3 →</a>
@@ -281,7 +281,7 @@ Explore our structured learning pathways designed for undergraduate and graduate
         Dark silicon physics, Thermal Design Power (TDP), multiple V/F islands, microarchitectural power gating, sleep state wakeups, and inductive $L\cdot di/dt$ emergencies.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Lessons • Power Gating FSM RTL • Volt Vortex Simulator
+        ⚡ 4 Lessons • Power Gating FSM RTL • Dark Silicon Physics & Power Gating CAD
       </div>
     </div>
     <a href="track6-low-power-dark-silicon/" class="noc-track-link">Explore Track 6 →</a>
@@ -337,7 +337,7 @@ Explore our structured learning pathways designed for undergraduate and graduate
         Silicon nanophotonic microring resonators (MRRs), wavelength-routed ONoCs (WRONoCs), laser power gating with APC loops, and on-chip mmWave/THz fabrics.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Lessons • Photonic MRR Switch RTL • Photon Pilot &amp; Wireless Wave
+        ⚡ 4 Lessons • Photonic MRR Switch RTL • Optical NoC CAD &amp; On-Chip Wireless NoC Simulator
       </div>
     </div>
     <a href="track10-optical-wireless/" class="noc-track-link">Explore Track 10 →</a>
@@ -351,7 +351,7 @@ Explore our structured learning pathways designed for undergraduate and graduate
         On-chip threat models: eavesdropping, spoofing, and DoS. Timing, buffer, and thermal covert channels. HeatSense zero-multiplier EWMA thermal Trojan detection.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Lessons • HeatSense EWMA Verilog • Silicon Sentinel Arcade
+        ⚡ 4 Lessons • HeatSense EWMA Verilog • NoC Hardware Security CAD
       </div>
     </div>
     <a href="track11-security/" class="noc-track-link">Explore Track 11 →</a>
@@ -365,7 +365,7 @@ Explore our structured learning pathways designed for undergraduate and graduate
         Large Language Models &amp; Collective Communication (AllReduce, AllGather). In-Network Reduction Routers, ultra-dense wafer-scale Ruche fabrics, and SNN multicasting.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Lessons • In-Network Reduction SystemVerilog • Transformer Titan Lab
+        ⚡ 4 Lessons • In-Network Reduction SystemVerilog • Distributed LLM Collective Accelerator Simulator Lab
       </div>
     </div>
     <a href="track12-ai-llm-snn/" class="noc-track-link">Explore Track 12 →</a>
@@ -476,67 +476,67 @@ Explore our structured learning pathways designed for undergraduate and graduate
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(234, 179, 8, 0.1); color:#ca8a04; border-color:rgba(234, 179, 8, 0.2);">Bufferless Blitz</span>
-      <div class="noc-track-title">Deflection Duel NoC</div>
+      <div class="noc-track-title">Bufferless Deflection Simulator NoC</div>
       <div class="noc-track-desc">
         Eliminate input buffers entirely! Steer hot-potato flits, arbitrate deflection conflicts, unleash Golden Flit surges, and avoid livelock drops.
       </div>
     </div>
-    <a href="interactive/deflection/" class="noc-track-link">Play Deflection Duel →</a>
+    <a href="interactive/deflection/" class="noc-track-link">Launch Deflection Simulator →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(99, 102, 241, 0.1); color:#6366f1; border-color:rgba(99, 102, 241, 0.2);">Silicon Resilience</span>
-      <div class="noc-track-title">Fault Defender BIST</div>
+      <div class="noc-track-title">Silicon Fault Tolerance CAD BIST</div>
       <div class="noc-track-desc">
         Combat electromigration and cosmic ray strikes! Fire BIST radar pulses, establish Fault-Ring perimeter detours, and activate hot-spare interconnects.
       </div>
     </div>
-    <a href="interactive/faults/" class="noc-track-link">Play Fault Defender →</a>
+    <a href="interactive/faults/" class="noc-track-link">Play Silicon Fault Tolerance CAD →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(239, 68, 68, 0.1); color:#ef4444; border-color:rgba(239, 68, 68, 0.2);">Real-Time QoS</span>
-      <div class="noc-track-title">QoS Gladiator MCS</div>
+      <div class="noc-track-title">Multi-VNET QoS Scheduler MCS</div>
       <div class="noc-track-desc">
         Arbiter autonomous safety flits against bulk AI DMA transfers! Tune Weighted Fair Queuing (WFQ) and fire emergency preemption interrupts before deadlines expire.
       </div>
     </div>
-    <a href="interactive/qos/" class="noc-track-link">Play QoS Gladiator →</a>
+    <a href="interactive/qos/" class="noc-track-link">Play Multi-VNET QoS Scheduler →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(2, 132, 199, 0.1); color:#0284c7; border-color:rgba(2, 132, 199, 0.2);">Dark Silicon</span>
-      <div class="noc-track-title">Volt Vortex Power</div>
+      <div class="noc-track-title">Dark Silicon Power Gating CAD Power</div>
       <div class="noc-track-desc">
         Power-gate idle router corridors to slash leakage! Navigate wake-up penalties, fire rail power surges, and prevent exceeding thermal design power (TDP) envelopes.
       </div>
     </div>
-    <a href="interactive/power/" class="noc-track-link">Play Volt Vortex →</a>
+    <a href="interactive/power/" class="noc-track-link">Play Dark Silicon Power Gating CAD →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(14, 165, 233, 0.1); color:#0284c7; border-color:rgba(14, 165, 233, 0.2);">Wireless NoC</span>
-      <div class="noc-track-title">Wireless Wave WNoC</div>
+      <div class="noc-track-title">On-Chip Wireless NoC Simulator WNoC</div>
       <div class="noc-track-desc">
         Beam packets across silicon in 1 single cycle! Transmit on 60 GHz mmWave patch antennas, navigate FDMA channels, and avoid multi-access RF collisions.
       </div>
     </div>
-    <a href="interactive/wireless/" class="noc-track-link">Play Wireless Wave →</a>
+    <a href="interactive/wireless/" class="noc-track-link">Play On-Chip Wireless NoC Simulator →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(168, 85, 247, 0.1); color:#a855f7; border-color:rgba(168, 85, 247, 0.2);">Neuromorphic SNN</span>
-      <div class="noc-track-title">Neuromorphic Nexus</div>
+      <div class="noc-track-title">Neuromorphic SNN Multicast Simulator</div>
       <div class="noc-track-desc">
         Orchestrate event-driven bio-spikes (AER)! Build 1-to-N hardware multicast trees, integrate Leaky-Integrate-and-Fire membrane potentials, and trigger STDP surges.
       </div>
     </div>
-    <a href="interactive/neuromorphic/" class="noc-track-link">Play Neuromorphic Nexus →</a>
+    <a href="interactive/neuromorphic/" class="noc-track-link">Play Neuromorphic SNN Multicast Simulator →</a>
   </div>
 
   <div class="noc-track-card">

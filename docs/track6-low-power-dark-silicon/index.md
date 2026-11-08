@@ -65,7 +65,7 @@ graph TD
       <div class="noc-track-title">Voltage & Frequency Islands (VFIs) and DVFS</div>
       <div class="noc-track-desc">Multi-domain voltage scaling, asynchronous FIFO clock-domain crossings, and energy-delay product.</div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Volt Vortex Interactive Lab
+        ⚡ <strong>Features:</strong> Dark Silicon Power Gating CAD Interactive Lab
       </div>
     </div>
     <a href="02-dvfs-voltage-islands/" class="noc-track-link">Launch Lesson 6.2 →</a>

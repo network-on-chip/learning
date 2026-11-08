@@ -105,7 +105,7 @@ graph TD
         Packets, flits, and phits. Store-and-Forward vs Virtual Cut-Through vs Wormhole switching, credit turnaround latency loops, Virtual Channel FIFO buffers, and AXI4/TileLink NI packetization.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Lessons • Credit Counter RTL • Credit Commander Simulator
+        ⚡ 4 Lessons • Credit Counter RTL • Credit-Based Flow Control & Buffer Sizing CAD
       </div>
     </div>
     <a href="../track2-switching-flow-control/" class="noc-track-link">Explore Track 2 →</a>
@@ -119,7 +119,7 @@ graph TD
         Canonical 5-stage router pipelines (BW-RC-VA-SA-ST), Virtual Channel allocation, sub-200ps LRU matrix arbiters, wavefront scheduling, and SMART single-cycle multi-hop bypass routers.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Lessons • 5-Stage SystemVerilog Router • Arbiter Arena Lab
+        ⚡ 4 Lessons • 5-Stage SystemVerilog Router • Crossbar Switch Allocator & Arbiter Simulator
       </div>
     </div>
     <a href="../track3-router-microarchitecture/" class="noc-track-link">Explore Track 3 →</a>
@@ -147,7 +147,7 @@ graph TD
         Deterministic Dimension-Order Routing (DOR), Glass &amp; Ni's Turn Model, Chiu's Odd-Even algorithm, Duato's Escape Channels, CDG acyclic proofs, and Cache Coherence VNET isolation.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Lessons • SMT CDG Verifier • Deadlock Buster Arcade Game
+        ⚡ 4 Lessons • SMT CDG Verifier • Deadlock Verification & CDG Escape Engine
       </div>
     </div>
     <a href="../track5-routing-deadlock/" class="noc-track-link">Explore Track 5 →</a>
@@ -161,7 +161,7 @@ graph TD
         Dark silicon physics, Thermal Design Power (TDP), multiple voltage/frequency domains (V/F islands), microarchitectural power gating, sleep state wakeups, and inductive $L\cdot di/dt$ emergencies.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Lessons • Power Gating FSM RTL • Volt Vortex Simulator
+        ⚡ 4 Lessons • Power Gating FSM RTL • Dark Silicon Physics & Power Gating CAD
       </div>
     </div>
     <a href="../track6-low-power-dark-silicon/" class="noc-track-link">Explore Track 6 →</a>
@@ -175,7 +175,7 @@ graph TD
         Fourier heat diffusion, compact RC ladder models, Regional Congestion Awareness (RCA), source quenching, proactive ML hotspot forecasting, and sparse sensor reconstruction.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Lessons • Thermal Deflection RTL • Hotspot Hero &amp; Fault Defender
+        ⚡ 4 Lessons • Thermal Deflection RTL • Silicon Thermal Solver &amp; Silicon Fault Tolerance CAD
       </div>
     </div>
     <a href="../track7-thermal-fault-tolerance/" class="noc-track-link">Explore Track 7 →</a>
@@ -203,7 +203,7 @@ graph TD
         2.5D packaging economics, negative binomial yield, UCIe standard physical &amp; D2D adapter stacks, In/Outbound Swap deadlock recovery, and multi-chiplet bypassing.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Lessons • In/Outbound Swap RTL • Chiplet Tycoon Lab
+        ⚡ 4 Lessons • In/Outbound Swap RTL • 2.5D/3D Multi-Die Chiplet CAD
       </div>
     </div>
     <a href="../track9-chiplets-ucie/" class="noc-track-link">Explore Track 9 →</a>
@@ -217,7 +217,7 @@ graph TD
         Silicon nanophotonic microring resonators (MRRs), wavelength-routed ONoCs (WRONoCs), laser power gating with APC loops, and on-chip mmWave/THz fabrics.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Lessons • Photonic MRR Switch RTL • Photon Pilot &amp; Wireless Wave
+        ⚡ 4 Lessons • Photonic MRR Switch RTL • Optical NoC CAD &amp; On-Chip Wireless NoC Simulator
       </div>
     </div>
     <a href="../track10-optical-wireless/" class="noc-track-link">Explore Track 10 →</a>
@@ -231,7 +231,7 @@ graph TD
         On-chip threat models: eavesdropping, spoofing, and DoS. Timing, buffer, and thermal covert channels. HeatSense zero-multiplier EWMA thermal Trojan detection and silicon quarantine.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Lessons • HeatSense EWMA Verilog • Silicon Sentinel Arcade
+        ⚡ 4 Lessons • HeatSense EWMA Verilog • NoC Hardware Security CAD
       </div>
     </div>
     <a href="../track11-security/" class="noc-track-link">Explore Track 11 →</a>
@@ -245,7 +245,7 @@ graph TD
         Large Language Models &amp; Collective Communication (AllReduce, AllGather). In-Network Reduction Routers, ultra-dense wafer-scale Ruche fabrics, and SNN multicasting.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 Lessons • In-Network Reduction SystemVerilog • Transformer Titan Lab
+        ⚡ 4 Lessons • In-Network Reduction SystemVerilog • Distributed LLM Collective Accelerator Simulator Lab
       </div>
     </div>
     <a href="../track12-ai-llm-snn/" class="noc-track-link">Explore Track 12 →</a>

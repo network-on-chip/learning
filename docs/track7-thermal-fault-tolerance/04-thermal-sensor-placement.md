@@ -570,10 +570,10 @@ endmodule
 
 ## 9. 🕹️ Interactive Simulation & Arcade Linkages
 
-Deepen your practical understanding of sensor field monitoring, noise resilience, and silicon robustness through our interactive arcade games:
+Deepen your practical understanding of sensor field monitoring, noise resilience, and silicon robustness through our interactive engineering simulation workbenches:
 
-- 🎮 **[Hotspot Hero: Silicon Thermal Defender](../interactive/hotspot.md):** Test spatial thermal monitoring and observe how sensor noise affects cooling decisions in real time.
-- 🎮 **[Fault Defender: Silicon Resilience](../interactive/faults.md):** Detect malfunctioning sensors and degraded silicon circuits through on-line fault isolation.
+- 🎮 **[Silicon Thermal Solver: Silicon Thermal Defender](../interactive/hotspot.md):** Test spatial thermal monitoring and observe how sensor noise affects cooling decisions in real time.
+- 🎮 **[Silicon Fault Tolerance CAD: Silicon Resilience](../interactive/faults.md):** Detect malfunctioning sensors and degraded silicon circuits through on-line fault isolation.
 
 ---
 

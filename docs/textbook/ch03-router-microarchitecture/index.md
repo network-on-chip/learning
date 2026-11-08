@@ -342,7 +342,7 @@ Input 3 Data ----[     ]
 <div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.65)); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
   <div>
     <div style="font-weight: 700; color: #93c5fd; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
-      <span>⚡ Dedicated Interactive Lab: Arbiter Arena &amp; Mesh Visualizer</span>
+      <span>⚡ Dedicated Interactive Lab: Arbiter Simulator &amp; Mesh Visualizer</span>
     </div>
     <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 800px; line-height: 1.5;">
       Schedule competing flits across $5 \times 5$ crossbars, compare sub-200ps LRU matrix arbiters with iSLIP, and optimize canonical 4-stage pipeline traversals.
@@ -350,7 +350,7 @@ Input 3 Data ----[     ]
   </div>
   <div style="display: flex; gap: 10px; flex-wrap: wrap;">
     <a href="../../interactive/arbiter/" style="display: inline-flex; align-items: center; gap: 6px; background: #ea580c; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
-      <span>Enter Arbiter Arena →</span>
+      <span>Enter Arbiter Simulator →</span>
     </a>
     <a href="../../interactive/visualizer/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
       <span>2D Mesh Pipeline Visualizer →</span>
@@ -358,12 +358,12 @@ Input 3 Data ----[     ]
   </div>
 </div>
 
-Complete the following three hands-on laboratory missions in **[Arbiter Arena](../../interactive/arbiter.md)** and **[2D Mesh Visualizer](../../interactive/visualizer.md)**:
+Complete the following three hands-on laboratory missions in **[Arbiter Simulator](../../interactive/arbiter.md)** and **[2D Mesh Visualizer](../../interactive/visualizer.md)**:
 
 ### Challenge Mission 3.1: Arbiter Fairness & Starvation Freedom Under Adversarial Traffic
 - **Objective:** Compare Strict Priority, Round-Robin, and Triangular Matrix Arbiters under persistent contention on output port East.
 - **Setup & Procedure:**
-  1. In **Arbiter Arena**, select `Strict Priority` and configure Requestors 0, 1, 2, and 3 to continuously request output port 0.
+  1. In **Arbiter Simulator**, select `Strict Priority` and configure Requestors 0, 1, 2, and 3 to continuously request output port 0.
   2. Observe service grants over 20 clock cycles.
   3. Switch to `Matrix Arbiter (Least-Recently-Used / LRU)` and repeat.
 - **Architectural Observation:** Under Strict Priority, Requestors 1, 2, and 3 suffer complete starvation: Requestor 0 monopolizes 100% of the grants. Under the Matrix Arbiter, the upper triangular state matrix $M[i][j]$ is dynamically updated on every grant ($M[grant][*] \leftarrow 0$, $M[*][grant] \leftarrow 1$), guaranteeing mathematical Least-Recently-Used (LRU) fairness and bounded service latency ($T_{max} \le N-1$ cycles) with sub-200ps combinational gate delay.

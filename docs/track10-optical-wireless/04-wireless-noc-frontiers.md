@@ -598,10 +598,10 @@ endmodule
 
 ## 9. 🕹️ Interactive Simulation & Arcade Linkages
 
-Deepen your practical mastery of photonic micro-ring tuning, optical link budgets, and on-chip wireless broadcast with our interactive arcade games:
+Deepen your practical mastery of photonic micro-ring tuning, optical link budgets, and on-chip wireless broadcast with our interactive engineering simulation workbenches:
 
-- 🎮 **[Photon Pilot: Silicon Photonics](../interactive/optical.md):** Command laser wavelengths, align micro-ring resonators, and tune thermal micro-heaters in an interactive optical NoC simulator.
-- 🎮 **[Wireless Wave: mmWave & THz WNoC](../interactive/wireless.md):** Deploy hybrid on-chip wireless hubs, configure token MAC protocols, and bypass planar copper congestion with speed-of-light shortcuts.
+- 🎮 **[Optical NoC CAD: Silicon Photonics](../interactive/optical.md):** Command laser wavelengths, align micro-ring resonators, and tune thermal micro-heaters in an interactive optical NoC simulator.
+- 🎮 **[On-Chip Wireless NoC Simulator: mmWave & THz WNoC](../interactive/wireless.md):** Deploy hybrid on-chip wireless hubs, configure token MAC protocols, and bypass planar copper congestion with speed-of-light shortcuts.
 
 ---
 

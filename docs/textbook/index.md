@@ -339,7 +339,7 @@ graph TD
         Zero-trust interconnect security, thermal Hardware Trojans, Weighted Moving Average (WMA) anomaly detection (**HeatSense** [<a href="#ref-heatsense2026">Hasanzadeh2026</a>]), intrinsic delay-based PUFs (**NoCiPUF** [<a href="#ref-nocipuf2025">Grover2025</a>]), and timing covert-channel jitter masking.
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        🎮 <code>Silicon Sentinel Arcade</code> • 💾 <code>code/wma_thermal_detector.sv</code>
+        🎮 <code>NoC Hardware Security CAD</code> • 💾 <code>code/wma_thermal_detector.sv</code>
       </div>
     </div>
     <a href="ch11-security/" class="noc-track-link">Read Chapter 11 →</a>
@@ -353,7 +353,7 @@ graph TD
         Generative AI communication collectives, in-network reduction crossbars (**PAC-NoC** [<a href="#ref-pacnoc2026">Ouyang2026</a>]), wafer-scale defect bypass (**Theseus** [<a href="#ref-theseus2025">Zhu2025</a>]), 12-nm 2048-core Ruche networks (**HammerBlade** [<a href="#ref-gao2026">Gao2026</a>]), 3D hybrid bonding memory silos (**SiloBreaker** [<a href="#ref-silobreaker2026">Wu2026</a>]), and neuromorphic spike sharing (**SNNcut** [<a href="#ref-snncut2026">Xing2026</a>]).
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        🎮 <code>Transformer Titan &amp; Neuromorphic Nexus</code> • 💾 <code>code/in_network_reduction_router.sv</code>
+        🎮 <code>Distributed LLM Collective Accelerator Simulator &amp; Neuromorphic SNN Multicast Simulator</code> • 💾 <code>code/in_network_reduction_router.sv</code>
       </div>
     </div>
     <a href="ch12-ai-llm-snn/" class="noc-track-link">Read Chapter 12 →</a>
@@ -367,17 +367,17 @@ graph TD
 | Book Chapter | Learning Hub Track | Accompanying Interactive Lab | Hardware RTL Module |
 | :--- | :--- | :--- | :--- |
 | **Ch 1: Interconnect Crisis & Wire Physics** | [Track 1: Interconnect Crisis](../track1-interconnect-crisis/index.md) | [Wire Wizard: Interconnect Physics](../interactive/wire.md) | `bus_arbiter_contention.v` |
-| **Ch 2: Switching, Flow Control & Buffers** | [Track 2: Switching & Flow Control](../track2-switching-flow-control/index.md) | [Credit Commander: Flow Control](../interactive/credits.md) | `credit_counter.v` |
-| **Ch 3: Router Microarchitecture & Arbitration** | [Track 3: Router Microarchitecture](../track3-router-microarchitecture/index.md) | [Arbiter Arena: Crossbar Clash](../interactive/arbiter.md) | `matrix_arbiter_4x4.v` |
-| **Ch 4: Direct, Indirect & High-Radix Topologies** | [Track 4: Topologies & Metrics](../track4-topologies-and-metrics/index.md) | [Topology Titans: Graph Architect](../interactive/topology.md) | `topology_graph_metrics.v` |
-| **Ch 5: Deadlock Theory & Turn Models** | [Track 5: Deadlock Theory & Routing](../track5-routing-deadlock/index.md) | [Deadlock Buster & Packet Master](../interactive/game.md) | `escape_vc_router.v` |
-| **Ch 6: Low Power & Dark Silicon** | [Track 6: Low Power & Dark Silicon](../track6-low-power-dark-silicon/index.md) | [Volt Vortex & Deflection Duel](../interactive/power.md) | `power_gating_router_fsm.v` |
-| **Ch 7: Thermal Modeling & Fault Tolerance** | [Track 7: Thermal & Fault Tolerance](../track7-thermal-fault-tolerance/index.md) | [Hotspot Hero & Fault Defender](../interactive/hotspot.md) | `fault_tolerant_router_bypass.v` |
+| **Ch 2: Switching, Flow Control & Buffers** | [Track 2: Switching & Flow Control](../track2-switching-flow-control/index.md) | [Credit Flow Control CAD: Flow Control](../interactive/credits.md) | `credit_counter.v` |
+| **Ch 3: Router Microarchitecture & Arbitration** | [Track 3: Router Microarchitecture](../track3-router-microarchitecture/index.md) | [Arbiter Simulator: Crossbar Clash](../interactive/arbiter.md) | `matrix_arbiter_4x4.v` |
+| **Ch 4: Direct, Indirect & High-Radix Topologies** | [Track 4: Topologies & Metrics](../track4-topologies-and-metrics/index.md) | [Topology CAD Analyzer: Graph Architect](../interactive/topology.md) | `topology_graph_metrics.v` |
+| **Ch 5: Deadlock Theory & Turn Models** | [Track 5: Deadlock Theory & Routing](../track5-routing-deadlock/index.md) | [Deadlock Verification Engine & Turn-Model Optimizer](../interactive/game.md) | `escape_vc_router.v` |
+| **Ch 6: Low Power & Dark Silicon** | [Track 6: Low Power & Dark Silicon](../track6-low-power-dark-silicon/index.md) | [Dark Silicon Power Gating CAD & Bufferless Deflection Simulator](../interactive/power.md) | `power_gating_router_fsm.v` |
+| **Ch 7: Thermal Modeling & Fault Tolerance** | [Track 7: Thermal & Fault Tolerance](../track7-thermal-fault-tolerance/index.md) | [Silicon Thermal Solver & Silicon Fault Tolerance CAD](../interactive/hotspot.md) | `fault_tolerant_router_bypass.v` |
 | **Ch 8: 3D-NoC & TSVs** | [Track 8: 3D-NoC & TSVs](../track8-3d-noc-tsvs/index.md) | [TSV Titan: 3D-NoC Architect](../interactive/tsv3d.md) | `tsv_arbiter_3d.v` |
-| **Ch 9: Multi-Chiplets & UCIe** | [Track 9: Multi-Chiplets & UCIe](../track9-chiplets-ucie/index.md) | [Chiplet Tycoon: Advanced Packaging](../interactive/chiplet.md) | `chiplet_bridge_protocol.v` |
-| **Ch 10: Optical & Wireless NoC** | [Track 10: Optical & Wireless NoC](../track10-optical-wireless/index.md) | [Photon Pilot & Wireless Wave](../interactive/optical.md) | `photonic_mrr_switch.v` |
-| **Ch 11: Hardware Security & Trust** | [Track 11: Hardware Security](../track11-security/index.md) | [Silicon Sentinel Arcade Game](../interactive/security.md) | `wma_thermal_detector.sv` |
-| **Ch 12: AI, LLM & Neuromorphic NoC** | [Track 12: AI & LLM Interconnects](../track12-ai-llm-snn/index.md) | [Transformer Titan & Neuromorphic Nexus](../interactive/transformer.md) | `in_network_reduction_router.sv` |
+| **Ch 9: Multi-Chiplets & UCIe** | [Track 9: Multi-Chiplets & UCIe](../track9-chiplets-ucie/index.md) | [Chiplet CAD Optimizer: Advanced Packaging](../interactive/chiplet.md) | `chiplet_bridge_protocol.v` |
+| **Ch 10: Optical & Wireless NoC** | [Track 10: Optical & Wireless NoC](../track10-optical-wireless/index.md) | [Optical NoC CAD & On-Chip Wireless NoC Simulator](../interactive/optical.md) | `photonic_mrr_switch.v` |
+| **Ch 11: Hardware Security & Trust** | [Track 11: Hardware Security](../track11-security/index.md) | [NoC Hardware Security CAD Game](../interactive/security.md) | `wma_thermal_detector.sv` |
+| **Ch 12: AI, LLM & Neuromorphic NoC** | [Track 12: AI & LLM Interconnects](../track12-ai-llm-snn/index.md) | [Distributed LLM Collective Accelerator Simulator & Neuromorphic SNN Multicast Simulator](../interactive/transformer.md) | `in_network_reduction_router.sv` |
 | **Synthesis: Capstone Systems** | [Track 13: Capstone System Synthesis](../track13-capstone/index.md) | [Web EDA Unix Terminal Workbench](../interactive/terminal.md) | `secure_moe_router_top.sv` |
 
 ---

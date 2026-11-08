@@ -640,8 +640,8 @@ function checkQuiz14_Q3(idx) {
 ## 9. Interactive Arcade & Lab Challenges
 
 Put your Network Interface and protocol skills into practice:
-- ⚔️ **[QoS Gladiator: Priority Scheduler](../interactive/qos.md):** Schedule latency-sensitive coherence requests against bandwidth-hungry DMA traffic to optimize system Quality-of-Service.
-- 🧩 **[Packet Master: Flit Routing Puzzle](../interactive/puzzle.md):** Navigate packetized flit trains through complex crossbar networks while avoiding contention traps.
+- ⚔️ **[Multi-VNET QoS Scheduler: Priority Scheduler](../interactive/qos.md):** Schedule latency-sensitive coherence requests against bandwidth-hungry DMA traffic to optimize system Quality-of-Service.
+- 🧩 **[Turn-Model Optimizer: Flit Routing Puzzle](../interactive/puzzle.md):** Navigate packetized flit trains through complex crossbar networks while avoiding contention traps.
 
 ---
 

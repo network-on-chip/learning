@@ -147,7 +147,7 @@ graph TD
         确定性 XY 路由、转向模型（西向优先、北向最后、奇偶路由）、杜阿托（Duato）逃逸信道定理、信道依赖图（CDG）证明与缓存一致性 VNET 隔离。
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 节深度课时 • SMT CDG 形式化验证器 • 死锁大作战街机
+        ⚡ 4 节深度课时 • SMT CDG 形式化验证器 • 死锁验证与 CDG 逃逸引擎
       </div>
     </div>
     <a href="../track5-routing-deadlock/" class="noc-track-link">进入第五模块 →</a>
@@ -231,7 +231,7 @@ graph TD
         片上威胁模型：窃听、欺骗与拒绝服务（DoS）。时间、缓存与物理热隐蔽信道。HeatSense 无乘法器 EWMA 热木马实时检测与硬件隔离区技术。
       </div>
       <div style="font-size:0.8rem; color:var(--noc-text-muted); margin-top:0.35rem;">
-        ⚡ 4 节深度课时 • HeatSense EWMA Verilog • 硅基哨兵街机
+        ⚡ 4 节深度课时 • HeatSense EWMA Verilog • 硬件安全与威胁防御 CAD
       </div>
     </div>
     <a href="../track11-security/" class="noc-track-link">进入第十一模块 →</a>

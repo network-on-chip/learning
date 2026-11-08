@@ -604,24 +604,24 @@ endmodule
 
 ## 7. 🕹️ Interactive Lab & Arcade Arena
 
-Benchmark traffic patterns and thermal dynamics in real-time arcade simulations:
+Benchmark traffic patterns and thermal dynamics in real-time interactive CAD simulations:
 
 <div class="noc-tracks-grid" style="margin-top:1rem;">
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">Arcade Defense</span>
-      <div class="noc-track-title">🛡️ Hotspot Hero: Thermal Defender</div>
+      <div class="noc-track-title">🛡️ Silicon Thermal Solver: Thermal Defender</div>
       <div class="noc-track-desc">
         Observe how localized traffic bursts and Bit-Complement congestion trigger severe silicon hot spots, requiring real-time DVFS and cryo cooling.
       </div>
     </div>
-    <a href="../../interactive/hotspot/" class="noc-track-link">Play Hotspot Hero →</a>
+    <a href="../../interactive/hotspot/" class="noc-track-link">Launch Thermal Solver →</a>
   </div>
 
   <div class="noc-track-card">
     <div>
       <span class="noc-track-badge" style="background:rgba(37,99,235,0.15); color:#2563eb;">Topology Lab</span>
-      <div class="noc-track-title">🌐 Topology Titans: Traffic Stress</div>
+      <div class="noc-track-title">🌐 Topology CAD Analyzer: Traffic Stress</div>
       <div class="noc-track-desc">
         Toggle between Uniform Random, Bit-Complement, and All-to-All communication patterns and observe network link saturation live on graph topologies.
       </div>

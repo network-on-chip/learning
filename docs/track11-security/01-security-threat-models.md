@@ -26,9 +26,9 @@ flowchart TD
 
 ## 2. Interactive Arcade Challenge
 
-Defend against live hardware threats in our web arcade:
+Defend against live hardware threats in our interactive CAD laboratory:
 
-👉 **[Launch Silicon Sentinel: NoC Security &amp; Threat Defense Arcade](../../interactive/security/)**
+👉 **[Launch NoC Hardware Security CAD: NoC Security &amp; Threat Defense Arcade](../../interactive/security/)**
 
 ---
 

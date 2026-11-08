@@ -33,8 +33,8 @@ Large Language Models (LLMs) featuring hundreds of billions of parameters (e.g.,
 |                           PHYSICAL & HARDWARE IMPLEMENTATION                          |
 +---------------------------------------------------------------------------------------+
 |  Mathematical Model          Synthesizable SystemVerilog      Interactive Companion   |
-|  - AllReduce: 2(P-1)/P * M   - 4-way reduction crossbar       - Transformer Titan     |
-|  - Ruche delay: tau << T_clk - Barrier credit counters        - Neuromorphic Nexus    |
+|  - AllReduce: 2(P-1)/P * M   - 4-way reduction crossbar       - Distributed LLM Collective Accelerator Simulator     |
+|  - Ruche delay: tau << T_clk - Barrier credit counters        - Neuromorphic SNN Multicast Simulator    |
 |  - DRAM BW: > 16 TB/s        - > 1.8 GHz on Nangate45         - Web Audio / Canvas    |
 +---------------------------------------------------------------------------------------+
 ```
@@ -228,7 +228,7 @@ Explore the interactive AI accelerator simulator and games on the **NoC Learning
 <div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(2, 132, 199, 0.2), rgba(15, 23, 42, 0.65)); border: 1px solid rgba(2, 132, 199, 0.4); border-radius: 12px; padding: 20px 24px; margin: 20px 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
   <div>
     <div style="font-weight: 700; color: #7dd3fc; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
-      <span>🎮 Transformer Titan Arcade Game</span>
+      <span>🎮 Distributed LLM Collective Accelerator Simulator Game</span>
     </div>
     <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 700px; line-height: 1.5;">
       Accelerate 100B LLM training collectives with hierarchical in-network reduction, Ruche express bypasses, and 3D hybrid bonding memory silos.
@@ -236,13 +236,13 @@ Explore the interactive AI accelerator simulator and games on the **NoC Learning
   </div>
   <div>
     <a href="../../track12-ai-llm-snn/" style="display: inline-flex; align-items: center; gap: 6px; background: #0284c7; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
-      <span>Launch Transformer Titan →</span>
+      <span>Launch LLM Collective Simulator →</span>
     </a>
   </div>
 </div>
 
-- **[Transformer Titan: LLM & AI Collective Accelerator Arcade](../../track12-ai-llm-snn/)**: Accelerate 100-Billion parameter LLM training! Deploy hierarchical in-network reduction trees to eliminate AllReduce congestion, trigger low-latency Ruche express bypass hops, and scale 3D hybrid bonding memory silos to conquer the memory wall. Features dynamic collective flit rendering, Web Audio sound effects, and local storage leaderboards.
-- **[Neuromorphic Nexus: SNN Spikes & Multicast Routing](../../interactive/neuromorphic/)**: Route event-driven AER action potential spikes across bio-inspired neuromorphic arrays, optimizing hypergraph multicast fanout and minimizing synaptic spike latency.
+- **[Distributed LLM Collective Accelerator Simulator: LLM & AI Collective Accelerator Arcade](../../track12-ai-llm-snn/)**: Accelerate 100-Billion parameter LLM training! Deploy hierarchical in-network reduction trees to eliminate AllReduce congestion, trigger low-latency Ruche express bypass hops, and scale 3D hybrid bonding memory silos to conquer the memory wall. Features dynamic collective flit rendering, Web Audio sound effects, and local storage leaderboards.
+- **[Neuromorphic SNN Multicast Simulator: SNN Spikes & Multicast Routing](../../interactive/neuromorphic/)**: Route event-driven AER action potential spikes across bio-inspired neuromorphic arrays, optimizing hypergraph multicast fanout and minimizing synaptic spike latency.
 
 ---
 
@@ -252,7 +252,7 @@ Explore the interactive AI accelerator simulator and games on the **NoC Learning
 2. **In-Network Computing**: Performing gradient reduction directly inside router crossbars reduces collective flit traffic by up to $75\%$, eliminating memory bandwidth bottlenecks.
 3. **Ruche Networks**: Upper metal routing tracks can be exploited to bypass intermediate routers without increasing crossbar switch radix.
 4. **Hybrid Bonding**: Face-to-face copper pillar bonding delivers over $16\text{ TB/s}$ of vertical DRAM bandwidth, breaking the memory wall for on-device LLM serving.
-5. **Interactive Laboratories**: Readers can experience AI collective acceleration in **Transformer Titan** ([../../track12-ai-llm-snn/](../../track12-ai-llm-snn/)) and spike multicasting in **Neuromorphic Nexus** ([../../interactive/neuromorphic/](../../interactive/neuromorphic/)).
+5. **Interactive Laboratories**: Readers can experience AI collective acceleration in **Distributed LLM Collective Accelerator Simulator** ([../../track12-ai-llm-snn/](../../track12-ai-llm-snn/)) and spike multicasting in **Neuromorphic SNN Multicast Simulator** ([../../interactive/neuromorphic/](../../interactive/neuromorphic/)).
 
 ---
 

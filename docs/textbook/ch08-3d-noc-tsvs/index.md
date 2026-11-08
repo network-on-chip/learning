@@ -338,7 +338,7 @@ Self-test passed successfully!
       <span>Launch TSV Titan →</span>
     </a>
     <a href="../../interactive/chiplet/" style="display: inline-flex; align-items: center; gap: 6px; background: #0284c7; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
-      <span>Chiplet Tycoon →</span>
+      <span>Chiplet CAD Optimizer →</span>
     </a>
   </div>
 </div>

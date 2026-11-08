@@ -613,9 +613,9 @@ function checkQuiz24_Q3(idx) {
 
 ## 9. Interactive Arcade & Lab Challenges
 
-Test your low-latency and bypass routing intuition in arcade simulations:
-- ⚔️ **[Deflection Duel: Bufferless NoC](../interactive/deflection.md):** Experience extreme low-latency packet forwarding without input buffers using dynamic deflection routing.
-- 🌡️ **[Hotspot Hero: Silicon Thermal Defender](../interactive/hotspot.md):** Balance dynamic frequency scaling (DVFS) and power gating when aggressive low-latency bypass routers create local thermal hotspots.
+Test your low-latency and bypass routing intuition in interactive CAD simulations:
+- ⚔️ **[Bufferless Deflection Simulator: Bufferless NoC](../interactive/deflection.md):** Experience extreme low-latency packet forwarding without input buffers using dynamic deflection routing.
+- 🌡️ **[Silicon Thermal Solver: Silicon Thermal Defender](../interactive/hotspot.md):** Balance dynamic frequency scaling (DVFS) and power gating when aggressive low-latency bypass routers create local thermal hotspots.
 
 ---
 

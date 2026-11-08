@@ -344,7 +344,7 @@ Lijing Zhu, Huaxi Gu, Yun Tan, and Guangming Zhang (*IEEE Transactions on Circui
 <div class="noc-book-banner" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.65)); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
   <div>
     <div style="font-weight: 700; color: #93c5fd; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
-      <span>👾 Dedicated Interactive Labs: Deadlock Buster &amp; QoS Gladiator</span>
+      <span>👾 Dedicated Interactive Labs: Deadlock Verification Engine &amp; Multi-VNET QoS Scheduler</span>
     </div>
     <div style="font-size: 0.92rem; color: #e2e8f0; margin-top: 6px; max-width: 800px; line-height: 1.5;">
       Detect cyclic channel dependencies in real time, apply turn model prohibitions, inject Duato escape channels, and isolate cache coherence protocol virtual networks (VNETs).
@@ -352,10 +352,10 @@ Lijing Zhu, Huaxi Gu, Yun Tan, and Guangming Zhang (*IEEE Transactions on Circui
   </div>
   <div style="display: flex; gap: 10px; flex-wrap: wrap;">
     <a href="../../interactive/game/" style="display: inline-flex; align-items: center; gap: 6px; background: #ea580c; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
-      <span>Play Deadlock Buster →</span>
+      <span>Launch Deadlock Verifier →</span>
     </a>
     <a href="../../interactive/qos/" style="display: inline-flex; align-items: center; gap: 6px; background: #9333ea; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
-      <span>Launch QoS Gladiator →</span>
+      <span>Launch Multi-VNET QoS Scheduler →</span>
     </a>
     <a href="../../interactive/puzzle/" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
       <span>Solve Routing Puzzles →</span>
@@ -363,12 +363,12 @@ Lijing Zhu, Huaxi Gu, Yun Tan, and Guangming Zhang (*IEEE Transactions on Circui
   </div>
 </div>
 
-Complete the following three hands-on laboratory missions in **[Deadlock Buster](../../interactive/game.md)** and **[QoS Gladiator](../../interactive/qos.md)**:
+Complete the following three hands-on laboratory missions in **[Deadlock Verification Engine](../../interactive/game.md)** and **[Multi-VNET QoS Scheduler](../../interactive/qos.md)**:
 
 ### Challenge Mission 5.1: Spotting Cyclic Dependencies in the Channel Dependency Graph (CDG)
 - **Objective:** Build an unconstrained adaptive routing path and visually identify the directed circular buffer cycle that freezes the network.
 - **Setup & Procedure:**
-  1. In **Deadlock Buster: Buffer Defense**, select `Free Adaptive (No Turn Restrictions)` on a $4 \times 4$ mesh.
+  1. In **Deadlock Verification & CDG Escape Engine**, select `Free Adaptive (No Turn Restrictions)` on a $4 \times 4$ mesh.
   2. Inject 4 packets in a clockwise rotation around nodes $(1,1) \to (2,1) \to (2,2) \to (1,2) \to (1,1)$.
   3. Observe the hold-and-wait condition when all four buffers become full.
 - **Architectural Observation:** Because each packet holds its current buffer channel while waiting for the next buffer in the clockwise cycle, no flit can advance. The CDG contains a directed cycle $c_1 \to c_2 \to c_3 \to c_4 \to c_1$. The entire network grinds to a permanent halt (throughput drops to 0.0) until an arbiter intervenes or flits are flushed.
@@ -383,9 +383,9 @@ Complete the following three hands-on laboratory missions in **[Deadlock Buster]
 - **Architectural Observation:** Under West-First, turns into the West direction ($N \to W$ and $S \to W$) are strictly prohibited. The router forces the packet to route West first before taking any North or South turns. By eliminating 2 of the 8 possible turns in a 2D mesh, all clockwise and counter-clockwise cycles in the CDG are completely broken, guaranteeing deadlock-free adaptive routing using only a single virtual channel ($1\text{ VC}$)!
 
 ### Challenge Mission 5.3: Duato Escape Virtual Channels & Protocol Deadlock Prevention
-- **Objective:** Combine fully adaptive routing with Duato escape channels, and prevent cache coherence protocol deadlocks in **QoS Gladiator**.
+- **Objective:** Combine fully adaptive routing with Duato escape channels, and prevent cache coherence protocol deadlocks in **Multi-VNET QoS Scheduler**.
 - **Setup & Procedure:**
-  1. In **QoS Gladiator**, inject high-priority Coherence Invalidation Requests and memory Read Responses into a unified channel pool.
+  1. In **Multi-VNET QoS Scheduler**, inject high-priority Coherence Invalidation Requests and memory Read Responses into a unified channel pool.
   2. Observe how stalled Request packets in input buffers block critical Read Responses from draining, triggering a system-level protocol deadlock.
   3. Reconfigure router buffers into three isolated Virtual Networks: $VNET_0$ (Requests), $VNET_1$ (Forwards), and $VNET_2$ (Responses).
 - **Architectural Observation:** By isolating message classes into strictly ordered virtual channels ($VNET_0 \prec VNET_1 \prec VNET_2$), Response messages are guaranteed buffer space regardless of Request traffic volume. Furthermore, allocating a dedicated escape VC running strict Dimension-Order Routing (DOR) enables aggressive fully adaptive routing in the remaining VCs, achieving $>80\%$ higher saturation throughput while guaranteeing escape draining under Duato's Theorem!

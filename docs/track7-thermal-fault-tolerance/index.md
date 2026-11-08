@@ -65,7 +65,7 @@ graph TD
       <div class="noc-track-title">Congestion Awareness & Dynamic Thermal Throttling</div>
       <div class="noc-track-desc">Regional Congestion Awareness (RCA), hot-carrier injection degradation, and source throttling.</div>
       <div style="font-size:0.8rem; color:var(--md-default-fg-color--lighter); margin-bottom:1rem;">
-        ⚡ <strong>Features:</strong> Hotspot Hero Thermal Defense Arcade
+        ⚡ <strong>Features:</strong> Silicon Thermal Solver Thermal Defense Arcade
       </div>
     </div>
     <a href="02-congestion-detection-throttling/" class="noc-track-link">Launch Lesson 7.2 →</a>
